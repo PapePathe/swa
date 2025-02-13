@@ -125,8 +125,8 @@ func createLexer(source string) *Lexer {
 		patterns: []RegexpPattern{
 			{regexp.MustCompile(`\s+`), skipHandler},
 			{regexp.MustCompile(`fèndo`), defaultHandler(TYPE_INT, "fèndo")},
-			{regexp.MustCompile(`ni`), defaultHandler(KEYWORD_IF, "ni")},
 			{regexp.MustCompile(`nii`), defaultHandler(KEYWORD_ELSE, "nii")},
+			{regexp.MustCompile(`ni`), defaultHandler(KEYWORD_IF, "ni")},
 			{regexp.MustCompile(`\/\/.*`), commentHandler},
 			{regexp.MustCompile(`"[^"]*"`), stringHandler},
 			{regexp.MustCompile(`[0-9]+(\.[0-9]+)?`), numberHandler},
