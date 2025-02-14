@@ -25,6 +25,6 @@ func (t Token) Debug() {
 	if t.isOneOfMany(IDENTIFIER, NUMBER, STRING) {
 		fmt.Printf("%s (%s)\n", t.Kind, t.Value)
 	} else {
-		fmt.Printf("%s ()\n", t.Kind)
+		fmt.Printf("%s\n", t.Kind)
 	}
 }

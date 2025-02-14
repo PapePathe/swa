@@ -4,6 +4,14 @@ type TokenKind int
 
 func (k TokenKind) String() string {
 	switch k {
+	case LET:
+		return "LET"
+	case CONST:
+		return "CONST"
+	case OR:
+		return "OR"
+	case AND:
+		return "AND"
 	case KEYWORD_IF:
 		return "IF"
 	case KEYWORD_ELSE:
@@ -101,4 +109,8 @@ const (
 	TYPE_INT
 	KEYWORD_IF
 	KEYWORD_ELSE
+	AND
+	OR
+	LET
+	CONST
 )
