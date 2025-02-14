@@ -1,116 +1,153 @@
 package lexer
 
+// TokenKind is a custom type representing the kind of a token.
 type TokenKind int
 
+// String returns a string representation of the TokenKind.
 func (k TokenKind) String() string {
 	switch k {
-	case LET:
+	case Let:
 		return "LET"
-	case CONST:
+	case Const:
 		return "CONST"
-	case OR:
+	case Or:
 		return "OR"
-	case AND:
+	case And:
 		return "AND"
-	case KEYWORD_IF:
+	case KeywordIf:
 		return "IF"
-	case KEYWORD_ELSE:
+	case KeywordElse:
 		return "ELSE"
-	case TYPE_INT:
+	case TypeInt:
 		return "INT"
-	case IDENTIFIER:
+	case Identifier:
 		return "IDENTIFIER"
-	case ASSIGNMENT:
+	case Assignment:
 		return "ASSIGNMENT"
-	case STRING:
+	case String:
 		return "STRING"
-	case COLON:
+	case Colon:
 		return "COLON"
-	case COMMA:
+	case Comma:
 		return "COMMA"
-	case CLOSE_CURLY:
+	case CloseCurly:
 		return "CLOSE_CURLY"
-	case CLOSE_PAREN:
+	case CloseParen:
 		return "CLOSE_PAREN"
-	case CLOSE_BRACKET:
+	case CloseBracket:
 		return "CLOSE_BRACKET"
-	case DIVIDE:
+	case Divide:
 		return "DIVIDE"
 	case EOF:
 		return "EOF"
-	case EQUALS:
+	case Equals:
 		return "EQUALS"
-	case GREATER_THAN:
+	case GreaterThan:
 		return "GREATER_THAN"
-	case GREATER_THAN_EQUALS:
+	case GreaterThanEquals:
 		return "GREATER_THAN_EQUALS"
-	case LESS_THAN:
+	case LessThan:
 		return "LESS_THAN"
-	case LESS_THAN_EQUALS:
+	case LessThanEquals:
 		return "LESS_THAN_EQUALS"
-	case MINUS:
+	case Minus:
 		return "MINUS"
-	case MULTIPLY:
+	case Multiply:
 		return "MULTIPLY"
-	case NOT:
+	case Not:
 		return "NOT"
-	case NOT_EQUALS:
+	case NotEquals:
 		return "NOT_EQUALS"
-	case OPEN_CURLY:
+	case OpenCurly:
 		return "OPEN_CURLY"
-	case OPEN_PAREN:
+	case OpenParen:
 		return "OPEN_PAREN"
-	case OPEN_BRACKET:
+	case OpenBracket:
 		return "OPEN_BRACKET"
-	case PLUS:
+	case Plus:
 		return "PLUS"
-	case STAR:
+	case Star:
 		return "STAR"
-	case SEMI_COLON:
+	case SemiColon:
 		return "SEMI_COLON"
-	case QUESTION_MARK:
+	case QuestionMark:
 		return "QUESTION_MARK"
-	case NUMBER:
+	case Number:
 		return "NUMBER"
-
 	}
 
 	return "UNKNOWN TOKEN KIND"
 }
 
 const (
-	ASSIGNMENT TokenKind = iota
-	COLON
-	COMMA
-	CLOSE_CURLY
-	CLOSE_PAREN
-	CLOSE_BRACKET
-	DIVIDE
+	// Let represents the "let" keyword
+	Let TokenKind = iota
+	// Const represents the "const" keyword
+	Const
+	// Or represents the "or" logical operator
+	Or
+	// And represents the "and" logical operator
+	And
+	// KeywordIf represents the "if" keyword
+	KeywordIf
+	// KeywordElse represents the "else" keyword
+	KeywordElse
+
+	// TypeInt represents the "int" type
+	TypeInt
+	// String represents a string literal
+	String
+	// Number represents a numeric literal
+	Number
+
+	// Assignment represents an assignment operator
+	Assignment
+	// Colon represents a colon symbol
+	Colon
+	// Comma represents a comma symbol
+	Comma
+	// CloseCurly represents a closing curly brace symbol
+	CloseCurly
+	// CloseParen represents a closing parenthesis symbol
+	CloseParen
+	// CloseBracket represents a closing bracket symbol
+	CloseBracket
+	// Divide represents the divide operator
+	Divide
+	// EOF represents the end of file token
 	EOF
-	EQUALS
-	GREATER_THAN
-	GREATER_THAN_EQUALS
-	IDENTIFIER
-	LESS_THAN
-	LESS_THAN_EQUALS
-	MINUS
-	MULTIPLY
-	NOT
-	NOT_EQUALS
-	OPEN_CURLY
-	OPEN_PAREN
-	OPEN_BRACKET
-	PLUS
-	STAR
-	SEMI_COLON
-	QUESTION_MARK
-	NUMBER
-	STRING
-	TYPE_INT
-	KEYWORD_IF
-	KEYWORD_ELSE
-	AND
-	OR
-	LET
-	CONST
+	// Equals represents the equality operator
+	Equals
+	// GreaterThan represents the greater than operator
+	GreaterThan
+	// GreaterThanEquals represents the greater than or equal to operator
+	GreaterThanEquals
+	// LessThan represents the less than operator
+	LessThan
+	// LessThanEquals represents the less than or equal to operator
+	LessThanEquals
+	// Minus represents the minus operator
+	Minus
+	// Multiply represents the multiplication operator
+	Multiply
+	// Not represents the negation operator
+	Not
+	// NotEquals represents the not equal operator
+	NotEquals
+	// OpenCurly represents an opening curly brace symbol
+	OpenCurly
+	// OpenParen represents an opening parenthesis symbol
+	OpenParen
+	// OpenBracket represents an opening bracket symbol
+	OpenBracket
+	// Plus represents the addition operator
+	Plus
+	// Star represents the multiplication symbol (star)
+	Star
+	// SemiColon represents a semicolon symbol
+	SemiColon
+	// QuestionMark represents a question mark symbol
+	QuestionMark
+	// Identifier represents an identifier (variable or function name)
+	Identifier
 )

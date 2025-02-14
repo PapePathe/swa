@@ -5,29 +5,53 @@ import (
 	"swahili/lang/lexer"
 )
 
+// BindingPower ...
 type BindingPower int
 
 const (
+	// DefaultBindingPower ...
 	DefaultBindingPower BindingPower = iota
+	// Comma ...
 	Comma
+	// Assignment ...
 	Assignment
+	// Logical ...
 	Logical
+	// Relational ...
 	Relational
+	// Additive ...
 	Additive
+	// Multiplicative ...
 	Multiplicative
+	// Unary ...
 	Unary
+	// Call ...
 	Call
+	// Member ...
 	Member
+	// Primary ...
 	Primary
 )
 
+// StatementHandlerFunc ...
 type StatementHandlerFunc func(p *Parser) ast.Statement
+
+// NudHandlerFunc ...
 type NudHandlerFunc func(p *Parser) ast.Expression
+
+// LedHandlerFunc ...
 type LedHandlerFunc func(p *Parser, left ast.Expression, bp BindingPower) ast.Expression
 
+// StatementLookup ...
 type StatementLookup map[lexer.TokenKind]StatementHandlerFunc
+
+// NudLookup ...
 type NudLookup map[lexer.TokenKind]NudHandlerFunc
+
+// LedLookup ...
 type LedLookup map[lexer.TokenKind]LedHandlerFunc
+
+// BpLookup ...
 type BpLookup map[lexer.TokenKind]BindingPower
 
 var (
@@ -52,24 +76,24 @@ func statement(kind lexer.TokenKind, statementFn StatementHandlerFunc) {
 }
 
 func createTokenLookups() {
-	led(lexer.AND, Logical, ParseBinaryExpression)
-	led(lexer.OR, Logical, ParseBinaryExpression)
+	led(lexer.And, Logical, ParseBinaryExpression)
+	led(lexer.Or, Logical, ParseBinaryExpression)
 
-	led(lexer.LESS_THAN, Relational, ParseBinaryExpression)
-	led(lexer.LESS_THAN_EQUALS, Relational, ParseBinaryExpression)
-	led(lexer.GREATER_THAN, Relational, ParseBinaryExpression)
-	led(lexer.GREATER_THAN_EQUALS, Relational, ParseBinaryExpression)
+	led(lexer.LessThan, Relational, ParseBinaryExpression)
+	led(lexer.LessThanEquals, Relational, ParseBinaryExpression)
+	led(lexer.GreaterThan, Relational, ParseBinaryExpression)
+	led(lexer.GreaterThanEquals, Relational, ParseBinaryExpression)
 
-	led(lexer.PLUS, Additive, ParseBinaryExpression)
-	led(lexer.MINUS, Additive, ParseBinaryExpression)
+	led(lexer.Plus, Additive, ParseBinaryExpression)
+	led(lexer.Plus, Additive, ParseBinaryExpression)
 
-	led(lexer.STAR, Multiplicative, ParseBinaryExpression)
-	led(lexer.DIVIDE, Multiplicative, ParseBinaryExpression)
+	led(lexer.Star, Multiplicative, ParseBinaryExpression)
+	led(lexer.Divide, Multiplicative, ParseBinaryExpression)
 
-	nud(lexer.NUMBER, Primary, ParsePrimaryExpression)
-	nud(lexer.STRING, Primary, ParsePrimaryExpression)
-	nud(lexer.IDENTIFIER, Primary, ParsePrimaryExpression)
+	nud(lexer.Number, Primary, ParsePrimaryExpression)
+	nud(lexer.String, Primary, ParsePrimaryExpression)
+	nud(lexer.Identifier, Primary, ParsePrimaryExpression)
 
-	statement(lexer.LET, ParseVarDeclarationStatement)
-	statement(lexer.CONST, ParseVarDeclarationStatement)
+	statement(lexer.Let, ParseVarDeclarationStatement)
+	statement(lexer.Const, ParseVarDeclarationStatement)
 }

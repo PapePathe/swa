@@ -5,10 +5,11 @@ import (
 	"regexp"
 )
 
+// Tokenize ...
 func Tokenize(source string) []Token {
 	lex := createLexer(source)
 
-	for !lex.at_eof() {
+	for !lex.atEOF() {
 		matched := false
 
 		for _, pattern := range lex.patterns {
@@ -53,23 +54,23 @@ func stringHandler(lex *Lexer, regex *regexp.Regexp) {
 	match := regex.FindStringIndex(lex.remainder())
 	stringLiteral := lex.remainder()[match[0]:match[1]]
 
-	lex.push(NewToken(STRING, stringLiteral))
+	lex.push(NewToken(String, stringLiteral))
 	lex.advanceN(len(stringLiteral))
 }
 
 func numberHandler(lex *Lexer, regex *regexp.Regexp) {
 	match := regex.FindString(lex.remainder())
-	lex.push(NewToken(NUMBER, match))
+	lex.push(NewToken(Number, match))
 	lex.advanceN(len(match))
 }
 
 func symbolHandler(lex *Lexer, regex *regexp.Regexp) {
 	match := regex.FindString(lex.remainder())
 
-	if kind, found := reserved_lu[match]; found {
+	if kind, found := reservedLu[match]; found {
 		lex.push(NewToken(kind, match))
 	} else {
-		lex.push(NewToken(IDENTIFIER, match))
+		lex.push(NewToken(Identifier, match))
 	}
 
 	lex.advanceN(len(match))
@@ -80,29 +81,31 @@ func skipHandler(lex *Lexer, regex *regexp.Regexp) {
 	lex.advanceN(match[1])
 }
 
+// RegexpPattern ...
 type RegexpPattern struct {
 	regex   *regexp.Regexp
 	handler regexHandler
 }
 
+// Lexer ...
 type Lexer struct {
-	Tokens   []Token
-	source   string
-	position int
-	patterns []RegexpPattern
+	Tokens   []Token         // The tokens
+	source   string          // The source code
+	position int             // The current position of the lexer
+	patterns []RegexpPattern // the list of patterns of the language
 }
 
 func (lex *Lexer) advanceN(n int) {
 	lex.position += n
 }
 
-func (lex *Lexer) at() byte {
-	return lex.source[lex.position]
-}
+//func (lex *Lexer) at() byte {
+//	return lex.source[lex.position]
+//}
 
-func (lex *Lexer) advance() {
-	lex.position += 1
-}
+//func (lex *Lexer) advance() {
+//	lex.position += 1
+//}
 
 func (lex *Lexer) remainder() string {
 	return lex.source[lex.position:]
@@ -112,7 +115,7 @@ func (lex *Lexer) push(token Token) {
 	lex.Tokens = append(lex.Tokens, token)
 }
 
-func (lex *Lexer) at_eof() bool {
+func (lex *Lexer) atEOF() bool {
 	return lex.position >= len(lex.source)
 }
 
@@ -124,49 +127,49 @@ func createLexer(source string) *Lexer {
 		Tokens: make([]Token, 0),
 		patterns: []RegexpPattern{
 			{regexp.MustCompile(`\s+`), skipHandler},
-			{regexp.MustCompile(`fèndo`), defaultHandler(TYPE_INT, "fèndo")},
-			{regexp.MustCompile(`nii`), defaultHandler(KEYWORD_ELSE, "nii")},
-			{regexp.MustCompile(`ni`), defaultHandler(KEYWORD_IF, "ni")},
+			{regexp.MustCompile(`fèndo`), defaultHandler(TypeInt, "fèndo")},
+			{regexp.MustCompile(`nii`), defaultHandler(KeywordElse, "nii")},
+			{regexp.MustCompile(`ni`), defaultHandler(KeywordIf, "ni")},
 			{regexp.MustCompile(`\/\/.*`), commentHandler},
 			{regexp.MustCompile(`"[^"]*"`), stringHandler},
 			{regexp.MustCompile(`[0-9]+(\.[0-9]+)?`), numberHandler},
 			{regexp.MustCompile(`[a-zA-Z_][a-zA-Z0-9_]*`), symbolHandler},
-			{regexp.MustCompile(`\[`), defaultHandler(OPEN_BRACKET, "[")},
-			{regexp.MustCompile(`\]`), defaultHandler(CLOSE_BRACKET, "]")},
-			{regexp.MustCompile(`\{`), defaultHandler(OPEN_CURLY, "{")},
-			{regexp.MustCompile(`\}`), defaultHandler(CLOSE_CURLY, "}")},
-			{regexp.MustCompile(`\(`), defaultHandler(OPEN_PAREN, "(")},
-			{regexp.MustCompile(`\)`), defaultHandler(CLOSE_PAREN, ")")},
+			{regexp.MustCompile(`\[`), defaultHandler(OpenBracket, "[")},
+			{regexp.MustCompile(`\]`), defaultHandler(CloseBracket, "]")},
+			{regexp.MustCompile(`\{`), defaultHandler(OpenCurly, "{")},
+			{regexp.MustCompile(`\}`), defaultHandler(CloseCurly, "}")},
+			{regexp.MustCompile(`\(`), defaultHandler(OpenParen, "(")},
+			{regexp.MustCompile(`\)`), defaultHandler(CloseParen, ")")},
 			//			{regexp.MustCompile(`==`), defaultHandler(PERCENT, "%")},
-			{regexp.MustCompile(`!=`), defaultHandler(NOT_EQUALS, "!=")},
-			{regexp.MustCompile(`=`), defaultHandler(ASSIGNMENT, "=")},
-			{regexp.MustCompile(`!`), defaultHandler(NOT, "!")},
-			{regexp.MustCompile(`<=`), defaultHandler(LESS_THAN_EQUALS, "<=")},
-			{regexp.MustCompile(`<`), defaultHandler(LESS_THAN, "<")},
-			{regexp.MustCompile(`>=`), defaultHandler(GREATER_THAN_EQUALS, ">=")},
-			{regexp.MustCompile(`>`), defaultHandler(GREATER_THAN, ">")},
-			{regexp.MustCompile(`\|\|`), defaultHandler(OR, "||")},
-			{regexp.MustCompile(`&&`), defaultHandler(AND, "&&")},
+			{regexp.MustCompile(`!=`), defaultHandler(NotEquals, "!=")},
+			{regexp.MustCompile(`=`), defaultHandler(Assignment, "=")},
+			{regexp.MustCompile(`!`), defaultHandler(Not, "!")},
+			{regexp.MustCompile(`<=`), defaultHandler(LessThanEquals, "<=")},
+			{regexp.MustCompile(`<`), defaultHandler(LessThan, "<")},
+			{regexp.MustCompile(`>=`), defaultHandler(GreaterThanEquals, ">=")},
+			{regexp.MustCompile(`>`), defaultHandler(GreaterThan, ">")},
+			{regexp.MustCompile(`\|\|`), defaultHandler(Or, "||")},
+			{regexp.MustCompile(`&&`), defaultHandler(And, "&&")},
 			//			{regexp.MustCompile(`\.`), defaultHandler(DOT, ".")},
-			{regexp.MustCompile(`;`), defaultHandler(SEMI_COLON, ";")},
-			{regexp.MustCompile(`:`), defaultHandler(COLON, ":")},
+			{regexp.MustCompile(`;`), defaultHandler(SemiColon, ";")},
+			{regexp.MustCompile(`:`), defaultHandler(Colon, ":")},
 			//			{regexp.MustCompile(`\?`), defaultHandler(QUESTION, "?")},
-			{regexp.MustCompile(`,`), defaultHandler(COMMA, ",")},
-			{regexp.MustCompile(`\+`), defaultHandler(PLUS, "+")},
+			{regexp.MustCompile(`,`), defaultHandler(Comma, ",")},
+			{regexp.MustCompile(`\+`), defaultHandler(Plus, "+")},
 			//			{regexp.MustCompile(`-`), defaultHandler(DASH, "-")},
-			{regexp.MustCompile(`/`), defaultHandler(DIVIDE, "/")},
-			{regexp.MustCompile(`\*`), defaultHandler(STAR, "*")},
+			{regexp.MustCompile(`/`), defaultHandler(Divide, "/")},
+			{regexp.MustCompile(`\*`), defaultHandler(Star, "*")},
 			//			{regexp.MustCompile(`%`), defaultHandler(PERCENT, "%")},
 		},
 	}
 }
 
-var reserved_lu map[string]TokenKind = map[string]TokenKind{
+var reservedLu map[string]TokenKind = map[string]TokenKind{
 	// "true":    TRUE,
 	// "false":   FALSE,
 	// "null":    NULL,
-	"let":   LET,
-	"const": CONST,
+	"let":   Let,
+	"const": Const,
 	// "class":   CLASS,
 	// "new":     NEW,
 	// "import":  IMPORT,
