@@ -7,20 +7,21 @@ import (
 	"swahili/lang/lexer"
 )
 
+// ParsePrimaryExpression ...
 func ParsePrimaryExpression(p *Parser) ast.Expression {
 
 	switch p.currentToken().Kind {
-	case lexer.NUMBER:
+	case lexer.Number:
 		number, _ := strconv.ParseFloat(p.advance().Value, 64)
 
 		return ast.NumberExpression{
 			Value: number,
 		}
-	case lexer.STRING:
+	case lexer.String:
 		return ast.StringExpression{
 			Value: p.advance().Value,
 		}
-	case lexer.IDENTIFIER:
+	case lexer.Identifier:
 		return ast.SymbolExpression{
 			Value: p.advance().Value,
 		}
@@ -30,6 +31,7 @@ func ParsePrimaryExpression(p *Parser) ast.Expression {
 	}
 }
 
+// ParseBinaryExpression ...
 func ParseBinaryExpression(p *Parser, left ast.Expression, bp BindingPower) ast.Expression {
 	operatorToken := p.advance()
 	right := parseExpression(p, bp)

@@ -6,11 +6,13 @@ import (
 	"swahili/lang/lexer"
 )
 
+// Parser ...
 type Parser struct {
 	tokens []lexer.Token
 	pos    int
 }
 
+// Parse ...
 func Parse(tokens []lexer.Token) ast.BlockStatement {
 	body := make([]ast.Statement, 0)
 	createTokenLookups()
@@ -46,7 +48,7 @@ func (p *Parser) expectError(kind lexer.TokenKind, err any) lexer.Token {
 
 	if kind != token.Kind {
 		if err == nil {
-			err := fmt.Errorf("Expected %s, but got %s", kind, token.Kind)
+			err := fmt.Errorf("expected %s, but got %s", kind, token.Kind)
 			panic(err)
 		}
 
