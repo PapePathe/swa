@@ -4,45 +4,32 @@ import (
 	"os"
 	"testing"
 
+	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 // TestTokenizeMalinke ...
 func TestTokenizeMalinke(t *testing.T) {
-	bytes, err := os.ReadFile("../examples/malinke/age_calculator.swa")
+	sourcePath := "../examples/malinke/age_calculator.swa"
+	destPath := "../test/fixtures/tokenizer/malinke/age_calculator.ast"
+
+	bytes, err := os.ReadFile(sourcePath)
 	require.NoError(t, err)
 
 	source := string(bytes)
-	expecedTokens := []Token{
-		{Value: "fèndo", Kind: TypeInt},
-		{Value: "x", Kind: Identifier},
-		{Value: "=", Kind: Assignment},
-		{Value: "10", Kind: Number},
-		{Value: ";", Kind: SemiColon},
-		{Value: "ni", Kind: KeywordIf},
-		{Value: "(", Kind: OpenParen},
-		{Value: "x", Kind: Identifier},
-		{Value: ">", Kind: GreaterThan},
-		{Value: "10", Kind: Number},
-		{Value: ")", Kind: CloseParen},
-		{Value: "{", Kind: OpenCurly},
-		{Value: "afo", Kind: Identifier},
-		{Value: "(", Kind: OpenParen},
-		{Value: "\"Isoma\"", Kind: String},
-		{Value: ")", Kind: CloseParen},
-		{Value: ";", Kind: SemiColon},
-		{Value: "}", Kind: CloseCurly},
-		{Value: "nii", Kind: KeywordElse},
-		{Value: "{", Kind: OpenCurly},
-		{Value: "afo", Kind: Identifier},
-		{Value: "(", Kind: OpenParen},
-		{Value: "\"Inoura\"", Kind: String},
-		{Value: ")", Kind: CloseParen},
-		{Value: ";", Kind: SemiColon},
-		{Value: "}", Kind: CloseCurly},
-		{Value: "EOF", Kind: EOF},
+	tokens := Tokenize(source)
+	result := litter.Sdump(tokens)
+	expected, err := os.ReadFile(destPath)
+	if err != nil {
+		// First run, write test data since it doesn't exist
+		if !os.IsNotExist(err) {
+			t.Error(err)
+		}
+		err := os.WriteFile(destPath, []byte(result), 0644)
+		assert.NoError(t, err)
+		result = string(expected)
 	}
 
-	assert.Equal(t, Tokenize(source), expecedTokens)
+	assert.Equal(t, result, string(expected))
 }

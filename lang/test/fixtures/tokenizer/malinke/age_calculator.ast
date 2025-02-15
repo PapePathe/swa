@@ -1,0 +1,110 @@
+[]lexer.Token{
+  lexer.Token{
+    Value: "fèndo",
+    Kind: 6,
+  },
+  lexer.Token{
+    Value: "x",
+    Kind: 33,
+  },
+  lexer.Token{
+    Value: "=",
+    Kind: 9,
+  },
+  lexer.Token{
+    Value: "10",
+    Kind: 8,
+  },
+  lexer.Token{
+    Value: ";",
+    Kind: 31,
+  },
+  lexer.Token{
+    Value: "ni",
+    Kind: 4,
+  },
+  lexer.Token{
+    Value: "(",
+    Kind: 27,
+  },
+  lexer.Token{
+    Value: "x",
+    Kind: 33,
+  },
+  lexer.Token{
+    Value: ">",
+    Kind: 18,
+  },
+  lexer.Token{
+    Value: "10",
+    Kind: 8,
+  },
+  lexer.Token{
+    Value: ")",
+    Kind: 13,
+  },
+  lexer.Token{
+    Value: "{",
+    Kind: 26,
+  },
+  lexer.Token{
+    Value: "afo",
+    Kind: 33,
+  },
+  lexer.Token{
+    Value: "(",
+    Kind: 27,
+  },
+  lexer.Token{
+    Value: "\"Isoma\"",
+    Kind: 7,
+  },
+  lexer.Token{
+    Value: ")",
+    Kind: 13,
+  },
+  lexer.Token{
+    Value: ";",
+    Kind: 31,
+  },
+  lexer.Token{
+    Value: "}",
+    Kind: 12,
+  },
+  lexer.Token{
+    Value: "nii",
+    Kind: 5,
+  },
+  lexer.Token{
+    Value: "{",
+    Kind: 26,
+  },
+  lexer.Token{
+    Value: "afo",
+    Kind: 33,
+  },
+  lexer.Token{
+    Value: "(",
+    Kind: 27,
+  },
+  lexer.Token{
+    Value: "\"Inoura\"",
+    Kind: 7,
+  },
+  lexer.Token{
+    Value: ")",
+    Kind: 13,
+  },
+  lexer.Token{
+    Value: ";",
+    Kind: 31,
+  },
+  lexer.Token{
+    Value: "}",
+    Kind: 12,
+  },
+  lexer.Token{
+    Value: "EOF",
+    Kind: 16,
+  },
+}
