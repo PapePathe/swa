@@ -11,9 +11,8 @@ import (
 func main() {
 	bytes, _ := os.ReadFile("./examples/malinke/assignments.swa")
 	source := string(bytes)
-
 	tokens := lexer.Tokenize(source)
 	st := parser.Parse(tokens)
-	litter.Dump(st)
 
+	litter.Dump(st)
 }
