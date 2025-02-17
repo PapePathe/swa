@@ -66,6 +66,8 @@ func (k TokenKind) String() string {
 		return "OPEN_BRACKET"
 	case Plus:
 		return "PLUS"
+	case PlusEquals:
+		return "PLUS_EQUAL"
 	case Star:
 		return "STAR"
 	case SemiColon:
@@ -128,6 +130,8 @@ const (
 	LessThanEquals
 	// Minus represents the minus operator
 	Minus
+	// MinusEquals ..
+	MinusEquals
 	// Multiply represents the multiplication operator
 	Multiply
 	// Not represents the negation operator
@@ -142,6 +146,8 @@ const (
 	OpenBracket
 	// Plus represents the addition operator
 	Plus
+	// Plus represents the plus equals operator
+	PlusEquals
 	// Star represents the multiplication symbol (star)
 	Star
 	// SemiColon represents a semicolon symbol

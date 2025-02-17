@@ -5,34 +5,6 @@ import (
 	"swahili/lang/lexer"
 )
 
-// BindingPower ...
-type BindingPower int
-
-const (
-	// DefaultBindingPower ...
-	DefaultBindingPower BindingPower = iota
-	// Comma ...
-	Comma
-	// Assignment ...
-	Assignment
-	// Logical ...
-	Logical
-	// Relational ...
-	Relational
-	// Additive ...
-	Additive
-	// Multiplicative ...
-	Multiplicative
-	// Unary ...
-	Unary
-	// Call ...
-	Call
-	// Member ...
-	Member
-	// Primary ...
-	Primary
-)
-
 // StatementHandlerFunc ...
 type StatementHandlerFunc func(p *Parser) ast.Statement
 
@@ -66,8 +38,7 @@ func led(kind lexer.TokenKind, bp BindingPower, ledFn LedHandlerFunc) {
 	ledLookup[kind] = ledFn
 }
 
-func nud(kind lexer.TokenKind, bp BindingPower, nudFn NudHandlerFunc) {
-	bindingPowerLookup[kind] = bp
+func nud(kind lexer.TokenKind, nudFn NudHandlerFunc) {
 	nudLookup[kind] = nudFn
 }
 func statement(kind lexer.TokenKind, statementFn StatementHandlerFunc) {
@@ -76,6 +47,10 @@ func statement(kind lexer.TokenKind, statementFn StatementHandlerFunc) {
 }
 
 func createTokenLookups() {
+	led(lexer.Assignment, Assignment, ParseAssignmentExpression)
+	led(lexer.PlusEquals, Assignment, ParseAssignmentExpression)
+	led(lexer.MinusEquals, Assignment, ParseAssignmentExpression)
+
 	led(lexer.And, Logical, ParseBinaryExpression)
 	led(lexer.Or, Logical, ParseBinaryExpression)
 
@@ -85,14 +60,16 @@ func createTokenLookups() {
 	led(lexer.GreaterThanEquals, Relational, ParseBinaryExpression)
 
 	led(lexer.Plus, Additive, ParseBinaryExpression)
-	led(lexer.Plus, Additive, ParseBinaryExpression)
+	led(lexer.Minus, Additive, ParseBinaryExpression)
 
 	led(lexer.Star, Multiplicative, ParseBinaryExpression)
 	led(lexer.Divide, Multiplicative, ParseBinaryExpression)
 
-	nud(lexer.Number, Primary, ParsePrimaryExpression)
-	nud(lexer.String, Primary, ParsePrimaryExpression)
-	nud(lexer.Identifier, Primary, ParsePrimaryExpression)
+	nud(lexer.Number, ParsePrimaryExpression)
+	nud(lexer.String, ParsePrimaryExpression)
+	nud(lexer.Identifier, ParsePrimaryExpression)
+	nud(lexer.Minus, ParsePrefixExpression)
+	nud(lexer.OpenParen, ParseGroupingExpression)
 
 	statement(lexer.Let, ParseVarDeclarationStatement)
 	statement(lexer.Const, ParseVarDeclarationStatement)

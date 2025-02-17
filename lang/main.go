@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	bytes, _ := os.ReadFile("./examples/malinke/age_calculator.swa")
+	bytes, _ := os.ReadFile("./examples/malinke/assignments.swa")
 	source := string(bytes)
 
 	tokens := lexer.Tokenize(source)

@@ -36,6 +36,24 @@ type BinaryExpression struct {
 	Operator lexer.Token
 }
 
-func (n BinaryExpression) expression() {
+func (n BinaryExpression) expression() {}
 
+type PrefixExpression struct {
+	Operator        lexer.Token
+	RightExpression Expression
 }
+
+func (n PrefixExpression) expression() {}
+
+// AssignmentExpression is an expression where the
+// programmer is trying to assign a value to a variable.
+//
+// a = a +5;
+// foo.bar = foo.bar + 10;
+type AssignmentExpression struct {
+	Operator lexer.Token
+	Assignee Expression
+	Value    Expression
+}
+
+func (n AssignmentExpression) expression() {}
