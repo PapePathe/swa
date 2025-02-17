@@ -1,0 +1,6 @@
+let nombre = -44.5;
+let resultat = nombre * 44.5 + (45 / 10 - -5);
+nombre = resultat + 10;
+nombre += 10;
+const isGreater = nombre > 10;
+ const multiply = 45.2 + 5 * 4;

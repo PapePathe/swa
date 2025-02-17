@@ -59,7 +59,7 @@ func parseExpression(p *Parser, bp BindingPower) ast.Expression {
 			panic(fmt.Sprintf("led handler expected for token (%s: value(%s))\n", tokenKind, p.currentToken().Value))
 		}
 
-		left = ledFn(p, left, bp)
+		left = ledFn(p, left, bindingPowerLookup[p.currentToken().Kind])
 	}
 
 	return left
