@@ -7,27 +7,21 @@ type NumberExpression struct {
 	Value float64
 }
 
-func (n NumberExpression) expression() {
-
-}
+func (n NumberExpression) expression() {}
 
 // StringExpression ...
 type StringExpression struct {
 	Value string
 }
 
-func (n StringExpression) expression() {
-
-}
+func (n StringExpression) expression() {}
 
 // SymbolExpression ...
 type SymbolExpression struct {
 	Value string
 }
 
-func (n SymbolExpression) expression() {
-
-}
+func (n SymbolExpression) expression() {}
 
 // BinaryExpression ...
 type BinaryExpression struct {

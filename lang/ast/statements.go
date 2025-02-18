@@ -16,9 +16,10 @@ func (bs ExpressionStatement) statement() {}
 
 // VarDeclarationStatement ...
 type VarDeclarationStatement struct {
-	Name       string     // The name of the variable
-	IsConstant bool       // Wether or not the variable is a constant
-	Value      Expression // The value assigned to the variable
+	Name         string     // The name of the variable
+	IsConstant   bool       // Wether or not the variable is a constant
+	Value        Expression // The value assigned to the variable
+	ExplicitType Type       // The explicit type of the variable
 }
 
 func (bs VarDeclarationStatement) statement() {}
