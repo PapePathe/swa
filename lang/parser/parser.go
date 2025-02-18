@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
@@ -16,6 +17,7 @@ type Parser struct {
 func Parse(tokens []lexer.Token) ast.BlockStatement {
 	body := make([]ast.Statement, 0)
 	createTokenLookups()
+	createTokenTypeLookups()
 	psr := &Parser{tokens: tokens}
 
 	for psr.hasTokens() {

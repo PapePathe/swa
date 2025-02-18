@@ -9,3 +9,7 @@ type Statement interface {
 type Expression interface {
 	expression()
 }
+
+type Type interface {
+	_type()
+}
