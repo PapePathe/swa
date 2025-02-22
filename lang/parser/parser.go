@@ -31,7 +31,10 @@ func Parse(tokens []lexer.Token) ast.BlockStatement {
 
 func (p *Parser) currentToken() lexer.Token {
 	return p.tokens[p.pos]
+}
 
+func (p *Parser) previousToken() lexer.Token {
+	return p.tokens[p.pos-1]
 }
 
 func (p *Parser) advance() lexer.Token {
@@ -50,10 +53,14 @@ func (p *Parser) expectError(kind lexer.TokenKind, err any) lexer.Token {
 
 	if kind != token.Kind {
 		if err == nil {
-			err := fmt.Errorf("expected %s, but got %s", kind, token.Kind)
+			err := fmt.Errorf(
+				"expected %s, but got %s  current: %s",
+				kind,
+				token.Kind,
+				token,
+			)
 			panic(err)
 		}
-
 	}
 
 	return p.advance()

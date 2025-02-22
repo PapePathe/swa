@@ -23,3 +23,13 @@ type VarDeclarationStatement struct {
 }
 
 func (bs VarDeclarationStatement) statement() {}
+
+type StructProperty struct {
+	PropType Type
+}
+type StructDeclarationStatement struct {
+	Name       string
+	Properties map[string]StructProperty
+}
+
+func (s StructDeclarationStatement) statement() {}

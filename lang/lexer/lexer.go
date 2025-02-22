@@ -130,6 +130,7 @@ func createLexer(source string) *Lexer {
 			{regexp.MustCompile(`fèndo`), defaultHandler(TypeInt, "fèndo")},
 			{regexp.MustCompile(`nii`), defaultHandler(KeywordElse, "nii")},
 			{regexp.MustCompile(`ni`), defaultHandler(KeywordIf, "ni")},
+			{regexp.MustCompile(`struct`), defaultHandler(Struct, "struct")},
 			{regexp.MustCompile(`\/\/.*`), commentHandler},
 			{regexp.MustCompile(`"[^"]*"`), stringHandler},
 			{regexp.MustCompile(`[0-9]+(\.[0-9]+)?`), numberHandler},
