@@ -51,3 +51,17 @@ type AssignmentExpression struct {
 }
 
 func (n AssignmentExpression) expression() {}
+
+type StructInitializationExpression struct {
+	Name       string
+	Properties map[string]Expression
+}
+
+func (n StructInitializationExpression) expression() {}
+
+type ArrayInitializationExpression struct {
+	Underlying Type
+	Contents   []Expression
+}
+
+func (l ArrayInitializationExpression) expression() {}

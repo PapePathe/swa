@@ -6,6 +6,8 @@ type TokenKind int
 // String returns a string representation of the TokenKind.
 func (k TokenKind) String() string {
 	switch k {
+	case Struct:
+		return "STRUCT"
 	case Let:
 		return "LET"
 	case Const:
@@ -156,4 +158,6 @@ const (
 	QuestionMark
 	// Identifier represents an identifier (variable or function name)
 	Identifier
+	// Struct ...
+	Struct
 )

@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"strconv"
+
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
@@ -56,7 +57,13 @@ func parseExpression(p *Parser, bp BindingPower) ast.Expression {
 		ledFn, exists := ledLookup[p.currentToken().Kind]
 
 		if !exists {
-			panic(fmt.Sprintf("led handler expected for token (%s: value(%s))\n", tokenKind, p.currentToken().Value))
+			panic(
+				fmt.Sprintf(
+					"led handler expected for token (%s: value(%s))\n",
+					tokenKind,
+					p.currentToken().Value,
+				),
+			)
 		}
 
 		left = ledFn(p, left, bindingPowerLookup[p.currentToken().Kind])

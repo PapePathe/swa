@@ -2,14 +2,16 @@ package main
 
 import (
 	"os"
-	"swahili/lang/lexer"
-	"swahili/lang/parser"
 
 	"github.com/sanity-io/litter"
+
+	"swahili/lang/lexer"
+	"swahili/lang/parser"
 )
 
 func main() {
-	bytes, _ := os.ReadFile("./examples/malinke/assignments.swa")
+	file := "./examples/malinke/structs.swa"
+	bytes, _ := os.ReadFile(file)
 	source := string(bytes)
 	tokens := lexer.Tokenize(source)
 	st := parser.Parse(tokens)

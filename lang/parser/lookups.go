@@ -41,6 +41,7 @@ func led(kind lexer.TokenKind, bp BindingPower, ledFn LedHandlerFunc) {
 func nud(kind lexer.TokenKind, nudFn NudHandlerFunc) {
 	nudLookup[kind] = nudFn
 }
+
 func statement(kind lexer.TokenKind, statementFn StatementHandlerFunc) {
 	bindingPowerLookup[kind] = DefaultBindingPower
 	statementLookup[kind] = statementFn
@@ -71,6 +72,10 @@ func createTokenLookups() {
 	nud(lexer.Minus, ParsePrefixExpression)
 	nud(lexer.OpenParen, ParseGroupingExpression)
 
+	led(lexer.OpenCurly, Call, ParseStructInstantiationExpression)
+	nud(lexer.OpenBracket, ParseArrayInitialization)
+
 	statement(lexer.Let, ParseVarDeclarationStatement)
 	statement(lexer.Const, ParseVarDeclarationStatement)
+	statement(lexer.Struct, ParseStructDeclarationStatement)
 }

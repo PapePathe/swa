@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
@@ -53,5 +55,41 @@ func ParseVarDeclarationStatement(p *Parser) ast.Statement {
 		Value:        assigedValue,
 		Name:         variableName,
 		ExplicitType: explicitType,
+	}
+}
+
+func ParseStructDeclarationStatement(p *Parser) ast.Statement {
+	p.expect(lexer.Struct)
+	var structName = p.expect(lexer.Identifier).Value
+	var propertes = map[string]ast.StructProperty{}
+
+	p.expect(lexer.OpenCurly)
+
+	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
+		var propertyName string
+
+		if p.currentToken().Kind == lexer.Identifier {
+			propertyName = p.expect(lexer.Identifier).Value
+			p.expectError(lexer.Colon, "Expected to find colon following struct property name")
+			propType := parseType(p, DefaultBindingPower)
+			p.expect(lexer.Comma)
+
+			if _, exists := propertes[propertyName]; exists {
+				panic(fmt.Sprintf("property %s has already been defined", propertyName))
+			}
+
+			propertes[propertyName] = ast.StructProperty{
+				PropType: propType,
+			}
+
+			continue
+		}
+	}
+
+	p.expect(lexer.CloseCurly)
+
+	return ast.StructDeclarationStatement{
+		Name:       structName,
+		Properties: propertes,
 	}
 }
