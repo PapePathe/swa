@@ -13,6 +13,7 @@ func ParseStructInstantiationExpression(
 ) ast.Expression {
 	structName := helpers.ExpectType[ast.SymbolExpression](left).Value
 	properties := map[string]ast.Expression{}
+
 	p.expect(lexer.OpenCurly)
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {

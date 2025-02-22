@@ -1,0 +1,24 @@
+linters:
+  enable-all: true
+  fast: true
+  disable:
+    - godot
+    - gofumpt
+    - gci
+    - testpackage
+    - gocyclo # blocked by the giant to string methof of token kind
+    - cyclop # blocked by the giant to string methof of token kind
+    - funlen # blocked by the giant to string methof of token kind
+linters-settings:
+  depguard:
+    rules:
+      prevent_unmaintained_packages:
+        files:
+          - $all
+          - "!$test"
+        allow:
+          - $gostd
+          - swahili
+        deny:
+          - pkg: io/ioutil
+            desc: "replaced by io and os packages since Go 1.16: https://tip.golang.org/doc/go1.16#ioutil"

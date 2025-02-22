@@ -1,9 +1,8 @@
 package main
 
 import (
+	"fmt"
 	"os"
-
-	"github.com/sanity-io/litter"
 
 	"swahili/lang/lexer"
 	"swahili/lang/parser"
@@ -16,5 +15,5 @@ func main() {
 	tokens := lexer.Tokenize(source)
 	st := parser.Parse(tokens)
 
-	litter.Dump(st)
+	fmt.Println(st)
 }

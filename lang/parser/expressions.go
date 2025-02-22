@@ -10,7 +10,6 @@ import (
 
 // ParsePrimaryExpression ...
 func ParsePrimaryExpression(p *Parser) ast.Expression {
-
 	switch p.currentToken().Kind {
 	case lexer.Number:
 		number, _ := strconv.ParseFloat(p.advance().Value, 64)
@@ -36,12 +35,12 @@ func ParsePrimaryExpression(p *Parser) ast.Expression {
 func ParseBinaryExpression(p *Parser, left ast.Expression, bp BindingPower) ast.Expression {
 	operatorToken := p.advance()
 	right := parseExpression(p, bp)
+
 	return ast.BinaryExpression{
 		Left:     left,
 		Right:    right,
 		Operator: operatorToken,
 	}
-
 }
 
 func parseExpression(p *Parser, bp BindingPower) ast.Expression {
@@ -53,6 +52,7 @@ func parseExpression(p *Parser, bp BindingPower) ast.Expression {
 	}
 
 	left := nudFn(p)
+
 	for bindingPowerLookup[p.currentToken().Kind] > bp {
 		ledFn, exists := ledLookup[p.currentToken().Kind]
 

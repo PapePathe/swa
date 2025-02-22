@@ -7,7 +7,8 @@ import (
 
 func ParseArrayInitialization(p *Parser) ast.Expression {
 	var underlying ast.Type
-	var contents = []ast.Expression{}
+
+	contents := []ast.Expression{}
 
 	p.expect(lexer.OpenBracket)
 	p.expect(lexer.CloseBracket)
