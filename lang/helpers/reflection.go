@@ -10,7 +10,13 @@ func ExpectType[T any](r any) T {
 	receivedType := reflect.TypeOf(r)
 
 	if expectedType == receivedType {
-		return r.(T)
+		result, ok := r.(T)
+
+		if !ok {
+			panic(fmt.Sprintf("Type assertion failed for %s", r))
+		}
+
+		return result
 	}
 
 	panic(fmt.Sprintf("Expected %s but got %s", expectedType, receivedType))
