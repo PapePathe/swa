@@ -48,7 +48,7 @@ func parseSymbolType(p *Parser) ast.Type {
 func parseArrayType(p *Parser) ast.Type {
 	p.advance()
 	p.expect(lexer.CloseBracket)
-	var underlying = parseType(p, DefaultBindingPower)
+	underlying := parseType(p, DefaultBindingPower)
 
 	return ast.ArrayType{
 		Underlying: underlying,
@@ -64,6 +64,7 @@ func parseType(p *Parser, bp BindingPower) ast.Type {
 	}
 
 	left := nudFn(p)
+
 	for typeBindingPowerLookup[p.currentToken().Kind] > bp {
 		ledFn, exists := typeLedLookup[p.currentToken().Kind]
 

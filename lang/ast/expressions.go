@@ -39,8 +39,8 @@ type PrefixExpression struct {
 
 func (n PrefixExpression) expression() {}
 
-// AssignmentExpression is an expression where the
-// programmer is trying to assign a value to a variable.
+// AssignmentExpression.
+// Is an expression where the programmer is trying to assign a value to a variable.
 //
 // a = a +5;
 // foo.bar = foo.bar + 10;

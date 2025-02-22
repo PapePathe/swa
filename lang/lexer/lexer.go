@@ -17,9 +17,10 @@ func Tokenize(source string) []Token {
 
 			if loc != nil && loc[0] == 0 {
 				pattern.handler(lex, pattern.regex)
-				matched = true
-				break
 
+				matched = true
+
+				break
 			}
 		}
 
@@ -45,11 +46,10 @@ func defaultHandler(kind TokenKind, value string) regexHandler {
 func commentHandler(lex *Lexer, regex *regexp.Regexp) {
 	match := regex.FindStringIndex(lex.remainder())
 	if match != nil {
-		// Advance past the entire comment.
 		lex.advanceN(match[1])
-		//		lex.line++
 	}
 }
+
 func stringHandler(lex *Lexer, regex *regexp.Regexp) {
 	match := regex.FindStringIndex(lex.remainder())
 	stringLiteral := lex.remainder()[match[0]:match[1]]

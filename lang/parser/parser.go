@@ -16,10 +16,11 @@ type Parser struct {
 // Parse ...
 func Parse(tokens []lexer.Token) ast.BlockStatement {
 	body := make([]ast.Statement, 0)
+
 	createTokenLookups()
 	createTokenTypeLookups()
-	psr := &Parser{tokens: tokens}
 
+	psr := &Parser{tokens: tokens}
 	for psr.hasTokens() {
 		body = append(body, ParseStatement(psr))
 	}
@@ -31,10 +32,6 @@ func Parse(tokens []lexer.Token) ast.BlockStatement {
 
 func (p *Parser) currentToken() lexer.Token {
 	return p.tokens[p.pos]
-}
-
-func (p *Parser) previousToken() lexer.Token {
-	return p.tokens[p.pos-1]
 }
 
 func (p *Parser) advance() lexer.Token {

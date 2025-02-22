@@ -26,6 +26,7 @@ func ParseStatement(p *Parser) ast.Statement {
 // ParseVarDeclarationStatement ...
 func ParseVarDeclarationStatement(p *Parser) ast.Statement {
 	var explicitType ast.Type
+
 	var assigedValue ast.Expression
 
 	isConstant := p.advance().Kind == lexer.Const
@@ -60,8 +61,9 @@ func ParseVarDeclarationStatement(p *Parser) ast.Statement {
 
 func ParseStructDeclarationStatement(p *Parser) ast.Statement {
 	p.expect(lexer.Struct)
-	var structName = p.expect(lexer.Identifier).Value
-	var propertes = map[string]ast.StructProperty{}
+	structName := p.expect(lexer.Identifier).Value
+
+	propertes := map[string]ast.StructProperty{}
 
 	p.expect(lexer.OpenCurly)
 
