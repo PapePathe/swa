@@ -1,5 +1,13 @@
 package ast
 
+type ConditionalStatetement struct {
+	Condition Expression
+	Success   BlockStatement
+	Failure   BlockStatement
+}
+
+func (cs ConditionalStatetement) statement() {}
+
 // BlockStatement ...
 type BlockStatement struct {
 	// The body of the block statement
