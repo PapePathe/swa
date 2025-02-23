@@ -15,8 +15,6 @@ struct Rectangle {
 const numbers = []number{1,2,3,4,5,6};
 
 // Assignement to struct member
-r1.width = 100;
-r1.height = 100 + 400 - r1.width;
 r1.width += 100;
 r1.width += rand / 14;
 

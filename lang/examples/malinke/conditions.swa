@@ -1,0 +1,14 @@
+// Single branch condition 
+ni(x>0) {
+  r1.width = 100;
+  r1.height = 100 + 400 - r1.width;
+}
+
+// Dual branch condition 
+ni((x>0 && b < 10) || b == 0) {
+  r1.width = 100;
+  r1.height = 100 + 400 - r1.width;
+} nii {
+  r1.width += 100;
+  r1.height += rand / 14;
+}
