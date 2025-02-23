@@ -7,6 +7,7 @@ import (
 
 func ParseBlockStatement(p *Parser) ast.BlockStatement {
 	body := []ast.Statement{}
+
 	p.expect(lexer.OpenCurly)
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
@@ -14,6 +15,7 @@ func ParseBlockStatement(p *Parser) ast.BlockStatement {
 	}
 
 	p.expect(lexer.CloseCurly)
+
 	return ast.BlockStatement{
 		Body: body,
 	}
