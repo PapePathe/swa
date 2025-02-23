@@ -11,7 +11,7 @@ func (cs ConditionalStatetement) statement() {}
 // BlockStatement ...
 type BlockStatement struct {
 	// The body of the block statement
-	Body []Statement `json:"ast.Body"`
+	Body []Statement
 }
 
 func (bs BlockStatement) statement() {}
@@ -19,7 +19,7 @@ func (bs BlockStatement) statement() {}
 // ExpressionStatement ...
 type ExpressionStatement struct {
 	// The expression
-	Exp Expression `json:"ast.ExpressionStatement"`
+	Exp Expression
 }
 
 func (bs ExpressionStatement) statement() {}
@@ -43,7 +43,7 @@ type StructProperty struct {
 }
 type StructDeclarationStatement struct {
 	Name       string
-	Properties map[string]StructProperty `json:"ast.StructProperty"`
+	Properties map[string]StructProperty
 }
 
 func (s StructDeclarationStatement) statement() {}
