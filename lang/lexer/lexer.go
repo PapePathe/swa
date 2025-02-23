@@ -152,7 +152,7 @@ func createLexer(source string) *Lexer {
 			{regexp.MustCompile(`>`), defaultHandler(GreaterThan, ">")},
 			{regexp.MustCompile(`\|\|`), defaultHandler(Or, "||")},
 			{regexp.MustCompile(`&&`), defaultHandler(And, "&&")},
-			//			{regexp.MustCompile(`\.`), defaultHandler(DOT, ".")},
+			{regexp.MustCompile(`\.`), defaultHandler(Dot, ".")},
 			{regexp.MustCompile(`;`), defaultHandler(SemiColon, ";")},
 			{regexp.MustCompile(`:`), defaultHandler(Colon, ":")},
 			//			{regexp.MustCompile(`\?`), defaultHandler(QUESTION, "?")},

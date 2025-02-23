@@ -48,7 +48,13 @@ func parseExpression(p *Parser, bp BindingPower) ast.Expression {
 	nudFn, exists := nudLookup[tokenKind]
 
 	if !exists {
-		panic(fmt.Sprintf("nud handler expected for token %s\n", tokenKind))
+		panic(
+			fmt.Sprintf(
+				"nud handler expected for token %s and binding power %v \n",
+				tokenKind,
+				bp,
+			),
+		)
 	}
 
 	left := nudFn(p)

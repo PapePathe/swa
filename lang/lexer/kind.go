@@ -6,6 +6,10 @@ type TokenKind int
 // String returns a string representation of the TokenKind.
 func (k TokenKind) String() string {
 	switch k {
+	case StarEquals:
+		return "STAR_EQUALS"
+	case Dot:
+		return "DOT"
 	case Struct:
 		return "STRUCT"
 	case Let:
@@ -160,4 +164,8 @@ const (
 	Identifier
 	// Struct ...
 	Struct
+	// Dot ...
+	Dot
+	// StarEquals ...
+	StarEquals
 )

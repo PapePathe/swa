@@ -51,6 +51,7 @@ func createTokenLookups() {
 	led(lexer.Assignment, Assignment, ParseAssignmentExpression)
 	led(lexer.PlusEquals, Assignment, ParseAssignmentExpression)
 	led(lexer.MinusEquals, Assignment, ParseAssignmentExpression)
+	led(lexer.StarEquals, Assignment, ParseAssignmentExpression)
 
 	led(lexer.And, Logical, ParseBinaryExpression)
 	led(lexer.Or, Logical, ParseBinaryExpression)
@@ -62,7 +63,6 @@ func createTokenLookups() {
 
 	led(lexer.Plus, Additive, ParseBinaryExpression)
 	led(lexer.Minus, Additive, ParseBinaryExpression)
-
 	led(lexer.Star, Multiplicative, ParseBinaryExpression)
 	led(lexer.Divide, Multiplicative, ParseBinaryExpression)
 
@@ -72,6 +72,7 @@ func createTokenLookups() {
 	nud(lexer.Minus, ParsePrefixExpression)
 	nud(lexer.OpenParen, ParseGroupingExpression)
 
+	led(lexer.Dot, Member, ParseMemberCallExpression)
 	led(lexer.OpenCurly, Call, ParseStructInstantiationExpression)
 	nud(lexer.OpenBracket, ParseArrayInitialization)
 
