@@ -10,6 +10,8 @@ linters:
     - cyclop # blocked by the giant to string methof of token kind
     - funlen # blocked by the giant to string methof of token kind
 linters-settings:
+  interfacebloat:
+    max: 18
   depguard:
     rules:
       prevent_unmaintained_packages:
@@ -19,6 +21,8 @@ linters-settings:
         allow:
           - $gostd
           - swahili
+          - github.com/sanity-io/litter
+          - github.com/spf13/cobra
         deny:
           - pkg: io/ioutil
             desc: "replaced by io and os packages since Go 1.16: https://tip.golang.org/doc/go1.16#ioutil"
