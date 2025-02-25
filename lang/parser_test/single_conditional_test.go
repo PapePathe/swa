@@ -12,6 +12,7 @@ import (
 
 func TestSingleBranchConditional(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
+	// dialect: malinke;
   ni(x>0) {
     r1.width = 100;
     r1.height = 100 + 400 - r1.width;
