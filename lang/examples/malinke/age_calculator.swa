@@ -1,6 +1,0 @@
-fèndo x = 10;
-ni (x>10) {
-  afo("Isoma");
-} nii {
- afo("Inoura");
-}
