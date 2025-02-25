@@ -12,7 +12,7 @@ import (
 
 func TestImplicitIntegerDeclaration(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-      // dialect=malinke;
+      // dialect: malinke;
       let nombre = -44.5;
 	`))
 

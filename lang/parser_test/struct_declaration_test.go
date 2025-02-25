@@ -12,8 +12,7 @@ import (
 
 func TestStructDeclaration(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-      // dialect=malinke;
-
+     // dialect: malinke;
       struct Rectangle {
         width: number,
         height: float,

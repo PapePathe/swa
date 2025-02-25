@@ -12,7 +12,7 @@ import (
 
 func TestIntegerAssigment(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-      // dialect=malinke;
+		  // dialect: malinke;
       nombre = 4;
 	`))
 
