@@ -21,6 +21,15 @@ func Parse(tokens []lexer.Token) ast.BlockStatement {
 	createTokenTypeLookups()
 
 	psr := &Parser{tokens: tokens}
+
+	if psr.hasTokens() {
+		psr.expect(lexer.DialectDeclaration)
+		psr.expect(lexer.Colon)
+		dlct := psr.expect(lexer.Identifier)
+		fmt.Println(dlct)
+		psr.expect(lexer.SemiColon)
+	}
+
 	for psr.hasTokens() {
 		body = append(body, ParseStatement(psr))
 	}

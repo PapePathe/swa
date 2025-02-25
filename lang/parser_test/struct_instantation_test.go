@@ -12,7 +12,7 @@ import (
 
 func TestStructInstantiation(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-  		// dialect:  malinke; 
+  		dialect:  malinke; 
       const r1: Rectangle = Rectangle {
         width: 10.2,
         height: 45.2 + 6 - 11 * 999,
