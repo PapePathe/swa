@@ -25,7 +25,7 @@ func TestImplicitIntegerDeclaration(t *testing.T) {
 					Operator:        lexer.Token{Value: "-", Kind: 22},
 					RightExpression: ast.NumberExpression{Value: 44.5},
 				},
-				ExplicitType: ast.Type(nil), // TODO exlicit type should be decimal
+				ExplicitType: ast.Type(nil), // exlicit type should be decimal
 			},
 		},
 	}
