@@ -12,7 +12,7 @@ import (
 
 func TestArrayInstantiation(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-      // dialect : malinke; 
+      dialect : malinke; 
 			const numbers = []number{1,2,3,4,5,6};
 	`))
 

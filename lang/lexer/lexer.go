@@ -4,20 +4,13 @@ import (
 	"regexp"
 )
 
-type regexHandler func(lex *Lexer, regex *regexp.Regexp)
-
-// RegexpPattern ...
-type RegexpPattern struct {
-	regex   *regexp.Regexp
-	handler regexHandler
-}
-
 // Lexer ...
 type Lexer struct {
 	Tokens   []Token         // The tokens
 	source   string          // The source code
 	position int             // The current position of the lexer
 	patterns []RegexpPattern // the list of patterns of the language
+	dialect  Dialect
 }
 
 func (lex *Lexer) advanceN(n int) {
@@ -36,27 +29,6 @@ func (lex *Lexer) atEOF() bool {
 	return lex.position >= len(lex.source)
 }
 
-type Dialect interface {
-	Const() RegexpPattern
-	Else() RegexpPattern
-	False() RegexpPattern
-	For() RegexpPattern
-	Function() RegexpPattern
-	If() RegexpPattern
-	Let() RegexpPattern
-	Null() RegexpPattern
-	Print() RegexpPattern
-	Play() RegexpPattern
-	Return() RegexpPattern
-	Struct() RegexpPattern
-	True() RegexpPattern
-	TypeInteger() RegexpPattern
-	TypeDecimal() RegexpPattern
-	TypeString() RegexpPattern
-	Reserved() map[string]TokenKind
-	While() RegexpPattern
-}
-
 func createLexer(source string) *Lexer {
 	return &Lexer{
 		position: 0,
@@ -65,6 +37,7 @@ func createLexer(source string) *Lexer {
 		Tokens: make([]Token, 0),
 		patterns: []RegexpPattern{
 			{regexp.MustCompile(`\s+`), skipHandler},
+			{regexp.MustCompile(`dialect`), defaultHandler(DialectDeclaration, "dialect")},
 			{regexp.MustCompile(`fèndo`), defaultHandler(TypeInt, "fèndo")},
 			{regexp.MustCompile(`nii`), defaultHandler(KeywordElse, "nii")},
 			{regexp.MustCompile(`ni`), defaultHandler(KeywordIf, "ni")},
