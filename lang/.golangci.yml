@@ -3,6 +3,7 @@ linters:
   fast: true
   disable:
     - godot
+    - dupl
     - gofumpt
     - gci
     - testpackage
