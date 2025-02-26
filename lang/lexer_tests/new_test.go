@@ -9,14 +9,18 @@ import (
 	"swahili/lang/lexer"
 )
 
-func TestNew(t *testing.T) {
+func TestNewWithMalinke(t *testing.T) {
 	_, err := lexer.New("dialect:malinke;")
 	assert.NoError(t, err, "New lexer should not error")
+}
 
-	_, err = lexer.New("dialect:wolof;")
+func TestNewWithWolof(t *testing.T) {
+	_, err := lexer.New("dialect:wolof;")
 	assert.NoError(t, err, "New lexer should not error")
+}
 
-	_, err = lexer.New("")
+func TestNewWithEmptyString(t *testing.T) {
+	_, err := lexer.New("")
 	assert.Equal(t, errors.New("You must define your dialect"), err)
 }
 
