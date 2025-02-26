@@ -24,7 +24,6 @@ func (m Malinke) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`\}`), defaultHandler(CloseCurly, "}")},
 		{regexp.MustCompile(`\(`), defaultHandler(OpenParen, "(")},
 		{regexp.MustCompile(`\)`), defaultHandler(CloseParen, ")")},
-		//			{regexp.MustCompile(`==`), defaultHandler(PERCENT, "%")},
 		{regexp.MustCompile(`!=`), defaultHandler(NotEquals, "!=")},
 		{regexp.MustCompile(`\+=`), defaultHandler(PlusEquals, "+=")},
 		{regexp.MustCompile(`==`), defaultHandler(Equals, "==")},
@@ -39,13 +38,11 @@ func (m Malinke) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`\.`), defaultHandler(Dot, ".")},
 		{regexp.MustCompile(`;`), defaultHandler(SemiColon, ";")},
 		{regexp.MustCompile(`:`), defaultHandler(Colon, ":")},
-		//			{regexp.MustCompile(`\?`), defaultHandler(QUESTION, "?")},
 		{regexp.MustCompile(`,`), defaultHandler(Comma, ",")},
 		{regexp.MustCompile(`\+`), defaultHandler(Plus, "+")},
 		{regexp.MustCompile(`-`), defaultHandler(Minus, "-")},
 		{regexp.MustCompile(`/`), defaultHandler(Divide, "/")},
 		{regexp.MustCompile(`\*`), defaultHandler(Star, "*")},
-		//			{regexp.MustCompile(`%`), defaultHandler(PERCENT, "%")},
 	}
 }
 
