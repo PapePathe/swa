@@ -4,7 +4,11 @@ import "fmt"
 
 // Tokenize ...
 func Tokenize(source string) []Token {
-	lex := createLexer(source)
+	//lex := createLexer(source)
+	lex, err := New(source)
+	if err != nil {
+		panic(err)
+	}
 
 	for !lex.atEOF() {
 		matched := false

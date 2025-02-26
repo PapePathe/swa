@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"fmt"
 	"regexp"
 )
 
@@ -10,7 +11,20 @@ type Lexer struct {
 	source   string          // The source code
 	position int             // The current position of the lexer
 	patterns []RegexpPattern // the list of patterns of the language
-	dialect  Dialect
+}
+
+func New(source string) (*Lexer, error) {
+	dialect, err := getDialect(source)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &Lexer{
+		Tokens:   make([]Token, 0),
+		patterns: dialect.Patterns(),
+		source:   source,
+	}, nil
 }
 
 func (lex *Lexer) advanceN(n int) {
@@ -29,52 +43,19 @@ func (lex *Lexer) atEOF() bool {
 	return lex.position >= len(lex.source)
 }
 
-func createLexer(source string) *Lexer {
-	return &Lexer{
-		position: 0,
-		source:   source,
+func getDialect(source string) (Dialect, error) {
+	re := regexp.MustCompile(`dialect:([a-zA-Z]+);`)
+	matches := re.FindStringSubmatch(source)
 
-		Tokens: make([]Token, 0),
-		patterns: []RegexpPattern{
-			{regexp.MustCompile(`\s+`), skipHandler},
-			{regexp.MustCompile(`dialect`), defaultHandler(DialectDeclaration, "dialect")},
-			{regexp.MustCompile(`fèndo`), defaultHandler(TypeInt, "fèndo")},
-			{regexp.MustCompile(`nii`), defaultHandler(KeywordElse, "nii")},
-			{regexp.MustCompile(`ni`), defaultHandler(KeywordIf, "ni")},
-			{regexp.MustCompile(`struct`), defaultHandler(Struct, "struct")},
-			{regexp.MustCompile(`\/\/.*`), commentHandler},
-			{regexp.MustCompile(`"[^"]*"`), stringHandler},
-			{regexp.MustCompile(`[0-9]+(\.[0-9]+)?`), numberHandler},
-			{regexp.MustCompile(`[a-zA-Z_][a-zA-Z0-9_]*`), symbolHandler},
-			{regexp.MustCompile(`\[`), defaultHandler(OpenBracket, "[")},
-			{regexp.MustCompile(`\]`), defaultHandler(CloseBracket, "]")},
-			{regexp.MustCompile(`\{`), defaultHandler(OpenCurly, "{")},
-			{regexp.MustCompile(`\}`), defaultHandler(CloseCurly, "}")},
-			{regexp.MustCompile(`\(`), defaultHandler(OpenParen, "(")},
-			{regexp.MustCompile(`\)`), defaultHandler(CloseParen, ")")},
-			//			{regexp.MustCompile(`==`), defaultHandler(PERCENT, "%")},
-			{regexp.MustCompile(`!=`), defaultHandler(NotEquals, "!=")},
-			{regexp.MustCompile(`\+=`), defaultHandler(PlusEquals, "+=")},
-			{regexp.MustCompile(`==`), defaultHandler(Equals, "==")},
-			{regexp.MustCompile(`=`), defaultHandler(Assignment, "=")},
-			{regexp.MustCompile(`!`), defaultHandler(Not, "!")},
-			{regexp.MustCompile(`<=`), defaultHandler(LessThanEquals, "<=")},
-			{regexp.MustCompile(`<`), defaultHandler(LessThan, "<")},
-			{regexp.MustCompile(`>=`), defaultHandler(GreaterThanEquals, ">=")},
-			{regexp.MustCompile(`>`), defaultHandler(GreaterThan, ">")},
-			{regexp.MustCompile(`\|\|`), defaultHandler(Or, "||")},
-			{regexp.MustCompile(`&&`), defaultHandler(And, "&&")},
-			{regexp.MustCompile(`\.`), defaultHandler(Dot, ".")},
-			{regexp.MustCompile(`;`), defaultHandler(SemiColon, ";")},
-			{regexp.MustCompile(`:`), defaultHandler(Colon, ":")},
-			//			{regexp.MustCompile(`\?`), defaultHandler(QUESTION, "?")},
-			{regexp.MustCompile(`,`), defaultHandler(Comma, ",")},
-			{regexp.MustCompile(`\+`), defaultHandler(Plus, "+")},
-			{regexp.MustCompile(`-`), defaultHandler(Minus, "-")},
-			{regexp.MustCompile(`/`), defaultHandler(Divide, "/")},
-			{regexp.MustCompile(`\*`), defaultHandler(Star, "*")},
-			//			{regexp.MustCompile(`%`), defaultHandler(PERCENT, "%")},
-		},
+	if len(matches) > 1 {
+		dialect, ok := dialects[matches[1]]
+		if !ok {
+			return nil, fmt.Errorf("dialect <%s> is not supported", matches[1])
+		}
+
+		return dialect, nil
+	} else {
+		return nil, fmt.Errorf("You must define your dialect")
 	}
 }
 

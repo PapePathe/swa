@@ -12,7 +12,7 @@ import (
 
 func TestDualBranchConditional(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-  	dialect: malinke;
+  	dialect:malinke;
     ni(x>0) {
       width = 100;
       height = 100 + 400 - width;
