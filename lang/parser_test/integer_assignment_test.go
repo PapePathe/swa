@@ -12,7 +12,7 @@ import (
 
 func TestIntegerAssigment(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-		  dialect: malinke;
+		  dialect:malinke;
       nombre = 4;
 	`))
 
@@ -33,7 +33,7 @@ func TestIntegerAssigment(t *testing.T) {
 
 func TestIntegerAssigmentWithInfixOperator(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-  		dialect: malinke;
+  		dialect:malinke;
       nombre = -4;
 	`))
 
@@ -57,7 +57,7 @@ func TestIntegerAssigmentWithInfixOperator(t *testing.T) {
 
 func TestIntegerAssigmentWithAdditionToSelf(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-  		dialect: malinke;
+  		dialect:malinke;
       nombre += 4;
 	`))
 
@@ -120,7 +120,7 @@ func TestIntegerAssigmentWithSubstractionToSelf(t *testing.T) {
 
 func TestIntegerAssigmentWithExpression(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-			 dialect: malinke;
+			 dialect:malinke;
        const multiply = 45.2 + 5 * 4;
 	 `))
 

@@ -12,7 +12,7 @@ import (
 
 func TestImplicitIntegerDeclaration(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-      dialect: malinke;
+      dialect:malinke;
       let nombre = -44.5;
 	`))
 
@@ -35,7 +35,7 @@ func TestImplicitIntegerDeclaration(t *testing.T) {
 
 func TestExplicitIntegerDeclaration(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-  		dialect :malinke;
+  		dialect:malinke;
 			let nombre : int = 4 +3;
 	`))
 
@@ -59,7 +59,7 @@ func TestExplicitIntegerDeclaration(t *testing.T) {
 
 func TestIntegerDeclarationWithComplexExpression(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-  dialect: malinke;
+  dialect:malinke;
 			let resultat : int = nombre * (45 - -5);
 	`))
 
@@ -90,7 +90,7 @@ func TestIntegerDeclarationWithComplexExpression(t *testing.T) {
 
 func TestConstantIntegerExplicitDeclaration(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-  		dialect: malinke;
+  		dialect:malinke;
 			const resultat : int = 20;
 	`))
 
@@ -110,7 +110,7 @@ func TestConstantIntegerExplicitDeclaration(t *testing.T) {
 
 func TestConstantIntegerImplicitDeclaration(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-  		dialect: malinke;
+  		dialect:malinke;
 			const resultat  = 20;
 	`))
 

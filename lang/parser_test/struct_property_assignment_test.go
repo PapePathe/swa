@@ -12,7 +12,7 @@ import (
 
 func TestStructPropertyAssignment(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
-  		dialect:  malinke; 
+  		dialect:malinke; 
       r1.width += 100;
       r1.width += rand / 14;
 	`))

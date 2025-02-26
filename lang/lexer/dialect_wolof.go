@@ -2,11 +2,11 @@ package lexer
 
 import "regexp"
 
-type Malinke struct{}
+type Wolof struct{}
 
-var _ Dialect = (*Malinke)(nil)
+var _ Dialect = (*Wolof)(nil)
 
-func (m Malinke) Patterns() []RegexpPattern {
+func (m Wolof) Patterns() []RegexpPattern {
 	return []RegexpPattern{
 		{regexp.MustCompile(`\s+`), skipHandler},
 		{regexp.MustCompile(`dialect`), defaultHandler(DialectDeclaration, "dialect")},
@@ -49,6 +49,6 @@ func (m Malinke) Patterns() []RegexpPattern {
 	}
 }
 
-func (m Malinke) Reserved() map[string]TokenKind {
+func (m Wolof) Reserved() map[string]TokenKind {
 	return map[string]TokenKind{}
 }
