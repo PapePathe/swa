@@ -31,6 +31,10 @@ func (lex *Lexer) advanceN(n int) {
 	lex.position += n
 }
 
+func (lex *Lexer) Patterns() []RegexpPattern {
+	return lex.patterns
+}
+
 func (lex *Lexer) remainder() string {
 	return lex.source[lex.position:]
 }

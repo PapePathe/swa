@@ -10,13 +10,19 @@ import (
 )
 
 func TestNewWithMalinke(t *testing.T) {
-	_, err := lexer.New("dialect:malinke;")
-	assert.NoError(t, err, "New lexer should not error")
+	lex, err := lexer.New("dialect:malinke;")
+	assert.NoError(t, err)
+
+	wf := lexer.Malinke{}
+	assert.Equal(t, len(wf.Patterns()), len(lex.Patterns()))
 }
 
 func TestNewWithWolof(t *testing.T) {
-	_, err := lexer.New("dialect:wolof;")
-	assert.NoError(t, err, "New lexer should not error")
+	lex, err := lexer.New("dialect:wolof;")
+	assert.NoError(t, err)
+
+	wf := lexer.Wolof{}
+	assert.Equal(t, len(wf.Patterns()), len(lex.Patterns()))
 }
 
 func TestNewWithEmptyString(t *testing.T) {
