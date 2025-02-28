@@ -47,5 +47,12 @@ func (m Malinke) Patterns() []RegexpPattern {
 }
 
 func (m Malinke) Reserved() map[string]TokenKind {
-	return map[string]TokenKind{}
+	return map[string]TokenKind{
+		"ni":     KeywordIf,
+		"nii":    KeywordElse,
+		"struct": Struct,
+		"let":    Let,
+		"const":  Const,
+		"fèndo":  TypeInt,
+	}
 }

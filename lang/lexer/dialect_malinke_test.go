@@ -5,6 +5,30 @@ import (
 	"testing"
 )
 
+func TestReservedMalinke(t *testing.T) {
+	expected := map[string]TokenKind{
+		"ni":     KeywordIf,
+		"nii":    KeywordElse,
+		"struct": Struct,
+		"let":    Let,
+		"const":  Const,
+		"fèndo":  TypeInt,
+	}
+
+	malinke := Malinke{}
+	reserved := malinke.Reserved()
+
+	if len(reserved) != len(expected) {
+		t.Errorf("expected length of reserved keywords to match - actual: %d expected: eq %d", len(reserved), len(expected))
+	}
+
+	for name, kind := range expected {
+		if kind != reserved[name] {
+			t.Errorf("expected Malinke reserved word for (%s) to be (%s)", kind, name)
+		}
+	}
+}
+
 func TestPatternsMalinke(t *testing.T) {
 	malinke := Malinke{}
 	patterns := malinke.Patterns()
