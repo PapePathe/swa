@@ -47,5 +47,12 @@ func (m English) Patterns() []RegexpPattern {
 }
 
 func (m English) Reserved() map[string]TokenKind {
-	return map[string]TokenKind{}
+	return map[string]TokenKind{
+		"let":    Let,
+		"const":  Const,
+		"int":    TypeInt,
+		"if":     KeywordIf,
+		"else":   KeywordElse,
+		"struct": Struct,
+	}
 }

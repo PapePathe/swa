@@ -5,6 +5,31 @@ import (
 	"testing"
 )
 
+func TestReservedEnglish(t *testing.T) {
+	expected := map[string]TokenKind{
+		"if":     KeywordIf,
+		"else":   KeywordElse,
+		"struct": Struct,
+		"let":    Let,
+		"const":  Const,
+		"int":    TypeInt,
+	}
+
+	english := English{}
+	reserved := english.Reserved()
+
+	if len(reserved) != len(expected) {
+		t.Errorf("expected length of reserved keywords to match - actual: %d expected: eq %d", len(reserved), len(expected))
+	}
+
+	for name, kind := range expected {
+		if kind != reserved[name] {
+			t.Errorf("expected English reserved word for (%s) to be (%s)", kind, expected[name])
+		} else {
+		}
+	}
+}
+
 func TestPatternsEnglish(t *testing.T) {
 	english := English{}
 	patterns := english.Patterns()
@@ -58,6 +83,8 @@ func TestPatternsEnglish(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.expectedPattern, func(t *testing.T) {
+			t.Parallel()
+
 			if tt.pattern.String() != tt.expectedPattern {
 				t.Errorf("Expected pattern %s, got %s", tt.expectedPattern, tt.pattern.String())
 			}
