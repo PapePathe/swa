@@ -7,23 +7,24 @@ import (
 
 // Lexer ...
 type Lexer struct {
-	Tokens   []Token         // The tokens
-	source   string          // The source code
-	position int             // The current position of the lexer
-	patterns []RegexpPattern // the list of patterns of the language
+	Tokens        []Token              // The tokens
+	source        string               // The source code
+	position      int                  // The current position of the lexer
+	patterns      []RegexpPattern      // the list of patterns of the language
+	reservedWords map[string]TokenKind // list of reserved words
 }
 
 func New(source string) (*Lexer, error) {
 	dialect, err := getDialect(source)
-
 	if err != nil {
 		return nil, err
 	}
 
 	return &Lexer{
-		Tokens:   make([]Token, 0),
-		patterns: dialect.Patterns(),
-		source:   source,
+		Tokens:        make([]Token, 0),
+		patterns:      dialect.Patterns(),
+		reservedWords: dialect.Reserved(),
+		source:        source,
 	}, nil
 }
 

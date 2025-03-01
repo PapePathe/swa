@@ -13,6 +13,7 @@ func TestNewWithMalinke(t *testing.T) {
 
 	wf := Malinke{}
 	assert.Equal(t, len(wf.Patterns()), len(lex.Patterns()))
+	assert.Equal(t, len(wf.Reserved()), len(lex.reservedWords))
 }
 
 func TestNewWithWolof(t *testing.T) {
@@ -20,7 +21,22 @@ func TestNewWithWolof(t *testing.T) {
 	assert.NoError(t, err)
 
 	wf := Wolof{}
-	assert.Equal(t, len(wf.Patterns()), len(lex.Patterns()))
+
+	if len(wf.Patterns()) != len(lex.patterns) {
+		t.Errorf("Expected patterns count to be %d", len(wf.Patterns()))
+	}
+
+	if len(wf.Reserved()) != len(lex.reservedWords) {
+		t.Errorf("Expected reserved words count to be %d", len(wf.Patterns()))
+	}
+
+	assert.Equal(t, len(wf.Reserved()), len(lex.reservedWords))
+
+	for key, val := range wf.Reserved() {
+		if val != lex.reservedWords[key] {
+			t.Errorf("Expected reserved word %s to be %s", key, val)
+		}
+	}
 }
 
 func TestNewWithFrench(t *testing.T) {
@@ -29,6 +45,7 @@ func TestNewWithFrench(t *testing.T) {
 
 	wf := French{}
 	assert.Equal(t, len(wf.Patterns()), len(lex.Patterns()))
+	assert.Equal(t, len(wf.Reserved()), len(lex.reservedWords))
 }
 
 func TestNewWithEmptyString(t *testing.T) {

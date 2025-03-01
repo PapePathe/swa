@@ -9,4 +9,5 @@ var dialects = map[string]Dialect{
 
 type Dialect interface {
 	Patterns() []RegexpPattern
+	Reserved() map[string]TokenKind
 }
