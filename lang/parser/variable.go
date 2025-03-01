@@ -8,6 +8,7 @@ import (
 // ParseVarDeclarationStatement ...
 func ParseVarDeclarationStatement(p *Parser) ast.Statement {
 	var explicitType ast.Type
+
 	var assigedValue ast.Expression
 
 	isConstant := p.advance().Kind == lexer.Const
