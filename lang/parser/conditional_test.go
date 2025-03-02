@@ -69,20 +69,20 @@ var expectedASTForDualCondition = ast.BlockStatement{
 	},
 }
 
-//func TestDualBranchConditionalFrench(t *testing.T) {
-//	result := parser.Parse(lexer.Tokenize(`
-//  	dialect:french;
-//    si(x>0) {
-//      width = 100;
-//      height = 100 + 400 - width;
-//    } sinon {
-//    	width += 300;
-//    	height += rand / 14;
-//    }
-//	`))
-//
-//	assert.Equal(t, expectedASTForDualCondition, result)
-//}
+func TestDualBranchConditionalFrench(t *testing.T) {
+	result := parser.Parse(lexer.Tokenize(`
+  	dialect:french;
+    si(x>0) {
+      width = 100;
+      height = 100 + 400 - width;
+    } sinon {
+      width += 300;
+      height += rand / 14;
+    }
+		`))
+
+	assert.Equal(t, expectedASTForDualCondition, result)
+}
 
 func TestDualBranchConditionalMalinke(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
