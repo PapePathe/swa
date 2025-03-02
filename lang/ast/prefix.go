@@ -7,4 +7,6 @@ type PrefixExpression struct {
 	RightExpression Expression
 }
 
+var _ Expression = (*PrefixExpression)(nil)
+
 func (n PrefixExpression) expression() {}

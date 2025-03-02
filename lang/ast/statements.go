@@ -6,6 +6,8 @@ type ConditionalStatetement struct {
 	Failure   BlockStatement
 }
 
+var _ Statement = (*ConditionalStatetement)(nil)
+
 func (cs ConditionalStatetement) statement() {}
 
 // BlockStatement ...
@@ -14,6 +16,8 @@ type BlockStatement struct {
 	Body []Statement
 }
 
+var _ Statement = (*BlockStatement)(nil)
+
 func (bs BlockStatement) statement() {}
 
 // ExpressionStatement ...
@@ -21,6 +25,8 @@ type ExpressionStatement struct {
 	// The expression
 	Exp Expression
 }
+
+var _ Statement = (*ExpressionStatement)(nil)
 
 func (bs ExpressionStatement) statement() {}
 
@@ -36,6 +42,8 @@ type VarDeclarationStatement struct {
 	ExplicitType Type
 }
 
+var _ Statement = (*VarDeclarationStatement)(nil)
+
 func (bs VarDeclarationStatement) statement() {}
 
 type StructProperty struct {
@@ -45,5 +53,7 @@ type StructDeclarationStatement struct {
 	Name       string
 	Properties map[string]StructProperty
 }
+
+var _ Statement = (*StructDeclarationStatement)(nil)
 
 func (s StructDeclarationStatement) statement() {}

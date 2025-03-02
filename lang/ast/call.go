@@ -6,4 +6,6 @@ type CallExpression struct {
 	Caller    Expression
 }
 
+var _ Expression = (*CallExpression)(nil)
+
 func (n CallExpression) expression() {}
