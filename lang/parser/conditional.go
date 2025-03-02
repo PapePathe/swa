@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
@@ -26,7 +24,6 @@ func ParseBlockStatement(p *Parser) ast.BlockStatement {
 func ParseConditionalExpression(p *Parser) ast.Statement {
 	failBlock := ast.BlockStatement{}
 
-	fmt.Println(p.tokens)
 	p.expect(lexer.KeywordIf)
 	p.expect(lexer.OpenParen)
 

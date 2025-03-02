@@ -1,13 +1,12 @@
 package parser_test
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/assert"
-
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 	"swahili/lang/parser"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var expectedASTForArrayDecl = ast.BlockStatement{
@@ -36,6 +35,15 @@ func TestArrayInstantiationEnglish(t *testing.T) {
       dialect:english; 
 			const numbers = []number{1,2,3,4,5,6};
 	`))
+	assert.Equal(t, result, expectedASTForArrayDecl)
+}
+
+func TestArrayInstantiationFrench(t *testing.T) {
+	result := parser.Parse(lexer.Tokenize(`
+      dialect:french; 
+			constante numbers = []number{1,2,3,4,5,6};
+	`))
+
 	assert.Equal(t, result, expectedASTForArrayDecl)
 }
 

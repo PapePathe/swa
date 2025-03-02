@@ -1,14 +1,45 @@
 package parser_test
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/assert"
-
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 	"swahili/lang/parser"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
+
+var expectedAstForImplicitDecl = ast.BlockStatement{
+	Body: []ast.Statement{
+		ast.VarDeclarationStatement{
+			Name:       "nombre",
+			IsConstant: false,
+			Value: ast.PrefixExpression{
+				Operator:        lexer.Token{Value: "-", Kind: 22},
+				RightExpression: ast.NumberExpression{Value: 44.5},
+			},
+			ExplicitType: ast.Type(nil), // exlicit type should be decimal
+		},
+	},
+}
+
+func TestImplicitIntegerDeclarationEnglish(t *testing.T) {
+	result := parser.Parse(lexer.Tokenize(`
+      dialect:english;
+      let nombre = -44.5;
+	`))
+
+	assert.Equal(t, result, expectedAstForImplicitDecl)
+}
+
+func TestImplicitIntegerDeclarationFrench(t *testing.T) {
+	result := parser.Parse(lexer.Tokenize(`
+      dialect:french;
+      variable nombre = -44.5;
+	`))
+
+	assert.Equal(t, result, expectedAstForImplicitDecl)
+}
 
 func TestImplicitIntegerDeclaration(t *testing.T) {
 	result := parser.Parse(lexer.Tokenize(`
@@ -16,21 +47,7 @@ func TestImplicitIntegerDeclaration(t *testing.T) {
       let nombre = -44.5;
 	`))
 
-	expected := ast.BlockStatement{
-		Body: []ast.Statement{
-			ast.VarDeclarationStatement{
-				Name:       "nombre",
-				IsConstant: false,
-				Value: ast.PrefixExpression{
-					Operator:        lexer.Token{Value: "-", Kind: 22},
-					RightExpression: ast.NumberExpression{Value: 44.5},
-				},
-				ExplicitType: ast.Type(nil), // exlicit type should be decimal
-			},
-		},
-	}
-
-	assert.Equal(t, result, expected)
+	assert.Equal(t, result, expectedAstForImplicitDecl)
 }
 
 func TestExplicitIntegerDeclaration(t *testing.T) {

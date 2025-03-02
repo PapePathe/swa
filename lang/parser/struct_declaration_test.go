@@ -1,13 +1,12 @@
 package parser_test
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/assert"
-
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 	"swahili/lang/parser"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var expectedAstForTestStructDeclaration = ast.BlockStatement{
