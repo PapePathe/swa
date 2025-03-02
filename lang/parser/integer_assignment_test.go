@@ -1,13 +1,12 @@
 package parser_test
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/assert"
-
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 	"swahili/lang/parser"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIntegerAssigment(t *testing.T) {
@@ -119,11 +118,6 @@ func TestIntegerAssigmentWithSubstractionToSelf(t *testing.T) {
 }
 
 func TestIntegerAssigmentWithExpression(t *testing.T) {
-	result := parser.Parse(lexer.Tokenize(`
-			 dialect:malinke;
-       const multiply = 45.2 + 5 * 4;
-	 `))
-
 	expected := ast.BlockStatement{
 		Body: []ast.Statement{
 			ast.VarDeclarationStatement{
@@ -142,6 +136,11 @@ func TestIntegerAssigmentWithExpression(t *testing.T) {
 			},
 		},
 	}
+
+	result := parser.Parse(lexer.Tokenize(`
+			 dialect:malinke;
+       const multiply = 45.2 + 5 * 4;
+	 `))
 
 	assert.Equal(t, result, expected)
 }
