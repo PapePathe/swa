@@ -5,4 +5,6 @@ type StructInitializationExpression struct {
 	Properties map[string]Expression
 }
 
+var _ Expression = (*StructInitializationExpression)(nil)
+
 func (n StructInitializationExpression) expression() {}

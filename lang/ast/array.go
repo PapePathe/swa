@@ -5,4 +5,6 @@ type ArrayInitializationExpression struct {
 	Contents   []Expression
 }
 
+var _ Expression = (*ArrayInitializationExpression)(nil)
+
 func (l ArrayInitializationExpression) expression() {}

@@ -6,4 +6,6 @@ type MemberExpression struct {
 	Computed bool
 }
 
+var _ Expression = (*MemberExpression)(nil)
+
 func (me MemberExpression) expression() {}

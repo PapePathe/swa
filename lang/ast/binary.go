@@ -9,4 +9,6 @@ type BinaryExpression struct {
 	Operator lexer.Token
 }
 
+var _ Expression = (*BinaryExpression)(nil)
+
 func (n BinaryExpression) expression() {}
