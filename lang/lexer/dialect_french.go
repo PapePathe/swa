@@ -10,10 +10,10 @@ func (m French) Patterns() []RegexpPattern {
 	return []RegexpPattern{
 		{regexp.MustCompile(`\s+`), skipHandler},
 		{regexp.MustCompile(`dialect`), defaultHandler(DialectDeclaration, "dialect")},
-		{regexp.MustCompile(`entier`), defaultHandler(TypeInt, "int")},
-		{regexp.MustCompile(`si`), defaultHandler(KeywordIf, "if")},
-		{regexp.MustCompile(`sinon`), defaultHandler(KeywordElse, "else")},
-		{regexp.MustCompile(`structure`), defaultHandler(Struct, "struct")},
+		{regexp.MustCompile(`entier`), defaultHandler(TypeInt, "entier")},
+		{regexp.MustCompile(`sinon`), defaultHandler(KeywordElse, "sinon")},
+		{regexp.MustCompile(`si`), defaultHandler(KeywordIf, "si")},
+		{regexp.MustCompile(`structure`), defaultHandler(Struct, "structure")},
 		{regexp.MustCompile(`\/\/.*`), commentHandler},
 		{regexp.MustCompile(`"[^"]*"`), stringHandler},
 		{regexp.MustCompile(`[0-9]+(\.[0-9]+)?`), numberHandler},
@@ -48,8 +48,8 @@ func (m French) Patterns() []RegexpPattern {
 
 func (m French) Reserved() map[string]TokenKind {
 	return map[string]TokenKind{
-		"si":        KeywordIf,
 		"sinon":     KeywordElse,
+		"si":        KeywordIf,
 		"structure": Struct,
 		"variable":  Let,
 		"constante": Const,
