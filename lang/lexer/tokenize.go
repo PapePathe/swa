@@ -31,5 +31,7 @@ func Tokenize(source string) []Token {
 
 	lex.push(NewToken(EOF, "EOF"))
 
+	fmt.Println(lex.Tokens)
+
 	return lex.Tokens
 }

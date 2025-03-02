@@ -63,24 +63,3 @@ func getDialect(source string) (Dialect, error) {
 		return nil, fmt.Errorf("You must define your dialect")
 	}
 }
-
-var reservedLu map[string]TokenKind = map[string]TokenKind{
-	// "true":    TRUE,
-	// "false":   FALSE,
-	// "null":    NULL,
-	"let":   Let,
-	"const": Const,
-	// "":   CLASS,
-	// "new":     NEW,
-	// "import":  IMPORT,
-	// "from":    FROM,
-	// "fn":      FN,
-	// "if":      IF,
-	// "else":    ELSE,
-	// "foreach": FOREACH,
-	// "while":   WHILE,
-	// "for":     FOR,
-	// "export":  EXPORT,
-	// "typeof":  TYPEOF,
-	// "in":      IN,
-}

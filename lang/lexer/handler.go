@@ -1,6 +1,8 @@
 package lexer
 
-import "regexp"
+import (
+	"regexp"
+)
 
 func defaultHandler(kind TokenKind, value string) regexHandler {
 	return func(lex *Lexer, _ *regexp.Regexp) {
@@ -33,7 +35,7 @@ func numberHandler(lex *Lexer, regex *regexp.Regexp) {
 func symbolHandler(lex *Lexer, regex *regexp.Regexp) {
 	match := regex.FindString(lex.remainder())
 
-	if kind, found := reservedLu[match]; found {
+	if kind, found := lex.reservedWords[match]; found {
 		lex.push(NewToken(kind, match))
 	} else {
 		lex.push(NewToken(Identifier, match))
