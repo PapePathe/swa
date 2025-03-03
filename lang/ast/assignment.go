@@ -1,6 +1,9 @@
 package ast
 
-import "swahili/lang/lexer"
+import (
+	"swahili/lang/lexer"
+	"swahili/lang/values"
+)
 
 // AssignmentExpression.
 // Is an expression where the programmer is trying to assign a value to a variable.
@@ -16,3 +19,7 @@ type AssignmentExpression struct {
 var _ Expression = (*ArrayInitializationExpression)(nil)
 
 func (n AssignmentExpression) expression() {}
+
+func (v AssignmentExpression) Evaluate(s *Scope) (error, values.Value) {
+	return nil, nil
+}
