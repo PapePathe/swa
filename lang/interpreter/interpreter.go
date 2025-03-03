@@ -1,13 +1,14 @@
 package interpreter
 
-import "swahili/lang/ast"
+import (
+	"fmt"
+	"swahili/lang/ast"
+)
 
-type InterpreterResult = any
+func Run(program ast.BlockStatement, globalScope *ast.Scope) {
+	for _, v := range program.Body {
+		result, _ := v.Evaluate(globalScope)
 
-type Interpreter interface {
-	Interpret() (error, InterpreterResult)
-}
-
-// Run a program given an abstract syntax tree
-func Run(program ast.BlockStatement) {
+		fmt.Println(result)
+	}
 }
