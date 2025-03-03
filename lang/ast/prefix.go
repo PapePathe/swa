@@ -1,6 +1,9 @@
 package ast
 
-import "swahili/lang/lexer"
+import (
+	"swahili/lang/lexer"
+	"swahili/lang/values"
+)
 
 type PrefixExpression struct {
 	Operator        lexer.Token
@@ -10,3 +13,7 @@ type PrefixExpression struct {
 var _ Expression = (*PrefixExpression)(nil)
 
 func (n PrefixExpression) expression() {}
+
+func (v PrefixExpression) Evaluate(s *Scope) (error, values.Value) {
+	return nil, nil
+}

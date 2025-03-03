@@ -1,5 +1,10 @@
 package ast
 
+import (
+	"fmt"
+	"swahili/lang/values"
+)
+
 type ConditionalStatetement struct {
 	Condition Expression
 	Success   BlockStatement
@@ -8,6 +13,9 @@ type ConditionalStatetement struct {
 
 var _ Statement = (*ConditionalStatetement)(nil)
 
+func (cs ConditionalStatetement) Evaluate(s *Scope) (error, values.Value) {
+	return nil, nil
+}
 func (cs ConditionalStatetement) statement() {}
 
 // BlockStatement ...
@@ -18,6 +26,10 @@ type BlockStatement struct {
 
 var _ Statement = (*BlockStatement)(nil)
 
+func (cs BlockStatement) Evaluate(s *Scope) (error, values.Value) {
+	return nil, nil
+}
+
 func (bs BlockStatement) statement() {}
 
 // ExpressionStatement ...
@@ -27,6 +39,10 @@ type ExpressionStatement struct {
 }
 
 var _ Statement = (*ExpressionStatement)(nil)
+
+func (cs ExpressionStatement) Evaluate(s *Scope) (error, values.Value) {
+	return nil, nil
+}
 
 func (bs ExpressionStatement) statement() {}
 
@@ -44,6 +60,16 @@ type VarDeclarationStatement struct {
 
 var _ Statement = (*VarDeclarationStatement)(nil)
 
+func (v VarDeclarationStatement) Evaluate(s *Scope) (error, values.Value) {
+	fmt.Println("Evaluating variable declaration statement")
+
+	_, val := v.Value.Evaluate(s)
+
+	s.Set(v.Name, val)
+
+	return nil, nil
+}
+
 func (bs VarDeclarationStatement) statement() {}
 
 type StructProperty struct {
@@ -55,5 +81,9 @@ type StructDeclarationStatement struct {
 }
 
 var _ Statement = (*StructDeclarationStatement)(nil)
+
+func (cs StructDeclarationStatement) Evaluate(s *Scope) (error, values.Value) {
+	return nil, nil
+}
 
 func (s StructDeclarationStatement) statement() {}
