@@ -3,12 +3,11 @@ package main
 import (
 	"fmt"
 	"os"
+	"swahili/lang/lexer"
+	"swahili/lang/parser"
 
 	"github.com/sanity-io/litter"
 	"github.com/spf13/cobra"
-
-	"swahili/lang/lexer"
-	"swahili/lang/parser"
 )
 
 var rootCmd = &cobra.Command{
