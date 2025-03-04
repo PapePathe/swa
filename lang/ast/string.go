@@ -12,5 +12,5 @@ var _ Expression = (*StringExpression)(nil)
 func (n StringExpression) expression() {}
 
 func (v StringExpression) Evaluate(s *Scope) (error, values.Value) {
-	return nil, nil
+	return nil, values.StringValue{Value: v.Value}
 }
