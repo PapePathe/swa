@@ -23,6 +23,10 @@ func (s *Scope) Get(name string) (values.Value, bool) {
 	return val, ok
 }
 
+func (s *Scope) Exists(name string) bool {
+	return false
+}
+
 func (s *Scope) Set(name string, val values.Value) {
 	s.Variables[name] = val
 }
