@@ -4,7 +4,7 @@ type ArrayValue struct {
 	Values []Value
 }
 
-func (av ArrayValue) GetValue() interface{} {
+func (av ArrayValue) GetValue() any {
 	return av.Values
 }
 
@@ -16,6 +16,8 @@ func (av ArrayValue) String() string {
 			result += ", "
 		}
 	}
+
 	result += "]"
+
 	return result
 }
