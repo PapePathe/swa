@@ -16,7 +16,7 @@ type AssignmentExpression struct {
 	Value    Expression
 }
 
-var _ Expression = (*ArrayInitializationExpression)(nil)
+var _ Expression = (*AssignmentExpression)(nil)
 
 func (n AssignmentExpression) expression() {}
 
