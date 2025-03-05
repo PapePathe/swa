@@ -67,10 +67,6 @@ func TestEvaluateStringVariableDeclarationStatement(t *testing.T) {
 	if content != expectedContent {
 		t.Errorf("%s should be equal to %s", expectedContent, content)
 	}
-
-	// if err, _ = statement.Evaluate(scope); err == nil {
-	// 	t.Errorf("declaring an existing variable should error with <%s>", err)
-	// }
 }
 
 func TestEvaluatArrayVariableDeclarationStatement(t *testing.T) {
