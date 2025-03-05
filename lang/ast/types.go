@@ -6,7 +6,7 @@ type SymbolType struct {
 
 var _ Type = (*SymbolType)(nil)
 
-func (st SymbolType) _type() {}
+func (SymbolType) _type() {}
 
 type ArrayType struct {
 	Underlying Type
@@ -14,4 +14,12 @@ type ArrayType struct {
 
 var _ Type = (*ArrayType)(nil)
 
-func (st ArrayType) _type() {}
+func (ArrayType) _type() {}
+
+type NumberType struct {
+	Value int
+}
+
+var _ Type = (*NumberType)(nil)
+
+func (NumberType) _type() {}
