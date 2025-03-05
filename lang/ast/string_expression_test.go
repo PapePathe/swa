@@ -11,7 +11,13 @@ func TestEvaluateString(t *testing.T) {
 		t.Errorf("string evaluation should not error <%s>", err)
 	}
 
-	if sExpr.Value != result.GetValue().(string) {
+	stringResult, ok := result.GetValue().(string)
+
+	if !ok {
+		t.Errorf("Expected value to be of type string")
+	}
+
+	if sExpr.Value != stringResult {
 		t.Errorf("Expected %s to eq %s", sExpr, result)
 	}
 }
