@@ -40,8 +40,8 @@ func (liv LiveInterpreter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	absTree := parser.Parse(tokens)
 
 	response := LiveInterpreterResponse{
-		//		Tokens: tokens,
-		Ast: absTree,
+		Tokens: tokens,
+		Ast:    absTree,
 	}
 
 	jsonData, err := json.MarshalIndent(response, "", "  ")
