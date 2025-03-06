@@ -39,6 +39,7 @@ var serverCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		mux := http.NewServeMux()
 		mux.Handle("/p", server.WebParser{})
+		mux.Handle("/t", server.WebTokenizer{})
 		http.ListenAndServe(":2108", mux)
 	},
 }
