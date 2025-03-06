@@ -15,29 +15,29 @@ var expectedASTForDualCondition = ast.BlockStatement{
 			Condition: ast.BinaryExpression{
 				Left:     ast.SymbolExpression{Value: "x"},
 				Right:    ast.NumberExpression{Value: 0},
-				Operator: lexer.Token{Value: ">", Kind: 18},
+				Operator: lexer.Token{Value: ">", Kind: 18, Name: "GREATER_THAN"},
 			},
 			Success: ast.BlockStatement{
 				Body: []ast.Statement{
 					ast.ExpressionStatement{
 						Exp: ast.AssignmentExpression{
-							Operator: lexer.Token{Value: "=", Kind: 9},
+							Operator: lexer.Token{Value: "=", Kind: 9, Name: "ASSIGNMENT"},
 							Assignee: ast.SymbolExpression{Value: "width"},
 							Value:    ast.NumberExpression{Value: 100},
 						},
 					},
 					ast.ExpressionStatement{
 						Exp: ast.AssignmentExpression{
-							Operator: lexer.Token{Value: "=", Kind: 9},
+							Operator: lexer.Token{Value: "=", Kind: 9, Name: "ASSIGNMENT"},
 							Assignee: ast.SymbolExpression{Value: "height"},
 							Value: ast.BinaryExpression{
 								Left: ast.BinaryExpression{
 									Left:     ast.NumberExpression{Value: 100},
 									Right:    ast.NumberExpression{Value: 400},
-									Operator: lexer.Token{Value: "+", Kind: 30},
+									Operator: lexer.Token{Value: "+", Kind: 30, Name: "PLUS"},
 								},
 								Right:    ast.SymbolExpression{Value: "width"},
-								Operator: lexer.Token{Value: "-", Kind: 22},
+								Operator: lexer.Token{Value: "-", Kind: 22, Name: "MINUS"},
 							},
 						},
 					},
@@ -47,19 +47,19 @@ var expectedASTForDualCondition = ast.BlockStatement{
 				Body: []ast.Statement{
 					ast.ExpressionStatement{
 						Exp: ast.AssignmentExpression{
-							Operator: lexer.Token{Value: "+=", Kind: 31},
+							Operator: lexer.Token{Value: "+=", Kind: 31, Name: "PLUS_EQUAL"},
 							Assignee: ast.SymbolExpression{Value: "width"},
 							Value:    ast.NumberExpression{Value: 300},
 						},
 					},
 					ast.ExpressionStatement{
 						Exp: ast.AssignmentExpression{
-							Operator: lexer.Token{Value: "+=", Kind: 31},
+							Operator: lexer.Token{Value: "+=", Kind: 31, Name: "PLUS_EQUAL"},
 							Assignee: ast.SymbolExpression{Value: "height"},
 							Value: ast.BinaryExpression{
 								Left:     ast.SymbolExpression{Value: "rand"},
 								Right:    ast.NumberExpression{Value: 14},
-								Operator: lexer.Token{Value: "/", Kind: 15},
+								Operator: lexer.Token{Value: "/", Kind: 15, Name: "DIVIDE"},
 							},
 						},
 					},
@@ -121,13 +121,13 @@ var expectedAST = ast.BlockStatement{
 				Left: ast.SymbolExpression{Value: "x"},
 				Right: ast.NumberExpression{
 					Value: 0,
-				}, Operator: lexer.Token{Value: ">", Kind: 18},
+				}, Operator: lexer.Token{Value: ">", Kind: 18, Name: "GREATER_THAN"},
 			},
 			Success: ast.BlockStatement{
 				Body: []ast.Statement{
 					ast.ExpressionStatement{
 						Exp: ast.AssignmentExpression{
-							Operator: lexer.Token{Value: "=", Kind: 9},
+							Operator: lexer.Token{Value: "=", Kind: 9, Name: "ASSIGNMENT"},
 							Assignee: ast.MemberExpression{
 								Object:   ast.SymbolExpression{Value: "r1"},
 								Property: ast.SymbolExpression{Value: "width"},
@@ -138,7 +138,7 @@ var expectedAST = ast.BlockStatement{
 					},
 					ast.ExpressionStatement{
 						Exp: ast.AssignmentExpression{
-							Operator: lexer.Token{Value: "=", Kind: 9},
+							Operator: lexer.Token{Value: "=", Kind: 9, Name: "ASSIGNMENT"},
 							Assignee: ast.MemberExpression{
 								Object: ast.SymbolExpression{Value: "r1"},
 								Property: ast.SymbolExpression{
@@ -151,14 +151,14 @@ var expectedAST = ast.BlockStatement{
 									Left: ast.NumberExpression{
 										Value: 100,
 									}, Right: ast.NumberExpression{Value: 400},
-									Operator: lexer.Token{Value: "+", Kind: 30},
+									Operator: lexer.Token{Value: "+", Kind: 30, Name: "PLUS"},
 								},
 								Right: ast.MemberExpression{
 									Object: ast.SymbolExpression{
 										Value: "r1",
 									}, Property: ast.SymbolExpression{Value: "width"}, Computed: false,
 								},
-								Operator: lexer.Token{Value: "-", Kind: 22},
+								Operator: lexer.Token{Value: "-", Kind: 22, Name: "MINUS"},
 							},
 						},
 					},

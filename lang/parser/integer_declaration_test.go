@@ -15,7 +15,7 @@ var expectedAstForImplicitDecl = ast.BlockStatement{
 			Name:       "nombre",
 			IsConstant: false,
 			Value: ast.PrefixExpression{
-				Operator:        lexer.Token{Value: "-", Kind: 22},
+				Operator:        lexer.Token{Value: "-", Kind: 22, Name: "MINUS"},
 				RightExpression: ast.NumberExpression{Value: 44.5},
 			},
 			ExplicitType: ast.Type(nil), // exlicit type should be decimal
@@ -64,7 +64,7 @@ func TestExplicitIntegerDeclaration(t *testing.T) {
 				Value: ast.BinaryExpression{
 					Left:     ast.NumberExpression{Value: 4},
 					Right:    ast.NumberExpression{Value: 3},
-					Operator: lexer.Token{Value: "+", Kind: 30},
+					Operator: lexer.Token{Value: "+", Kind: 30, Name: "PLUS"},
 				},
 				ExplicitType: ast.SymbolType{Name: "int"},
 			},
@@ -90,12 +90,12 @@ func TestIntegerDeclarationWithComplexExpression(t *testing.T) {
 					Right: ast.BinaryExpression{
 						Left: ast.NumberExpression{Value: 45},
 						Right: ast.PrefixExpression{
-							Operator:        lexer.Token{Value: "-", Kind: 22},
+							Operator:        lexer.Token{Value: "-", Kind: 22, Name: "MINUS"},
 							RightExpression: ast.NumberExpression{Value: 5},
 						},
-						Operator: lexer.Token{Value: "-", Kind: 22},
+						Operator: lexer.Token{Value: "-", Kind: 22, Name: "MINUS"},
 					},
-					Operator: lexer.Token{Value: "*", Kind: 32},
+					Operator: lexer.Token{Value: "*", Kind: 32, Name: "STAR"},
 				},
 				ExplicitType: ast.SymbolType{Name: "int"},
 			},
