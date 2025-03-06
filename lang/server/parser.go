@@ -9,11 +9,11 @@ import (
 	"swahili/lang/parser"
 )
 
-type pReq struct {
+type WebParserRequest struct {
 	Src string `json:"swa"`
 }
 
-type pResp struct {
+type WebParserResponse struct {
 	Ast ast.BlockStatement
 }
 type WebParser struct{}
@@ -50,8 +50,8 @@ func (WebParser) expectPostRequest(r *http.Request) error {
 	return nil
 }
 
-func (WebParser) expectPayload(r *http.Request) (*pReq, error) {
-	var data pReq
+func (WebParser) expectPayload(r *http.Request) (*WebParserRequest, error) {
+	var data WebParserRequest
 
 	decoder := json.NewDecoder(r.Body)
 
@@ -63,7 +63,7 @@ func (WebParser) expectPayload(r *http.Request) (*pReq, error) {
 	return &data, nil
 }
 
-func (WebParser) expectResponse(data *pReq) ([]byte, error) {
+func (WebParser) expectResponse(data *WebParserRequest) ([]byte, error) {
 	fmt.Println(data)
 	tokens := lexer.Tokenize(data.Src)
 	absTree := parser.Parse(tokens)
