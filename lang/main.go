@@ -38,7 +38,7 @@ var serverCmd = &cobra.Command{
 	Short: "Start the web service",
 	Run: func(cmd *cobra.Command, args []string) {
 		mux := http.NewServeMux()
-		mux.Handle("/", server.LiveInterpreter{})
+		mux.Handle("/p", server.WebParser{})
 		http.ListenAndServe(":2108", mux)
 	},
 }
