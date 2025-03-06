@@ -1,6 +1,9 @@
 package ast
 
-import "swahili/lang/values"
+import (
+	"encoding/json"
+	"swahili/lang/values"
+)
 
 // BlockStatement ...
 type BlockStatement struct {
@@ -15,3 +18,10 @@ func (cs BlockStatement) Evaluate(s *Scope) (error, values.Value) {
 }
 
 func (bs BlockStatement) statement() {}
+
+func (bs BlockStatement) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["ast.BlockStatement"] = bs.Body
+
+	return json.Marshal(m)
+}
