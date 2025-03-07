@@ -1,0 +1,7 @@
+dialect:malinke;
+let x = 10;
+ni (x>10){
+ // statements
+} nii{
+ // statements
+}

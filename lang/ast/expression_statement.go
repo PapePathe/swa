@@ -1,6 +1,9 @@
 package ast
 
-import "swahili/lang/values"
+import (
+	"encoding/json"
+	"swahili/lang/values"
+)
 
 // ExpressionStatement ...
 type ExpressionStatement struct {
@@ -15,3 +18,13 @@ func (cs ExpressionStatement) Evaluate(s *Scope) (error, values.Value) {
 }
 
 func (bs ExpressionStatement) statement() {}
+
+func (cs ExpressionStatement) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["expression"] = cs.Exp
+
+	res := make(map[string]any)
+	res["ast.ExpressionStatetement"] = m
+
+	return json.Marshal(res)
+}

@@ -1,18 +1,20 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"swahili/lang/lexer"
 	"swahili/lang/parser"
+	"swahili/lang/server"
 
-	"github.com/sanity-io/litter"
 	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
 	Use:   "swa",
-	Short: "Swahili Programming Language",
+	Short: "Swahili Programming Environment",
 }
 
 var compileCmd = &cobra.Command{
@@ -28,6 +30,17 @@ var interpretCmd = &cobra.Command{
 	Short: "Interpret the source code",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Interpreting...")
+	},
+}
+
+var serverCmd = &cobra.Command{
+	Use:   "server",
+	Short: "Start the web service",
+	Run: func(cmd *cobra.Command, args []string) {
+		mux := http.NewServeMux()
+		mux.Handle("/p", server.WebParser{})
+		mux.Handle("/t", server.WebTokenizer{})
+		http.ListenAndServe(":2108", mux)
 	},
 }
 
@@ -48,7 +61,12 @@ var tokenizeCmd = &cobra.Command{
 		tokens := lexer.Tokenize(sourceCode)
 		st := parser.Parse(tokens)
 
-		litter.Dump(st)
+		result, err := json.MarshalIndent(st, " ", "  ")
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println(string(result))
 	},
 }
 
@@ -58,8 +76,10 @@ func main() {
 	tokenizeCmd.Flags().
 		StringP("output", "o", "json", "output format of the tokenizer (json | yaml | toml)")
 	tokenizeCmd.MarkFlagRequired("source")
+	serverCmd.Flags().
+		StringP("server", "l", "", "start a web server")
 
-	rootCmd.AddCommand(compileCmd, interpretCmd, tokenizeCmd)
+	rootCmd.AddCommand(compileCmd, interpretCmd, tokenizeCmd, serverCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

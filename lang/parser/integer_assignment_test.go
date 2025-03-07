@@ -19,7 +19,7 @@ func TestIntegerAssigment(t *testing.T) {
 		Body: []ast.Statement{
 			ast.ExpressionStatement{
 				Exp: ast.AssignmentExpression{
-					Operator: lexer.Token{Value: "=", Kind: 9},
+					Operator: lexer.Token{Value: "=", Kind: 9, Name: "ASSIGNMENT"},
 					Assignee: ast.SymbolExpression{Value: "nombre"},
 					Value:    ast.NumberExpression{Value: 4},
 				},
@@ -40,10 +40,10 @@ func TestIntegerAssigmentWithInfixOperator(t *testing.T) {
 		Body: []ast.Statement{
 			ast.ExpressionStatement{
 				Exp: ast.AssignmentExpression{
-					Operator: lexer.Token{Value: "=", Kind: 9},
+					Operator: lexer.Token{Value: "=", Kind: 9, Name: "ASSIGNMENT"},
 					Assignee: ast.SymbolExpression{Value: "nombre"},
 					Value: ast.PrefixExpression{
-						Operator:        lexer.Token{Value: "-", Kind: 22},
+						Operator:        lexer.Token{Value: "-", Kind: 22, Name: "MINUS"},
 						RightExpression: ast.NumberExpression{Value: 4},
 					},
 				},
@@ -64,7 +64,7 @@ func TestIntegerAssigmentWithAdditionToSelf(t *testing.T) {
 		Body: []ast.Statement{
 			ast.ExpressionStatement{
 				Exp: ast.AssignmentExpression{
-					Operator: lexer.Token{Value: "+=", Kind: 31},
+					Operator: lexer.Token{Value: "+=", Kind: 31, Name: "PLUS_EQUAL"},
 					Assignee: ast.SymbolExpression{Value: "nombre"},
 					Value:    ast.NumberExpression{Value: 4},
 				},
@@ -128,9 +128,9 @@ func TestIntegerAssigmentWithExpression(t *testing.T) {
 					Right: ast.BinaryExpression{
 						Left:     ast.NumberExpression{Value: 5},
 						Right:    ast.NumberExpression{Value: 4},
-						Operator: lexer.Token{Value: "*", Kind: 32},
+						Operator: lexer.Token{Value: "*", Kind: 32, Name: "STAR"},
 					},
-					Operator: lexer.Token{Value: "+", Kind: 30},
+					Operator: lexer.Token{Value: "+", Kind: 30, Name: "PLUS"},
 				},
 				ExplicitType: ast.Type(nil),
 			},

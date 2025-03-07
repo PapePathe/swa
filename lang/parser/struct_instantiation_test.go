@@ -30,14 +30,14 @@ func TestStructInstantiation(t *testing.T) {
 							Left: ast.BinaryExpression{
 								Left:     ast.NumberExpression{Value: 45.2},
 								Right:    ast.NumberExpression{Value: 6},
-								Operator: lexer.Token{Value: "+", Kind: 30},
+								Operator: lexer.Token{Value: "+", Kind: 30, Name: "PLUS"},
 							},
 							Right: ast.BinaryExpression{
 								Left:     ast.NumberExpression{Value: 11},
 								Right:    ast.NumberExpression{Value: 999},
-								Operator: lexer.Token{Value: "*", Kind: 32},
+								Operator: lexer.Token{Value: "*", Kind: 32, Name: "STAR"},
 							},
-							Operator: lexer.Token{Value: "-", Kind: 22},
+							Operator: lexer.Token{Value: "-", Kind: 22, Name: "MINUS"},
 						},
 						"width": ast.NumberExpression{Value: 10.2},
 					},
@@ -110,7 +110,7 @@ func TestStructPropertyAssignmentFrench(t *testing.T) {
 		Body: []ast.Statement{
 			ast.ExpressionStatement{
 				Exp: ast.AssignmentExpression{
-					Operator: lexer.Token{Value: "+=", Kind: 31},
+					Operator: lexer.Token{Value: "+=", Kind: 31, Name: "PLUS_EQUAL"},
 					Assignee: ast.MemberExpression{
 						Object:   ast.SymbolExpression{Value: "r1"},
 						Property: ast.SymbolExpression{Value: "width"},
@@ -121,7 +121,7 @@ func TestStructPropertyAssignmentFrench(t *testing.T) {
 			},
 			ast.ExpressionStatement{
 				Exp: ast.AssignmentExpression{
-					Operator: lexer.Token{Value: "+=", Kind: 31},
+					Operator: lexer.Token{Value: "+=", Kind: 31, Name: "PLUS_EQUAL"},
 					Assignee: ast.MemberExpression{
 						Object:   ast.SymbolExpression{Value: "r1"},
 						Property: ast.SymbolExpression{Value: "width"},
@@ -130,7 +130,7 @@ func TestStructPropertyAssignmentFrench(t *testing.T) {
 					Value: ast.BinaryExpression{
 						Left:     ast.SymbolExpression{Value: "rand"},
 						Right:    ast.NumberExpression{Value: 14},
-						Operator: lexer.Token{Value: "/", Kind: 15},
+						Operator: lexer.Token{Value: "/", Kind: 15, Name: "DIVIDE"},
 					},
 				},
 			},
