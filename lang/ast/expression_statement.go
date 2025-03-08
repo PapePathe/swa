@@ -17,6 +17,7 @@ package ast
 
 import (
 	"encoding/json"
+	"fmt"
 	"swahili/lang/values"
 )
 
@@ -29,6 +30,7 @@ type ExpressionStatement struct {
 var _ Statement = (*ExpressionStatement)(nil)
 
 func (cs ExpressionStatement) Evaluate(s *Scope) (error, values.Value) {
+	fmt.Println("Evaluating expression statement")
 	return nil, nil
 }
 

@@ -13,29 +13,18 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ast
+package values
 
-import (
-	"fmt"
-	"swahili/lang/values"
-)
+import "fmt"
 
-// SymbolExpression ...
-type SymbolExpression struct {
-	Value string
+type BooleaValue struct {
+	Value bool
 }
 
-var _ Expression = (*SymbolExpression)(nil)
+func (iv BooleaValue) GetValue() any {
+	return iv.Value
+}
 
-func (n SymbolExpression) expression() {}
-
-func (v SymbolExpression) Evaluate(s *Scope) (error, values.Value) {
-	fmt.Println("Evaluating symbol expression")
-	value, exists := s.Get(v.Value)
-
-	if !exists {
-		return fmt.Errorf("Variable <%s> does not exist", v.Value), nil
-	}
-
-	return nil, value
+func (iv BooleaValue) String() string {
+	return fmt.Sprintf("%v", iv.Value)
 }

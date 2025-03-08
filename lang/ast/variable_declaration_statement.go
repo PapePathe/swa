@@ -17,6 +17,7 @@ package ast
 
 import (
 	"encoding/json"
+	"fmt"
 	"swahili/lang/values"
 )
 
@@ -35,6 +36,8 @@ type VarDeclarationStatement struct {
 var _ Statement = (*VarDeclarationStatement)(nil)
 
 func (v VarDeclarationStatement) Evaluate(s *Scope) (error, values.Value) {
+	fmt.Println("Evaluating variable declaration statement")
+
 	_, val := v.Value.Evaluate(s)
 
 	s.Set(v.Name, val)

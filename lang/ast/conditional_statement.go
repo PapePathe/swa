@@ -17,6 +17,7 @@ package ast
 
 import (
 	"encoding/json"
+	"fmt"
 	"swahili/lang/values"
 )
 
@@ -29,6 +30,28 @@ type ConditionalStatetement struct {
 var _ Statement = (*ConditionalStatetement)(nil)
 
 func (cs ConditionalStatetement) Evaluate(s *Scope) (error, values.Value) {
+	fmt.Println("Evaluating conditional statement")
+
+	err, successful := cs.Condition.Evaluate(s)
+
+	if err != nil {
+		return err, nil
+	}
+
+	_, ok := successful.GetValue().(bool)
+
+	if !ok {
+		fmt.Println("Return value of conditional is not a boolean")
+	}
+
+	//	if successful.GetValue() == true {
+	//		return cs.Success.Evaluate(s)
+	//	} else {
+	//		if cs.Failure.Body != nil {
+	//			//			return cs.Failure.Evaluate(s)
+	//		}
+	//	}
+
 	return nil, nil
 }
 func (cs ConditionalStatetement) statement() {}

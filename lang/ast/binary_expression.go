@@ -16,6 +16,7 @@
 package ast
 
 import (
+	"fmt"
 	"swahili/lang/lexer"
 	"swahili/lang/values"
 )
@@ -30,7 +31,19 @@ type BinaryExpression struct {
 var _ Expression = (*BinaryExpression)(nil)
 
 func (BinaryExpression) expression() {}
-
 func (be BinaryExpression) Evaluate(s *Scope) (error, values.Value) {
+	fmt.Println("Evaluating BinaryExpression", be)
+
+	_, left := be.Left.Evaluate(s)
+	_, right := be.Right.Evaluate(s)
+
+	leftVal, _ := left.GetValue().(float64)
+	rightVal, _ := right.GetValue().(float64)
+
+	switch be.Operator.Kind {
+	case lexer.GreaterThan:
+		return nil, values.BooleaValue{Value: leftVal > rightVal}
+	}
+
 	return nil, nil
 }
