@@ -1,0 +1,7 @@
+dialect:french;
+variable x = 10;
+si(x>10){
+ // statements
+} sinon {
+ // statements
+}

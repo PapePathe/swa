@@ -1,0 +1,7 @@
+dialect:english;
+let x = 10;
+if(x>10){
+ // statements
+} else{
+ // statements
+}
