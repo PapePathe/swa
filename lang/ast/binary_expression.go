@@ -18,6 +18,7 @@ package ast
 import (
 	"fmt"
 	"swahili/lang/lexer"
+	"swahili/lang/log"
 	"swahili/lang/values"
 )
 
@@ -28,13 +29,23 @@ type BinaryExpression struct {
 	Operator lexer.Token
 }
 
-var _ Expression = (*BinaryExpression)(nil)
+var (
+	_  Expression = (*BinaryExpression)(nil)
+	lg            = log.Logger.WithGroup("Ast Evaluator")
+)
 
 func (BinaryExpression) expression() {}
-func (be BinaryExpression) Evaluate(s *Scope) (error, values.Value) {
-	fmt.Println("Evaluating BinaryExpression", be)
 
-	_, left := be.Left.Evaluate(s)
+func (be BinaryExpression) Evaluate(s *Scope) (error, values.Value) {
+	lg.Debug("Start", "node", be)
+
+	err, left := be.Left.Evaluate(s)
+	if err != nil {
+		lg.Error("ERROR evaluating left expression")
+
+		return err, nil
+	}
+
 	_, right := be.Right.Evaluate(s)
 
 	leftVal, _ := left.GetValue().(float64)
@@ -43,7 +54,13 @@ func (be BinaryExpression) Evaluate(s *Scope) (error, values.Value) {
 	switch be.Operator.Kind {
 	case lexer.GreaterThan:
 		return nil, values.BooleaValue{Value: leftVal > rightVal}
+	case lexer.GreaterThanEquals:
+		return nil, values.BooleaValue{Value: leftVal >= rightVal}
+	case lexer.LessThan:
+		return nil, values.BooleaValue{Value: leftVal < rightVal}
+	case lexer.LessThanEquals:
+		return nil, values.BooleaValue{Value: leftVal <= rightVal}
+	default:
+		return fmt.Errorf("Operator not yet supportted %s", be.Operator.Kind), nil
 	}
-
-	return nil, nil
 }

@@ -17,7 +17,6 @@ package ast
 
 import (
 	"encoding/json"
-	"fmt"
 	"swahili/lang/values"
 )
 
@@ -30,10 +29,15 @@ type BlockStatement struct {
 var _ Statement = (*BlockStatement)(nil)
 
 func (bs BlockStatement) Evaluate(s *Scope) (error, values.Value) {
-	fmt.Println("Evaluating block statement")
+	lg.Debug("Evaluating block statement")
 
 	for _, stmt := range bs.Body {
-		_, _ = stmt.Evaluate(s)
+		err, _ := stmt.Evaluate(s)
+		if err != nil {
+			lg.Error("ERROR", " evaluating statement", err.Error())
+
+			return err, nil
+		}
 	}
 
 	return nil, nil

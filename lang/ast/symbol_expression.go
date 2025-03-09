@@ -30,7 +30,8 @@ var _ Expression = (*SymbolExpression)(nil)
 func (n SymbolExpression) expression() {}
 
 func (v SymbolExpression) Evaluate(s *Scope) (error, values.Value) {
-	fmt.Println("Evaluating symbol expression")
+	lg.Debug("Evaluating symbol expression", "Expression", v)
+
 	value, exists := s.Get(v.Value)
 
 	if !exists {
