@@ -1,7 +1,23 @@
 dialect:french;
+
 variable x = 10;
+constante jours = []string  {"lundi", "mardi", "mercredi", "jeudi", "vendredi"};
+constante nombres = []number {0,1,2,3};
+
 si(x>10){
  // statements
 } sinon {
+ // statements
+}
+
+si(x>=10){
+ // statements
+}
+
+si(x<10){
+ // statements
+}
+
+si(x<=10){
  // statements
 }
