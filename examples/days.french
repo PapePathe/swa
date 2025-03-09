@@ -5,9 +5,9 @@ constante jours = []string  {"lundi", "mardi", "mercredi", "jeudi", "vendredi"};
 constante nombres = []number {0,1,2,3};
 
 si(x>10){
- // statements
+  afficher("X n est pas superieur a dix.", x, jours, nombres);
 } sinon {
- // statements
+  afficher("X est superieur a dix.");
 }
 
 si(x>=10){
