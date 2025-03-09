@@ -28,6 +28,7 @@ func (m French) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`entier`), defaultHandler(TypeInt, "entier")},
 		{regexp.MustCompile(`sinon`), defaultHandler(KeywordElse, "sinon")},
 		{regexp.MustCompile(`si`), defaultHandler(KeywordIf, "si")},
+		{regexp.MustCompile(`afficher`), defaultHandler(Print, "afficher")},
 		{regexp.MustCompile(`structure`), defaultHandler(Struct, "structure")},
 		{regexp.MustCompile(`\/\/.*`), commentHandler},
 		{regexp.MustCompile(`"[^"]*"`), stringHandler},

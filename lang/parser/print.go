@@ -12,46 +12,38 @@
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package parser
 
 import (
 	"fmt"
 	"swahili/lang/ast"
+	"swahili/lang/lexer"
 )
 
-func parseExpression(p *Parser, bp BindingPower) ast.Expression {
-	tokenKind := p.currentToken().Kind
-	nudFn, exists := nudLookup[tokenKind]
+func ParsePrintStatement(p *Parser) ast.Statement {
+	values := []ast.Expression{}
 
-	if !exists {
-		panic(
-			fmt.Sprintf(
-				"nud handler expected for token %s and binding power %v \n %v",
-				tokenKind,
-				bp,
-				p.tokens,
-			),
-		)
-	}
+	p.expect(lexer.Print)
 
-	left := nudFn(p)
+	p.expect(lexer.OpenParen)
 
-	for bindingPowerLookup[p.currentToken().Kind] > bp {
-		ledFn, exists := ledLookup[p.currentToken().Kind]
-
-		if !exists {
-			panic(
-				fmt.Sprintf(
-					"led handler expected for token (%s: value(%s))\n",
-					tokenKind,
-					p.currentToken().Value,
-				),
-			)
+	for p.hasTokens() && p.currentToken().Kind != lexer.CloseParen {
+		switch p.currentToken().Kind {
+		case lexer.String:
+			values = append(values, ast.StringExpression{Value: p.expect(lexer.String).Value})
+		case lexer.Identifier:
+			values = append(values, ast.SymbolExpression{Value: p.expect(lexer.Identifier).Value})
+		default:
+			panic(fmt.Sprintf("Token %s not supported in print statement", p.currentToken().Kind))
 		}
 
-		left = ledFn(p, left, bindingPowerLookup[p.currentToken().Kind])
+		if p.currentToken().Kind == lexer.Comma {
+			p.expect(lexer.Comma)
+		}
 	}
 
-	return left
+	p.expect(lexer.CloseParen)
+	p.expect(lexer.SemiColon)
+
+	return ast.PrintStatetement{}
 }
