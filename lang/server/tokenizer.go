@@ -61,7 +61,6 @@ func (WebTokenizer) expectPayload(r *http.Request) (*WebParserRequest, error) {
 }
 
 func (WebTokenizer) expectResponse(data *WebParserRequest) ([]byte, error) {
-	fmt.Println(data)
 	tokens := lexer.Tokenize(data.Src)
 
 	jsonData, err := json.MarshalIndent(tokens, "", "  ")

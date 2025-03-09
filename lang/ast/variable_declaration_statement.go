@@ -35,7 +35,14 @@ type VarDeclarationStatement struct {
 var _ Statement = (*VarDeclarationStatement)(nil)
 
 func (v VarDeclarationStatement) Evaluate(s *Scope) (error, values.Value) {
-	_, val := v.Value.Evaluate(s)
+	lg.Debug("Evaluating variable declaration statement", "variable", v)
+
+	err, val := v.Value.Evaluate(s)
+	if err != nil {
+		return err, nil
+	}
+
+	lg.Debug("Result of evaluating value", "value", val)
 
 	s.Set(v.Name, val)
 

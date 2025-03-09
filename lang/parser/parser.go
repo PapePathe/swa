@@ -39,8 +39,7 @@ func Parse(tokens []lexer.Token) ast.BlockStatement {
 	if psr.hasTokens() {
 		psr.expect(lexer.DialectDeclaration)
 		psr.expect(lexer.Colon)
-		dlct := psr.expect(lexer.Identifier)
-		fmt.Println(dlct)
+		psr.expect(lexer.Identifier)
 		psr.expect(lexer.SemiColon)
 	}
 

@@ -28,7 +28,18 @@ type BlockStatement struct {
 
 var _ Statement = (*BlockStatement)(nil)
 
-func (cs BlockStatement) Evaluate(s *Scope) (error, values.Value) {
+func (bs BlockStatement) Evaluate(s *Scope) (error, values.Value) {
+	lg.Debug("Evaluating block statement")
+
+	for _, stmt := range bs.Body {
+		err, _ := stmt.Evaluate(s)
+		if err != nil {
+			lg.Error("ERROR", " evaluating statement", err.Error())
+
+			return err, nil
+		}
+	}
+
 	return nil, nil
 }
 

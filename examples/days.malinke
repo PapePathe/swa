@@ -1,0 +1,22 @@
+dialect:malinke;
+let x = 10;
+const jours = []string  {"lundi", "mardi", "mercredi", "jeudi", "vendredi"};
+const nombres = []number {0,1,2,3};
+ni (x>10){
+ // statements
+} nii{
+ // statements
+}
+
+
+ni(x>=10){
+ // statements
+}
+
+ni(x<10){
+ // statements
+}
+
+ni(x<=10){
+ // statements
+}

@@ -28,15 +28,17 @@ type ExpressionStatement struct {
 
 var _ Statement = (*ExpressionStatement)(nil)
 
-func (cs ExpressionStatement) Evaluate(s *Scope) (error, values.Value) {
+func (es ExpressionStatement) Evaluate(s *Scope) (error, values.Value) {
+	lg.Debug("Evaluating expression statement", "Expression", es)
+
 	return nil, nil
 }
 
-func (bs ExpressionStatement) statement() {}
+func (es ExpressionStatement) statement() {}
 
-func (cs ExpressionStatement) MarshalJSON() ([]byte, error) {
+func (es ExpressionStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
-	m["expression"] = cs.Exp
+	m["expression"] = es.Exp
 
 	res := make(map[string]any)
 	res["ast.ExpressionStatetement"] = m

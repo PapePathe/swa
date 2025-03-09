@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"swahili/lang/ast"
+	"swahili/lang/interpreter"
 	"swahili/lang/lexer"
 	"swahili/lang/parser"
 	"swahili/lang/server"
@@ -44,7 +46,19 @@ var interpretCmd = &cobra.Command{
 	Use:   "interpret",
 	Short: "Interpret the source code",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Interpreting...")
+		source, _ := cmd.Flags().GetString("source")
+
+		bytes, err := os.ReadFile(source)
+		if err != nil {
+			fmt.Println(fmt.Sprintf("ERROR: %s", err))
+			os.Exit(1)
+		}
+
+		sourceCode := string(bytes)
+		tokens := lexer.Tokenize(sourceCode)
+		st := parser.Parse(tokens)
+
+		interpreter.Run(st, ast.NewScope(nil))
 	},
 }
 
@@ -93,6 +107,9 @@ func main() {
 	tokenizeCmd.MarkFlagRequired("source")
 	serverCmd.Flags().
 		StringP("server", "l", "", "start a web server")
+	interpretCmd.Flags().
+		StringP("source", "s", "", "location of the file containing the source code")
+	interpretCmd.MarkFlagRequired("source")
 
 	rootCmd.AddCommand(compileCmd, interpretCmd, tokenizeCmd, serverCmd)
 

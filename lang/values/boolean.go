@@ -13,14 +13,20 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package interpreter
+package values
 
-import (
-	"swahili/lang/ast"
-)
+import "fmt"
 
-func Run(program ast.BlockStatement, globalScope *ast.Scope) {
-	for _, v := range program.Body {
-		_, _ = v.Evaluate(globalScope)
-	}
+var TrueBooleanValue = BooleaValue{Value: true}
+
+type BooleaValue struct {
+	Value bool
+}
+
+func (iv BooleaValue) GetValue() any {
+	return iv.Value
+}
+
+func (iv BooleaValue) String() string {
+	return fmt.Sprintf("%v", iv.Value)
 }

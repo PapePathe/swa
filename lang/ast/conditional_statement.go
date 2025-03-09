@@ -29,6 +29,32 @@ type ConditionalStatetement struct {
 var _ Statement = (*ConditionalStatetement)(nil)
 
 func (cs ConditionalStatetement) Evaluate(s *Scope) (error, values.Value) {
+	lg.Debug("Evaluating conditional statement", "stmt", cs)
+
+	err, successful := cs.Condition.Evaluate(s)
+
+	if err != nil {
+		return err, nil
+	}
+
+	_, ok := successful.GetValue().(bool)
+
+	if !ok {
+		lg.Error("ERROR", "err", "Return value of conditional is not a boolean")
+	}
+
+	if successful.GetValue() == values.TrueBooleanValue.GetValue() {
+		lg.Debug("Condition is met evaluating success block")
+
+		return cs.Success.Evaluate(s)
+	} else {
+		if cs.Failure.Body != nil {
+			lg.Debug("Condition is not met evaluating failure block")
+
+			return cs.Failure.Evaluate(s)
+		}
+	}
+
 	return nil, nil
 }
 func (cs ConditionalStatetement) statement() {}

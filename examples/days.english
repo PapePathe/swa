@@ -1,0 +1,23 @@
+dialect:english;
+
+let x = 10;
+const days = []string{"lundi", "mardi", "mercredi", "jeudi", "vendredi"};
+const numbers = []number {0,1,2,3};
+
+if(x>10){
+ // statements
+} else{
+ // statements
+}
+
+if(x>=10){
+ // statements
+}
+
+if(x<10){
+ // statements
+}
+
+if(x<=10){
+ // statements
+}
