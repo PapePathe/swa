@@ -17,6 +17,8 @@ package values
 
 import "fmt"
 
+var TrueBooleanValue = BooleaValue{Value: true}
+
 type BooleaValue struct {
 	Value bool
 }

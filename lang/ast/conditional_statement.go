@@ -43,13 +43,17 @@ func (cs ConditionalStatetement) Evaluate(s *Scope) (error, values.Value) {
 		lg.Error("ERROR", "err", "Return value of conditional is not a boolean")
 	}
 
-	//	if successful.GetValue() == true {
-	//		return cs.Success.Evaluate(s)
-	//	} else {
-	//		if cs.Failure.Body != nil {
-	//			//			return cs.Failure.Evaluate(s)
-	//		}
-	//	}
+	if successful.GetValue() == values.TrueBooleanValue.GetValue() {
+		lg.Debug("Condition is met evaluating success block")
+
+		return cs.Success.Evaluate(s)
+	} else {
+		if cs.Failure.Body != nil {
+			lg.Debug("Condition is not met evaluating failure block")
+
+			return cs.Failure.Evaluate(s)
+		}
+	}
 
 	return nil, nil
 }
