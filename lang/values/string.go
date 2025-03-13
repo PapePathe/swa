@@ -26,5 +26,5 @@ func (sv StringValue) GetValue() any {
 }
 
 func (sv StringValue) String() string {
-	return fmt.Sprintf("\"%s\"", sv.Value)
+	return fmt.Sprintf("%s", sv.Value)
 }

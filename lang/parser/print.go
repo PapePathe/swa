@@ -30,7 +30,8 @@ func ParsePrintStatement(p *Parser) ast.Statement {
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseParen {
 		switch p.currentToken().Kind {
 		case lexer.String:
-			values = append(values, ast.StringExpression{Value: p.expect(lexer.String).Value})
+			str := p.expect(lexer.String).Value
+			values = append(values, ast.StringExpression{Value: str[1 : len(str)-1]})
 		case lexer.Identifier:
 			values = append(values, ast.SymbolExpression{Value: p.expect(lexer.Identifier).Value})
 		default:

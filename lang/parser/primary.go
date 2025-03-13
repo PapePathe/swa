@@ -32,8 +32,10 @@ func ParsePrimaryExpression(p *Parser) ast.Expression {
 			Value: number,
 		}
 	case lexer.String:
+		value := p.advance().Value
+
 		return ast.StringExpression{
-			Value: p.advance().Value,
+			Value: value[1 : len(value)-1],
 		}
 	case lexer.Identifier:
 		return ast.SymbolExpression{
