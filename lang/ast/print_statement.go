@@ -16,6 +16,7 @@
 package ast
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"swahili/lang/values"
@@ -28,6 +29,8 @@ type PrintStatetement struct {
 var _ Statement = (*PrintStatetement)(nil)
 
 func (ps PrintStatetement) Evaluate(s *Scope) (error, values.Value) {
+	var buffer bytes.Buffer
+
 	lg.Debug("Evaluating print statement", "stmt", ps)
 
 	for _, v := range ps.Values {
@@ -36,10 +39,12 @@ func (ps PrintStatetement) Evaluate(s *Scope) (error, values.Value) {
 			return err, nil
 		}
 
-		fmt.Print(vals.String())
+		buffer.WriteString(vals.String())
 	}
 
-	return nil, nil
+	fmt.Println(buffer.String())
+
+	return nil, values.StringValue{Value: buffer.String()}
 }
 func (cs PrintStatetement) statement() {}
 
