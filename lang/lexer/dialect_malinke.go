@@ -29,6 +29,7 @@ func (m Malinke) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`fèndo`), defaultHandler(TypeInt, "fèndo")},
 		{regexp.MustCompile(`nii`), defaultHandler(KeywordElse, "nii")},
 		{regexp.MustCompile(`ni`), defaultHandler(KeywordIf, "ni")},
+		{regexp.MustCompile(`afo`), defaultHandler(Print, "afo")},
 		{regexp.MustCompile(`struct`), defaultHandler(Struct, "struct")},
 		{regexp.MustCompile(`\/\/.*`), commentHandler},
 		{regexp.MustCompile(`"[^"]*"`), stringHandler},
