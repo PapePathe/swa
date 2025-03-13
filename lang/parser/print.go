@@ -16,6 +16,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
@@ -34,6 +35,15 @@ func ParsePrintStatement(p *Parser) ast.Statement {
 			values = append(values, ast.StringExpression{Value: str[1 : len(str)-1]})
 		case lexer.Identifier:
 			values = append(values, ast.SymbolExpression{Value: p.expect(lexer.Identifier).Value})
+		case lexer.Number:
+			value := p.expect(lexer.Number).Value
+
+			number, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				panic(fmt.Sprintf("Error parsing number expression <%s> in PRINT statement", err))
+			}
+
+			values = append(values, ast.NumberExpression{Value: number})
 		default:
 			panic(fmt.Sprintf("Token %s not supported in print statement", p.currentToken().Kind))
 		}
