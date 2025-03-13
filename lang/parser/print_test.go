@@ -28,6 +28,15 @@ func TestParsePrintStatement(t *testing.T) {
 			},
 		},
 	}
+	expectedIdentifierAst := ast.BlockStatement{
+		Body: []ast.Statement{
+			ast.PrintStatetement{
+				Values: []ast.Expression{
+					ast.SymbolExpression{Value: "x"},
+				},
+			},
+		},
+	}
 
 	t.Run("french", func(t *testing.T) {
 		t.Run("simple", func(t *testing.T) {
@@ -41,6 +50,12 @@ func TestParsePrintStatement(t *testing.T) {
 			result := parseSourceCode(t, source)
 
 			assert.Equal(t, expectedNumberAst, result)
+		})
+		t.Run("with an identifier", func(t *testing.T) {
+			source := `dialect:french; afficher(x);`
+			result := parseSourceCode(t, source)
+
+			assert.Equal(t, expectedIdentifierAst, result)
 		})
 	})
 	t.Run("english", func(t *testing.T) {
@@ -56,6 +71,12 @@ func TestParsePrintStatement(t *testing.T) {
 
 			assert.Equal(t, expectedNumberAst, result)
 		})
+		t.Run("with an identifier", func(t *testing.T) {
+			source := `dialect:english; print(x);`
+			result := parseSourceCode(t, source)
+
+			assert.Equal(t, expectedIdentifierAst, result)
+		})
 	})
 	t.Run("malinke", func(t *testing.T) {
 		t.Run("simple", func(t *testing.T) {
@@ -69,6 +90,12 @@ func TestParsePrintStatement(t *testing.T) {
 			result := parseSourceCode(t, source)
 
 			assert.Equal(t, expectedNumberAst, result)
+		})
+		t.Run("with an identifier", func(t *testing.T) {
+			source := `dialect:malinke; afo(x);`
+			result := parseSourceCode(t, source)
+
+			assert.Equal(t, expectedIdentifierAst, result)
 		})
 	})
 }
