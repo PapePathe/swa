@@ -45,5 +45,5 @@ func ParsePrintStatement(p *Parser) ast.Statement {
 	p.expect(lexer.CloseParen)
 	p.expect(lexer.SemiColon)
 
-	return ast.PrintStatetement{}
+	return ast.PrintStatetement{Values: values}
 }

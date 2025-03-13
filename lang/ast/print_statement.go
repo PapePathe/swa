@@ -17,17 +17,27 @@ package ast
 
 import (
 	"encoding/json"
+	"fmt"
 	"swahili/lang/values"
 )
 
 type PrintStatetement struct {
-	Values Expression
+	Values []Expression
 }
 
 var _ Statement = (*PrintStatetement)(nil)
 
-func (cs PrintStatetement) Evaluate(s *Scope) (error, values.Value) {
-	lg.Debug("Evaluating print statement", "stmt", cs)
+func (ps PrintStatetement) Evaluate(s *Scope) (error, values.Value) {
+	lg.Debug("Evaluating print statement", "stmt", ps)
+
+	for _, v := range ps.Values {
+		err, vals := v.Evaluate(s)
+		if err != nil {
+			return err, nil
+		}
+
+		fmt.Print(vals.String())
+	}
 
 	return nil, nil
 }
