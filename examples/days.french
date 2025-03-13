@@ -7,7 +7,7 @@ constante nombres = []number {0,1,2,3};
 si(x>10){
   afficher("X est superieur a dix.");
 } sinon {
-  afficher("X n est pas superieur a dix.", x, jours, nombres);
+  afficher("X n est pas superieur a dix. ", x, jours, nombres);
 }
 
 si(x>=10){
