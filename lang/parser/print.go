@@ -39,12 +39,12 @@ func ParsePrintStatement(p *Parser) ast.Statement {
 			value := p.expect(lexer.Number).Value
 
 			number, err := strconv.ParseFloat(value, 64)
-			if err != nil {
+			if err != nil { // change this to return error when we feel stable
 				panic(fmt.Sprintf("Error parsing number expression <%s> in PRINT statement", err))
 			}
 
 			values = append(values, ast.NumberExpression{Value: number})
-		default:
+		default: // change this to return error when we feel stable
 			panic(fmt.Sprintf("Token %s not supported in print statement", p.currentToken().Kind))
 		}
 
