@@ -21,6 +21,8 @@ type TokenKind int
 // String returns a string representation of the TokenKind.
 func (k TokenKind) String() string {
 	switch k {
+	case Print:
+		return "PRINT"
 	case DialectDeclaration:
 		return "DIALECT"
 	case StarEquals:
@@ -187,4 +189,6 @@ const (
 	StarEquals
 	// Dialect ...
 	DialectDeclaration
+	// Print
+	Print
 )

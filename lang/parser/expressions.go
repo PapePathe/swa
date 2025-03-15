@@ -27,9 +27,10 @@ func parseExpression(p *Parser, bp BindingPower) ast.Expression {
 	if !exists {
 		panic(
 			fmt.Sprintf(
-				"nud handler expected for token %s and binding power %v \n",
+				"nud handler expected for token %s and binding power %v \n %v",
 				tokenKind,
 				bp,
+				p.tokens,
 			),
 		)
 	}

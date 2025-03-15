@@ -6,5 +6,5 @@ import (
 )
 
 var Logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-	Level: slog.LevelDebug,
+	Level: slog.LevelError,
 }))

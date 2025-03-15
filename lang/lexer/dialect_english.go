@@ -28,6 +28,7 @@ func (m English) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`int`), defaultHandler(TypeInt, "int")},
 		{regexp.MustCompile(`if`), defaultHandler(KeywordIf, "if")},
 		{regexp.MustCompile(`else`), defaultHandler(KeywordElse, "else")},
+		{regexp.MustCompile(`print`), defaultHandler(Print, "print")},
 		{regexp.MustCompile(`struct`), defaultHandler(Struct, "struct")},
 		{regexp.MustCompile(`\/\/.*`), commentHandler},
 		{regexp.MustCompile(`"[^"]*"`), stringHandler},
