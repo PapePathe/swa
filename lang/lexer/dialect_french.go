@@ -30,7 +30,12 @@ func (m French) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`si`), defaultHandler(KeywordIf, "si")},
 		{regexp.MustCompile(`afficher`), defaultHandler(Print, "afficher")},
 		{regexp.MustCompile(`structure`), defaultHandler(Struct, "structure")},
-		{regexp.MustCompile(`'[a-zA-Z0-9]'`), characterHandler},
+		{
+			regexp.MustCompile(
+				`'[aáàâãäåæçćčđéèêëíìîïðñóòôõöøœśšşțúùûüýÿžAÁÀÂÃÄÅÆÇĆČĐÉÈÊËÍÌÎÏÐÑÓÒÔÕÖØŒŚŠŞȚÚÙÛÜÝŸŽa-zA-Z0-9]'`,
+			),
+			characterHandler,
+		},
 		{regexp.MustCompile(`\/\/.*`), commentHandler},
 		{regexp.MustCompile(`"[^"]*"`), stringHandler},
 		{regexp.MustCompile(`[0-9]+(\.[0-9]+)?`), numberHandler},
