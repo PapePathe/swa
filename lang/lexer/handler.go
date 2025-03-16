@@ -27,10 +27,14 @@ func defaultHandler(kind TokenKind, value string) regexHandler {
 }
 
 func commentHandler(lex *Lexer, regex *regexp.Regexp) {
+}
+
+func characterHandler(lex *Lexer, regex *regexp.Regexp) {
 	match := regex.FindStringIndex(lex.remainder())
-	if match != nil {
-		lex.advanceN(match[1])
-	}
+	charLiteral := lex.remainder()[match[0]:match[1]]
+
+	lex.push(NewToken(Character, charLiteral))
+	lex.advanceN(match[1])
 }
 
 func stringHandler(lex *Lexer, regex *regexp.Regexp) {

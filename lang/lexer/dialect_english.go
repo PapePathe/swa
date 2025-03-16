@@ -31,6 +31,7 @@ func (m English) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`print`), defaultHandler(Print, "print")},
 		{regexp.MustCompile(`struct`), defaultHandler(Struct, "struct")},
 		{regexp.MustCompile(`\/\/.*`), commentHandler},
+		{regexp.MustCompile(`'[a-zA-Z0-9]'`), characterHandler},
 		{regexp.MustCompile(`"[^"]*"`), stringHandler},
 		{regexp.MustCompile(`[0-9]+(\.[0-9]+)?`), numberHandler},
 		{regexp.MustCompile(`[a-zA-Z_][a-zA-Z0-9_]*`), symbolHandler},
