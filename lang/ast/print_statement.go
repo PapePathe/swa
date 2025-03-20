@@ -50,6 +50,7 @@ func (cs PrintStatetement) statement() {}
 
 func (cs PrintStatetement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
+	m["Values"] = cs.Values
 
 	res := make(map[string]any)
 	res["ast.PrintStatetement"] = m
