@@ -4,24 +4,14 @@ variable x = 10;
 constante jours = []string  {"lundi", "mardi", "mercredi", "jeudi", "vendredi"};
 constante nombres = []number {0,1,2,3};
 
-si(x>10){
-  afficher("X est superieur a dix.");
-} sinon {
-  afficher("X n'est pas superieur a dix. ");
-  afficher("X = ", x);
-  afficher("Jours = ", jours);
+fonction test(x: nombre_32, y: nombre_32) int {
+  retourner 0;
 }
 
-si(x>=10){
-  afficher("X est superieur ou egal a dix.");
-}
-
-si(x<10){
-  afficher("X est inferieur a dix.");
- // statements
-}
-
-si(x<=10){
-  afficher("X est inferieur ou egal  a dix.");
- // statements
+demarrer() int {
+  si(x>10){
+    afficher("X est superieur a dix.");
+  } sinon {
+    afficher("X n'est pas superieur a dix. ");
+  }
 }
