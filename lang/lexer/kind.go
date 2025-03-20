@@ -18,92 +18,61 @@ package lexer
 // TokenKind is a custom type representing the kind of a token.
 type TokenKind int
 
-// String returns a string representation of the TokenKind.
+var tks = map[TokenKind]string{
+	And:                "AND",
+	Assignment:         "ASSIGNMENT",
+	Colon:              "COLON",
+	Comma:              "COMMA",
+	CloseCurly:         "CLOSE_CURLY",
+	CloseParen:         "CLOSE_PAREN",
+	CloseBracket:       "CLOSE_BRACKET",
+	Const:              "CONST",
+	DialectDeclaration: "DIALECT",
+	Divide:             "DIVIDE",
+	Dot:                "DOT",
+	EOF:                "EOF",
+	Equals:             "EQUALS",
+	Function:           "FUNCTION",
+	GreaterThan:        "GREATER_THAN",
+	GreaterThanEquals:  "GREATER_THAN_EQUALS",
+	Identifier:         "IDENTIFIER",
+	KeywordIf:          "IF",
+	KeywordElse:        "ELSE",
+	LessThan:           "LESS_THAN",
+	LessThanEquals:     "LESS_THAN_EQUALS",
+	Let:                "LET",
+	Main:               "MAIN_PROGRAM",
+	Minus:              "MINUS",
+	Multiply:           "MULTIPLY",
+	Not:                "NOT",
+	NotEquals:          "NOT_EQUALS",
+	Number:             "NUMBER",
+	OpenCurly:          "OPEN_CURLY",
+	OpenParen:          "OPEN_PAREN",
+	OpenBracket:        "OPEN_BRACKET",
+	Or:                 "OR",
+	Plus:               "PLUS",
+	PlusEquals:         "PLUS_EQUAL",
+	Print:              "PRINT",
+	QuestionMark:       "QUESTION_MARK",
+	SemiColon:          "SEMI_COLON",
+	Return:             "RETURN",
+	StarEquals:         "STAR_EQUALS",
+	Struct:             "STRUCT",
+	String:             "STRING",
+	Star:               "STAR",
+	TypeInt:            "INT",
+}
+
+// String s a string representation of the TokenKind.
 func (k TokenKind) String() string {
-	switch k {
-	case Print:
-		return "PRINT"
-	case DialectDeclaration:
-		return "DIALECT"
-	case StarEquals:
-		return "STAR_EQUALS"
-	case Dot:
-		return "DOT"
-	case Struct:
-		return "STRUCT"
-	case Let:
-		return "LET"
-	case Const:
-		return "CONST"
-	case Or:
-		return "OR"
-	case And:
-		return "AND"
-	case KeywordIf:
-		return "IF"
-	case KeywordElse:
-		return "ELSE"
-	case TypeInt:
-		return "INT"
-	case Identifier:
-		return "IDENTIFIER"
-	case Assignment:
-		return "ASSIGNMENT"
-	case String:
-		return "STRING"
-	case Colon:
-		return "COLON"
-	case Comma:
-		return "COMMA"
-	case CloseCurly:
-		return "CLOSE_CURLY"
-	case CloseParen:
-		return "CLOSE_PAREN"
-	case CloseBracket:
-		return "CLOSE_BRACKET"
-	case Divide:
-		return "DIVIDE"
-	case EOF:
-		return "EOF"
-	case Equals:
-		return "EQUALS"
-	case GreaterThan:
-		return "GREATER_THAN"
-	case GreaterThanEquals:
-		return "GREATER_THAN_EQUALS"
-	case LessThan:
-		return "LESS_THAN"
-	case LessThanEquals:
-		return "LESS_THAN_EQUALS"
-	case Minus:
-		return "MINUS"
-	case Multiply:
-		return "MULTIPLY"
-	case Not:
-		return "NOT"
-	case NotEquals:
-		return "NOT_EQUALS"
-	case OpenCurly:
-		return "OPEN_CURLY"
-	case OpenParen:
-		return "OPEN_PAREN"
-	case OpenBracket:
-		return "OPEN_BRACKET"
-	case Plus:
-		return "PLUS"
-	case PlusEquals:
-		return "PLUS_EQUAL"
-	case Star:
-		return "STAR"
-	case SemiColon:
-		return "SEMI_COLON"
-	case QuestionMark:
-		return "QUESTION_MARK"
-	case Number:
-		return "NUMBER"
+	str, ok := tks[k]
+
+	if !ok {
+		return "UNKNOWN TOKEN KIND"
 	}
 
-	return "UNKNOWN TOKEN KIND"
+	return str
 }
 
 const (
@@ -191,4 +160,10 @@ const (
 	DialectDeclaration
 	// Print
 	Print
+	// Start
+	Main
+	// Function
+	Function
+	// Return
+	Return
 )
