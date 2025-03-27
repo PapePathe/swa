@@ -20,6 +20,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"swahili/lang/values"
+
+	"github.com/llir/llvm/ir"
 )
 
 type PrintStatetement struct {
@@ -47,6 +49,10 @@ func (ps PrintStatetement) Evaluate(s *Scope) (error, values.Value) {
 	return nil, values.StringValue{Value: buffer.String()}
 }
 func (cs PrintStatetement) statement() {}
+
+func (PrintStatetement) Compile(m *ir.Module, b *ir.Block) error {
+	return nil
+}
 
 func (cs PrintStatetement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)

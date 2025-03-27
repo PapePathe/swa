@@ -1,6 +1,6 @@
 dialect:french;
 
-variable x = 10;
+variable salary = 100000;
 constante jours = []string  {"lundi", "mardi", "mercredi", "jeudi", "vendredi"};
 constante nombres = []number {0,1,2,3};
 
@@ -14,4 +14,5 @@ demarrer() int {
   } sinon {
     afficher("X n'est pas superieur a dix. ");
   }
+  retourner 0;
 }

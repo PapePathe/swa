@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"os"
 	"swahili/lang/ast"
+	"swahili/lang/compiler"
 	"swahili/lang/interpreter"
 	"swahili/lang/lexer"
 	"swahili/lang/parser"
@@ -38,7 +39,18 @@ var compileCmd = &cobra.Command{
 	Use:   "compile",
 	Short: "Compile the source code to an executable",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Compiling...")
+		source, _ := cmd.Flags().GetString("source")
+
+		bytes, err := os.ReadFile(source)
+		if err != nil {
+			fmt.Println(fmt.Sprintf("ERROR: %s", err))
+			os.Exit(1)
+		}
+
+		sourceCode := string(bytes)
+		tokens := lexer.Tokenize(sourceCode)
+		tree := parser.Parse(tokens)
+		compiler.Compile(tree, compiler.BuildTarget{})
 	},
 }
 
@@ -110,6 +122,9 @@ func main() {
 	interpretCmd.Flags().
 		StringP("source", "s", "", "location of the file containing the source code")
 	interpretCmd.MarkFlagRequired("source")
+	compileCmd.Flags().
+		StringP("source", "s", "", "location of the file containing the source code")
+	compileCmd.MarkFlagRequired("source")
 
 	rootCmd.AddCommand(compileCmd, interpretCmd, tokenizeCmd, serverCmd)
 

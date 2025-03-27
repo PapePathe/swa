@@ -18,6 +18,10 @@ package ast
 import (
 	"encoding/json"
 	"swahili/lang/values"
+
+	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir/types"
 )
 
 // VarDeclarationStatement ...
@@ -50,6 +54,15 @@ func (v VarDeclarationStatement) Evaluate(s *Scope) (error, values.Value) {
 }
 
 func (bs VarDeclarationStatement) statement() {}
+
+func (vd VarDeclarationStatement) Compile(m *ir.Module, b *ir.Block) error {
+	intValue, ok := vd.Value.(NumberExpression)
+	if ok {
+		m.NewGlobalDef(vd.Name, constant.NewInt(types.I32, int64(intValue.Value)))
+	}
+
+	return nil
+}
 
 func (cs VarDeclarationStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
