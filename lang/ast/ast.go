@@ -15,12 +15,17 @@
 
 package ast
 
-import "swahili/lang/values"
+import (
+	"swahili/lang/values"
+
+	"github.com/llir/llvm/ir"
+)
 
 // Statement ...
 type Statement interface {
 	statement()
 	Evaluate(s *Scope) (error, values.Value)
+	Compile(m *ir.Module, b *ir.Block) error
 }
 
 // Expression ...

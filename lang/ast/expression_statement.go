@@ -18,6 +18,8 @@ package ast
 import (
 	"encoding/json"
 	"swahili/lang/values"
+
+	"github.com/llir/llvm/ir"
 )
 
 // ExpressionStatement ...
@@ -35,6 +37,9 @@ func (es ExpressionStatement) Evaluate(s *Scope) (error, values.Value) {
 }
 
 func (es ExpressionStatement) statement() {}
+func (ExpressionStatement) Compile(m *ir.Module, b *ir.Block) error {
+	return nil
+}
 
 func (es ExpressionStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)

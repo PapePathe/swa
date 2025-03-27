@@ -18,6 +18,8 @@ package ast
 import (
 	"encoding/json"
 	"swahili/lang/values"
+
+	"github.com/llir/llvm/ir"
 )
 
 type ConditionalStatetement struct {
@@ -57,6 +59,11 @@ func (cs ConditionalStatetement) Evaluate(s *Scope) (error, values.Value) {
 
 	return nil, nil
 }
+
+func (ConditionalStatetement) Compile(m *ir.Module, b *ir.Block) error {
+	return nil
+}
+
 func (cs ConditionalStatetement) statement() {}
 
 func (cs ConditionalStatetement) MarshalJSON() ([]byte, error) {
