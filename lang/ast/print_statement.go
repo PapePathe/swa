@@ -16,10 +16,8 @@
 package ast
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"swahili/lang/values"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
@@ -30,27 +28,6 @@ type PrintStatetement struct {
 }
 
 var _ Statement = (*PrintStatetement)(nil)
-
-func (ps PrintStatetement) Evaluate(s *Scope) (error, values.Value) {
-	var buffer bytes.Buffer
-
-	lg.Debug("Evaluating print statement", "stmt", ps)
-
-	for _, v := range ps.Values {
-		err, vals := v.Evaluate(s)
-		if err != nil {
-			return err, nil
-		}
-
-		buffer.WriteString(vals.String())
-	}
-
-	fmt.Println(buffer.String())
-
-	return nil, values.StringValue{Value: buffer.String()}
-}
-
-func (cs PrintStatetement) statement() {}
 
 func (ps PrintStatetement) Compile(ctx *Context) error {
 	for _, v := range ps.Values {
