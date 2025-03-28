@@ -16,7 +16,8 @@ type BuildTarget struct {
 
 func Compile(tree ast.BlockStatement, target BuildTarget) {
 	m := ir.NewModule()
-	m.NewFunc("printf", types.I32, ir.NewParam("", types.NewPointer(types.I8)))
+	f := m.NewFunc("printf", types.I32, ir.NewParam("", types.NewPointer(types.I8)))
+	f.Sig.Variadic = true
 
 	err := tree.Compile(ast.NewContext(nil, m))
 	if err != nil {

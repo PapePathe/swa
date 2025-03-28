@@ -16,7 +16,11 @@
 package ast
 
 import (
+	"fmt"
 	"swahili/lang/values"
+
+	"github.com/llir/llvm/ir/types"
+	_types "github.com/llir/llvm/ir/types"
 )
 
 type StructProperty struct {
@@ -34,6 +38,28 @@ func (cs StructDeclarationStatement) Evaluate(s *Scope) (error, values.Value) {
 }
 
 func (ms StructDeclarationStatement) Compile(ctx *Context) error {
+	attrs := []_types.Type{}
+
+	for _, attr := range ms.Properties {
+		switch v := attr.PropType.(type) {
+		case SymbolType:
+			switch v.Name {
+			case "Chaine":
+				attrs = append(attrs, types.NewPointer(types.I8))
+			case "Nombre":
+				attrs = append(attrs, types.I32)
+			default:
+				err := fmt.Errorf("Struct proprerty type %s not supported", v.Name)
+				panic(err)
+			}
+		default:
+			err := fmt.Errorf("Struct proprerty does not support type")
+			panic(err)
+		}
+	}
+
+	ctx.mod.NewTypeDef(ms.Name, _types.NewStruct(attrs...))
+
 	return nil
 }
 

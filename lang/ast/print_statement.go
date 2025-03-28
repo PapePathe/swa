@@ -61,12 +61,6 @@ func (ps PrintStatetement) Compile(ctx *Context) error {
 
 		switch v.(type) {
 		case SymbolExpression:
-			// gep := constant.NewGetElementPtr(
-			// 	res.v.Type(),
-			// 	res.c,
-			// 	constant.NewInt(types.I32, 0),
-			// 	constant.NewInt(types.I32, 0),
-			// )
 			ctx.NewCall(ir.NewFunc("printf", types.I32), res.v)
 		case StringExpression:
 			vl := ctx.NewAlloca(res.c.Type())
