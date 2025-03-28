@@ -1,18 +1,20 @@
 dialect:french;
 
 variable salary = 100000;
-constante jours = []string  {"lundi", "mardi", "mercredi", "jeudi", "vendredi"};
-constante nombres = []number {0,1,2,3};
+variable salary_string = "100000 EUR";
+// TODO: support array of strings constante jours = []string  {"lundi", "mardi", "mercredi", "jeudi", "vendredi"};
+constante nombres = []number {1,10,100,1000,10000,100000, 1000000, 10000000};
 
-fonction test(x: nombre_32, y: nombre_32) int {
-  retourner 0;
-}
+//fonction test(x: nombre_32, y: nombre_32) int {
+//  retourner 0;
+//}
 
 demarrer() int {
+  afficher("salary:", salary_string);
   si(x>10){
     afficher("X est superieur a dix.");
   } sinon {
     afficher("X n'est pas superieur a dix. ");
   }
-  retourner 0;
+  retourner 10;
 }
