@@ -58,9 +58,15 @@ func (vd VarDeclarationStatement) Compile(ctx *Context) error {
 		return err
 	}
 
-	ctx.vars[vd.Name] = Var{
-		cst: cst.c,
-		def: ctx.mod.NewGlobalDef(vd.Name, cst.c),
+	if ctx.parent == nil {
+		ctx.vars[vd.Name] = Var{
+			cst: cst.c,
+			def: ctx.mod.NewGlobalDef(vd.Name, cst.c),
+		}
+	} else {
+		// TODO handle case where variable is local to the current block
+		// storage := ctx.NewAlloca(cst.c.Type())
+		// ctx.NewStore(cst.c, storage)
 	}
 
 	return nil
