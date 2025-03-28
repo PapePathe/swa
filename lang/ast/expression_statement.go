@@ -18,8 +18,6 @@ package ast
 import (
 	"encoding/json"
 	"swahili/lang/values"
-
-	"github.com/llir/llvm/ir"
 )
 
 // ExpressionStatement ...
@@ -37,7 +35,7 @@ func (es ExpressionStatement) Evaluate(s *Scope) (error, values.Value) {
 }
 
 func (es ExpressionStatement) statement() {}
-func (ExpressionStatement) Compile(m *ir.Module, b *ir.Block) error {
+func (ExpressionStatement) Compile(ctx *Context) error {
 	return nil
 }
 

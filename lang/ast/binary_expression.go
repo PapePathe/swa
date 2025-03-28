@@ -64,3 +64,7 @@ func (be BinaryExpression) Evaluate(s *Scope) (error, values.Value) {
 		return fmt.Errorf("Operator not yet supportted %s", be.Operator.Kind), nil
 	}
 }
+
+func (BinaryExpression) Compile(ctx *Context) (error, *CompileResult) {
+	return nil, nil
+}

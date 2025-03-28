@@ -15,7 +15,9 @@
 
 package ast
 
-import "swahili/lang/values"
+import (
+	"swahili/lang/values"
+)
 
 type MemberExpression struct {
 	Object   Expression
@@ -28,5 +30,9 @@ var _ Expression = (*MemberExpression)(nil)
 func (me MemberExpression) expression() {}
 
 func (v MemberExpression) Evaluate(s *Scope) (error, values.Value) {
+	return nil, nil
+}
+
+func (MemberExpression) Compile(ctx *Context) (error, *CompileResult) {
 	return nil, nil
 }

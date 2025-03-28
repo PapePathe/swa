@@ -18,8 +18,6 @@ package ast
 import (
 	"encoding/json"
 	"swahili/lang/values"
-
-	"github.com/llir/llvm/ir"
 )
 
 // BlockStatement ...
@@ -45,9 +43,9 @@ func (bs BlockStatement) Evaluate(s *Scope) (error, values.Value) {
 	return nil, nil
 }
 
-func (bs BlockStatement) Compile(m *ir.Module, b *ir.Block) error {
+func (bs BlockStatement) Compile(ctx *Context) error {
 	for _, stmt := range bs.Body {
-		err := stmt.Compile(m, b)
+		err := stmt.Compile(ctx)
 		if err != nil {
 			lg.Error("ERROR", " evaluating statement", err.Error())
 

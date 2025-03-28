@@ -17,8 +17,6 @@ package ast
 
 import (
 	"swahili/lang/values"
-
-	"github.com/llir/llvm/ir"
 )
 
 type StructProperty struct {
@@ -35,7 +33,7 @@ func (cs StructDeclarationStatement) Evaluate(s *Scope) (error, values.Value) {
 	return nil, nil
 }
 
-func (ms StructDeclarationStatement) Compile(m *ir.Module, b *ir.Block) error {
+func (ms StructDeclarationStatement) Compile(ctx *Context) error {
 	return nil
 }
 
