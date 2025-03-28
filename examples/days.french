@@ -1,20 +1,27 @@
 dialect:french;
 
-variable salary = 100000;
 variable salary_string = "100000 EUR";
 // TODO: support array of strings constante jours = []string  {"lundi", "mardi", "mercredi", "jeudi", "vendredi"};
 constante nombres = []number {1,10,100,1000,10000,100000, 1000000, 10000000};
+
+structure Employe{
+  AnneeNaissane: Nombre,
+  Nom: Chaine,
+  Prenom: Chaine,
+}
 
 //fonction test(x: nombre_32, y: nombre_32) int {
 //  retourner 0;
 //}
 
 demarrer() int {
+  variable salary = 100000;
   afficher("salary:", salary_string);
   si(x>10){
     afficher("X est superieur a dix.");
   } sinon {
     afficher("X n'est pas superieur a dix. ");
   }
+
   retourner 10;
 }
