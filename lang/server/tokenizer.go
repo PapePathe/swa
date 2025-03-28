@@ -36,12 +36,14 @@ func (wt WebTokenizer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write(jsonData)
+	if _, err := w.Write(jsonData); err != nil {
+		panic(err)
+	}
 }
 
 func (WebTokenizer) expectPostRequest(r *http.Request) error {
 	if r.Method != http.MethodPost {
-		return fmt.Errorf("Only post method is allowed")
+		return fmt.Errorf("only post method is allowed")
 	}
 
 	return nil

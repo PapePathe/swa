@@ -41,7 +41,7 @@ var compileCmd = &cobra.Command{
 
 		bytes, err := os.ReadFile(source)
 		if err != nil {
-			fmt.Println(fmt.Sprintf("ERROR: %s", err))
+			fmt.Printf("ERROR: %s", err)
 			os.Exit(1)
 		}
 
@@ -59,7 +59,9 @@ var serverCmd = &cobra.Command{
 		mux := http.NewServeMux()
 		mux.Handle("/p", server.WebParser{})
 		mux.Handle("/t", server.WebTokenizer{})
-		http.ListenAndServe(":2108", mux)
+		if err := http.ListenAndServe(":2108", mux); err != nil {
+			panic(err)
+		}
 	},
 }
 
@@ -72,8 +74,7 @@ var tokenizeCmd = &cobra.Command{
 		fmt.Println("Tokenizing...")
 		bytes, err := os.ReadFile(source)
 		if err != nil {
-			fmt.Println(fmt.Sprintf("ERROR: %s", err))
-			os.Exit(1)
+			panic(err)
 		}
 
 		sourceCode := string(bytes)
@@ -94,12 +95,16 @@ func main() {
 		StringP("source", "s", "", "location of the file containing the source code")
 	tokenizeCmd.Flags().
 		StringP("output", "o", "json", "output format of the tokenizer (json | yaml | toml)")
-	tokenizeCmd.MarkFlagRequired("source")
+	if err := tokenizeCmd.MarkFlagRequired("source"); err != nil {
+		panic(err)
+	}
 	serverCmd.Flags().
 		StringP("server", "l", "", "start a web server")
 	compileCmd.Flags().
 		StringP("source", "s", "", "location of the file containing the source code")
-	compileCmd.MarkFlagRequired("source")
+	if err := compileCmd.MarkFlagRequired("source"); err != nil {
+		panic(err)
+	}
 
 	rootCmd.AddCommand(compileCmd, tokenizeCmd, serverCmd)
 

@@ -45,11 +45,10 @@ func (vd VarDeclarationStatement) Compile(ctx *Context) error {
 			cst: cst.c,
 			def: ctx.mod.NewGlobalDef(vd.Name, cst.c),
 		}
-	} else {
-		// TODO handle case where variable is local to the current block
-		// storage := ctx.NewAlloca(cst.c.Type())
-		// ctx.NewStore(cst.c, storage)
 	}
+	// TODO handle case where variable is local to the current block
+	// storage := ctx.NewAlloca(cst.c.Type())
+	// ctx.NewStore(cst.c, storage)
 
 	return nil
 }

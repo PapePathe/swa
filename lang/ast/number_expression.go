@@ -17,7 +17,6 @@ package ast
 
 import (
 	"encoding/json"
-	"swahili/lang/values"
 
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
@@ -29,12 +28,6 @@ type NumberExpression struct {
 }
 
 var _ Expression = (*NumberExpression)(nil)
-
-func (n NumberExpression) expression() {}
-
-func (n NumberExpression) Evaluate(_ *Scope) (error, values.Value) {
-	return nil, values.NumberValue{Value: n.Value}
-}
 
 func (nexpr NumberExpression) Compile(ctx *Context) (error, *CompileResult) {
 	return nil, &CompileResult{c: constant.NewInt(types.I32, int64(nexpr.Value))}
