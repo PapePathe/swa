@@ -47,7 +47,7 @@ func (ps PrintStatetement) Compile(ctx *Context) error {
 		case NumberExpression:
 			panic("NumberExpressio not implemented")
 		default:
-			err := fmt.Errorf("Print does not support <%s>", v)
+			err := fmt.Errorf("print statement does not support symbol type <%s>", v)
 			panic(err)
 		}
 	}

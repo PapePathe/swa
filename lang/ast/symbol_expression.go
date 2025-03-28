@@ -15,31 +15,12 @@
 
 package ast
 
-import (
-	"fmt"
-	"swahili/lang/values"
-)
-
 // SymbolExpression ...
 type SymbolExpression struct {
 	Value string
 }
 
 var _ Expression = (*SymbolExpression)(nil)
-
-func (n SymbolExpression) expression() {}
-
-func (v SymbolExpression) Evaluate(s *Scope) (error, values.Value) {
-	lg.Debug("Evaluating symbol expression", "Expression", v)
-
-	value, exists := s.Get(v.Value)
-
-	if !exists {
-		return fmt.Errorf("Variable <%s> does not exist", v.Value), nil
-	}
-
-	return nil, value
-}
 
 func (se SymbolExpression) Compile(ctx *Context) (error, *CompileResult) {
 	val := ctx.LookupVariable(se.Value)

@@ -17,7 +17,6 @@ package ast
 
 import (
 	"swahili/lang/lexer"
-	"swahili/lang/values"
 )
 
 // AssignmentExpression.
@@ -32,12 +31,6 @@ type AssignmentExpression struct {
 }
 
 var _ Expression = (*AssignmentExpression)(nil)
-
-func (n AssignmentExpression) expression() {}
-
-func (v AssignmentExpression) Evaluate(s *Scope) (error, values.Value) {
-	return nil, nil
-}
 
 func (AssignmentExpression) Compile(ctx *Context) (error, *CompileResult) {
 	return nil, nil

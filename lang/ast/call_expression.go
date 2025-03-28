@@ -15,10 +15,6 @@
 
 package ast
 
-import (
-	"swahili/lang/values"
-)
-
 // CallExpression ...
 type CallExpression struct {
 	Arguments []Expression
@@ -26,12 +22,6 @@ type CallExpression struct {
 }
 
 var _ Expression = (*CallExpression)(nil)
-
-func (n CallExpression) expression() {}
-
-func (v CallExpression) Evaluate(s *Scope) (error, values.Value) {
-	return nil, nil
-}
 
 func (CallExpression) Compile(ctx *Context) (error, *CompileResult) {
 	return nil, nil

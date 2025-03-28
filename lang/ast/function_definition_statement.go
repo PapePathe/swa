@@ -25,8 +25,6 @@ func (FuncDeclStatement) Compile(ctx *Context) error {
 	return nil
 }
 
-func (fd FuncDeclStatement) statement() {}
-
 func (fd FuncDeclStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Args"] = fd.Args

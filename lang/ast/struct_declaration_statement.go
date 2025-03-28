@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"swahili/lang/values"
 
-	"github.com/llir/llvm/ir/types"
 	_types "github.com/llir/llvm/ir/types"
 )
 
@@ -45,15 +44,15 @@ func (ms StructDeclarationStatement) Compile(ctx *Context) error {
 		case SymbolType:
 			switch v.Name {
 			case "Chaine":
-				attrs = append(attrs, types.NewPointer(types.I8))
+				attrs = append(attrs, _types.NewPointer(_types.I8))
 			case "Nombre":
-				attrs = append(attrs, types.I32)
+				attrs = append(attrs, _types.I32)
 			default:
-				err := fmt.Errorf("Struct proprerty type %s not supported", v.Name)
+				err := fmt.Errorf("struct proprerty type %s not supported", v.Name)
 				panic(err)
 			}
 		default:
-			err := fmt.Errorf("Struct proprerty does not support type")
+			err := fmt.Errorf("struct proprerty does not support type")
 			panic(err)
 		}
 	}
@@ -62,5 +61,3 @@ func (ms StructDeclarationStatement) Compile(ctx *Context) error {
 
 	return nil
 }
-
-func (s StructDeclarationStatement) statement() {}
