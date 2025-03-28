@@ -16,8 +16,6 @@
 package ast
 
 import (
-	"swahili/lang/values"
-
 	"github.com/llir/llvm/ir/constant"
 )
 
@@ -27,21 +25,6 @@ type ArrayInitializationExpression struct {
 }
 
 var _ Expression = (*ArrayInitializationExpression)(nil)
-
-func (l ArrayInitializationExpression) expression() {}
-
-func (v ArrayInitializationExpression) Evaluate(s *Scope) (error, values.Value) {
-	contents := []values.Value{}
-
-	for _, elem := range v.Contents {
-		_, exprEval := elem.Evaluate(s)
-		contents = append(contents, exprEval)
-	}
-
-	array := values.ArrayValue{Values: contents}
-
-	return nil, array
-}
 
 func (v ArrayInitializationExpression) Compile(ctx *Context) (error, *CompileResult) {
 	contents := []constant.Constant{}
