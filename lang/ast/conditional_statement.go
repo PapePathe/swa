@@ -20,6 +20,7 @@ import (
 	"swahili/lang/values"
 
 	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/constant"
 )
 
 type ConditionalStatetement struct {
@@ -60,7 +61,32 @@ func (cs ConditionalStatetement) Evaluate(s *Scope) (error, values.Value) {
 	return nil, nil
 }
 
-func (ConditionalStatetement) Compile(m *ir.Module, b *ir.Block) error {
+func (cs ConditionalStatetement) Compile(ctx *Context) error {
+	blk := ir.NewBlock("success.block")
+	successCtx := ctx.NewContext(blk)
+	successCtx.NewRet(&constant.Null{})
+
+	err := cs.Success.Compile(successCtx)
+	if err != nil {
+		return err
+	}
+
+	failureCtx := ctx.NewContext(ir.NewBlock("failure.block"))
+	failureCtx.NewRet(&constant.Null{})
+
+	err = cs.Failure.Compile(failureCtx)
+	if err != nil {
+		return err
+	}
+
+	// err, _ = cs.Condition.Compile(ctx)
+
+	// if err != nil {
+	// 	return err
+	// }
+
+	//	ctx.NewCondBr(constant.NewBool(true), successCtx.Block, failureCtx.Block)
+
 	return nil
 }
 

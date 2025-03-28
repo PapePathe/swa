@@ -1,9 +1,9 @@
 package ast
 
 import (
+	"fmt"
 	"swahili/lang/values"
 
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 )
@@ -18,8 +18,15 @@ func (rs ReturnStatement) Evaluate(s *Scope) (error, values.Value) {
 	return nil, nil
 }
 
-func (rs ReturnStatement) Compile(m *ir.Module, b *ir.Block) error {
-	b.NewRet(constant.NewInt(types.I32, 0))
+func (rs ReturnStatement) Compile(ctx *Context) error {
+	switch v := rs.Value.(type) {
+	case NumberExpression:
+		ctx.Block.NewRet(constant.NewInt(types.I32, int64(v.Value)))
+	default:
+		err := fmt.Errorf("Unknown expression in ReturnStatement <%s>", rs.Value)
+
+		panic(err)
+	}
 
 	return nil
 }

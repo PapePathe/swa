@@ -3,8 +3,6 @@ package ast
 import (
 	"encoding/json"
 	"swahili/lang/values"
-
-	"github.com/llir/llvm/ir"
 )
 
 type FuncArg struct {
@@ -23,7 +21,7 @@ func (fd FuncDeclStatement) Evaluate(s *Scope) (error, values.Value) {
 	return nil, nil
 }
 
-func (FuncDeclStatement) Compile(m *ir.Module, b *ir.Block) error {
+func (FuncDeclStatement) Compile(ctx *Context) error {
 	return nil
 }
 

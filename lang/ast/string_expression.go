@@ -15,7 +15,11 @@
 
 package ast
 
-import "swahili/lang/values"
+import (
+	"swahili/lang/values"
+
+	"github.com/llir/llvm/ir/constant"
+)
 
 // StringExpression ...
 type StringExpression struct {
@@ -28,4 +32,8 @@ func (n StringExpression) expression() {}
 
 func (v StringExpression) Evaluate(s *Scope) (error, values.Value) {
 	return nil, values.StringValue{Value: v.Value}
+}
+
+func (se StringExpression) Compile(ctx *Context) (error, *CompileResult) {
+	return nil, &CompileResult{c: constant.NewCharArrayFromString(se.Value)}
 }

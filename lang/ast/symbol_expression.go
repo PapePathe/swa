@@ -40,3 +40,9 @@ func (v SymbolExpression) Evaluate(s *Scope) (error, values.Value) {
 
 	return nil, value
 }
+
+func (se SymbolExpression) Compile(ctx *Context) (error, *CompileResult) {
+	val := ctx.LookupVariable(se.Value)
+
+	return nil, &CompileResult{v: val.def, c: val.cst}
+}

@@ -44,3 +44,7 @@ func (cs PrefixExpression) MarshalJSON() ([]byte, error) {
 
 	return json.Marshal(res)
 }
+
+func (PrefixExpression) Compile(ctx *Context) (error, *CompileResult) {
+	return nil, nil
+}

@@ -17,6 +17,8 @@ package ast
 
 import (
 	"swahili/lang/values"
+
+	"github.com/llir/llvm/ir/constant"
 )
 
 type ArrayInitializationExpression struct {
@@ -39,4 +41,19 @@ func (v ArrayInitializationExpression) Evaluate(s *Scope) (error, values.Value) 
 	array := values.ArrayValue{Values: contents}
 
 	return nil, array
+}
+
+func (v ArrayInitializationExpression) Compile(ctx *Context) (error, *CompileResult) {
+	contents := []constant.Constant{}
+
+	for _, elem := range v.Contents {
+		err, c := elem.Compile(ctx)
+		if err != nil {
+			return err, nil
+		}
+
+		contents = append(contents, c.c)
+	}
+
+	return nil, &CompileResult{c: constant.NewArray(nil, contents...)}
 }

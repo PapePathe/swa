@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"swahili/lang/values"
 
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 )
 
@@ -17,15 +16,11 @@ func (ms MainStatement) Evaluate(s *Scope) (error, values.Value) {
 }
 
 func (MainStatement) statement() {}
-func (ms MainStatement) Compile(m *ir.Module, b *ir.Block) error {
-	main := m.NewFunc("main", types.I32)
-	entry := main.NewBlock("")
+func (ms MainStatement) Compile(ctx *Context) error {
+	main := ctx.mod.NewFunc("main", types.I32)
+	mainCtx := ctx.NewContext(main.NewBlock(""))
 
-	for _, stmt := range ms.Body.Body {
-		stmt.Compile(m, entry)
-	}
-
-	return nil
+	return ms.Body.Compile(mainCtx)
 }
 
 func (cs MainStatement) MarshalJSON() ([]byte, error) {
