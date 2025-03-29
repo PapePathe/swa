@@ -17,7 +17,9 @@ package ast
 
 import (
 	"encoding/json"
-	"swahili/lang/values"
+
+	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/constant"
 )
 
 type ConditionalStatetement struct {
@@ -28,36 +30,34 @@ type ConditionalStatetement struct {
 
 var _ Statement = (*ConditionalStatetement)(nil)
 
-func (cs ConditionalStatetement) Evaluate(s *Scope) (error, values.Value) {
-	lg.Debug("Evaluating conditional statement", "stmt", cs)
+func (cs ConditionalStatetement) Compile(ctx *Context) error {
+	blk := ir.NewBlock("success.block")
+	successCtx := ctx.NewContext(blk)
+	successCtx.NewRet(&constant.Null{})
 
-	err, successful := cs.Condition.Evaluate(s)
-
+	err := cs.Success.Compile(successCtx)
 	if err != nil {
-		return err, nil
+		return err
 	}
 
-	_, ok := successful.GetValue().(bool)
+	failureCtx := ctx.NewContext(ir.NewBlock("failure.block"))
+	failureCtx.NewRet(&constant.Null{})
 
-	if !ok {
-		lg.Error("ERROR", "err", "Return value of conditional is not a boolean")
+	err = cs.Failure.Compile(failureCtx)
+	if err != nil {
+		return err
 	}
 
-	if successful.GetValue() == values.TrueBooleanValue.GetValue() {
-		lg.Debug("Condition is met evaluating success block")
+	// err, _ = cs.Condition.Compile(ctx)
 
-		return cs.Success.Evaluate(s)
-	} else {
-		if cs.Failure.Body != nil {
-			lg.Debug("Condition is not met evaluating failure block")
+	// if err != nil {
+	// 	return err
+	// }
 
-			return cs.Failure.Evaluate(s)
-		}
-	}
+	//	ctx.NewCondBr(constant.NewBool(true), successCtx.Block, failureCtx.Block)
 
-	return nil, nil
+	return nil
 }
-func (cs ConditionalStatetement) statement() {}
 
 func (cs ConditionalStatetement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)

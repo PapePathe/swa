@@ -15,20 +15,27 @@
 
 package ast
 
-import "swahili/lang/values"
+import (
+	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir/value"
+)
 
 // Statement ...
 type Statement interface {
-	statement()
-	Evaluate(s *Scope) (error, values.Value)
+	Compile(ctx *Context) error
+}
+
+type CompileResult struct {
+	c constant.Constant
+	v value.Value
 }
 
 // Expression ...
 type Expression interface {
-	expression()
-	Evaluate(s *Scope) (error, values.Value)
+	Compile(ctx *Context) (error, *CompileResult)
 }
 
+// Type
 type Type interface {
 	_type()
 }

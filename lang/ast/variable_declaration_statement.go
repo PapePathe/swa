@@ -17,7 +17,6 @@ package ast
 
 import (
 	"encoding/json"
-	"swahili/lang/values"
 )
 
 // VarDeclarationStatement ...
@@ -34,22 +33,25 @@ type VarDeclarationStatement struct {
 
 var _ Statement = (*VarDeclarationStatement)(nil)
 
-func (v VarDeclarationStatement) Evaluate(s *Scope) (error, values.Value) {
-	lg.Debug("Evaluating variable declaration statement", "variable", v)
+func (vd VarDeclarationStatement) Compile(ctx *Context) error {
+	err, cst := vd.Value.Compile(ctx)
 
-	err, val := v.Value.Evaluate(s)
 	if err != nil {
-		return err, nil
+		return err
 	}
 
-	lg.Debug("Result of evaluating value", "value", val)
+	if ctx.parent == nil {
+		ctx.vars[vd.Name] = Var{
+			cst: cst.c,
+			def: ctx.mod.NewGlobalDef(vd.Name, cst.c),
+		}
+	}
+	// TODO handle case where variable is local to the current block
+	// storage := ctx.NewAlloca(cst.c.Type())
+	// ctx.NewStore(cst.c, storage)
 
-	s.Set(v.Name, val)
-
-	return nil, nil
+	return nil
 }
-
-func (bs VarDeclarationStatement) statement() {}
 
 func (cs VarDeclarationStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)

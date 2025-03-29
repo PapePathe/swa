@@ -16,10 +16,11 @@
 package ast
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"swahili/lang/values"
+
+	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/types"
 )
 
 type PrintStatetement struct {
@@ -28,28 +29,35 @@ type PrintStatetement struct {
 
 var _ Statement = (*PrintStatetement)(nil)
 
-func (ps PrintStatetement) Evaluate(s *Scope) (error, values.Value) {
-	var buffer bytes.Buffer
-
-	lg.Debug("Evaluating print statement", "stmt", ps)
-
+func (ps PrintStatetement) Compile(ctx *Context) error {
 	for _, v := range ps.Values {
-		err, vals := v.Evaluate(s)
+		err, res := v.Compile(ctx)
 		if err != nil {
-			return err, nil
+			return err
 		}
 
-		buffer.WriteString(vals.String())
+		switch v.(type) {
+		case SymbolExpression:
+			ctx.NewCall(ir.NewFunc("printf", types.I32), res.v)
+		case StringExpression:
+			vl := ctx.NewAlloca(res.c.Type())
+			ctx.NewStore(res.c, vl)
+
+			ctx.NewCall(ir.NewFunc("printf", types.I32), vl)
+		case NumberExpression:
+			panic("NumberExpressio not implemented")
+		default:
+			err := fmt.Errorf("print statement does not support symbol type <%s>", v)
+			panic(err)
+		}
 	}
 
-	fmt.Println(buffer.String())
-
-	return nil, values.StringValue{Value: buffer.String()}
+	return nil
 }
-func (cs PrintStatetement) statement() {}
 
 func (cs PrintStatetement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
+	m["Values"] = cs.Values
 
 	res := make(map[string]any)
 	res["ast.PrintStatetement"] = m

@@ -15,8 +15,6 @@
 
 package ast
 
-import "swahili/lang/values"
-
 type StructInitializationExpression struct {
 	Name       string
 	Properties map[string]Expression
@@ -24,8 +22,6 @@ type StructInitializationExpression struct {
 
 var _ Expression = (*StructInitializationExpression)(nil)
 
-func (n StructInitializationExpression) expression() {}
-
-func (v StructInitializationExpression) Evaluate(s *Scope) (error, values.Value) {
+func (StructInitializationExpression) Compile(ctx *Context) (error, *CompileResult) {
 	return nil, nil
 }
