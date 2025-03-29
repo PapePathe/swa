@@ -14,6 +14,8 @@ type BuildTarget struct {
 	Architecture    string
 }
 
+const FilePerm = 0600
+
 func Compile(tree ast.BlockStatement, target BuildTarget) {
 	m := ir.NewModule()
 	f := m.NewFunc("printf", types.I32, ir.NewParam("", types.NewPointer(types.I8)))
@@ -24,7 +26,7 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 		panic(err)
 	}
 
-	err = os.WriteFile("./tmp/start.ll", []byte(m.String()), 0644)
+	err = os.WriteFile("./tmp/start.ll", []byte(m.String()), FilePerm)
 	if err != nil {
 		panic(err)
 	}

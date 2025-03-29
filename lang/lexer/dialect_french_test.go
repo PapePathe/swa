@@ -30,6 +30,7 @@ func TestReservedFrench(t *testing.T) {
 		"constante": Const,
 		"entier":    TypeInt,
 	}
+	french := French{}
 
 	French := French{}
 	reserved := French.Reserved()
