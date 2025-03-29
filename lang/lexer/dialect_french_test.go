@@ -30,19 +30,9 @@ func TestReservedFrench(t *testing.T) {
 		"constante": Const,
 		"entier":    TypeInt,
 	}
+	french := French{}
 
-	French := French{}
-	reserved := French.Reserved()
-
-	if len(reserved) != len(expected) {
-		t.Errorf("expected length of reserved keywords to match - actual: %d expected: eq %d", len(reserved), len(expected))
-	}
-
-	for name, kind := range expected {
-		if kind != reserved[name] {
-			t.Errorf("expected French reserved word for (%s) to be (%s)", kind, name)
-		}
-	}
+	assert.Equal(t, expected, french.Reserved())
 }
 
 func TestPatternsFrench(t *testing.T) {
