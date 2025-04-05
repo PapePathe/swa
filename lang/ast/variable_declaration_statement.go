@@ -17,6 +17,9 @@ package ast
 
 import (
 	"encoding/json"
+	"fmt"
+
+	"tinygo.org/x/go-llvm"
 )
 
 // VarDeclarationStatement ...
@@ -41,16 +44,37 @@ func (vd VarDeclarationStatement) Compile(ctx *Context) error {
 	}
 
 	if ctx.parent == nil {
-		ctx.vars[vd.Name] = Var{
+		ctx.globalVars[vd.Name] = GlobalVar{
 			cst: cst.c,
 			def: ctx.mod.NewGlobalDef(vd.Name, cst.c),
 		}
+	} else {
+		storage := ctx.NewAlloca(cst.c.Type())
+		ctx.NewStore(cst.c, storage)
+		ctx.AddLocal(vd.Name, LocalVariable{Value: storage})
 	}
-	// TODO handle case where variable is local to the current block
-	// storage := ctx.NewAlloca(cst.c.Type())
-	// ctx.NewStore(cst.c, storage)
 
 	return nil
+}
+
+func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	err, val := vd.Value.CompileLLVM(ctx)
+	if err != nil {
+		return err, nil
+	}
+
+	if val == nil {
+		err := fmt.Errorf("return value is nil <%s> <%s>", vd.Name, vd.Value)
+		return err, nil
+	}
+	fmt.Println("VALUE", val)
+
+	glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
+	glob.SetInitializer(*val)
+
+	ctx.SymbolTable[vd.Name] = glob
+
+	return nil, nil
 }
 
 func (cs VarDeclarationStatement) MarshalJSON() ([]byte, error) {

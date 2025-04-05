@@ -17,6 +17,7 @@ package ast
 
 import (
 	"github.com/llir/llvm/ir/constant"
+	"tinygo.org/x/go-llvm"
 )
 
 type ArrayInitializationExpression struct {
@@ -39,4 +40,8 @@ func (v ArrayInitializationExpression) Compile(ctx *Context) (error, *CompileRes
 	}
 
 	return nil, &CompileResult{c: constant.NewArray(nil, contents...)}
+}
+
+func (bs ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	return nil, nil
 }

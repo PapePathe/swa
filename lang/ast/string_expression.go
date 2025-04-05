@@ -17,6 +17,7 @@ package ast
 
 import (
 	"github.com/llir/llvm/ir/constant"
+	"tinygo.org/x/go-llvm"
 )
 
 // StringExpression ...
@@ -28,4 +29,9 @@ var _ Expression = (*StringExpression)(nil)
 
 func (se StringExpression) Compile(ctx *Context) (error, *CompileResult) {
 	return nil, &CompileResult{c: constant.NewCharArrayFromString(se.Value)}
+}
+
+func (se StringExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	res := ctx.Context.ConstString(se.Value, true)
+	return nil, &res
 }

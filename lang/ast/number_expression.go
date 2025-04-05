@@ -20,6 +20,7 @@ import (
 
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
+	"tinygo.org/x/go-llvm"
 )
 
 // NumberExpression ...
@@ -41,4 +42,10 @@ func (cs NumberExpression) MarshalJSON() ([]byte, error) {
 	res["ast.NumberExpression"] = m
 
 	return json.Marshal(res)
+}
+
+func (se NumberExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	res := llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(se.Value), false)
+
+	return nil, &res
 }

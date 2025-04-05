@@ -17,6 +17,8 @@ package ast
 
 import (
 	"encoding/json"
+
+	"tinygo.org/x/go-llvm"
 )
 
 // ExpressionStatement ...
@@ -27,8 +29,17 @@ type ExpressionStatement struct {
 
 var _ Statement = (*ExpressionStatement)(nil)
 
-func (ExpressionStatement) Compile(ctx *Context) error {
+func (es ExpressionStatement) Compile(ctx *Context) error {
+	err, _ := es.Exp.Compile(ctx)
+	if err != nil {
+		return err
+	}
+
 	return nil
+}
+
+func (ExpressionStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	return nil, nil
 }
 
 func (es ExpressionStatement) MarshalJSON() ([]byte, error) {

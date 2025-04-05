@@ -20,6 +20,7 @@ import (
 	"swahili/lang/values"
 
 	_types "github.com/llir/llvm/ir/types"
+	"tinygo.org/x/go-llvm"
 )
 
 type StructProperty struct {
@@ -60,4 +61,8 @@ func (ms StructDeclarationStatement) Compile(ctx *Context) error {
 	ctx.mod.NewTypeDef(ms.Name, _types.NewStruct(attrs...))
 
 	return nil
+}
+
+func (StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	return nil, nil
 }

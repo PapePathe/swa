@@ -15,6 +15,8 @@
 
 package ast
 
+import "tinygo.org/x/go-llvm"
+
 type MemberExpression struct {
 	Object   Expression
 	Property Expression
@@ -24,5 +26,9 @@ type MemberExpression struct {
 var _ Expression = (*MemberExpression)(nil)
 
 func (MemberExpression) Compile(ctx *Context) (error, *CompileResult) {
+	return nil, nil
+}
+
+func (bs MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	return nil, nil
 }

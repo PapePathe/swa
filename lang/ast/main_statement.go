@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/llir/llvm/ir/types"
+	"tinygo.org/x/go-llvm"
 )
 
 type MainStatement struct {
@@ -15,6 +16,23 @@ func (ms MainStatement) Compile(ctx *Context) error {
 	mainCtx := ctx.NewContext(main.NewBlock(""))
 
 	return ms.Body.Compile(mainCtx)
+}
+
+func (ms MainStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	mainFunc := llvm.AddFunction(
+		*ctx.Module,
+		"main",
+		llvm.FunctionType(
+			llvm.GlobalContext().Int32Type(),
+			[]llvm.Type{},
+			false,
+		),
+	)
+
+	block := ctx.Context.AddBasicBlock(mainFunc, "func-body")
+	ctx.Builder.SetInsertPointAtEnd(block)
+
+	return ms.Body.CompileLLVM(ctx)
 }
 
 func (cs MainStatement) MarshalJSON() ([]byte, error) {
