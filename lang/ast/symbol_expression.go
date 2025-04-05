@@ -17,7 +17,8 @@ package ast
 
 import (
 	"fmt"
-	"swahili/lang/values"
+
+	"tinygo.org/x/go-llvm"
 )
 
 // SymbolExpression ...
@@ -27,16 +28,27 @@ type SymbolExpression struct {
 
 var _ Expression = (*SymbolExpression)(nil)
 
-func (n SymbolExpression) expression() {}
+func (se SymbolExpression) Compile(ctx *Context) (error, *CompileResult) {
+	val, err := ctx.LookupVariable(se.Value)
+	if err != nil {
+		localVar, err := ctx.LookupLocalVariable(se.Value)
+		if err != nil {
+			return err, nil
+		}
+		l := ctx.NewLoad(localVar.Value.Typ, localVar.Value)
 
-func (v SymbolExpression) Evaluate(s *Scope) (error, values.Value) {
-	lg.Debug("Evaluating symbol expression", "Expression", v)
-
-	value, exists := s.Get(v.Value)
-
-	if !exists {
-		return fmt.Errorf("Variable <%s> does not exist", v.Value), nil
+		return nil, &CompileResult{v: l.Src}
 	}
 
-	return nil, value
+	return nil, &CompileResult{v: val.def, c: val.cst}
+}
+
+func (se SymbolExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	val, ok := ctx.SymbolTable[se.Value]
+
+	if !ok {
+		return fmt.Errorf("Variable %s does not exist", se.Value), nil
+	}
+
+	return nil, &val
 }

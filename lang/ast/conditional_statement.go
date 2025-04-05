@@ -17,7 +17,11 @@ package ast
 
 import (
 	"encoding/json"
-	"swahili/lang/values"
+	"fmt"
+
+	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir/types"
+	"tinygo.org/x/go-llvm"
 )
 
 type ConditionalStatetement struct {
@@ -28,36 +32,79 @@ type ConditionalStatetement struct {
 
 var _ Statement = (*ConditionalStatetement)(nil)
 
-func (cs ConditionalStatetement) Evaluate(s *Scope) (error, values.Value) {
-	lg.Debug("Evaluating conditional statement", "stmt", cs)
+func (cs ConditionalStatetement) Compile(ctx *Context) error {
+	successBlk := ctx.Parent.NewBlock("if.success")
+	failureBlk := ctx.Parent.NewBlock("if.failure")
+	//	mergeBlk := ctx.Parent.NewBlock("")
+	//	successBlk.NewBr(mergeBlk)
 
-	err, successful := cs.Condition.Evaluate(s)
+	err, res := cs.Condition.Compile(ctx)
+	// TODO fix issue with conditional branch
+	if err != nil {
+		return err
+	}
 
+	successCtx := ctx.NewContext(successBlk)
+	successCtx.NewRet(constant.NewInt(types.I32, 0))
+
+	err = cs.Success.Compile(successCtx)
+	if err != nil {
+		return err
+	}
+
+	failureCtx := ctx.NewContext(failureBlk)
+
+	failureCtx.NewRet(constant.NewInt(types.I32, 0))
+
+	err = cs.Failure.Compile(failureCtx)
+	if err != nil {
+		return err
+	}
+
+	ctx.NewCondBr(res.c, successBlk, failureBlk)
+	return nil
+}
+
+func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	err, condition := cs.Condition.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil
 	}
+	fmt.Println(condition.String())
 
-	_, ok := successful.GetValue().(bool)
+	mergeBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "merge")
+	thenBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "if")
+	elseBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "else")
 
-	if !ok {
-		lg.Error("ERROR", "err", "Return value of conditional is not a boolean")
+	ctx.Builder.CreateCondBr(*condition, thenBlock, elseBlock)
+
+	ctx.Builder.SetInsertPointAtEnd(thenBlock)
+	err, successVal := cs.Success.CompileLLVM(ctx)
+	if err != nil {
+		return err, nil
+	}
+	ctx.Builder.CreateBr(mergeBlock)
+
+	ctx.Builder.SetInsertPointAtEnd(elseBlock)
+	err, failureVal := cs.Failure.CompileLLVM(ctx)
+	if err != nil {
+		return err, nil
+	}
+	ctx.Builder.CreateBr(mergeBlock)
+	ctx.Builder.SetInsertPointAtEnd(mergeBlock)
+
+	var phi llvm.Value
+	if successVal != nil {
+		phi := ctx.Builder.CreatePHI(successVal.Type(), "")
+		phi.AddIncoming([]llvm.Value{*successVal}, []llvm.BasicBlock{thenBlock})
 	}
 
-	if successful.GetValue() == values.TrueBooleanValue.GetValue() {
-		lg.Debug("Condition is met evaluating success block")
-
-		return cs.Success.Evaluate(s)
-	} else {
-		if cs.Failure.Body != nil {
-			lg.Debug("Condition is not met evaluating failure block")
-
-			return cs.Failure.Evaluate(s)
-		}
+	if failureVal != nil {
+		phi := ctx.Builder.CreatePHI(successVal.Type(), "")
+		phi.AddIncoming([]llvm.Value{*successVal}, []llvm.BasicBlock{thenBlock})
 	}
-
-	return nil, nil
+	return nil, &phi
 }
-func (cs ConditionalStatetement) statement() {}
 
 func (cs ConditionalStatetement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)

@@ -19,7 +19,9 @@ import (
 	"fmt"
 	"swahili/lang/lexer"
 	"swahili/lang/log"
-	"swahili/lang/values"
+
+	"github.com/llir/llvm/ir/enum"
+	"tinygo.org/x/go-llvm"
 )
 
 // BinaryExpression ...
@@ -34,33 +36,89 @@ var (
 	lg            = log.Logger.WithGroup("Ast Evaluator")
 )
 
-func (BinaryExpression) expression() {}
+//func (be BinaryExpression) Evaluate(s *Scope) (error, values.Value) {
+//	lg.Debug("Start", "node", be)
+//
+//	err, left := be.Left.Evaluate(s)
+//	if err != nil {
+//		lg.Error("ERROR evaluating left expression")
+//
+//		return err, nil
+//	}
+//
+//	_, right := be.Right.Evaluate(s)
+//
+//	leftVal, _ := left.GetValue().(float64)
+//	rightVal, _ := right.GetValue().(float64)
+//
+//	switch be.Operator.Kind {
+//	case lexer.GreaterThan:
+//		return nil, values.BooleaValue{Value: leftVal > rightVal}
+//	case lexer.GreaterThanEquals:
+//		return nil, values.BooleaValue{Value: leftVal >= rightVal}
+//	case lexer.LessThan:
+//		return nil, values.BooleaValue{Value: leftVal < rightVal}
+//	case lexer.LessThanEquals:
+//		return nil, values.BooleaValue{Value: leftVal <= rightVal}
+//	default:
+//		return fmt.Errorf("Operator not yet supportted %s", be.Operator.Kind), nil
+//	}
+//}
 
-func (be BinaryExpression) Evaluate(s *Scope) (error, values.Value) {
-	lg.Debug("Start", "node", be)
-
-	err, left := be.Left.Evaluate(s)
+func (be BinaryExpression) Compile(ctx *Context) (error, *CompileResult) {
+	err, leftVal := be.Left.Compile(ctx)
 	if err != nil {
-		lg.Error("ERROR evaluating left expression")
-
+		return err, nil
+	}
+	err, rightVal := be.Right.Compile(ctx)
+	if err != nil {
 		return err, nil
 	}
 
-	_, right := be.Right.Evaluate(s)
+	switch be.Operator.Kind {
+	case lexer.Plus:
+		res := CompileResult{v: ctx.NewAdd(leftVal.c, rightVal.c)}
+		return nil, &res
+	case lexer.GreaterThan:
+		res := CompileResult{v: ctx.NewICmp(enum.IPredUGT, leftVal.c, rightVal.c)}
+		return nil, &res
+	}
 
-	leftVal, _ := left.GetValue().(float64)
-	rightVal, _ := right.GetValue().(float64)
+	return nil, nil
+}
+
+func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	err, leftVal := be.Left.CompileLLVM(ctx)
+	if err != nil {
+		return err, nil
+	}
+	if leftVal == nil {
+		return fmt.Errorf("left side of expression is nil"), nil
+	}
+
+	err, rightVal := be.Right.CompileLLVM(ctx)
+	if err != nil {
+		return err, nil
+	}
+	if rightVal == nil {
+		return fmt.Errorf("left side of expression is nil"), nil
+	}
 
 	switch be.Operator.Kind {
+	case lexer.Plus:
+		res := ctx.Builder.CreateAdd(*leftVal, *rightVal, "")
+		return nil, &res
 	case lexer.GreaterThan:
-		return nil, values.BooleaValue{Value: leftVal > rightVal}
-	case lexer.GreaterThanEquals:
-		return nil, values.BooleaValue{Value: leftVal >= rightVal}
+		res := ctx.Builder.CreateICmp(llvm.IntUGT, *leftVal, *rightVal, "")
+		return nil, &res
 	case lexer.LessThan:
-		return nil, values.BooleaValue{Value: leftVal < rightVal}
-	case lexer.LessThanEquals:
-		return nil, values.BooleaValue{Value: leftVal <= rightVal}
+		res := ctx.Builder.CreateICmp(llvm.IntULT, *leftVal, *rightVal, "")
+		return nil, &res
+	case lexer.Equals:
+		res := ctx.Builder.CreateICmp(llvm.IntEQ, *leftVal, *rightVal, "")
+		return nil, &res
 	default:
-		return fmt.Errorf("Operator not yet supportted %s", be.Operator.Kind), nil
+		err := fmt.Errorf("unsupported operator <%s>", be.Operator.Kind)
+		panic(err)
 	}
 }

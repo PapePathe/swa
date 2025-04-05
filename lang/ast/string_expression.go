@@ -15,7 +15,10 @@
 
 package ast
 
-import "swahili/lang/values"
+import (
+	"github.com/llir/llvm/ir/constant"
+	"tinygo.org/x/go-llvm"
+)
 
 // StringExpression ...
 type StringExpression struct {
@@ -24,8 +27,11 @@ type StringExpression struct {
 
 var _ Expression = (*StringExpression)(nil)
 
-func (n StringExpression) expression() {}
+func (se StringExpression) Compile(ctx *Context) (error, *CompileResult) {
+	return nil, &CompileResult{c: constant.NewCharArrayFromString(se.Value)}
+}
 
-func (v StringExpression) Evaluate(s *Scope) (error, values.Value) {
-	return nil, values.StringValue{Value: v.Value}
+func (se StringExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	res := ctx.Context.ConstString(se.Value, true)
+	return nil, &res
 }

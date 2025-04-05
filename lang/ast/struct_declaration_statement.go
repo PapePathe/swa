@@ -16,7 +16,11 @@
 package ast
 
 import (
+	"fmt"
 	"swahili/lang/values"
+
+	_types "github.com/llir/llvm/ir/types"
+	"tinygo.org/x/go-llvm"
 )
 
 type StructProperty struct {
@@ -33,4 +37,32 @@ func (cs StructDeclarationStatement) Evaluate(s *Scope) (error, values.Value) {
 	return nil, nil
 }
 
-func (s StructDeclarationStatement) statement() {}
+func (ms StructDeclarationStatement) Compile(ctx *Context) error {
+	attrs := []_types.Type{}
+
+	for _, attr := range ms.Properties {
+		switch v := attr.PropType.(type) {
+		case SymbolType:
+			switch v.Name {
+			case "Chaine":
+				attrs = append(attrs, _types.NewPointer(_types.I8))
+			case "Nombre":
+				attrs = append(attrs, _types.I32)
+			default:
+				err := fmt.Errorf("struct proprerty type %s not supported", v.Name)
+				panic(err)
+			}
+		default:
+			err := fmt.Errorf("struct proprerty does not support type")
+			panic(err)
+		}
+	}
+
+	ctx.mod.NewTypeDef(ms.Name, _types.NewStruct(attrs...))
+
+	return nil
+}
+
+func (StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	return nil, nil
+}

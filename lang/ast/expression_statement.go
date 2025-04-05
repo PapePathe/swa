@@ -17,7 +17,8 @@ package ast
 
 import (
 	"encoding/json"
-	"swahili/lang/values"
+
+	"tinygo.org/x/go-llvm"
 )
 
 // ExpressionStatement ...
@@ -28,13 +29,18 @@ type ExpressionStatement struct {
 
 var _ Statement = (*ExpressionStatement)(nil)
 
-func (es ExpressionStatement) Evaluate(s *Scope) (error, values.Value) {
-	lg.Debug("Evaluating expression statement", "Expression", es)
+func (es ExpressionStatement) Compile(ctx *Context) error {
+	err, _ := es.Exp.Compile(ctx)
+	if err != nil {
+		return err
+	}
 
-	return nil, nil
+	return nil
 }
 
-func (es ExpressionStatement) statement() {}
+func (ExpressionStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	return nil, nil
+}
 
 func (es ExpressionStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
