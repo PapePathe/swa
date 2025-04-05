@@ -1,8 +1,7 @@
 dialect:french;
 
 variable salary_string = "100000 EUR";
-// TODO: support array of strings constante jours = []string  {"lundi", "mardi", "mercredi", "jeudi", "vendredi"};
-constante nombres = []number {1,10,100,1000,10000,100000, 1000000, 10000000};
+variable salary: Entier_32 = 500000000;
 
 structure Employe{
   AnneeNaissane: Nombre,
@@ -10,18 +9,23 @@ structure Employe{
   Prenom: Chaine,
 }
 
-//fonction test(x: nombre_32, y: nombre_32) int {
-//  retourner 0;
-//}
+fonction addition(a: Entier_32, b: Entier_32) Entier_32 {
+  // TODO retourner a + b
+  retourner 1 + 1;
+}
 
 demarrer() int {
-  variable salary = 100000;
-  afficher("salary:", salary_string);
-  si(x>10){
-    afficher("X est superieur a dix.");
-  } sinon {
-    afficher("X n'est pas superieur a dix. ");
-  }
+  salary_string = "$1000 sala";
+  salary = 999999;
+  variable new_salary : Entier_32 = 1000999;
+
+  si(new_salary == 0) {
+    afficher("condition vraie");
+  } 
+
+  si(salary > 0) {
+    afficher("condition vraie");
+  } 
 
   retourner 10;
 }
