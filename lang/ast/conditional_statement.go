@@ -17,9 +17,11 @@ package ast
 
 import (
 	"encoding/json"
+	"fmt"
 
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir/types"
+	"tinygo.org/x/go-llvm"
 )
 
 type ConditionalStatetement struct {
@@ -31,32 +33,77 @@ type ConditionalStatetement struct {
 var _ Statement = (*ConditionalStatetement)(nil)
 
 func (cs ConditionalStatetement) Compile(ctx *Context) error {
-	blk := ir.NewBlock("success.block")
-	successCtx := ctx.NewContext(blk)
-	successCtx.NewRet(&constant.Null{})
+	successBlk := ctx.Parent.NewBlock("if.success")
+	failureBlk := ctx.Parent.NewBlock("if.failure")
+	//	mergeBlk := ctx.Parent.NewBlock("")
+	//	successBlk.NewBr(mergeBlk)
 
-	err := cs.Success.Compile(successCtx)
+	err, res := cs.Condition.Compile(ctx)
+	// TODO fix issue with conditional branch
 	if err != nil {
 		return err
 	}
 
-	failureCtx := ctx.NewContext(ir.NewBlock("failure.block"))
-	failureCtx.NewRet(&constant.Null{})
+	successCtx := ctx.NewContext(successBlk)
+	successCtx.NewRet(constant.NewInt(types.I32, 0))
+
+	err = cs.Success.Compile(successCtx)
+	if err != nil {
+		return err
+	}
+
+	failureCtx := ctx.NewContext(failureBlk)
+
+	failureCtx.NewRet(constant.NewInt(types.I32, 0))
 
 	err = cs.Failure.Compile(failureCtx)
 	if err != nil {
 		return err
 	}
 
-	// err, _ = cs.Condition.Compile(ctx)
-
-	// if err != nil {
-	// 	return err
-	// }
-
-	//	ctx.NewCondBr(constant.NewBool(true), successCtx.Block, failureCtx.Block)
-
+	ctx.NewCondBr(res.c, successBlk, failureBlk)
 	return nil
+}
+
+func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	err, condition := cs.Condition.CompileLLVM(ctx)
+	if err != nil {
+		return err, nil
+	}
+	fmt.Println(condition.String())
+
+	mergeBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "merge")
+	thenBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "if")
+	elseBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "else")
+
+	ctx.Builder.CreateCondBr(*condition, thenBlock, elseBlock)
+
+	ctx.Builder.SetInsertPointAtEnd(thenBlock)
+	err, successVal := cs.Success.CompileLLVM(ctx)
+	if err != nil {
+		return err, nil
+	}
+	ctx.Builder.CreateBr(mergeBlock)
+
+	ctx.Builder.SetInsertPointAtEnd(elseBlock)
+	err, failureVal := cs.Failure.CompileLLVM(ctx)
+	if err != nil {
+		return err, nil
+	}
+	ctx.Builder.CreateBr(mergeBlock)
+	ctx.Builder.SetInsertPointAtEnd(mergeBlock)
+
+	var phi llvm.Value
+	if successVal != nil {
+		phi := ctx.Builder.CreatePHI(successVal.Type(), "")
+		phi.AddIncoming([]llvm.Value{*successVal}, []llvm.BasicBlock{thenBlock})
+	}
+
+	if failureVal != nil {
+		phi := ctx.Builder.CreatePHI(successVal.Type(), "")
+		phi.AddIncoming([]llvm.Value{*successVal}, []llvm.BasicBlock{thenBlock})
+	}
+	return nil, &phi
 }
 
 func (cs ConditionalStatetement) MarshalJSON() ([]byte, error) {

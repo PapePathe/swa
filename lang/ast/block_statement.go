@@ -17,6 +17,9 @@ package ast
 
 import (
 	"encoding/json"
+	"fmt"
+
+	"tinygo.org/x/go-llvm"
 )
 
 // BlockStatement ...
@@ -38,6 +41,20 @@ func (bs BlockStatement) Compile(ctx *Context) error {
 	}
 
 	return nil
+}
+
+func (bs BlockStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	for _, stmt := range bs.Body {
+		err, val := stmt.CompileLLVM(ctx)
+		if err != nil {
+			lg.Error("ERROR", " evaluating statement", err.Error())
+
+			return err, nil
+		}
+		fmt.Println("Return value", stmt, val)
+	}
+
+	return nil, nil
 }
 
 func (bs BlockStatement) MarshalJSON() ([]byte, error) {

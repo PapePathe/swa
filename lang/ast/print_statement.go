@@ -21,6 +21,7 @@ import (
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
+	"tinygo.org/x/go-llvm"
 )
 
 type PrintStatetement struct {
@@ -53,6 +54,10 @@ func (ps PrintStatetement) Compile(ctx *Context) error {
 	}
 
 	return nil
+}
+
+func (PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	return nil, nil
 }
 
 func (cs PrintStatetement) MarshalJSON() ([]byte, error) {

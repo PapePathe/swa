@@ -15,6 +15,8 @@
 
 package ast
 
+import "tinygo.org/x/go-llvm"
+
 // CallExpression ...
 type CallExpression struct {
 	Arguments []Expression
@@ -24,5 +26,9 @@ type CallExpression struct {
 var _ Expression = (*CallExpression)(nil)
 
 func (CallExpression) Compile(ctx *Context) (error, *CompileResult) {
+	return nil, nil
+}
+
+func (CallExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	return nil, nil
 }

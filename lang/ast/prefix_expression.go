@@ -18,6 +18,8 @@ package ast
 import (
 	"encoding/json"
 	"swahili/lang/lexer"
+
+	"tinygo.org/x/go-llvm"
 )
 
 type PrefixExpression struct {
@@ -26,6 +28,10 @@ type PrefixExpression struct {
 }
 
 var _ Expression = (*PrefixExpression)(nil)
+
+func (PrefixExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	return nil, nil
+}
 
 func (cs PrefixExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)

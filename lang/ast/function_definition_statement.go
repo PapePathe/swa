@@ -2,7 +2,12 @@ package ast
 
 import (
 	"encoding/json"
-	"swahili/lang/values"
+	"fmt"
+
+	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir/types"
+	"tinygo.org/x/go-llvm"
 )
 
 type FuncArg struct {
@@ -17,12 +22,77 @@ type FuncDeclStatement struct {
 	Args       []FuncArg
 }
 
-func (fd FuncDeclStatement) Evaluate(s *Scope) (error, values.Value) {
-	return nil, nil
+var _ Statement = (*FuncDeclStatement)(nil)
+
+func (fd FuncDeclStatement) Compile(ctx *Context) error {
+	params := []*ir.Param{}
+
+	for _, arg := range fd.Args {
+		var param *ir.Param
+		switch arg.ArgType {
+		case "Entier_32":
+			param = ir.NewParam(arg.Name, types.I32)
+		case "Chaine":
+			param = ir.NewParam(arg.Name, types.I8Ptr)
+		default:
+			panic(fmt.Errorf("argument type %s not supported", arg.ArgType))
+		}
+		params = append(params, param)
+	}
+
+	funcDef := ctx.mod.NewFunc(fd.Name, types.I32, params...)
+	funcBlk := funcDef.NewBlock("")
+	funcCtx := ctx.NewContext(funcBlk)
+
+	for _, param := range params {
+		alloc := funcCtx.NewAlloca(param.Type())
+
+		funcCtx.NewStore(constant.NewInt(types.I32, 0), alloc)
+		funcCtx.AddLocal(param.Name(), LocalVariable{Value: alloc})
+	}
+	fd.Body.Compile(funcCtx)
+
+	return nil
 }
 
-func (FuncDeclStatement) Compile(ctx *Context) error {
-	return nil
+func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	params := []llvm.Type{}
+
+	for _, arg := range fd.Args {
+		var param llvm.Type
+		switch arg.ArgType {
+		case "Entier_32":
+			param = llvm.GlobalContext().Int32Type()
+		case "Chaine":
+			param = llvm.GlobalContext().Int8Type()
+		default:
+			panic(fmt.Errorf("argument type %s not supported", arg.ArgType))
+		}
+		params = append(params, param)
+	}
+
+	newFunc := llvm.AddFunction(
+		*ctx.Module,
+		fd.Name,
+		llvm.FunctionType(
+			llvm.GlobalContext().Int32Type(),
+			params,
+			false,
+		),
+	)
+
+	for i, p := range newFunc.Params() {
+		p.SetName(fd.Args[i].Name)
+	}
+
+	block := ctx.Context.AddBasicBlock(newFunc, "func-body")
+	ctx.Builder.SetInsertPointAtEnd(block)
+
+	if err, _ := fd.Body.CompileLLVM(ctx); err != nil {
+		return err, nil
+	}
+
+	return nil, nil
 }
 
 func (fd FuncDeclStatement) MarshalJSON() ([]byte, error) {

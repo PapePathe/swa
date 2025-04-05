@@ -16,8 +16,12 @@
 package ast
 
 import (
+	"fmt"
 	"swahili/lang/lexer"
 	"swahili/lang/log"
+
+	"github.com/llir/llvm/ir/enum"
+	"tinygo.org/x/go-llvm"
 )
 
 // BinaryExpression ...
@@ -61,6 +65,60 @@ var (
 //	}
 //}
 
-func (BinaryExpression) Compile(ctx *Context) (error, *CompileResult) {
+func (be BinaryExpression) Compile(ctx *Context) (error, *CompileResult) {
+	err, leftVal := be.Left.Compile(ctx)
+	if err != nil {
+		return err, nil
+	}
+	err, rightVal := be.Right.Compile(ctx)
+	if err != nil {
+		return err, nil
+	}
+
+	switch be.Operator.Kind {
+	case lexer.Plus:
+		res := CompileResult{v: ctx.NewAdd(leftVal.c, rightVal.c)}
+		return nil, &res
+	case lexer.GreaterThan:
+		res := CompileResult{v: ctx.NewICmp(enum.IPredUGT, leftVal.c, rightVal.c)}
+		return nil, &res
+	}
+
 	return nil, nil
+}
+
+func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	err, leftVal := be.Left.CompileLLVM(ctx)
+	if err != nil {
+		return err, nil
+	}
+	if leftVal == nil {
+		return fmt.Errorf("left side of expression is nil"), nil
+	}
+
+	err, rightVal := be.Right.CompileLLVM(ctx)
+	if err != nil {
+		return err, nil
+	}
+	if rightVal == nil {
+		return fmt.Errorf("left side of expression is nil"), nil
+	}
+
+	switch be.Operator.Kind {
+	case lexer.Plus:
+		res := ctx.Builder.CreateAdd(*leftVal, *rightVal, "")
+		return nil, &res
+	case lexer.GreaterThan:
+		res := ctx.Builder.CreateICmp(llvm.IntUGT, *leftVal, *rightVal, "")
+		return nil, &res
+	case lexer.LessThan:
+		res := ctx.Builder.CreateICmp(llvm.IntULT, *leftVal, *rightVal, "")
+		return nil, &res
+	case lexer.Equals:
+		res := ctx.Builder.CreateICmp(llvm.IntEQ, *leftVal, *rightVal, "")
+		return nil, &res
+	default:
+		err := fmt.Errorf("unsupported operator <%s>", be.Operator.Kind)
+		panic(err)
+	}
 }

@@ -15,6 +15,12 @@
 
 package ast
 
+import (
+	"fmt"
+
+	"tinygo.org/x/go-llvm"
+)
+
 // SymbolExpression ...
 type SymbolExpression struct {
 	Value string
@@ -23,7 +29,26 @@ type SymbolExpression struct {
 var _ Expression = (*SymbolExpression)(nil)
 
 func (se SymbolExpression) Compile(ctx *Context) (error, *CompileResult) {
-	val := ctx.LookupVariable(se.Value)
+	val, err := ctx.LookupVariable(se.Value)
+	if err != nil {
+		localVar, err := ctx.LookupLocalVariable(se.Value)
+		if err != nil {
+			return err, nil
+		}
+		l := ctx.NewLoad(localVar.Value.Typ, localVar.Value)
+
+		return nil, &CompileResult{v: l.Src}
+	}
 
 	return nil, &CompileResult{v: val.def, c: val.cst}
+}
+
+func (se SymbolExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	val, ok := ctx.SymbolTable[se.Value]
+
+	if !ok {
+		return fmt.Errorf("Variable %s does not exist", se.Value), nil
+	}
+
+	return nil, &val
 }
