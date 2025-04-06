@@ -111,8 +111,14 @@ func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	case lexer.GreaterThan:
 		res := ctx.Builder.CreateICmp(llvm.IntUGT, *leftVal, *rightVal, "")
 		return nil, &res
+	case lexer.GreaterThanEquals:
+		res := ctx.Builder.CreateICmp(llvm.IntUGE, *leftVal, *rightVal, "")
+		return nil, &res
 	case lexer.LessThan:
 		res := ctx.Builder.CreateICmp(llvm.IntULT, *leftVal, *rightVal, "")
+		return nil, &res
+	case lexer.LessThanEquals:
+		res := ctx.Builder.CreateICmp(llvm.IntULE, *leftVal, *rightVal, "")
 		return nil, &res
 	case lexer.Equals:
 		res := ctx.Builder.CreateICmp(llvm.IntEQ, *leftVal, *rightVal, "")
