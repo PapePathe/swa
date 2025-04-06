@@ -82,7 +82,10 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	)
 
 	for i, p := range newFunc.Params() {
-		p.SetName(fd.Args[i].Name)
+		name := fd.Args[i].Name
+
+		ctx.SymbolTable[name] = p
+		p.SetName(name)
 	}
 
 	block := ctx.Context.AddBasicBlock(newFunc, "func-body")
