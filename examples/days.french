@@ -9,23 +9,23 @@ structure Employe{
   Prenom: Chaine,
 }
 
-fonction addition(a: Entier_32, b: Entier_32) Entier_32 {
-  // TODO retourner a + b
-  retourner 1 + 1;
-}
+//fonction addition(a: Entier_32, b: Entier_32) Entier_32 {
+//  si(a <= 0) {
+//    retourner a + 1;
+//  } sinon {
+//    retourner b + 1;
+//  }
+//}
 
 demarrer() int {
   salary_string = "$1000 sala";
   salary = 999999;
   variable new_salary : Entier_32 = 1000999;
+//  variable p : Employe = Employe{ AnneeNaissane: 1985, Nom: "SENE", Prenom: "Pp" }; 
 
-  si(new_salary == 0) {
-    afficher("condition vraie");
+  si(salary <= new_salary) {
+    retourner 0;
   } 
 
-  si(salary > 0) {
-    afficher("condition vraie");
-  } 
-
-  retourner 10;
+  retourner 100;
 }
