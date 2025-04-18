@@ -33,6 +33,20 @@ func (rs ReturnStatement) Compile(ctx *Context) error {
 
 func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	switch v := rs.Value.(type) {
+	case SymbolExpression:
+		val, ok := ctx.SymbolTable[v.Value]
+		if !ok {
+			return fmt.Errorf("Undefined variable %s", v.Value), nil
+		}
+		switch val.Type() {
+		case llvm.GlobalContext().Int32Type():
+			ctx.Builder.CreateRet(val)
+			fmt.Println("Return statement LLVM SIMPLE NUMBER", val)
+		case llvm.PointerType(llvm.GlobalContext().Int32Type(), 0):
+			loadedval := ctx.Builder.CreateLoad(llvm.GlobalContext().Int32Type(), val, "")
+			fmt.Println("Return statement LLVM", loadedval)
+			ctx.Builder.CreateRet(loadedval)
+		}
 	case NumberExpression:
 		ctx.Builder.CreateRet(llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(v.Value), false))
 	case BinaryExpression:

@@ -36,35 +36,6 @@ var (
 	lg            = log.Logger.WithGroup("Ast Evaluator")
 )
 
-//func (be BinaryExpression) Evaluate(s *Scope) (error, values.Value) {
-//	lg.Debug("Start", "node", be)
-//
-//	err, left := be.Left.Evaluate(s)
-//	if err != nil {
-//		lg.Error("ERROR evaluating left expression")
-//
-//		return err, nil
-//	}
-//
-//	_, right := be.Right.Evaluate(s)
-//
-//	leftVal, _ := left.GetValue().(float64)
-//	rightVal, _ := right.GetValue().(float64)
-//
-//	switch be.Operator.Kind {
-//	case lexer.GreaterThan:
-//		return nil, values.BooleaValue{Value: leftVal > rightVal}
-//	case lexer.GreaterThanEquals:
-//		return nil, values.BooleaValue{Value: leftVal >= rightVal}
-//	case lexer.LessThan:
-//		return nil, values.BooleaValue{Value: leftVal < rightVal}
-//	case lexer.LessThanEquals:
-//		return nil, values.BooleaValue{Value: leftVal <= rightVal}
-//	default:
-//		return fmt.Errorf("Operator not yet supportted %s", be.Operator.Kind), nil
-//	}
-//}
-
 func (be BinaryExpression) Compile(ctx *Context) (error, *CompileResult) {
 	err, leftVal := be.Left.Compile(ctx)
 	if err != nil {
@@ -87,6 +58,18 @@ func (be BinaryExpression) Compile(ctx *Context) (error, *CompileResult) {
 	return nil, nil
 }
 
+func (be BinaryExpression) getCommonType(l, r llvm.Type) llvm.Type {
+	if l == r {
+		return l
+	}
+
+	if l == llvm.PointerType(r, 0) {
+		return r
+	}
+
+	panic(fmt.Errorf("Abnormal dnaling of types %s %s", l, r))
+}
+
 func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	err, leftVal := be.Left.CompileLLVM(ctx)
 	if err != nil {
@@ -101,30 +84,88 @@ func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 		return err, nil
 	}
 	if rightVal == nil {
-		return fmt.Errorf("left side of expression is nil"), nil
+		return fmt.Errorf("right side of expression is nil"), nil
 	}
 
-	switch be.Operator.Kind {
-	case lexer.Plus:
-		res := ctx.Builder.CreateAdd(*leftVal, *rightVal, "")
-		return nil, &res
-	case lexer.GreaterThan:
-		res := ctx.Builder.CreateICmp(llvm.IntUGT, *leftVal, *rightVal, "")
-		return nil, &res
-	case lexer.GreaterThanEquals:
-		res := ctx.Builder.CreateICmp(llvm.IntUGE, *leftVal, *rightVal, "")
-		return nil, &res
-	case lexer.LessThan:
-		res := ctx.Builder.CreateICmp(llvm.IntULT, *leftVal, *rightVal, "")
-		return nil, &res
-	case lexer.LessThanEquals:
-		res := ctx.Builder.CreateICmp(llvm.IntULE, *leftVal, *rightVal, "")
-		return nil, &res
-	case lexer.Equals:
-		res := ctx.Builder.CreateICmp(llvm.IntEQ, *leftVal, *rightVal, "")
-		return nil, &res
-	default:
-		err := fmt.Errorf("unsupported operator <%s>", be.Operator.Kind)
-		panic(err)
+	handler, ok := handlers[be.Operator.Kind]
+	if !ok {
+		panic(fmt.Errorf("unsupported operator <%s>", be.Operator.Kind))
 	}
+
+	ctype := commonType(leftVal.Type(), rightVal.Type())
+	left := be.castToType(ctx, ctype, *leftVal)
+	right := be.castToType(ctx, ctype, *rightVal)
+
+	return handler(ctx, left, right)
+}
+
+func commonType(l, r llvm.Type) llvm.Type {
+	if l == llvm.PointerType(r, 0) {
+		return r
+	}
+
+	if l == r {
+		return l
+	}
+
+	panic(fmt.Errorf("Unhandled combination %v %v", r, l))
+}
+
+func (be BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Value) llvm.Value {
+	if t == v.Type() {
+		return v
+	}
+
+	switch v.Type().TypeKind() {
+	case llvm.PointerTypeKind:
+		switch t.TypeKind() {
+		case llvm.IntegerTypeKind:
+			return ctx.Builder.CreatePtrToInt(v, t, "")
+		}
+	default:
+		panic(fmt.Errorf("Unhandled type %v, %v", v, t))
+	}
+
+	return llvm.Value{}
+}
+
+type binaryHandlerFunc func(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value)
+
+var handlers = map[lexer.TokenKind]binaryHandlerFunc{
+	lexer.Plus:              add,
+	lexer.GreaterThan:       greaterThan,
+	lexer.GreaterThanEquals: greaterThanEquals,
+	lexer.LessThan:          lessThan,
+	lexer.LessThanEquals:    lessThanEquals,
+	lexer.Equals:            equals,
+}
+
+func add(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
+	res := ctx.Builder.CreateAdd(l, r, "")
+	return nil, &res
+}
+
+func greaterThan(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
+	res := ctx.Builder.CreateICmp(llvm.IntUGT, l, r, "")
+	return nil, &res
+}
+
+func greaterThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
+	res := ctx.Builder.CreateICmp(llvm.IntUGE, l, r, "")
+	return nil, &res
+}
+
+func lessThan(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
+	res := ctx.Builder.CreateICmp(llvm.IntULT, l, r, "")
+	return nil, &res
+}
+
+func lessThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
+	res := ctx.Builder.CreateICmp(llvm.IntULE, l, r, "")
+	return nil, &res
+}
+
+func equals(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
+	res := ctx.Builder.CreateICmp(llvm.IntULE, l, r, "")
+	return nil, &res
 }
