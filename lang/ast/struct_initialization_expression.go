@@ -15,7 +15,7 @@
 
 package ast
 
-import "swahili/lang/values"
+import "tinygo.org/x/go-llvm"
 
 type StructInitializationExpression struct {
 	Name       string
@@ -24,8 +24,10 @@ type StructInitializationExpression struct {
 
 var _ Expression = (*StructInitializationExpression)(nil)
 
-func (n StructInitializationExpression) expression() {}
+func (StructInitializationExpression) Compile(ctx *Context) (error, *CompileResult) {
+	return nil, nil
+}
 
-func (v StructInitializationExpression) Evaluate(s *Scope) (error, values.Value) {
+func (StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	return nil, nil
 }

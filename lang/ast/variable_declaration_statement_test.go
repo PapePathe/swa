@@ -16,101 +16,61 @@
 package ast
 
 import (
-	"swahili/lang/values"
 	"testing"
 
+	"github.com/llir/llvm/ir"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestEvaluateIntegerVariableDeclarationStatement(t *testing.T) {
-	scope := NewScope(nil)
-	statement := VarDeclarationStatement{
-		Name:       "x",
-		IsConstant: false,
-		Value:      NumberExpression{Value: 10},
-	}
+func TestVariableDeclarationConfig(t *testing.T) {
+	t.Run("integer", func(t *testing.T) {
+		stmt := VarDeclarationStatement{
+			Name:  "v",
+			Value: NumberExpression{Value: 1},
+		}
+		expectedLL := "@v = global i32 1\n"
 
-	err, val := statement.Evaluate(scope)
+		expectCompilesSuccessFully(t, stmt, expectedLL)
+	})
+	t.Run("string", func(t *testing.T) {
+		stmt := VarDeclarationStatement{
+			Name:  "s",
+			Value: StringExpression{Value: "Na nga def"},
+		}
+		expectedLL := "@s = global [10 x i8] c\"Na nga def\"\n"
 
-	if err != nil {
-		t.Errorf("Evaluating var decl should not error. current: %s", err)
-	}
+		expectCompilesSuccessFully(t, stmt, expectedLL)
+	})
+	t.Run("array of numbers", func(t *testing.T) {
+		stmt := VarDeclarationStatement{
+			Name: "s",
+			Value: ArrayInitializationExpression{
+				Underlying: SymbolType{Name: "number"},
+				Contents: []Expression{
+					NumberExpression{Value: 0},
+					NumberExpression{Value: 1},
+					NumberExpression{Value: 2},
+					NumberExpression{Value: 3},
+					NumberExpression{Value: 4},
+				},
+			},
+		}
+		expectedLL := "@s = global [5 x i32] [i32 0, i32 1, i32 2, i32 3, i32 4]\n"
 
-	if val != nil {
-		t.Errorf("return value of var decl statement should be nil")
-	}
-
-	content, ok := scope.Variables["x"]
-
-	if !ok {
-		t.Errorf("Variable X should be defined")
-	}
-
-	expectedContent := values.NumberValue{Value: 10}
-
-	if content != expectedContent {
-		t.Errorf("%s should be equal to %s", expectedContent, content)
-	}
+		expectCompilesSuccessFully(t, stmt, expectedLL)
+	})
 }
 
-func TestEvaluateStringVariableDeclarationStatement(t *testing.T) {
-	scope := NewScope(nil)
-	statement := VarDeclarationStatement{
-		Name:       "string_var",
-		IsConstant: false,
-		Value:      StringExpression{Value: "a simple string"},
-	}
+func expectCompilesSuccessFully(t *testing.T, stmt VarDeclarationStatement, expectedLL string) {
+	t.Helper()
+	mod := ir.NewModule()
+	ctx := NewContext(nil, mod)
 
-	err, val := statement.Evaluate(scope)
+	err := stmt.Compile(ctx)
 
-	if err != nil {
-		t.Errorf("Evaluating var decl should not error. current: %s", err)
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, expectedLL, mod.String())
 
-	if val != nil {
-		t.Errorf("return value of var decl statement should be nil")
-	}
-
-	content, ok := scope.Variables["string_var"]
-
-	if !ok {
-		t.Errorf("Variable string_var should be defined")
-	}
-
-	expectedContent := values.StringValue{Value: "a simple string"}
-
-	if content != expectedContent {
-		t.Errorf("%s should be equal to %s", expectedContent, content)
-	}
-}
-
-func TestEvaluatArrayVariableDeclarationStatement(t *testing.T) {
-	scope := NewScope(nil)
-	statement := VarDeclarationStatement{
-		Name:       "array",
-		IsConstant: false,
-		Value: ArrayInitializationExpression{
-			Contents: []Expression{StringExpression{Value: "a simple string"}},
-		},
-	}
-
-	err, val := statement.Evaluate(scope)
-
-	if err != nil {
-		t.Errorf("Evaluating var decl should not error. current: %s", err)
-	}
-
-	if val != nil {
-		t.Errorf("return value of var decl statement should be nil")
-	}
-
-	content, ok := scope.Variables["array"]
-
-	if !ok {
-		t.Errorf("Variable string_var should be defined")
-	}
-
-	expectedContent := values.ArrayValue{Values: []values.Value{values.StringValue{Value: "a simple string"}}}
-
-	assert.Equal(t, content, expectedContent)
+	_, ok := ctx.vars[stmt.Name]
+	assert.True(t, ok)
 }

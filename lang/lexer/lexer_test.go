@@ -65,7 +65,7 @@ func TestNewWithFrench(t *testing.T) {
 
 func TestNewWithEmptyString(t *testing.T) {
 	_, err := New("")
-	assert.Equal(t, errors.New("You must define your dialect"), err)
+	assert.Equal(t, errors.New("you must define your dialect"), err)
 }
 
 func TestNewWithUnknownDialect(t *testing.T) {

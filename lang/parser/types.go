@@ -39,10 +39,10 @@ var (
 	typeLedLookup          TypeLedLookup = make(TypeLedLookup)
 )
 
-func typeLed(kind lexer.TokenKind, bp BindingPower, ledFn TypeLedHandlerFunc) {
-	typeBindingPowerLookup[kind] = bp
-	typeLedLookup[kind] = ledFn
-}
+//func typeLed(kind lexer.TokenKind, bp BindingPower, ledFn TypeLedHandlerFunc) {
+//	typeBindingPowerLookup[kind] = bp
+//	typeLedLookup[kind] = ledFn
+//}
 
 func typeNud(kind lexer.TokenKind, nudFn TypeNudHandlerFunc) {
 	typeNudLookup[kind] = nudFn

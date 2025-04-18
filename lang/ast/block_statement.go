@@ -17,7 +17,9 @@ package ast
 
 import (
 	"encoding/json"
-	"swahili/lang/values"
+	"fmt"
+
+	"tinygo.org/x/go-llvm"
 )
 
 // BlockStatement ...
@@ -28,22 +30,35 @@ type BlockStatement struct {
 
 var _ Statement = (*BlockStatement)(nil)
 
-func (bs BlockStatement) Evaluate(s *Scope) (error, values.Value) {
-	lg.Debug("Evaluating block statement")
-
+func (bs BlockStatement) Compile(ctx *Context) error {
 	for _, stmt := range bs.Body {
-		err, _ := stmt.Evaluate(s)
+		err := stmt.Compile(ctx)
+		if err != nil {
+			lg.Error("ERROR", " evaluating statement", err.Error())
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (bs BlockStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	for idx, stmt := range bs.Body {
+		err, val := stmt.CompileLLVM(ctx)
 		if err != nil {
 			lg.Error("ERROR", " evaluating statement", err.Error())
 
 			return err, nil
 		}
+
+		if idx == len(bs.Body)-2 {
+			fmt.Println("Return value", val)
+		}
 	}
 
 	return nil, nil
 }
-
-func (bs BlockStatement) statement() {}
 
 func (bs BlockStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
