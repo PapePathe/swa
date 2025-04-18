@@ -2,6 +2,8 @@ package compiler
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 	"swahili/lang/ast"
 
 	"github.com/llir/llvm/ir"
@@ -28,6 +30,12 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 	module := llvm.GlobalContext().NewModule("my_module")
 	defer module.Dispose()
 
+	llvm.AddFunction(
+		module,
+		"printf",
+		llvm.FunctionType(context.Int32Type(), []llvm.Type{llvm.PointerType(context.Int8Type(), 0)}, true),
+	)
+
 	builder := context.NewBuilder()
 	defer builder.Dispose()
 	ctx := ast.CompilerCtx{
@@ -42,26 +50,27 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 		panic(err)
 	}
 
-	fmt.Println(module.String())
+	err = os.WriteFile("./tmp/start.ll", []byte(module.String()), FilePerm)
+	if err != nil {
+		panic(err)
+	}
 
-	// err = os.WriteFile("./tmp/start.ll", []byte(m.String()), FilePerm)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	cmd := exec.Command("llc", "./tmp/start.ll", "-o", "./tmp/start.s")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		err := fmt.Errorf("Error compiling IR %s", err)
+		panic(err)
+	}
 
-	// cmd := exec.Command("llc", "./tmp/start.ll", "-o", "./tmp/start.s")
-	// if err := cmd.Run(); err != nil {
-	// 	panic(err)
-	// }
+	objectCmd := exec.Command("clang", "-c", "./tmp/start.s", "-o", "./tmp/start.o")
+	if err := objectCmd.Run(); err != nil {
+		panic(err)
+	}
 
-	// objectCmd := exec.Command("clang", "-c", "./tmp/start.s", "-o", "./tmp/start.o")
-	// if err := objectCmd.Run(); err != nil {
-	// 	panic(err)
-	// }
-
-	// linkCmd := exec.Command("clang", "./tmp/start.o", "-o", "./tmp/start.exe")
-	// if err := linkCmd.Run(); err != nil {
-	// 	err2 := fmt.Errorf("Error during linking <%s>", err)
-	// 	panic(err2)
-	// }
+	linkCmd := exec.Command("clang", "./tmp/start.o", "-o", "./tmp/start.exe")
+	if err := linkCmd.Run(); err != nil {
+		err2 := fmt.Errorf("Error during linking <%s>", err)
+		panic(err2)
+	}
 }

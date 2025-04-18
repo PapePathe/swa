@@ -44,14 +44,17 @@ func (bs BlockStatement) Compile(ctx *Context) error {
 }
 
 func (bs BlockStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
-	for _, stmt := range bs.Body {
+	for idx, stmt := range bs.Body {
 		err, val := stmt.CompileLLVM(ctx)
 		if err != nil {
 			lg.Error("ERROR", " evaluating statement", err.Error())
 
 			return err, nil
 		}
-		fmt.Println("Return value", stmt, val)
+
+		if idx == len(bs.Body)-2 {
+			fmt.Println("Return value", val)
+		}
 	}
 
 	return nil, nil

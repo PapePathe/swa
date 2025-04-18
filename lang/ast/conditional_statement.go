@@ -17,7 +17,6 @@ package ast
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
@@ -70,7 +69,8 @@ func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Val
 	if err != nil {
 		return err, nil
 	}
-	fmt.Println(condition.String())
+
+	bodyBlock := ctx.Builder.GetInsertBlock()
 
 	mergeBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "merge")
 	thenBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "if")
@@ -83,13 +83,20 @@ func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Val
 	if err != nil {
 		return err, nil
 	}
-	ctx.Builder.CreateBr(mergeBlock)
+
+	if thenBlock.LastInstruction().InstructionOpcode() != llvm.Ret {
+		ctx.Builder.CreateBr(mergeBlock)
+	}
 
 	ctx.Builder.SetInsertPointAtEnd(elseBlock)
 	err, failureVal := cs.Failure.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil
 	}
+
+	// if elseBlock.LastInstruction().InstructionOpcode() != llvm.Ret {
+	// 	ctx.Builder.CreateBr(mergeBlock)
+	// }
 	ctx.Builder.CreateBr(mergeBlock)
 	ctx.Builder.SetInsertPointAtEnd(mergeBlock)
 
@@ -103,6 +110,10 @@ func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Val
 		phi := ctx.Builder.CreatePHI(successVal.Type(), "")
 		phi.AddIncoming([]llvm.Value{*successVal}, []llvm.BasicBlock{thenBlock})
 	}
+	thenBlock.MoveAfter(bodyBlock)
+	elseBlock.MoveAfter(thenBlock)
+	mergeBlock.MoveAfter(thenBlock)
+
 	return nil, &phi
 }
 
