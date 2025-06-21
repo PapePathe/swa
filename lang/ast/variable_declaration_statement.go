@@ -67,7 +67,6 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Va
 		err := fmt.Errorf("return value is nil <%s> <%s>", vd.Name, vd.Value)
 		return err, nil
 	}
-	fmt.Println("VALUE", val)
 
 	glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
 	glob.SetInitializer(*val)

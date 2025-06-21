@@ -151,7 +151,7 @@ func (k TokenKind) String() string {
 		return "NUMBER"
 	}
 
-	return str
+	return ""
 }
 
 const (
@@ -241,4 +241,7 @@ const (
 	Print
 	// A single ascii or utf8 character
 	Character
+	Function
+	Main
+	Return
 )

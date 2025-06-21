@@ -70,7 +70,7 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 
 	linkCmd := exec.Command("clang", "./tmp/start.o", "-o", "./tmp/start.exe")
 	if err := linkCmd.Run(); err != nil {
-		err2 := fmt.Errorf("Error during linking <%s>", err)
+		err2 := fmt.Errorf("Error durrng linking <%s>", err)
 		panic(err2)
 	}
 }

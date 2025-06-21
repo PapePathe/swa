@@ -41,10 +41,8 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 		switch val.Type() {
 		case llvm.GlobalContext().Int32Type():
 			ctx.Builder.CreateRet(val)
-			fmt.Println("Return statement LLVM SIMPLE NUMBER", val)
 		case llvm.PointerType(llvm.GlobalContext().Int32Type(), 0):
 			loadedval := ctx.Builder.CreateLoad(llvm.GlobalContext().Int32Type(), val, "")
-			fmt.Println("Return statement LLVM", loadedval)
 			ctx.Builder.CreateRet(loadedval)
 		}
 	case NumberExpression:

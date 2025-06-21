@@ -30,6 +30,9 @@ func (m French) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`si`), defaultHandler(KeywordIf, "si")},
 		{regexp.MustCompile(`afficher`), defaultHandler(Print, "afficher")},
 		{regexp.MustCompile(`structure`), defaultHandler(Struct, "structure")},
+		{regexp.MustCompile(`demarrer`), defaultHandler(Main, "demarrer")},
+		{regexp.MustCompile(`fonction`), defaultHandler(Function, "fonction")},
+		{regexp.MustCompile(`retourner`), defaultHandler(Return, "retourner")},
 		{
 			regexp.MustCompile(
 				`'[aáàâãäåæçćčđéèêëíìîïðñóòôõöøœśšşțúùûüýÿžAÁÀÂÃÄÅÆÇĆČĐÉÈÊËÍÌÎÏÐÑÓÒÔÕÖØŒŚŠŞȚÚÙÛÜÝŸŽa-zA-Z0-9]'`,

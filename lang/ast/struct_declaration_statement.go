@@ -86,7 +86,5 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm
 	stype := ctx.Context.StructCreateNamed(sd.Name)
 	stype.StructSetBody([]llvm.Type{}, false)
 
-	fmt.Println(stype)
-
 	return nil, nil
 }

@@ -44,7 +44,6 @@ var compileCmd = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
-
 		sourceCode := string(bytes)
 		tokens := lexer.Tokenize(sourceCode)
 		tree := parser.Parse(tokens)

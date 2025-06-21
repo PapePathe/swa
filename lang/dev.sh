@@ -2,6 +2,6 @@
 
 set -euxo pipefail
 
-go build -o tmp/swa main.go
+go build -x -o tmp/swa main.go
 
 ./tmp/swa "$@"
