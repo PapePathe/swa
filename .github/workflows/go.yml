@@ -8,8 +8,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Install LLVM
-        run: sudo apt install llvm-15-dev
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v2
+        with:
+          version: "19.1.7"
       - uses: actions/checkout@v4
       - name: Set up Go
         uses: actions/setup-go@v5
