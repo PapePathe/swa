@@ -18,6 +18,6 @@ RUN curl -OL https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz \
   && rm go${GOLANG_VERSION}.linux-amd64.tar.gz
 ENV PATH="/usr/local/go/bin:${PATH}"
 WORKDIR /tmp/go-build
-COPY lang/go.mod .
-COPY lang/go.sum .
+COPY . .
 RUN go mod download
+RUN go mod tidy
