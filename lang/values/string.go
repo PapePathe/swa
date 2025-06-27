@@ -15,8 +15,6 @@
 
 package values
 
-import "fmt"
-
 type StringValue struct {
 	Value string
 }
@@ -26,5 +24,5 @@ func (sv StringValue) GetValue() any {
 }
 
 func (sv StringValue) String() string {
-	return fmt.Sprintf("%s", sv.Value)
+	return sv.Value
 }

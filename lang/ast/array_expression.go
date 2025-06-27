@@ -16,7 +16,7 @@
 package ast
 
 import (
-	"swahili/lang/values"
+	"tinygo.org/x/go-llvm"
 )
 
 type ArrayInitializationExpression struct {
@@ -26,17 +26,6 @@ type ArrayInitializationExpression struct {
 
 var _ Expression = (*ArrayInitializationExpression)(nil)
 
-func (l ArrayInitializationExpression) expression() {}
-
-func (v ArrayInitializationExpression) Evaluate(s *Scope) (error, values.Value) {
-	contents := []values.Value{}
-
-	for _, elem := range v.Contents {
-		_, exprEval := elem.Evaluate(s)
-		contents = append(contents, exprEval)
-	}
-
-	array := values.ArrayValue{Values: contents}
-
-	return nil, array
+func (bs ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	return nil, nil
 }

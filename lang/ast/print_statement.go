@@ -16,10 +16,9 @@
 package ast
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
-	"swahili/lang/values"
+
+	"tinygo.org/x/go-llvm"
 )
 
 type PrintStatetement struct {
@@ -28,28 +27,34 @@ type PrintStatetement struct {
 
 var _ Statement = (*PrintStatetement)(nil)
 
-func (ps PrintStatetement) Evaluate(s *Scope) (error, values.Value) {
-	var buffer bytes.Buffer
-
-	lg.Debug("Evaluating print statement", "stmt", ps)
-
+func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	for _, v := range ps.Values {
-		err, vals := v.Evaluate(s)
+		err, res := v.CompileLLVM(ctx)
 		if err != nil {
 			return err, nil
 		}
 
-		buffer.WriteString(vals.String())
+		switch v.(type) {
+		case StringExpression:
+			all := ctx.Builder.CreateAlloca(res.Type(), "")
+			ctx.Builder.CreateStore(*res, all)
+
+			ctx.Builder.CreateCall(
+				llvm.FunctionType(ctx.Context.Int32Type(), []llvm.Type{llvm.PointerType(ctx.Context.Int8Type(), 0)}, true),
+				ctx.Module.NamedFunction("printf"),
+				[]llvm.Value{all},
+				"printf",
+			)
+		}
+
 	}
 
-	fmt.Println(buffer.String())
-
-	return nil, values.StringValue{Value: buffer.String()}
+	return nil, nil
 }
-func (cs PrintStatetement) statement() {}
 
 func (cs PrintStatetement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
+	m["Values"] = cs.Values
 
 	res := make(map[string]any)
 	res["ast.PrintStatetement"] = m

@@ -30,9 +30,7 @@ func TestReservedEnglish(t *testing.T) {
 		"const":  Const,
 		"int":    TypeInt,
 	}
-
 	english := English{}
-	reserved := english.Reserved()
 
-	assert.Equal(t, expected, reserved)
+	assert.Equal(t, expected, english.Reserved())
 }

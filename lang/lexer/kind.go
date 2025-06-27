@@ -18,7 +18,53 @@ package lexer
 // TokenKind is a custom type representing the kind of a token.
 type TokenKind int
 
-// String returns a string representation of the TokenKind.
+var tks = map[TokenKind]string{
+	And:                "AND",
+	Assignment:         "ASSIGNMENT",
+	Colon:              "COLON",
+	Comma:              "COMMA",
+	CloseCurly:         "CLOSE_CURLY",
+	CloseParen:         "CLOSE_PAREN",
+	CloseBracket:       "CLOSE_BRACKET",
+	Const:              "CONST",
+	DialectDeclaration: "DIALECT",
+	Divide:             "DIVIDE",
+	Dot:                "DOT",
+	EOF:                "EOF",
+	Equals:             "EQUALS",
+	Function:           "FUNCTION",
+	GreaterThan:        "GREATER_THAN",
+	GreaterThanEquals:  "GREATER_THAN_EQUALS",
+	Identifier:         "IDENTIFIER",
+	KeywordIf:          "IF",
+	KeywordElse:        "ELSE",
+	LessThan:           "LESS_THAN",
+	LessThanEquals:     "LESS_THAN_EQUALS",
+	Let:                "LET",
+	Main:               "MAIN_PROGRAM",
+	Minus:              "MINUS",
+	Multiply:           "MULTIPLY",
+	Not:                "NOT",
+	NotEquals:          "NOT_EQUALS",
+	Number:             "NUMBER",
+	OpenCurly:          "OPEN_CURLY",
+	OpenParen:          "OPEN_PAREN",
+	OpenBracket:        "OPEN_BRACKET",
+	Or:                 "OR",
+	Plus:               "PLUS",
+	PlusEquals:         "PLUS_EQUAL",
+	Print:              "PRINT",
+	QuestionMark:       "QUESTION_MARK",
+	SemiColon:          "SEMI_COLON",
+	Return:             "RETURN",
+	StarEquals:         "STAR_EQUALS",
+	Struct:             "STRUCT",
+	String:             "STRING",
+	Star:               "STAR",
+	TypeInt:            "INT",
+}
+
+// String s a string representation of the TokenKind.
 func (k TokenKind) String() string {
 	switch k {
 	case Character:
@@ -105,7 +151,7 @@ func (k TokenKind) String() string {
 		return "NUMBER"
 	}
 
-	return "UNKNOWN TOKEN KIND"
+	return ""
 }
 
 const (
@@ -195,4 +241,7 @@ const (
 	Print
 	// A single ascii or utf8 character
 	Character
+	Function
+	Main
+	Return
 )

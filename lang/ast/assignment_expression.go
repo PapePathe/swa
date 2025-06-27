@@ -17,7 +17,8 @@ package ast
 
 import (
 	"swahili/lang/lexer"
-	"swahili/lang/values"
+
+	"tinygo.org/x/go-llvm"
 )
 
 // AssignmentExpression.
@@ -33,8 +34,6 @@ type AssignmentExpression struct {
 
 var _ Expression = (*AssignmentExpression)(nil)
 
-func (n AssignmentExpression) expression() {}
-
-func (v AssignmentExpression) Evaluate(s *Scope) (error, values.Value) {
+func (bs AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	return nil, nil
 }

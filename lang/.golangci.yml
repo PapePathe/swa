@@ -1,29 +1,67 @@
+version: "2"
 linters:
-  enable-all: true
-  fast: true
+  default: all
   disable:
-    - godot
+    - exhaustruct
     - dupl
-    - gofumpt
-    - gci
-    - testpackage
-    - gocyclo # blocked by the giant to string methof of token kind
-    - cyclop # blocked by the giant to string methof of token kind
-    - funlen # blocked by the giant to string methof of token kind
-linters-settings:
-  interfacebloat:
-    max: 18
-  depguard:
-    rules:
-      prevent_unmaintained_packages:
-        files:
-          - $all
-          - "!$test"
-        allow:
-          - $gostd
-          - swahili
-          - github.com/sanity-io/litter
-          - github.com/spf13/cobra
-        deny:
-          - pkg: io/ioutil
-            desc: "replaced by io and os packages since Go 1.16: https://tip.golang.org/doc/go1.16#ioutil"
+    - revive
+    - varnamelen
+    - paralleltest
+    - gochecknoglobals
+    - wrapcheck
+    - ireturn
+    - gocritic
+    - musttag
+    - depguard
+    - testifylint
+    - noctx
+    - funlen
+    - forbidigo
+    - godot
+    - perfsprint
+    - godox
+    - exhaustive
+    - recvcheck
+    - err113
+    - staticcheck
+    - mirror
+    - unparam
+    - testpackage # test package is really annoying
+  settings:
+    depguard:
+      rules:
+        prevent_unmaintained_packages:
+          files:
+            - $all
+            - "!$test"
+          allow:
+            - $gostd
+            - swahili
+            - github.com/sanity-io/litter
+            - github.com/spf13/cobra
+          deny:
+            - pkg: io/ioutil
+              desc: "replaced by io and os packages since Go 1.16: https://tip.golang.org/doc/go1.16#ioutil"
+    interfacebloat:
+      max: 18
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

@@ -15,7 +15,7 @@
 
 package ast
 
-import "swahili/lang/values"
+import "tinygo.org/x/go-llvm"
 
 type MemberExpression struct {
 	Object   Expression
@@ -25,8 +25,10 @@ type MemberExpression struct {
 
 var _ Expression = (*MemberExpression)(nil)
 
-func (me MemberExpression) expression() {}
+func (MemberExpression) Compile(ctx *Context) (error, *CompileResult) {
+	return nil, nil
+}
 
-func (v MemberExpression) Evaluate(s *Scope) (error, values.Value) {
+func (bs MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	return nil, nil
 }

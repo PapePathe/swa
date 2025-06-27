@@ -75,6 +75,6 @@ func getDialect(source string) (Dialect, error) {
 
 		return dialect, nil
 	} else {
-		return nil, fmt.Errorf("You must define your dialect")
+		return nil, fmt.Errorf("you must define your dialect")
 	}
 }

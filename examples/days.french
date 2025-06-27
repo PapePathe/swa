@@ -1,27 +1,32 @@
 dialect:french;
 
-variable x = 10;
-constante jours = []string  {"lundi", "mardi", "mercredi", "jeudi", "vendredi"};
-constante nombres = []number {0,1,2,3};
+variable salary_string = "100000 EUR";
+variable salary: Entier_32 = 500;
 
-si(x>10){
-  afficher("X est superieur a dix.");
-} sinon {
-  afficher("X n'est pas superieur a dix. ");
-  afficher("X = ", x);
-  afficher("Jours = ", jours);
+structure Employe{
+  AnneeNaissane: Nombre,
+  Nom: Chaine,
+  Prenom: Chaine,
 }
 
-si(x>=10){
-  afficher("X est superieur ou egal a dix.");
-}
+//fonction addition(a: Entier_32, b: Entier_32) Entier_32 {
+//  si(a <= 0) {
+//    retourner a + 1;
+//  } sinon {
+//    retourner b + 1;
+//  }
+//}
 
-si(x<10){
-  afficher("X est inferieur a dix.");
- // statements
-}
+demarrer() int {
+  salary_string = "$1000 sala";
+  salary = 999999;
+  variable new_salary : Entier_32 = 1009;
+//  variable p : Employe = Employe{ AnneeNaissane: 1985, Nom: "SENE", Prenom: "Pathe" }; 
 
-si(x<=10){
-  afficher("X est inferieur ou egal  a dix.");
- // statements
+  si(salary <= new_salary) {
+    afficher("new salary is greater");
+    retourner 10;
+  }
+
+  retourner 100;
 }

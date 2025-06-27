@@ -17,14 +17,14 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 	"os"
-	"swahili/lang/ast"
-	"swahili/lang/interpreter"
+	"swahili/lang/compiler"
 	"swahili/lang/lexer"
 	"swahili/lang/parser"
 	"swahili/lang/server"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -37,53 +37,53 @@ var rootCmd = &cobra.Command{
 var compileCmd = &cobra.Command{
 	Use:   "compile",
 	Short: "Compile the source code to an executable",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Compiling...")
-	},
-}
-
-var interpretCmd = &cobra.Command{
-	Use:   "interpret",
-	Short: "Interpret the source code",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		source, _ := cmd.Flags().GetString("source")
 
 		bytes, err := os.ReadFile(source)
 		if err != nil {
-			fmt.Println(fmt.Sprintf("ERROR: %s", err))
-			os.Exit(1)
+			panic(err)
 		}
-
 		sourceCode := string(bytes)
 		tokens := lexer.Tokenize(sourceCode)
-		st := parser.Parse(tokens)
-
-		interpreter.Run(st, ast.NewScope(nil))
+		tree := parser.Parse(tokens)
+		target := compiler.BuildTarget{OperatingSystem: "Gnu/Linux", Architecture: "X86-64"}
+		compiler.Compile(tree, target)
 	},
 }
+
+const TIMEOUT = 3
 
 var serverCmd = &cobra.Command{
 	Use:   "server",
 	Short: "Start the web service",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		mux := http.NewServeMux()
 		mux.Handle("/p", server.WebParser{})
 		mux.Handle("/t", server.WebTokenizer{})
-		http.ListenAndServe(":2108", mux)
+
+		server := &http.Server{
+			Addr:                         ":2108",
+			ReadHeaderTimeout:            TIMEOUT * time.Second,
+			Handler:                      mux,
+			DisableGeneralOptionsHandler: false,
+			WriteTimeout:                 TIMEOUT * time.Second,
+		}
+		if err := server.ListenAndServe(); err != nil {
+			panic(err)
+		}
 	},
 }
 
 var tokenizeCmd = &cobra.Command{
 	Use:   "tokenize",
 	Short: "Tokenize the source code",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		source, _ := cmd.Flags().GetString("source")
 
-		fmt.Println("Tokenizing...")
 		bytes, err := os.ReadFile(source)
 		if err != nil {
-			fmt.Println(fmt.Sprintf("ERROR: %s", err))
-			os.Exit(1)
+			panic(err)
 		}
 
 		sourceCode := string(bytes)
@@ -95,7 +95,7 @@ var tokenizeCmd = &cobra.Command{
 			panic(err)
 		}
 
-		fmt.Println(string(result))
+		log.Println(string(result))
 	},
 }
 
@@ -104,17 +104,23 @@ func main() {
 		StringP("source", "s", "", "location of the file containing the source code")
 	tokenizeCmd.Flags().
 		StringP("output", "o", "json", "output format of the tokenizer (json | yaml | toml)")
-	tokenizeCmd.MarkFlagRequired("source")
+
+	if err := tokenizeCmd.MarkFlagRequired("source"); err != nil {
+		panic(err)
+	}
+
 	serverCmd.Flags().
 		StringP("server", "l", "", "start a web server")
-	interpretCmd.Flags().
+	compileCmd.Flags().
 		StringP("source", "s", "", "location of the file containing the source code")
-	interpretCmd.MarkFlagRequired("source")
 
-	rootCmd.AddCommand(compileCmd, interpretCmd, tokenizeCmd, serverCmd)
+	if err := compileCmd.MarkFlagRequired("source"); err != nil {
+		panic(err)
+	}
+
+	rootCmd.AddCommand(compileCmd, tokenizeCmd, serverCmd)
 
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		panic(err)
 	}
 }

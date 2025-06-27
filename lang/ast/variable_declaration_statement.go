@@ -17,7 +17,9 @@ package ast
 
 import (
 	"encoding/json"
-	"swahili/lang/values"
+	"fmt"
+
+	"tinygo.org/x/go-llvm"
 )
 
 // VarDeclarationStatement ...
@@ -34,22 +36,24 @@ type VarDeclarationStatement struct {
 
 var _ Statement = (*VarDeclarationStatement)(nil)
 
-func (v VarDeclarationStatement) Evaluate(s *Scope) (error, values.Value) {
-	lg.Debug("Evaluating variable declaration statement", "variable", v)
-
-	err, val := v.Value.Evaluate(s)
+func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	err, val := vd.Value.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil
 	}
 
-	lg.Debug("Result of evaluating value", "value", val)
+	if val == nil {
+		err := fmt.Errorf("return value is nil <%s> <%s>", vd.Name, vd.Value)
+		return err, nil
+	}
 
-	s.Set(v.Name, val)
+	glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
+	glob.SetInitializer(*val)
+
+	ctx.SymbolTable[vd.Name] = glob
 
 	return nil, nil
 }
-
-func (bs VarDeclarationStatement) statement() {}
 
 func (cs VarDeclarationStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)

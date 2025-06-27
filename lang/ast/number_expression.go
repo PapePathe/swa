@@ -17,7 +17,10 @@ package ast
 
 import (
 	"encoding/json"
-	"swahili/lang/values"
+
+	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir/types"
+	"tinygo.org/x/go-llvm"
 )
 
 // NumberExpression ...
@@ -25,12 +28,10 @@ type NumberExpression struct {
 	Value float64
 }
 
-var _ Expression = (*MemberExpression)(nil)
+var _ Expression = (*NumberExpression)(nil)
 
-func (n NumberExpression) expression() {}
-
-func (n NumberExpression) Evaluate(_ *Scope) (error, values.Value) {
-	return nil, values.NumberValue{Value: n.Value}
+func (nexpr NumberExpression) Compile(ctx *Context) (error, *CompileResult) {
+	return nil, &CompileResult{c: constant.NewInt(types.I32, int64(nexpr.Value))}
 }
 
 func (cs NumberExpression) MarshalJSON() ([]byte, error) {
@@ -41,4 +42,10 @@ func (cs NumberExpression) MarshalJSON() ([]byte, error) {
 	res["ast.NumberExpression"] = m
 
 	return json.Marshal(res)
+}
+
+func (se NumberExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	res := llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(se.Value), false)
+
+	return nil, &res
 }
