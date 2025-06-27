@@ -6,8 +6,6 @@ import (
 	"os/exec"
 	"swahili/lang/ast"
 
-	"github.com/llir/llvm/ir"
-	"github.com/llir/llvm/ir/types"
 	"tinygo.org/x/go-llvm"
 )
 
@@ -19,14 +17,13 @@ type BuildTarget struct {
 const FilePerm = 0600
 
 func Compile(tree ast.BlockStatement, target BuildTarget) {
-	m := ir.NewModule()
-	f := m.NewFunc("printf", types.I32, ir.NewParam("", types.NewPointer(types.I8)))
-	f.Sig.Variadic = true
+	//	m := ir.NewModule()
+	// f := m.NewFunc("printf", types.I32, ir.NewParam("", types.NewPointer(types.I8)))
+	// f.Sig.Variadic = true
 
 	context := llvm.NewContext()
 	defer context.Dispose() // Clean up when we're done.
 
-	// Create a new module.  A module is a container for LLVM IR.
 	module := llvm.GlobalContext().NewModule("my_module")
 	defer module.Dispose()
 

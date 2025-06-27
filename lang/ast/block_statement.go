@@ -17,7 +17,6 @@ package ast
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"tinygo.org/x/go-llvm"
 )
@@ -44,16 +43,12 @@ func (bs BlockStatement) Compile(ctx *Context) error {
 }
 
 func (bs BlockStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
-	for idx, stmt := range bs.Body {
-		err, val := stmt.CompileLLVM(ctx)
+	for _, stmt := range bs.Body {
+		err, _ := stmt.CompileLLVM(ctx)
 		if err != nil {
 			lg.Error("ERROR", " evaluating statement", err.Error())
 
 			return err, nil
-		}
-
-		if idx == len(bs.Body)-2 {
-			fmt.Println("Return value", val)
 		}
 	}
 

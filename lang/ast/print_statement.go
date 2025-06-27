@@ -56,7 +56,28 @@ func (ps PrintStatetement) Compile(ctx *Context) error {
 	return nil
 }
 
-func (PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	for _, v := range ps.Values {
+		err, res := v.CompileLLVM(ctx)
+		if err != nil {
+			return err, nil
+		}
+
+		switch v.(type) {
+		case StringExpression:
+			all := ctx.Builder.CreateAlloca(res.Type(), "")
+			ctx.Builder.CreateStore(*res, all)
+
+			ctx.Builder.CreateCall(
+				llvm.FunctionType(ctx.Context.Int32Type(), []llvm.Type{llvm.PointerType(ctx.Context.Int8Type(), 0)}, true),
+				ctx.Module.NamedFunction("printf"),
+				[]llvm.Value{all},
+				"printf",
+			)
+		}
+
+	}
+
 	return nil, nil
 }
 
