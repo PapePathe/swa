@@ -29,15 +29,6 @@ type ExpressionStatement struct {
 
 var _ Statement = (*ExpressionStatement)(nil)
 
-func (es ExpressionStatement) Compile(ctx *Context) error {
-	err, _ := es.Exp.Compile(ctx)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (ExpressionStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	return nil, nil
 }

@@ -20,7 +20,6 @@ import (
 	"swahili/lang/lexer"
 	"swahili/lang/log"
 
-	"github.com/llir/llvm/ir/enum"
 	"tinygo.org/x/go-llvm"
 )
 
@@ -36,28 +35,6 @@ var (
 	lg            = log.Logger.WithGroup("Ast Evaluator")
 )
 
-func (be BinaryExpression) Compile(ctx *Context) (error, *CompileResult) {
-	err, leftVal := be.Left.Compile(ctx)
-	if err != nil {
-		return err, nil
-	}
-	err, rightVal := be.Right.Compile(ctx)
-	if err != nil {
-		return err, nil
-	}
-
-	switch be.Operator.Kind {
-	case lexer.Plus:
-		res := CompileResult{v: ctx.NewAdd(leftVal.c, rightVal.c)}
-		return nil, &res
-	case lexer.GreaterThan:
-		res := CompileResult{v: ctx.NewICmp(enum.IPredUGT, leftVal.c, rightVal.c)}
-		return nil, &res
-	}
-
-	return nil, nil
-}
-
 func (be BinaryExpression) getCommonType(l, r llvm.Type) llvm.Type {
 	if l == r {
 		return l
@@ -67,7 +44,7 @@ func (be BinaryExpression) getCommonType(l, r llvm.Type) llvm.Type {
 		return r
 	}
 
-	panic(fmt.Errorf("Abnormal dnaling of types %s %s", l, r))
+	panic(fmt.Errorf("Abnormal hanling of types %s %s", l, r))
 }
 
 func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {

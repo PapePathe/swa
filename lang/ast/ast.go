@@ -24,7 +24,7 @@ import (
 
 // Statement ...
 type Statement interface {
-	Compile(ctx *Context) error
+	//	Compile(ctx *Context) error
 	CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value)
 }
 
@@ -36,7 +36,7 @@ type CompileResult struct {
 
 // Expression ...
 type Expression interface {
-	Compile(ctx *Context) (error, *CompileResult)
+	//	Compile(ctx *Context) (error, *CompileResult)
 	CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value)
 }
 

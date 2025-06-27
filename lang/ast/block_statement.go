@@ -29,19 +29,6 @@ type BlockStatement struct {
 
 var _ Statement = (*BlockStatement)(nil)
 
-func (bs BlockStatement) Compile(ctx *Context) error {
-	for _, stmt := range bs.Body {
-		err := stmt.Compile(ctx)
-		if err != nil {
-			lg.Error("ERROR", " evaluating statement", err.Error())
-
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (bs BlockStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	for _, stmt := range bs.Body {
 		err, _ := stmt.CompileLLVM(ctx)

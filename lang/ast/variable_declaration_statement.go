@@ -36,27 +36,6 @@ type VarDeclarationStatement struct {
 
 var _ Statement = (*VarDeclarationStatement)(nil)
 
-func (vd VarDeclarationStatement) Compile(ctx *Context) error {
-	err, cst := vd.Value.Compile(ctx)
-
-	if err != nil {
-		return err
-	}
-
-	if ctx.parent == nil {
-		ctx.globalVars[vd.Name] = GlobalVar{
-			cst: cst.c,
-			def: ctx.mod.NewGlobalDef(vd.Name, cst.c),
-		}
-	} else {
-		storage := ctx.NewAlloca(cst.c.Type())
-		ctx.NewStore(cst.c, storage)
-		ctx.AddLocal(vd.Name, LocalVariable{Value: storage})
-	}
-
-	return nil
-}
-
 func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	err, val := vd.Value.CompileLLVM(ctx)
 	if err != nil {

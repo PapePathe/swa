@@ -17,10 +17,7 @@ package ast
 
 import (
 	"encoding/json"
-	"fmt"
 
-	"github.com/llir/llvm/ir"
-	"github.com/llir/llvm/ir/types"
 	"tinygo.org/x/go-llvm"
 )
 
@@ -29,32 +26,6 @@ type PrintStatetement struct {
 }
 
 var _ Statement = (*PrintStatetement)(nil)
-
-func (ps PrintStatetement) Compile(ctx *Context) error {
-	for _, v := range ps.Values {
-		err, res := v.Compile(ctx)
-		if err != nil {
-			return err
-		}
-
-		switch v.(type) {
-		case SymbolExpression:
-			ctx.NewCall(ir.NewFunc("printf", types.I32), res.v)
-		case StringExpression:
-			vl := ctx.NewAlloca(res.c.Type())
-			ctx.NewStore(res.c, vl)
-
-			ctx.NewCall(ir.NewFunc("printf", types.I32), vl)
-		case NumberExpression:
-			panic("NumberExpressio not implemented")
-		default:
-			err := fmt.Errorf("print statement does not support symbol type <%s>", v)
-			panic(err)
-		}
-	}
-
-	return nil
-}
 
 func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	for _, v := range ps.Values {

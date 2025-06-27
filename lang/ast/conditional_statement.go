@@ -18,8 +18,6 @@ package ast
 import (
 	"encoding/json"
 
-	"github.com/llir/llvm/ir/constant"
-	"github.com/llir/llvm/ir/types"
 	"tinygo.org/x/go-llvm"
 )
 
@@ -30,39 +28,6 @@ type ConditionalStatetement struct {
 }
 
 var _ Statement = (*ConditionalStatetement)(nil)
-
-func (cs ConditionalStatetement) Compile(ctx *Context) error {
-	successBlk := ctx.Parent.NewBlock("if.success")
-	failureBlk := ctx.Parent.NewBlock("if.failure")
-	//	mergeBlk := ctx.Parent.NewBlock("")
-	//	successBlk.NewBr(mergeBlk)
-
-	err, res := cs.Condition.Compile(ctx)
-	// TODO fix issue with conditional branch
-	if err != nil {
-		return err
-	}
-
-	successCtx := ctx.NewContext(successBlk)
-	successCtx.NewRet(constant.NewInt(types.I32, 0))
-
-	err = cs.Success.Compile(successCtx)
-	if err != nil {
-		return err
-	}
-
-	failureCtx := ctx.NewContext(failureBlk)
-
-	failureCtx.NewRet(constant.NewInt(types.I32, 0))
-
-	err = cs.Failure.Compile(failureCtx)
-	if err != nil {
-		return err
-	}
-
-	ctx.NewCondBr(res.c, successBlk, failureBlk)
-	return nil
-}
 
 func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	err, condition := cs.Condition.CompileLLVM(ctx)
