@@ -50,7 +50,7 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Va
 	glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
 	glob.SetInitializer(*val)
 
-	ctx.SymbolTable[vd.Name] = glob
+	ctx.SymbolTable[vd.Name] = *val
 
 	return nil, nil
 }

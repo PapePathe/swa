@@ -28,21 +28,6 @@ type SymbolExpression struct {
 
 var _ Expression = (*SymbolExpression)(nil)
 
-func (se SymbolExpression) Compile(ctx *Context) (error, *CompileResult) {
-	val, err := ctx.LookupVariable(se.Value)
-	if err != nil {
-		localVar, err := ctx.LookupLocalVariable(se.Value)
-		if err != nil {
-			return err, nil
-		}
-		l := ctx.NewLoad(localVar.Value.Typ, localVar.Value)
-
-		return nil, &CompileResult{v: l.Src}
-	}
-
-	return nil, &CompileResult{v: val.def, c: val.cst}
-}
-
 func (se SymbolExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	val, ok := ctx.SymbolTable[se.Value]
 

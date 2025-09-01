@@ -1,7 +1,7 @@
 dialect:french;
 
 variable salary_string = "100000 EUR";
-variable salary: Entier_32 = 500;
+variable salary: Entier_32 = 500000;
 
 structure Employe{
   AnneeNaissane: Nombre,
@@ -18,14 +18,15 @@ structure Employe{
 //}
 
 demarrer() int {
-  salary_string = "$1000 sala";
   salary = 999999;
   variable new_salary : Entier_32 = 1009;
 //  variable p : Employe = Employe{ AnneeNaissane: 1985, Nom: "SENE", Prenom: "Pathe" }; 
 
   si(salary <= new_salary) {
-    afficher("new salary is greater");
+    afficher("%s %s %s %s", "new salary is greater", " than", " salary", salary_string);
     retourner 10;
+  } sinon {
+    afficher("%s", "salary is greater ---- from else block", new_salary);
   }
 
   retourner 100;
