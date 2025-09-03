@@ -3,30 +3,15 @@ dialect:french;
 variable salary_string = "100000 EUR";
 variable salary: Entier_32 = 500000;
 
-structure Employe{
-  AnneeNaissane: Nombre,
-  Nom: Chaine,
-  Prenom: Chaine,
-}
-
-//fonction addition(a: Entier_32, b: Entier_32) Entier_32 {
-//  si(a <= 0) {
-//    retourner a + 1;
-//  } sinon {
-//    retourner b + 1;
-//  }
-//}
-
 demarrer() int {
   salary = 999999;
   variable new_salary : Entier_32 = 1009;
-//  variable p : Employe = Employe{ AnneeNaissane: 1985, Nom: "SENE", Prenom: "Pathe" }; 
 
-  si(salary <= new_salary) {
-    afficher("%s %s %s %s", "new salary is greater", " than", " salary", salary_string);
+  si(salary >= new_salary) {
+    afficher("%s %s %s %s %d", "new salary is greater", "than", "salary", salary_string, salary);
     retourner 10;
   } sinon {
-    afficher("%s", "salary is greater ---- from else block", new_salary);
+    afficher("%s %d", "salary is greater ---- from else block", new_salary);
   }
 
   retourner 100;

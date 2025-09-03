@@ -23,13 +23,14 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 		}
 
 		switch v.(type) {
+		case NumberExpression:
+			all := ctx.Builder.CreateAlloca(res.Type(), "")
+			ctx.Builder.CreateStore(*res, all)
+			printableValues = append(printableValues, all)
 		case SymbolExpression:
 			name := v.(SymbolExpression).Value
 			global := ctx.Module.NamedGlobal(name)
-			//			all := ctx.Builder.CreateLoad(res.Type(), global, "")
-
 			printableValues = append(printableValues, global)
-
 		case StringExpression:
 			all := ctx.Builder.CreateAlloca(res.Type(), "")
 			ctx.Builder.CreateStore(*res, all)

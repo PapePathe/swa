@@ -42,7 +42,8 @@ var compileCmd = &cobra.Command{
 
 		bytes, err := os.ReadFile(source)
 		if err != nil {
-			panic(err)
+			os.Stdout.WriteString(err.Error())
+			os.Exit(1)
 		}
 		sourceCode := string(bytes)
 		tokens := lexer.Tokenize(sourceCode)
