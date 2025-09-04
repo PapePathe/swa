@@ -14,16 +14,16 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v2
+        with:
+          version: "19.0"
       - name: Build
         working-directory: lang
         run: go build -v -o ../tests/swa
       - name: Test
         working-directory: lang
         run: go test -v -coverprofile=coverage.txt ./...
-      - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v2.0.0
-        with:
-          version: "19.1.7"
       - name: Integration Tests
         working-directory: tests
         run: go test ./...
