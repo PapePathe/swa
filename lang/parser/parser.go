@@ -17,6 +17,7 @@ package parser
 
 import (
 	"fmt"
+	"os"
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
@@ -78,7 +79,8 @@ func (p *Parser) expectError(kind lexer.TokenKind, err any) lexer.Token {
 				token.Kind,
 				token,
 			)
-			panic(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 	}
 
