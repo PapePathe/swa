@@ -52,7 +52,7 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 		panic(err)
 	}
 
-	cmd := exec.Command("llc", "start.ll", "-o", "start.s")
+	cmd := exec.Command("llc-19", "start.ll", "-o", "start.s")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
