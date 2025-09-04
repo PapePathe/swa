@@ -47,12 +47,12 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 		panic(err)
 	}
 
-	err = os.WriteFile("./tmp/start.ll", []byte(module.String()), FilePerm)
+	err = os.WriteFile("start.ll", []byte(module.String()), FilePerm)
 	if err != nil {
 		panic(err)
 	}
 
-	cmd := exec.Command("llc", "./tmp/start.ll", "-o", "./tmp/start.s")
+	cmd := exec.Command("llc-19", "start.ll", "-o", "start.s")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
@@ -60,12 +60,12 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 		panic(err)
 	}
 
-	objectCmd := exec.Command("clang", "-c", "./tmp/start.s", "-o", "./tmp/start.o")
+	objectCmd := exec.Command("clang-19", "-c", "start.s", "-o", "start.o")
 	if err := objectCmd.Run(); err != nil {
 		panic(err)
 	}
 
-	linkCmd := exec.Command("clang", "./tmp/start.o", "-o", "./tmp/start.exe")
+	linkCmd := exec.Command("clang-19", "start.o", "-o", "start.exe")
 	if err := linkCmd.Run(); err != nil {
 		err2 := fmt.Errorf("Error durrng linking <%s>", err)
 		panic(err2)

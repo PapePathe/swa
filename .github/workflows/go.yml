@@ -16,7 +16,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build
         working-directory: lang
-        run: go build -v ./...
+        run: go build -v -o ../tests/swa
       - name: Test
         working-directory: lang
         run: go test -v -coverprofile=coverage.txt ./...
+      - name: Integration Tests
+        working-directory: tests
+        run: go test ./...
