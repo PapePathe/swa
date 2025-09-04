@@ -16,9 +16,6 @@
 package ast
 
 import (
-	"github.com/llir/llvm/ir"
-	"github.com/llir/llvm/ir/constant"
-	"github.com/llir/llvm/ir/value"
 	"tinygo.org/x/go-llvm"
 )
 
@@ -26,12 +23,6 @@ import (
 type Statement interface {
 	//	Compile(ctx *Context) error
 	CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value)
-}
-
-type CompileResult struct {
-	c constant.Constant
-	v value.Value
-	i *ir.InstAlloca
 }
 
 // Expression ...
