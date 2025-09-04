@@ -17,7 +17,7 @@ jobs:
       - name: Install LLVM and Clang
         uses: KyleMayes/install-llvm-action@v2
         with:
-          version: "19.1"
+          version: "19.1.7"
       - name: Build
         working-directory: lang
         run: go build -v -o ../tests/swa
