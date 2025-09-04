@@ -60,12 +60,12 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 		panic(err)
 	}
 
-	objectCmd := exec.Command("clang", "-c", "start.s", "-o", "start.o")
+	objectCmd := exec.Command("clang-19", "-c", "start.s", "-o", "start.o")
 	if err := objectCmd.Run(); err != nil {
 		panic(err)
 	}
 
-	linkCmd := exec.Command("clang", "start.o", "-o", "start.exe")
+	linkCmd := exec.Command("clang-19", "start.o", "-o", "start.exe")
 	if err := linkCmd.Run(); err != nil {
 		err2 := fmt.Errorf("Error durrng linking <%s>", err)
 		panic(err2)
