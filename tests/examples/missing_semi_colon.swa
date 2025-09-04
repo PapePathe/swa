@@ -1,0 +1,5 @@
+dialect:french;
+
+demarrer() int {
+  retourner 0
+}
