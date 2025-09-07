@@ -1,5 +1,5 @@
-; ModuleID = 'my_module'
-source_filename = "my_module"
+; ModuleID = 'swa-main'
+source_filename = "swa-main"
 
 @salary_string = global [11 x i8] c"100000 EUR\00"
 @salary = global i32 500000

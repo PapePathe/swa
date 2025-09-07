@@ -1,0 +1,18 @@
+dialect:french;
+
+variable salary_string = "100000 EUR";
+variable salary: Entier_32 = 500000;
+
+demarrer() int {
+  salary = 999999;
+  variable new_salary : Entier_32 = 1009;
+
+  si(salary >= new_salary) {
+    afficher("%s %s %s %s %d", "new salary is greater", "than", "salary", salary_string, salary);
+    retourner 10;
+  } sinon {
+    afficher("%s %d", "salary is greater ---- from else block", new_salary);
+  }
+
+  retourner 100;
+}

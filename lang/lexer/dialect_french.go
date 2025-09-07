@@ -58,8 +58,8 @@ func (m French) Patterns() []RegexpPattern {
 
 func (m French) Reserved() map[string]TokenKind {
 	return map[string]TokenKind{
-		"sinon":     KeywordElse,
 		"si":        KeywordIf,
+		"sinon":     KeywordElse,
 		"structure": Struct,
 		"variable":  Let,
 		"constante": Const,

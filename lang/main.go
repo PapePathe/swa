@@ -14,6 +14,35 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func main() {
+	tokenizeCmd.Flags().
+		StringP("source", "s", "", "location of the file containing the source code")
+	tokenizeCmd.Flags().
+		StringP("output", "o", "json", "output format of the tokenizer (json | yaml | toml)")
+
+	if err := tokenizeCmd.MarkFlagRequired("source"); err != nil {
+		panic(err)
+	}
+
+	serverCmd.Flags().
+		StringP("server", "l", "", "start a web server")
+
+	compileCmd.Flags().
+		StringP("source", "s", "", "location of the file containing the source code")
+	compileCmd.Flags().
+		StringP("output", "o", "start", "location of the compiled executable")
+
+	if err := compileCmd.MarkFlagRequired("source"); err != nil {
+		panic(err)
+	}
+
+	rootCmd.AddCommand(compileCmd, tokenizeCmd, serverCmd)
+
+	if err := rootCmd.Execute(); err != nil {
+		panic(err)
+	}
+}
+
 var rootCmd = &cobra.Command{
 	Use:   "swa",
 	Short: "Swahili Programming Environment",
@@ -24,6 +53,7 @@ var compileCmd = &cobra.Command{
 	Short: "Compile the source code to an executable",
 	Run: func(cmd *cobra.Command, _ []string) {
 		source, _ := cmd.Flags().GetString("source")
+		output, _ := cmd.Flags().GetString("output")
 
 		bytes, err := os.ReadFile(source)
 		if err != nil {
@@ -33,7 +63,11 @@ var compileCmd = &cobra.Command{
 		sourceCode := string(bytes)
 		tokens := lexer.Tokenize(sourceCode)
 		tree := parser.Parse(tokens)
-		target := compiler.BuildTarget{OperatingSystem: "Gnu/Linux", Architecture: "X86-64"}
+		target := compiler.BuildTarget{
+			OperatingSystem: "Gnu/Linux",
+			Architecture:    "X86-64",
+			Output:          output,
+		}
 		compiler.Compile(tree, target)
 	},
 }
@@ -83,30 +117,4 @@ var tokenizeCmd = &cobra.Command{
 
 		log.Println(string(result))
 	},
-}
-
-func main() {
-	tokenizeCmd.Flags().
-		StringP("source", "s", "", "location of the file containing the source code")
-	tokenizeCmd.Flags().
-		StringP("output", "o", "json", "output format of the tokenizer (json | yaml | toml)")
-
-	if err := tokenizeCmd.MarkFlagRequired("source"); err != nil {
-		panic(err)
-	}
-
-	serverCmd.Flags().
-		StringP("server", "l", "", "start a web server")
-	compileCmd.Flags().
-		StringP("source", "s", "", "location of the file containing the source code")
-
-	if err := compileCmd.MarkFlagRequired("source"); err != nil {
-		panic(err)
-	}
-
-	rootCmd.AddCommand(compileCmd, tokenizeCmd, serverCmd)
-
-	if err := rootCmd.Execute(); err != nil {
-		panic(err)
-	}
 }
