@@ -12,19 +12,16 @@ import (
 type BuildTarget struct {
 	OperatingSystem string
 	Architecture    string
+	Output          string
 }
 
 const FilePerm = 0600
 
 func Compile(tree ast.BlockStatement, target BuildTarget) {
-	//	m := ir.NewModule()
-	// f := m.NewFunc("printf", types.I32, ir.NewParam("", types.NewPointer(types.I8)))
-	// f.Sig.Variadic = true
-
 	context := llvm.NewContext()
-	defer context.Dispose() // Clean up when we're done.
+	defer context.Dispose()
 
-	module := llvm.GlobalContext().NewModule("my_module")
+	module := llvm.GlobalContext().NewModule("swa-main")
 	defer module.Dispose()
 
 	llvm.AddFunction(
@@ -47,12 +44,14 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 		panic(err)
 	}
 
-	err = os.WriteFile("start.ll", []byte(module.String()), FilePerm)
+	llirFileName := fmt.Sprintf("%s.ll", target.Output)
+	err = os.WriteFile(llirFileName, []byte(module.String()), FilePerm)
 	if err != nil {
 		panic(err)
 	}
 
-	cmd := exec.Command("llc-19", "start.ll", "-o", "start.s")
+	asmFileName := fmt.Sprintf("%s.s", target.Output)
+	cmd := exec.Command("llc-19", llirFileName, "-o", asmFileName)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
@@ -60,12 +59,14 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 		panic(err)
 	}
 
-	objectCmd := exec.Command("clang-19", "-c", "start.s", "-o", "start.o")
+	objFilename := fmt.Sprintf("%s.o", target.Output)
+	objectCmd := exec.Command("clang-19", "-c", asmFileName, "-o", objFilename)
 	if err := objectCmd.Run(); err != nil {
 		panic(err)
 	}
 
-	linkCmd := exec.Command("clang-19", "start.o", "-o", "start.exe")
+	exeFilename := fmt.Sprintf("%s.exe", target.Output)
+	linkCmd := exec.Command("clang-19", objFilename, "-o", exeFilename)
 	if err := linkCmd.Run(); err != nil {
 		err2 := fmt.Errorf("Error durrng linking <%s>", err)
 		panic(err2)

@@ -1,3 +1,6 @@
 tmp
 tests/swa
 ./tests/swa
+*.exe
+*.o
+*.s

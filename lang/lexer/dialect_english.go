@@ -1,18 +1,3 @@
-/*
-* swahili/lang
-* Copyright (C) 2025  Papa Pathe SENE
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package lexer
 
 import "regexp"
@@ -30,6 +15,8 @@ func (m English) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`else`), defaultHandler(KeywordElse, "else")},
 		{regexp.MustCompile(`print`), defaultHandler(Print, "print")},
 		{regexp.MustCompile(`struct`), defaultHandler(Struct, "struct")},
+		{regexp.MustCompile(`start`), defaultHandler(Main, "start")},
+		{regexp.MustCompile(`return`), defaultHandler(Return, "retourner")},
 		{regexp.MustCompile(`\/\/.*`), commentHandler},
 		{regexp.MustCompile(`'[a-zA-Z0-9]'`), characterHandler},
 		{regexp.MustCompile(`"[^"]*"`), stringHandler},
@@ -65,11 +52,11 @@ func (m English) Patterns() []RegexpPattern {
 
 func (m English) Reserved() map[string]TokenKind {
 	return map[string]TokenKind{
-		"let":    Let,
-		"const":  Const,
-		"int":    TypeInt,
 		"if":     KeywordIf,
 		"else":   KeywordElse,
 		"struct": Struct,
+		"let":    Let,
+		"const":  Const,
+		"int":    TypeInt,
 	}
 }

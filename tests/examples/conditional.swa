@@ -1,18 +1,18 @@
-dialect:french;
+dialect:english;
 
-variable salary_string = "100000 EUR";
-variable salary: Entier_32 = 500000;
+let salary_string = "100000 EUR";
+let salary: Number_32 = 500000;
 
-demarrer() int {
-  salary = 999999;
-  variable new_salary : Entier_32 = 1009;
+start() Number32 {
+ // salary = 999999;
+ // variable new_salary : Number_32 = 1009;
 
-  si(salary >= new_salary) {
-    afficher("%s %s %s %s %d", "new salary is greater", "than", "salary", salary_string, salary);
-    retourner 10;
-  } sinon {
-    afficher("%s %d", "salary is greater ---- from else block", new_salary);
-  }
+ // if(salary >= new_salary) {
+ //   afficher("%s %s %s %s %d", "new salary is greater", "than", "salary", salary_string, salary);
+ //   return 10;
+ // } else {
+ //   print("%s %d", "salary is greater ---- from else block", new_salary);
+ // }
 
-  retourner 100;
+  return 100;
 }
