@@ -14,9 +14,19 @@ type Expression interface {
 	CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value)
 }
 
+type DataType = int
+
+const (
+	DataTypeArray = iota
+	DataTypeNumber
+	DataTypeString
+	DataTypeStruct
+	DataTypeSymbol
+)
+
 // Type
 type Type interface {
-	_type()
+	_type() DataType
 }
 
 type CompilerCtx struct {

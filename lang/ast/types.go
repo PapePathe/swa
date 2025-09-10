@@ -21,7 +21,9 @@ type SymbolType struct {
 
 var _ Type = (*SymbolType)(nil)
 
-func (SymbolType) _type() {}
+func (SymbolType) _type() DataType {
+	return DataTypeSymbol
+}
 
 type ArrayType struct {
 	Underlying Type
@@ -29,7 +31,9 @@ type ArrayType struct {
 
 var _ Type = (*ArrayType)(nil)
 
-func (ArrayType) _type() {}
+func (ArrayType) _type() DataType {
+	return DataTypeArray
+}
 
 type NumberType struct {
 	Value int
@@ -37,4 +41,6 @@ type NumberType struct {
 
 var _ Type = (*NumberType)(nil)
 
-func (NumberType) _type() {}
+func (NumberType) _type() DataType {
+	return DataTypeNumber
+}
