@@ -6,13 +6,11 @@ import (
 
 // Statement ...
 type Statement interface {
-	//	Compile(ctx *Context) error
 	CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value)
 }
 
 // Expression ...
 type Expression interface {
-	//	Compile(ctx *Context) (error, *CompileResult)
 	CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value)
 }
 
