@@ -76,7 +76,17 @@ func ParsePrintStatement(p *Parser) ast.Statement {
 			str := p.expect(lexer.String).Value
 			values = append(values, ast.StringExpression{Value: str[1 : len(str)-1]})
 		case lexer.Identifier:
-			values = append(values, ast.SymbolExpression{Value: p.expect(lexer.Identifier).Value})
+			err, next := p.nextToken()
+			if err != nil {
+				values = append(values, ast.SymbolExpression{Value: p.expect(lexer.Identifier).Value})
+			} else {
+				if next.Kind == lexer.Dot {
+					left := ast.SymbolExpression{Value: p.expect(lexer.Identifier).Value}
+					values = append(values, ParseMemberCallExpression(p, left, Relational))
+				} else {
+					values = append(values, ast.SymbolExpression{Value: p.expect(lexer.Identifier).Value})
+				}
+			}
 		case lexer.Number:
 			value := p.expect(lexer.Number).Value
 
