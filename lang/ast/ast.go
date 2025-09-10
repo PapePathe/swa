@@ -30,8 +30,10 @@ type Type interface {
 }
 
 type CompilerCtx struct {
-	Context     *llvm.Context
-	Builder     *llvm.Builder
-	Module      *llvm.Module
-	SymbolTable map[string]llvm.Value
+	Context           *llvm.Context
+	Builder           *llvm.Builder
+	Module            *llvm.Module
+	SymbolTable       map[string]llvm.Value
+	StructSymbolTable map[string]llvm.Type
+	FuncSymbolTable   map[string]llvm.Type
 }
