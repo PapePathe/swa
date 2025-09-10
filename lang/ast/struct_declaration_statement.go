@@ -24,20 +24,25 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm
 		case SymbolType:
 			switch v.Name {
 			case "Chaine":
-				attrs = append(attrs, llvm.PointerType(llvm.GlobalContext().Int8Type(), 0))
+				attr := llvm.PointerType(ctx.Context.Int8Type(), 0)
+				attrs = append(attrs, attr)
 			case "Nombre":
-				attrs = append(attrs, llvm.GlobalContext().Int32Type())
+				attr := ctx.Context.Int32Type()
+				attrs = append(attrs, attr)
 			default:
-				err := fmt.Errorf("struct proprerty type %s not supported", v.Name)
+				err := fmt.Errorf("struct proprerty type (%s) not supported", v.Name)
 				panic(err)
 			}
 		default:
-			err := fmt.Errorf("struct proprerty does not support type")
+			err := fmt.Errorf("struct proprerty does not support type (%v)", v)
 			panic(err)
 		}
 	}
-	stype := ctx.Context.StructCreateNamed(sd.Name)
-	stype.StructSetBody([]llvm.Type{}, false)
+
+	newtype := ctx.Context.StructCreateNamed(sd.Name)
+	newtype.StructSetBody(attrs, false)
+
+	ctx.StructSymbolTable[sd.Name] = newtype
 
 	return nil, nil
 }
