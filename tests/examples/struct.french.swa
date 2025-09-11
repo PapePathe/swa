@@ -4,9 +4,9 @@ dialect:french;
 demarrer() int {
 
 structure Engineer{
-  Age: Nombre,
-  Name: Chaine,
-  TechStack: Chaine,
+  Age: entier,
+  Name: chaine,
+  TechStack: chaine,
 }
 
 variable r1 = Engineer{

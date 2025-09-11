@@ -14,19 +14,9 @@ type Expression interface {
 	CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value)
 }
 
-type DataType = int
-
-const (
-	DataTypeArray = iota
-	DataTypeNumber
-	DataTypeString
-	DataTypeStruct
-	DataTypeSymbol
-)
-
-// Type
-type Type interface {
-	_type() DataType
+type StructSymbolTableEntry struct {
+	LLVMType llvm.Type
+	Metadata StructDeclarationStatement
 }
 
 type CompilerCtx struct {
@@ -34,6 +24,6 @@ type CompilerCtx struct {
 	Builder           *llvm.Builder
 	Module            *llvm.Module
 	SymbolTable       map[string]llvm.Value
-	StructSymbolTable map[string]llvm.Type
+	StructSymbolTable map[string]StructSymbolTableEntry
 	FuncSymbolTable   map[string]llvm.Type
 }

@@ -6,13 +6,10 @@ import (
 	"swahili/lang/lexer"
 )
 
-func ParseStructInstantiationExpression(
-	p *Parser,
-	left ast.Expression,
-	bp BindingPower,
-) ast.Expression {
+func ParseStructInstantiationExpression(p *Parser, left ast.Expression, bp BindingPower) ast.Expression {
 	structName := helpers.ExpectType[ast.SymbolExpression](left).Value
-	properties := map[string]ast.Expression{}
+	properties := []string{}
+	values := []ast.Expression{}
 
 	p.expect(lexer.OpenCurly)
 
@@ -20,7 +17,8 @@ func ParseStructInstantiationExpression(
 		propertyName := p.expect(lexer.Identifier).Value
 		p.expect(lexer.Colon)
 		expr := parseExpression(p, Logical)
-		properties[propertyName] = expr
+		values = append(values, expr)
+		properties = append(properties, propertyName)
 
 		if p.currentToken().Kind != lexer.CloseCurly {
 			p.expect(lexer.Comma)
@@ -32,5 +30,6 @@ func ParseStructInstantiationExpression(
 	return ast.StructInitializationExpression{
 		Name:       structName,
 		Properties: properties,
+		Values:     values,
 	}
 }

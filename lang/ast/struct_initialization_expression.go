@@ -8,7 +8,8 @@ import (
 
 type StructInitializationExpression struct {
 	Name       string
-	Properties map[string]Expression
+	Properties []string
+	Values     []Expression
 }
 
 var _ Expression = (*StructInitializationExpression)(nil)
@@ -21,10 +22,14 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 		return err, nil
 	}
 
-	structInstance := ctx.Builder.CreateAlloca(newtype, "")
+	structInstance := ctx.Builder.CreateAlloca(newtype.LLVMType, "")
 
-	index := 0
-	for name, expr := range si.Properties {
+	for _, name := range si.Properties {
+		err, propIndex := newtype.Metadata.PropertyIndex(name)
+		if err != nil {
+			return fmt.Errorf("StructInitializationExpression: property %s not found", name), nil
+		}
+		expr := si.Values[propIndex]
 		err, val := expr.CompileLLVM(ctx)
 		if err != nil {
 			return fmt.Errorf("StructInitializationExpression: %s", err), nil
@@ -32,16 +37,14 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 
 		switch expr.(type) {
 		case StringExpression:
-			field1Ptr := ctx.Builder.CreateStructGEP(newtype, structInstance, index, name)
+			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, name)
 			ctx.Builder.CreateStore(*val, field1Ptr)
 
 		case NumberExpression:
-			field1Ptr := ctx.Builder.CreateStructGEP(newtype, structInstance, index, name)
+			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, name)
 			ctx.Builder.CreateStore(*val, field1Ptr)
 		}
 		//		fmt.Printf("Initializing struct property %s at index %d with value %s\n", name, index, *val)
-
-		index = index + 1
 	}
 
 	return nil, nil

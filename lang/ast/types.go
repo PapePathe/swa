@@ -1,5 +1,21 @@
 package ast
 
+type DataType = int
+
+const (
+	DataTypeArray = iota
+	DataTypeNumber
+	DataTypeString
+	DataTypeStruct
+	DataTypeIntType
+	DataTypeSymbol
+)
+
+// Type
+type Type interface {
+	_type() DataType
+}
+
 type SymbolType struct {
 	Name string
 }
@@ -20,12 +36,18 @@ func (ArrayType) _type() DataType {
 	return DataTypeArray
 }
 
-type NumberType struct {
-	Value int
-}
+type NumberType struct{}
 
 var _ Type = (*NumberType)(nil)
 
 func (NumberType) _type() DataType {
 	return DataTypeNumber
+}
+
+type StringType struct{}
+
+var _ Type = (*StringType)(nil)
+
+func (StringType) _type() DataType {
+	return DataTypeString
 }
