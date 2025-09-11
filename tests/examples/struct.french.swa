@@ -1,6 +1,5 @@
 dialect:french;
 
-
 demarrer() int {
   structure Engineer{
     Age: entier,
