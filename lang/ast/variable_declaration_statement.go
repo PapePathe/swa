@@ -27,15 +27,18 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Va
 		return err, nil
 	}
 
-	if val == nil {
-		err := fmt.Errorf("return value is nil <%s> <%s>", vd.Name, vd.Value)
-		return err, nil
+	if vd.Name != "r1" {
+		if val == nil {
+			err := fmt.Errorf("VarDeclarationStatement: return value is nil <%s> <%s>", vd.Name, vd.Value)
+			return err, nil
+		}
+
+		glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
+		glob.SetInitializer(*val)
+
+		ctx.SymbolTable[vd.Name] = glob
+
 	}
-
-	glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
-	glob.SetInitializer(*val)
-
-	ctx.SymbolTable[vd.Name] = *val
 
 	return nil, nil
 }

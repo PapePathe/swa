@@ -1,0 +1,20 @@
+dialect:french;
+
+
+demarrer() int {
+
+structure Engineer{
+  Age: Nombre,
+  Name: Chaine,
+  TechStack: Chaine,
+}
+
+variable r1 = Engineer{
+ Age: 40,
+ Name: "Pathe",
+ TechStack: "Ruby, Rust, Go"
+};
+
+  afficher(r1.Age, "Struct created", "TODO display value of r1.Age");
+  retourner 100;
+}

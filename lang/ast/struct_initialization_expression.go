@@ -39,7 +39,7 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 			field1Ptr := ctx.Builder.CreateStructGEP(newtype, structInstance, index, name)
 			ctx.Builder.CreateStore(*val, field1Ptr)
 		}
-		fmt.Printf("Initializing struct property %s at index %d with value %s\n", name, index, *val)
+		//		fmt.Printf("Initializing struct property %s at index %d with value %s\n", name, index, *val)
 
 		index = index + 1
 	}
