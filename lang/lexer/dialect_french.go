@@ -11,6 +11,7 @@ func (m French) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`\s+`), skipHandler},
 		{regexp.MustCompile(`dialect`), defaultHandler(DialectDeclaration, "dialect")},
 		{regexp.MustCompile(`entier`), defaultHandler(TypeInt, "entier")},
+		{regexp.MustCompile(`chaine`), defaultHandler(TypeString, "chaine")},
 		{regexp.MustCompile(`sinon`), defaultHandler(KeywordElse, "sinon")},
 		{regexp.MustCompile(`si`), defaultHandler(KeywordIf, "si")},
 		{regexp.MustCompile(`afficher`), defaultHandler(Print, "afficher")},
@@ -64,5 +65,6 @@ func (m French) Reserved() map[string]TokenKind {
 		"variable":  Let,
 		"constante": Const,
 		"entier":    TypeInt,
+		"chaine":    TypeString,
 	}
 }

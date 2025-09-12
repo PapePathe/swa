@@ -42,6 +42,15 @@ func (p *Parser) currentToken() lexer.Token {
 	return p.tokens[p.pos]
 }
 
+func (p *Parser) nextToken() (error, *lexer.Token) {
+	if len(p.tokens) <= p.pos {
+		return fmt.Errorf("No next token at position %d", p.pos), nil
+	}
+
+	tok := p.tokens[p.pos+1]
+	return nil, &tok
+}
+
 func (p *Parser) advance() lexer.Token {
 	tk := p.currentToken()
 	p.pos++

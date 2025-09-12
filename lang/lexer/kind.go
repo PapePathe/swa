@@ -46,97 +46,18 @@ var tks = map[TokenKind]string{
 	Struct:             "STRUCT",
 	String:             "STRING",
 	Star:               "STAR",
-	TypeInt:            "INT",
+	TypeInt:            "TYPE_INT",
+	TypeString:         "TYPE_STRING",
 }
 
 // String s a string representation of the TokenKind.
 func (k TokenKind) String() string {
-	switch k {
-	case Character:
-		return "CHARACTER"
-	case Print:
-		return "PRINT"
-	case DialectDeclaration:
-		return "DIALECT"
-	case StarEquals:
-		return "STAR_EQUALS"
-	case Dot:
-		return "DOT"
-	case Struct:
-		return "STRUCT"
-	case Let:
-		return "LET"
-	case Const:
-		return "CONST"
-	case Or:
-		return "OR"
-	case And:
-		return "AND"
-	case KeywordIf:
-		return "IF"
-	case KeywordElse:
-		return "ELSE"
-	case TypeInt:
-		return "INT"
-	case Identifier:
-		return "IDENTIFIER"
-	case Assignment:
-		return "ASSIGNMENT"
-	case String:
-		return "STRING"
-	case Colon:
-		return "COLON"
-	case Comma:
-		return "COMMA"
-	case CloseCurly:
-		return "CLOSE_CURLY"
-	case CloseParen:
-		return "CLOSE_PAREN"
-	case CloseBracket:
-		return "CLOSE_BRACKET"
-	case Divide:
-		return "DIVIDE"
-	case EOF:
-		return "EOF"
-	case Equals:
-		return "EQUALS"
-	case GreaterThan:
-		return "GREATER_THAN"
-	case GreaterThanEquals:
-		return "GREATER_THAN_EQUALS"
-	case LessThan:
-		return "LESS_THAN"
-	case LessThanEquals:
-		return "LESS_THAN_EQUALS"
-	case Minus:
-		return "MINUS"
-	case Multiply:
-		return "MULTIPLY"
-	case Not:
-		return "NOT"
-	case NotEquals:
-		return "NOT_EQUALS"
-	case OpenCurly:
-		return "OPEN_CURLY"
-	case OpenParen:
-		return "OPEN_PAREN"
-	case OpenBracket:
-		return "OPEN_BRACKET"
-	case Plus:
-		return "PLUS"
-	case PlusEquals:
-		return "PLUS_EQUAL"
-	case Star:
-		return "STAR"
-	case SemiColon:
-		return "SEMI_COLON"
-	case QuestionMark:
-		return "QUESTION_MARK"
-	case Number:
-		return "NUMBER"
+	val, ok := tks[k]
+	if !ok {
+		return ""
 	}
 
-	return ""
+	return val
 }
 
 const (
@@ -155,6 +76,8 @@ const (
 
 	// TypeInt represents the "int" type.
 	TypeInt
+	// TypeString represents the "string" type.
+	TypeString
 	// String represents a string literal.
 	String
 	// Number represents a numeric literal.

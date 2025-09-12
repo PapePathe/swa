@@ -1,14 +1,51 @@
 package ast
 
-import "tinygo.org/x/go-llvm"
+import (
+	"fmt"
+
+	"tinygo.org/x/go-llvm"
+)
 
 type StructInitializationExpression struct {
 	Name       string
-	Properties map[string]Expression
+	Properties []string
+	Values     []Expression
 }
 
 var _ Expression = (*StructInitializationExpression)(nil)
 
-func (StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	newtype, ok := ctx.StructSymbolTable[si.Name]
+
+	if !ok {
+		err := fmt.Errorf("StructInitializationExpression: Undefined struct named %s", si.Name)
+		return err, nil
+	}
+
+	structInstance := ctx.Builder.CreateAlloca(newtype.LLVMType, "")
+
+	for _, name := range si.Properties {
+		err, propIndex := newtype.Metadata.PropertyIndex(name)
+		if err != nil {
+			return fmt.Errorf("StructInitializationExpression: property %s not found", name), nil
+		}
+		expr := si.Values[propIndex]
+		err, val := expr.CompileLLVM(ctx)
+		if err != nil {
+			return fmt.Errorf("StructInitializationExpression: %s", err), nil
+		}
+
+		switch expr.(type) {
+		case StringExpression:
+			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, name)
+			ctx.Builder.CreateStore(*val, field1Ptr)
+
+		case NumberExpression:
+			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, name)
+			ctx.Builder.CreateStore(*val, field1Ptr)
+		}
+		//		fmt.Printf("Initializing struct property %s at index %d with value %s\n", name, index, *val)
+	}
+
 	return nil, nil
 }
