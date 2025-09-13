@@ -3,7 +3,7 @@ dialect:english;
 let salary_string = "100000 EUR";
 let salary: Number_32 = 500000;
 
-start() Number32 {
+start() int {
  // salary = 999999;
  // variable new_salary : Number_32 = 1009;
 

@@ -1,5 +1,5 @@
 dialect:french;
 
-demarrer() int {
+demarrer() entier {
   retourner 0
 }

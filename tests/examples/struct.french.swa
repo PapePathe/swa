@@ -1,6 +1,6 @@
 dialect:french;
 
-demarrer() int {
+demarrer() entier {
   structure Engineer{
     Age: entier,
     Name: chaine,

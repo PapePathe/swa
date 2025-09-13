@@ -1,0 +1,5 @@
+dialect:english;
+
+start() int {
+  return 100;
+}

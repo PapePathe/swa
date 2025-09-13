@@ -6,18 +6,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-//func TestStructsEnglish(t *testing.T) {
-//	t.Parallel()
-//
-//	output, err := CompileSwaCode(t, "./examples/struct.english.swa", "struct.english")
-//
-//	assert.NoError(t, err)
-//	assert.Equal(t, string(output), "")
-//
-//	assertCodeGenerated(t, "struct.english")
-//	assertFileContent(t, "./examples/struct.english.ll", "./conditional.english.ll")
-//	cleanupSwaCode(t, "struct.english")
-//}
+func TestStructsEnglish(t *testing.T) {
+	t.Parallel()
+
+	output, err := CompileSwaCode(t, "./examples/struct.english.swa", "struct.english")
+
+	assert.NoError(t, err)
+	assert.Equal(t, string(output), "")
+
+	assertCodeGenerated(t, "struct.english")
+	assertFileContent(t, "./examples/struct.english.ll", "./struct.english.ll")
+	// cleanupSwaCode(t, "struct.english")
+}
 
 func TestStructsFrench(t *testing.T) {
 	t.Parallel()
