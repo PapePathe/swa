@@ -1,19 +1,20 @@
-/*
-* swahili/lang
-* Copyright (C) 2025  Papa Pathe SENE
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package ast
+
+type DataType = int
+
+const (
+	DataTypeArray = iota
+	DataTypeNumber
+	DataTypeString
+	DataTypeStruct
+	DataTypeIntType
+	DataTypeSymbol
+)
+
+// Type
+type Type interface {
+	_type() DataType
+}
 
 type SymbolType struct {
 	Name string
@@ -21,7 +22,9 @@ type SymbolType struct {
 
 var _ Type = (*SymbolType)(nil)
 
-func (SymbolType) _type() {}
+func (SymbolType) _type() DataType {
+	return DataTypeSymbol
+}
 
 type ArrayType struct {
 	Underlying Type
@@ -29,12 +32,22 @@ type ArrayType struct {
 
 var _ Type = (*ArrayType)(nil)
 
-func (ArrayType) _type() {}
-
-type NumberType struct {
-	Value int
+func (ArrayType) _type() DataType {
+	return DataTypeArray
 }
+
+type NumberType struct{}
 
 var _ Type = (*NumberType)(nil)
 
-func (NumberType) _type() {}
+func (NumberType) _type() DataType {
+	return DataTypeNumber
+}
+
+type StringType struct{}
+
+var _ Type = (*StringType)(nil)
+
+func (StringType) _type() DataType {
+	return DataTypeString
+}

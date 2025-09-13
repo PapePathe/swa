@@ -14,6 +14,7 @@ func TestReservedEnglish(t *testing.T) {
 		"let":    Let,
 		"const":  Const,
 		"int":    TypeInt,
+		"string": TypeString,
 	}
 	english := English{}
 

@@ -1,0 +1,18 @@
+dialect:french;
+
+demarrer() entier {
+  structure Engineer{
+    Age: entier,
+    Name: chaine,
+    TechStack: chaine,
+  }
+ 
+  variable r1 = Engineer{
+   Age: 40,
+   Name: "Pathe",
+   TechStack: "Ruby, Rust, Go"
+  };
+
+  afficher(r1.Age, "Struct created", "TODO display value of r1.Age");
+  retourner 100;
+}

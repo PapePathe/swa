@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"slices"
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
@@ -26,7 +27,8 @@ func ParseStructDeclarationStatement(p *Parser) ast.Statement {
 	p.expect(lexer.Struct)
 	structName := p.expect(lexer.Identifier).Value
 
-	propertes := map[string]ast.StructProperty{}
+	properties := []string{}
+	types := []ast.Type{}
 
 	p.expect(lexer.OpenCurly)
 
@@ -39,13 +41,12 @@ func ParseStructDeclarationStatement(p *Parser) ast.Statement {
 			propType := parseType(p, DefaultBindingPower)
 			p.expect(lexer.Comma)
 
-			if _, exists := propertes[propertyName]; exists {
+			if slices.Contains(properties, propertyName) {
 				panic(fmt.Sprintf("property %s has already been defined", propertyName))
 			}
 
-			propertes[propertyName] = ast.StructProperty{
-				PropType: propType,
-			}
+			properties = append(properties, propertyName)
+			types = append(types, propType)
 
 			continue
 		}
@@ -55,6 +56,7 @@ func ParseStructDeclarationStatement(p *Parser) ast.Statement {
 
 	return ast.StructDeclarationStatement{
 		Name:       structName,
-		Properties: propertes,
+		Properties: properties,
+		Types:      types,
 	}
 }

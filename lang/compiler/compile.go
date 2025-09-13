@@ -33,10 +33,12 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 	builder := context.NewBuilder()
 	defer builder.Dispose()
 	ctx := ast.CompilerCtx{
-		Context:     &context,
-		Builder:     &builder,
-		Module:      &module,
-		SymbolTable: map[string]llvm.Value{},
+		Context:           &context,
+		Builder:           &builder,
+		Module:            &module,
+		SymbolTable:       map[string]llvm.Value{},
+		StructSymbolTable: map[string]ast.StructSymbolTableEntry{},
+		FuncSymbolTable:   map[string]llvm.Type{},
 	}
 
 	err, _ := tree.CompileLLVM(&ctx)

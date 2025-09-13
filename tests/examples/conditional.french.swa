@@ -3,7 +3,7 @@ dialect:french;
 variable salary_string = "100000 EUR";
 variable salary: Entier_32 = 500000;
 
-demarrer() int {
+demarrer() entier {
   salary = 999999;
   variable new_salary : Entier_32 = 1009;
 
