@@ -56,7 +56,7 @@ func ParseMainStatement(p *Parser) ast.Statement {
 	p.expect(lexer.Main)
 	p.expect(lexer.OpenParen)
 	p.expect(lexer.CloseParen)
-	p.expect(lexer.Identifier)
+	p.expect(lexer.TypeInt)
 
 	ms.Body = ParseBlockStatement(p)
 
