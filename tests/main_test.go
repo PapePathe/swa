@@ -21,10 +21,7 @@ func assertFileContent(t *testing.T, actual string, expected string) {
 	actualStr, err := os.ReadFile(actual)
 	assert.NoError(t, err)
 
-	expectedStr, err := os.ReadFile(expected)
-	assert.NoError(t, err)
-
-	assert.Equal(t, string(actualStr), string(expectedStr))
+	assert.Equal(t, string(actualStr), expected)
 }
 
 func assertFileExists(t *testing.T, path string) {
