@@ -7,7 +7,7 @@ start() int {
     TechStack: string,
   }
 
-  let r1 = Engineer{
+  let r1:Engineer = Engineer{
    Age: 40,
    Name: "Pathe",
    TechStack: "Ruby, Rust, Go"

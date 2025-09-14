@@ -7,7 +7,7 @@ demarrer() entier {
     TechStack: chaine,
   }
  
-  variable r1 = Engineer{
+  variable r1: Engineer = Engineer{
    Age: 40,
    Name: "Pathe",
    TechStack: "Ruby, Rust, Go"
