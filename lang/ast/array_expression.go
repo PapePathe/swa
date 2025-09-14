@@ -12,5 +12,5 @@ type ArrayInitializationExpression struct {
 var _ Expression = (*ArrayInitializationExpression)(nil)
 
 func (bs ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
-	return nil, nil
+	panic("ArrayInitializationExpression compilation is not implemented")
 }

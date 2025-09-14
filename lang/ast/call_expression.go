@@ -11,5 +11,5 @@ type CallExpression struct {
 var _ Expression = (*CallExpression)(nil)
 
 func (CallExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
-	return nil, nil
+	panic("CallExpression compilation is not implemented")
 }
