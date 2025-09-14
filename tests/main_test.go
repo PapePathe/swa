@@ -2,7 +2,6 @@ package tests
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"testing"
@@ -19,10 +18,10 @@ func TestMissingFile(t *testing.T) {
 }
 
 func assertFileContent(t *testing.T, actual string, expected string) {
-	actualStr, err := ioutil.ReadFile(actual)
+	actualStr, err := os.ReadFile(actual)
 	assert.NoError(t, err)
 
-	expectedStr, err := ioutil.ReadFile(expected)
+	expectedStr, err := os.ReadFile(expected)
 	assert.NoError(t, err)
 
 	assert.Equal(t, string(actualStr), string(expectedStr))
