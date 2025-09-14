@@ -36,7 +36,7 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 		Context:           &context,
 		Builder:           &builder,
 		Module:            &module,
-		SymbolTable:       map[string]llvm.Value{},
+		SymbolTable:       map[string]ast.SymbolTableEntry{},
 		StructSymbolTable: map[string]ast.StructSymbolTableEntry{},
 		FuncSymbolTable:   map[string]llvm.Type{},
 	}

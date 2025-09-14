@@ -14,7 +14,12 @@ type ExpressionStatement struct {
 
 var _ Statement = (*ExpressionStatement)(nil)
 
-func (ExpressionStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (exp ExpressionStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	err, _ := exp.Exp.CompileLLVM(ctx)
+	if err != nil {
+		return err, nil
+	}
+
 	return nil, nil
 }
 
@@ -23,7 +28,7 @@ func (es ExpressionStatement) MarshalJSON() ([]byte, error) {
 	m["expression"] = es.Exp
 
 	res := make(map[string]any)
-	res["ast.ExpressionStatetement"] = m
+	res["ast.ExpressionStatement"] = m
 
 	return json.Marshal(res)
 }

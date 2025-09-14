@@ -20,5 +20,5 @@ func (se SymbolExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 		return fmt.Errorf("Variable %s does not exist", se.Value), nil
 	}
 
-	return nil, &val
+	return nil, &val.Value
 }

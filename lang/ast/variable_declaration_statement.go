@@ -26,19 +26,56 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Va
 	if err != nil {
 		return err, nil
 	}
-
-	if vd.Name != "r1" {
-		if val == nil {
-			err := fmt.Errorf("VarDeclarationStatement: return value is nil <%s> <%s>", vd.Name, vd.Value)
-			return err, nil
+	if val == nil {
+		err := fmt.Errorf("VarDeclarationStatement: return value is nil <%s> <%s>", vd.Name, vd.Value)
+		return err, nil
+	}
+	switch vd.Value.(type) {
+	case StructInitializationExpression:
+		explicitType, _ := vd.ExplicitType.(SymbolType)
+		typeDef, ok := ctx.StructSymbolTable[explicitType.Name]
+		if !ok {
+			panic(fmt.Sprintf("Could not find typedef for %s in structs symbol table", explicitType.Name))
 		}
-
+		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val, Ref: &typeDef}
+	case StringExpression:
 		glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
 		glob.SetInitializer(*val)
-
-		ctx.SymbolTable[vd.Name] = glob
-
+		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: glob}
+	case NumberExpression:
+		glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
+		glob.SetInitializer(*val)
+		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: glob}
+	default:
+		panic(fmt.Sprintf("Unhandled expression type %v", vd.Value))
 	}
+
+	// switch vd.ExplicitType.Value() {
+	// case DataTypeIntType:
+	// 	if val == nil {
+	// 		err := fmt.Errorf("VarDeclarationStatement: return value is nil <%s> <%s>", vd.Name, vd.Value)
+	// 		return err, nil
+	// 	}
+
+	// 	glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
+	// 	glob.SetInitializer(*val)
+
+	// 	ctx.SymbolTable[vd.Name] = glob
+	// case DataTypeString:
+	// 	if val == nil {
+	// 		err := fmt.Errorf("VarDeclarationStatement: return value is nil <%s> <%s>", vd.Name, vd.Value)
+	// 		return err, nil
+	// 	}
+
+	// 	glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
+	// 	glob.SetInitializer(*val)
+
+	// 	ctx.SymbolTable[vd.Name] = glob
+	// case DataTypeSymbol:
+	// 	ctx.SymbolTable[vd.Name] = *val
+	// default:
+	// 	panic(fmt.Sprintf("Unexpected type %v", vd.ExplicitType))
+	// }
 
 	return nil, nil
 }

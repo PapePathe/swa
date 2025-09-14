@@ -44,8 +44,7 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, name)
 			ctx.Builder.CreateStore(*val, field1Ptr)
 		}
-		//		fmt.Printf("Initializing struct property %s at index %d with value %s\n", name, index, *val)
 	}
 
-	return nil, nil
+	return nil, &structInstance
 }

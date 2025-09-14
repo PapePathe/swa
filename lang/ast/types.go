@@ -13,7 +13,7 @@ const (
 
 // Type
 type Type interface {
-	_type() DataType
+	Value() DataType
 }
 
 type SymbolType struct {
@@ -22,7 +22,7 @@ type SymbolType struct {
 
 var _ Type = (*SymbolType)(nil)
 
-func (SymbolType) _type() DataType {
+func (SymbolType) Value() DataType {
 	return DataTypeSymbol
 }
 
@@ -32,7 +32,7 @@ type ArrayType struct {
 
 var _ Type = (*ArrayType)(nil)
 
-func (ArrayType) _type() DataType {
+func (ArrayType) Value() DataType {
 	return DataTypeArray
 }
 
@@ -40,7 +40,7 @@ type NumberType struct{}
 
 var _ Type = (*NumberType)(nil)
 
-func (NumberType) _type() DataType {
+func (NumberType) Value() DataType {
 	return DataTypeNumber
 }
 
@@ -48,6 +48,6 @@ type StringType struct{}
 
 var _ Type = (*StringType)(nil)
 
-func (StringType) _type() DataType {
+func (StringType) Value() DataType {
 	return DataTypeString
 }

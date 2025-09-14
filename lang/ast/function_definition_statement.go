@@ -50,7 +50,7 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	for i, p := range newFunc.Params() {
 		name := fd.Args[i].Name
 
-		ctx.SymbolTable[name] = p
+		ctx.SymbolTable[name] = SymbolTableEntry{Value: p}
 		p.SetName(name)
 	}
 

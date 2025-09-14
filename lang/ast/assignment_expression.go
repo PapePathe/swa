@@ -19,6 +19,20 @@ type AssignmentExpression struct {
 
 var _ Expression = (*AssignmentExpression)(nil)
 
-func (bs AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
-	return nil, nil
+func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	err, val := expr.Value.CompileLLVM(ctx)
+
+	if err != nil {
+		return err, nil
+	}
+
+	err, assignee := expr.Assignee.CompileLLVM(ctx)
+
+	if err != nil {
+		return err, nil
+	}
+
+	str := ctx.Builder.CreateStore(*val, *assignee)
+
+	return nil, &str
 }
