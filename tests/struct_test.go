@@ -16,7 +16,7 @@ func TestStructsEnglish(t *testing.T) {
 
 	assertCodeGenerated(t, "struct.english")
 	assertFileContent(t, "./examples/struct.english.ll", "./struct.english.ll")
-	// cleanupSwaCode(t, "struct.english")
+	cleanupSwaCode(t, "struct.english")
 }
 
 func TestStructsFrench(t *testing.T) {
