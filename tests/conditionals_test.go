@@ -52,6 +52,7 @@ declare i32 @printf(ptr, ...)
 
 define i32 @main() {
 func-body:
+  store i32 999999, ptr @salary, align 4
   %0 = icmp uge ptr @salary, @new_salary
   br i1 %0, label %if, label %else
 
