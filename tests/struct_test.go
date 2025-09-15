@@ -8,11 +8,6 @@ import (
 
 func TestStructsEnglish(t *testing.T) {
 	t.Parallel()
-
-	output, err := CompileSwaCode(t, "./examples/struct.english.swa", "struct.english")
-
-	assert.NoError(t, err)
-	assert.Equal(t, string(output), "")
 	expectedIR := `; ModuleID = 'swa-main'
 source_filename = "swa-main"
 
@@ -32,6 +27,11 @@ func-body:
   ret i32 0
 }
 `
+	output, err := CompileSwaCode(t, "./examples/struct.english.swa", "struct.english")
+
+	assert.NoError(t, err)
+	assert.Equal(t, string(output), "")
+
 	assertCodeGenerated(t, "struct.english")
 	assertFileContent(t, "./struct.english.ll", expectedIR)
 	cleanupSwaCode(t, "struct.english")
@@ -39,11 +39,6 @@ func-body:
 
 func TestStructsFrench(t *testing.T) {
 	t.Parallel()
-
-	output, err := CompileSwaCode(t, "./examples/struct.french.swa", "struct.french")
-
-	assert.NoError(t, err)
-	assert.Equal(t, string(output), "")
 	expectedIR := `; ModuleID = 'swa-main'
 source_filename = "swa-main"
 
@@ -69,6 +64,10 @@ func-body:
   ret i32 100
 }
 `
+	output, err := CompileSwaCode(t, "./examples/struct.french.swa", "struct.french")
+
+	assert.NoError(t, err)
+	assert.Equal(t, string(output), "")
 
 	assertCodeGenerated(t, "struct.french")
 	assertFileContent(t, "./struct.french.ll", expectedIR)
@@ -100,8 +99,24 @@ start() int {
 func TestStructPropertyAssignment(t *testing.T) {
 	t.Parallel()
 
-	sourceCode := `
-	dialect:english;	
+	expectedIR := `; ModuleID = 'swa-main'
+source_filename = "swa-main"
+
+%Vec = type { i32 }
+
+declare i32 @printf(ptr, ...)
+
+define i32 @main() {
+func-body:
+  %0 = alloca %Vec, align 8
+  %x = getelementptr inbounds %Vec, ptr %0, i32 0, i32 0
+  store i32 0, ptr %x, align 4
+  %1 = getelementptr inbounds %Vec, ptr %0, i32 0, i32 0
+  store i32 100, ptr %1, align 4
+  ret i32 0
+}
+`
+	sourceCode := `dialect:english;	
 start() int {
 	struct Vec {
 		x: int,
@@ -122,23 +137,10 @@ start() int {
 	assert.NoError(t, err)
 	assert.Equal(t, string(output), expectedOutput)
 
-	expectedIR := `; ModuleID = 'swa-main'
-source_filename = "swa-main"
-
-%Vec = type { i32 }
-
-declare i32 @printf(ptr, ...)
-
-define i32 @main() {
-func-body:
-  %0 = alloca %Vec, align 8
-  %x = getelementptr inbounds %Vec, ptr %0, i32 0, i32 0
-  store i32 0, ptr %x, align 4
-  %1 = getelementptr inbounds %Vec, ptr %0, i32 0, i32 0
-  store i32 100, ptr %1, align 4
-  ret i32 0
-}
-`
 	assertFileContent(t, "./struct.property-assignment.ll", expectedIR)
 	cleanupSwaCode(t, "./struct.property-assignment")
+}
+
+func TestStructPropertyInReturnExpression(t *testing.T) {
+	t.Skip("TODO")
 }
