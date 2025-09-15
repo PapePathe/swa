@@ -43,7 +43,8 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 
 	err, _ := tree.CompileLLVM(&ctx)
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 
 	llirFileName := fmt.Sprintf("%s.ll", target.Output)

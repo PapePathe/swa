@@ -3,7 +3,6 @@ package ast
 import (
 	"fmt"
 	"swahili/lang/lexer"
-	"swahili/lang/log"
 
 	"tinygo.org/x/go-llvm"
 )
@@ -15,10 +14,7 @@ type BinaryExpression struct {
 	Operator lexer.Token
 }
 
-var (
-	_  Expression = (*BinaryExpression)(nil)
-	lg            = log.Logger.WithGroup("Ast Binary Expression")
-)
+var _ Expression = (*BinaryExpression)(nil)
 
 func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	err, leftVal := be.Left.CompileLLVM(ctx)
