@@ -1,18 +1,3 @@
-/*
-* swahili/lang
-* Copyright (C) 2025  Papa Pathe SENE
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package ast
 
 import (
@@ -29,7 +14,12 @@ type ExpressionStatement struct {
 
 var _ Statement = (*ExpressionStatement)(nil)
 
-func (ExpressionStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (exp ExpressionStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+	err, _ := exp.Exp.CompileLLVM(ctx)
+	if err != nil {
+		return err, nil
+	}
+
 	return nil, nil
 }
 
@@ -38,7 +28,7 @@ func (es ExpressionStatement) MarshalJSON() ([]byte, error) {
 	m["expression"] = es.Exp
 
 	res := make(map[string]any)
-	res["ast.ExpressionStatetement"] = m
+	res["ast.ExpressionStatement"] = m
 
 	return json.Marshal(res)
 }

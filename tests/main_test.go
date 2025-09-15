@@ -2,7 +2,6 @@ package tests
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"testing"
@@ -19,13 +18,10 @@ func TestMissingFile(t *testing.T) {
 }
 
 func assertFileContent(t *testing.T, actual string, expected string) {
-	actualStr, err := ioutil.ReadFile(actual)
+	actualStr, err := os.ReadFile(actual)
 	assert.NoError(t, err)
 
-	expectedStr, err := ioutil.ReadFile(expected)
-	assert.NoError(t, err)
-
-	assert.Equal(t, string(actualStr), string(expectedStr))
+	assert.Equal(t, string(actualStr), expected)
 }
 
 func assertFileExists(t *testing.T, path string) {
@@ -56,5 +52,24 @@ func CompileSwaCode(t *testing.T, src string, dest string) ([]byte, error) {
 	t.Helper()
 
 	cmd := exec.Command("./swa", "compile", "-s", src, "-o", dest)
+	return cmd.CombinedOutput()
+}
+
+func CompileSwaSourceCode(t *testing.T, src string, dest string, data []byte) ([]byte, error) {
+	t.Helper()
+
+	tempFile, err := os.CreateTemp("", "temp-*.txt")
+	if err != nil {
+		t.Error(err)
+	}
+	defer os.Remove(tempFile.Name())
+
+	if _, err := tempFile.Write(data); err != nil {
+		t.Error(err)
+	}
+	assert.NoError(t, err)
+
+	cmd := exec.Command("./swa", "compile", "-s", tempFile.Name(), "-o", dest)
+
 	return cmd.CombinedOutput()
 }

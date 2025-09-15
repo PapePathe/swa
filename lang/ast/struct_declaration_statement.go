@@ -36,7 +36,7 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm
 			attrs = append(attrs, ctx.Context.Int32Type())
 		default:
 			err := fmt.Errorf("struct proprerty type (%s) not supported", typ)
-			panic(err)
+			return err, nil
 		}
 	}
 

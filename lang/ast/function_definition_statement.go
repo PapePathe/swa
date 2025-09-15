@@ -26,6 +26,7 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 
 	for _, arg := range fd.Args {
 		var param llvm.Type
+
 		switch arg.ArgType {
 		case "Entier_32":
 			param = llvm.GlobalContext().Int32Type()
@@ -34,6 +35,7 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 		default:
 			panic(fmt.Errorf("argument type %s not supported", arg.ArgType))
 		}
+
 		params = append(params, param)
 	}
 
@@ -50,7 +52,7 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	for i, p := range newFunc.Params() {
 		name := fd.Args[i].Name
 
-		ctx.SymbolTable[name] = p
+		ctx.SymbolTable[name] = SymbolTableEntry{Value: p}
 		p.SetName(name)
 	}
 

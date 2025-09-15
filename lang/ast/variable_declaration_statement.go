@@ -27,17 +27,35 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Va
 		return err, nil
 	}
 
-	if vd.Name != "r1" {
-		if val == nil {
-			err := fmt.Errorf("VarDeclarationStatement: return value is nil <%s> <%s>", vd.Name, vd.Value)
-			return err, nil
+	if val == nil {
+		err := fmt.Errorf("VarDeclarationStatement: return value is nil <%s> <%s>", vd.Name, vd.Value)
+
+		return err, nil
+	}
+
+	switch vd.Value.(type) {
+	case StructInitializationExpression:
+		explicitType, ok := vd.ExplicitType.(SymbolType)
+		if !ok {
+			return fmt.Errorf("explicit type is not a symbol %v", vd.ExplicitType), nil
 		}
 
+		typeDef, ok := ctx.StructSymbolTable[explicitType.Name]
+		if !ok {
+			return fmt.Errorf("Could not find typedef for %s in structs symbol table", explicitType.Name), nil
+		}
+
+		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val, Ref: &typeDef}
+	case StringExpression:
 		glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
 		glob.SetInitializer(*val)
-
-		ctx.SymbolTable[vd.Name] = glob
-
+		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: glob}
+	case NumberExpression:
+		glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
+		glob.SetInitializer(*val)
+		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: glob}
+	default:
+		panic(fmt.Sprintf("Unhandled expression type %v", vd.Value))
 	}
 
 	return nil, nil

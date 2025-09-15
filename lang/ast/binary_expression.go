@@ -1,24 +1,8 @@
-/*
-* swahili/lang
-* Copyright (C) 2025  Papa Pathe SENE
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package ast
 
 import (
 	"fmt"
 	"swahili/lang/lexer"
-	"swahili/lang/log"
 
 	"tinygo.org/x/go-llvm"
 )
@@ -30,28 +14,14 @@ type BinaryExpression struct {
 	Operator lexer.Token
 }
 
-var (
-	_  Expression = (*BinaryExpression)(nil)
-	lg            = log.Logger.WithGroup("Ast Evaluator")
-)
-
-func (be BinaryExpression) getCommonType(l, r llvm.Type) llvm.Type {
-	if l == r {
-		return l
-	}
-
-	if l == llvm.PointerType(r, 0) {
-		return r
-	}
-
-	panic(fmt.Errorf("Abnormal hanling of types %s %s", l, r))
-}
+var _ Expression = (*BinaryExpression)(nil)
 
 func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	err, leftVal := be.Left.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil
 	}
+
 	if leftVal == nil {
 		return fmt.Errorf("left side of expression is nil"), nil
 	}
@@ -60,6 +30,7 @@ func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	if err != nil {
 		return err, nil
 	}
+
 	if rightVal == nil {
 		return fmt.Errorf("right side of expression is nil"), nil
 	}
@@ -119,30 +90,36 @@ var handlers = map[lexer.TokenKind]binaryHandlerFunc{
 
 func add(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
 	res := ctx.Builder.CreateAdd(l, r, "")
+
 	return nil, &res
 }
 
 func greaterThan(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
 	res := ctx.Builder.CreateICmp(llvm.IntUGT, l, r, "")
+
 	return nil, &res
 }
 
 func greaterThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
 	res := ctx.Builder.CreateICmp(llvm.IntUGE, l, r, "")
+
 	return nil, &res
 }
 
 func lessThan(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
 	res := ctx.Builder.CreateICmp(llvm.IntULT, l, r, "")
+
 	return nil, &res
 }
 
 func lessThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
 	res := ctx.Builder.CreateICmp(llvm.IntULE, l, r, "")
+
 	return nil, &res
 }
 
 func equals(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
 	res := ctx.Builder.CreateICmp(llvm.IntULE, l, r, "")
+
 	return nil, &res
 }

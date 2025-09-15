@@ -15,10 +15,8 @@ func ParseVarDeclarationStatement(p *Parser) ast.Statement {
 	errStr := "Inside variable declaration expected to find variable name"
 	variableName := p.expectError(lexer.Identifier, errStr).Value
 
-	if p.currentToken().Kind == lexer.Colon {
-		p.advance()
-		explicitType = parseType(p, DefaultBindingPower)
-	}
+	p.expect(lexer.Colon)
+	explicitType = parseType(p, DefaultBindingPower)
 
 	if p.currentToken().Kind != lexer.SemiColon {
 		p.expect(lexer.Assignment)

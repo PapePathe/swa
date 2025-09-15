@@ -15,12 +15,15 @@ func Tokenize(source string) []Token {
 
 	for !lex.atEOF() {
 		matched := false
+
 		for _, pattern := range lex.patterns {
 			loc := pattern.regex.FindStringIndex(lex.remainder())
 
 			if loc != nil && loc[0] == 0 {
 				pattern.handler(lex, pattern.regex)
+
 				matched = true
+
 				break
 			}
 		}

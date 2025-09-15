@@ -19,6 +19,7 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 
 	if !ok {
 		err := fmt.Errorf("StructInitializationExpression: Undefined struct named %s", si.Name)
+
 		return err, nil
 	}
 
@@ -29,10 +30,12 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 		if err != nil {
 			return fmt.Errorf("StructInitializationExpression: property %s not found", name), nil
 		}
+
 		expr := si.Values[propIndex]
 		err, val := expr.CompileLLVM(ctx)
+
 		if err != nil {
-			return fmt.Errorf("StructInitializationExpression: %s", err), nil
+			return fmt.Errorf("StructInitializationExpression: %w", err), nil
 		}
 
 		switch expr.(type) {
@@ -44,8 +47,7 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, name)
 			ctx.Builder.CreateStore(*val, field1Ptr)
 		}
-		//		fmt.Printf("Initializing struct property %s at index %d with value %s\n", name, index, *val)
 	}
 
-	return nil, nil
+	return nil, &structInstance
 }

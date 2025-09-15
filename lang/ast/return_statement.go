@@ -17,11 +17,12 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 		if !ok {
 			return fmt.Errorf("Undefined variable %s", v.Value), nil
 		}
-		switch val.Type() {
+
+		switch val.Value.Type() {
 		case llvm.GlobalContext().Int32Type():
-			ctx.Builder.CreateRet(val)
+			ctx.Builder.CreateRet(val.Value)
 		case llvm.PointerType(llvm.GlobalContext().Int32Type(), 0):
-			loadedval := ctx.Builder.CreateLoad(llvm.GlobalContext().Int32Type(), val, "")
+			loadedval := ctx.Builder.CreateLoad(llvm.GlobalContext().Int32Type(), val.Value, "")
 			ctx.Builder.CreateRet(loadedval)
 		}
 	case NumberExpression:
@@ -31,11 +32,13 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 		if err != nil {
 			return err, nil
 		}
+
 		ctx.Builder.CreateRet(*res)
 	default:
 		err := fmt.Errorf("unknown expression in ReturnStatement <%s>", rs.Value)
 
 		panic(err)
 	}
+
 	return nil, nil
 }
