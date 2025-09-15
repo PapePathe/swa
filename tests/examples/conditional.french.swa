@@ -1,7 +1,7 @@
 dialect:french;
 
-variable salary_string = "100000 EUR";
-variable salary: Entier_32 = 500000;
+variable salary_string : chaine = "100000 EUR";
+variable salary: entier = 500000;
 
 demarrer() entier {
   salary = 999999;

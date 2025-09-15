@@ -1,7 +1,7 @@
 dialect:english;
 
-let salary_string = "100000 EUR";
-let salary: Number_32 = 500000;
+let salary_string: string = "100000 EUR";
+let salary: int = 500000;
 
 start() int {
  // salary = 999999;
