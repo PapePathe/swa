@@ -37,12 +37,12 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Va
 	case StructInitializationExpression:
 		explicitType, ok := vd.ExplicitType.(SymbolType)
 		if !ok {
-			panic(fmt.Errorf("explicit type is not a symbol %v", vd.ExplicitType))
+			return fmt.Errorf("explicit type is not a symbol %v", vd.ExplicitType), nil
 		}
 
 		typeDef, ok := ctx.StructSymbolTable[explicitType.Name]
 		if !ok {
-			panic(fmt.Sprintf("Could not find typedef for %s in structs symbol table", explicitType.Name))
+			return fmt.Errorf("Could not find typedef for %s in structs symbol table", explicitType.Name), nil
 		}
 
 		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val, Ref: &typeDef}

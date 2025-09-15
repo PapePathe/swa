@@ -17,7 +17,7 @@ var _ Expression = (*MemberExpression)(nil)
 func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	obj, ok := expr.Object.(SymbolExpression)
 	if !ok {
-		panic("struct object should be a symbol")
+		return fmt.Errorf("struct object should be a symbol %v", obj), nil
 	}
 
 	varDef, ok := ctx.SymbolTable[obj.Value]
@@ -27,7 +27,7 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) 
 
 	prop, ok := expr.Property.(SymbolExpression)
 	if !ok {
-		panic("struct property should be a symbol")
+		return fmt.Errorf("struct property should be a symbol %v", prop), nil
 	}
 
 	err, propIndex := varDef.Ref.Metadata.PropertyIndex(prop.Value)

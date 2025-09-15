@@ -2,7 +2,6 @@ package ast
 
 import (
 	"fmt"
-	"os"
 
 	"tinygo.org/x/go-llvm"
 )
@@ -37,8 +36,7 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm
 			attrs = append(attrs, ctx.Context.Int32Type())
 		default:
 			err := fmt.Errorf("struct proprerty type (%s) not supported", typ)
-			fmt.Println(err.Error())
-			os.Exit(1)
+			return err, nil
 		}
 	}
 
