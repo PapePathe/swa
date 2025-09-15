@@ -28,8 +28,9 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 			ctx.Builder.CreateStore(*res, all)
 			printableValues = append(printableValues, all)
 		case SymbolExpression:
-			name := v.(SymbolExpression).Value
-			global := ctx.Module.NamedGlobal(name)
+			name, _ := v.(SymbolExpression)
+
+			global := ctx.Module.NamedGlobal(name.Value)
 			printableValues = append(printableValues, global)
 		case StringExpression:
 			all := ctx.Builder.CreateAlloca(res.Type(), "")
@@ -45,6 +46,7 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 		printableValues,
 		"",
 	)
+
 	return nil, nil
 }
 

@@ -47,30 +47,35 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 	}
 
 	llirFileName := fmt.Sprintf("%s.ll", target.Output)
+
 	err = os.WriteFile(llirFileName, []byte(module.String()), FilePerm)
 	if err != nil {
 		panic(err)
 	}
 
 	asmFileName := fmt.Sprintf("%s.s", target.Output)
+
 	cmd := exec.Command("llc-19", llirFileName, "-o", asmFileName)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+
 	if err := cmd.Run(); err != nil {
-		err := fmt.Errorf("Error compiling IR %s", err)
+		err := fmt.Errorf("Error compiling IR %w", err)
 		panic(err)
 	}
 
 	objFilename := fmt.Sprintf("%s.o", target.Output)
+
 	objectCmd := exec.Command("clang-19", "-c", asmFileName, "-o", objFilename)
 	if err := objectCmd.Run(); err != nil {
 		panic(err)
 	}
 
 	exeFilename := fmt.Sprintf("%s.exe", target.Output)
+
 	linkCmd := exec.Command("clang-19", objFilename, "-o", exeFilename)
 	if err := linkCmd.Run(); err != nil {
-		err2 := fmt.Errorf("Error durrng linking <%s>", err)
+		err2 := fmt.Errorf("Error durrng linking <%w>", err)
 		panic(err2)
 	}
 }

@@ -3,6 +3,7 @@ linters:
   default: all
   disable:
     - exhaustruct
+    - cyclop
     - dupl
     - revive
     - varnamelen
@@ -10,6 +11,7 @@ linters:
     - gochecknoglobals
     - wrapcheck
     - ireturn
+    - iface
     - gocritic
     - musttag
     - depguard

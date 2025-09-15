@@ -48,6 +48,7 @@ func (p *Parser) nextToken() (error, *lexer.Token) {
 	}
 
 	tok := p.tokens[p.pos+1]
+
 	return nil, &tok
 }
 

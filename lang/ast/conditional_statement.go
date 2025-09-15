@@ -1,18 +1,3 @@
-/*
-* swahili/lang
-* Copyright (C) 2025  Papa Pathe SENE
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package ast
 
 import (
@@ -44,6 +29,7 @@ func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Val
 	ctx.Builder.CreateCondBr(*condition, thenBlock, elseBlock)
 
 	ctx.Builder.SetInsertPointAtEnd(thenBlock)
+
 	err, successVal := cs.Success.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil
@@ -54,14 +40,12 @@ func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Val
 	}
 
 	ctx.Builder.SetInsertPointAtEnd(elseBlock)
+
 	err, failureVal := cs.Failure.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil
 	}
 
-	// if elseBlock.LastInstruction().InstructionOpcode() != llvm.Ret {
-	// 	ctx.Builder.CreateBr(mergeBlock)
-	// }
 	ctx.Builder.CreateBr(mergeBlock)
 	ctx.Builder.SetInsertPointAtEnd(mergeBlock)
 
@@ -75,6 +59,7 @@ func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Val
 		phi := ctx.Builder.CreatePHI(successVal.Type(), "")
 		phi.AddIncoming([]llvm.Value{*successVal}, []llvm.BasicBlock{thenBlock})
 	}
+
 	thenBlock.MoveAfter(bodyBlock)
 	elseBlock.MoveAfter(thenBlock)
 	mergeBlock.MoveAfter(thenBlock)
