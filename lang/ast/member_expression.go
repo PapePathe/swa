@@ -35,7 +35,6 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) 
 		return fmt.Errorf("Struct %s does not have a field named %s", varDef.Ref.Metadata.Name, prop), nil
 	}
 
-	fmt.Println("Property is at index ", propIndex)
 	addr := ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, varDef.Value, propIndex, "")
 
 	return nil, &addr
