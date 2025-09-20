@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
@@ -44,9 +45,22 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm
 	newtype.StructSetBody(attrs, false)
 
 	ctx.StructSymbolTable[sd.Name] = StructSymbolTableEntry{
-		LLVMType: newtype,
-		Metadata: sd,
+		LLVMType:      newtype,
+		Metadata:      sd,
+		PropertyTypes: attrs,
 	}
 
 	return nil, nil
+}
+
+func (expr StructDeclarationStatement) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["Name"] = expr.Name
+	m["Properties"] = expr.Properties
+	m["Types"] = expr.Types
+
+	res := make(map[string]any)
+	res["ast.StructDeclarationStatement"] = m
+
+	return json.Marshal(res)
 }
