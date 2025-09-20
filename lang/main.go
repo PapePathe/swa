@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 	"os"
 	"swahili/lang/compiler"
@@ -115,6 +115,6 @@ var tokenizeCmd = &cobra.Command{
 			panic(err)
 		}
 
-		log.Println(string(result))
+		fmt.Println(string(result))
 	},
 }
