@@ -7,8 +7,9 @@ import (
 )
 
 type StructSymbolTableEntry struct {
-	LLVMType llvm.Type
-	Metadata StructDeclarationStatement
+	LLVMType      llvm.Type
+	PropertyTypes []llvm.Type
+	Metadata      StructDeclarationStatement
 }
 
 type SymbolTableEntry struct {

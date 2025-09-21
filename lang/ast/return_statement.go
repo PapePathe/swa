@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
@@ -12,6 +13,15 @@ type ReturnStatement struct {
 
 func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	switch v := rs.Value.(type) {
+	case MemberExpression:
+		expr, _ := rs.Value.(MemberExpression)
+
+		err, loadedval := expr.CompileLLVMForPropertyAccess(ctx)
+		if err != nil {
+			return err, nil
+		}
+
+		ctx.Builder.CreateRet(*loadedval)
 	case SymbolExpression:
 		val, ok := ctx.SymbolTable[v.Value]
 		if !ok {
@@ -41,4 +51,14 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	}
 
 	return nil, nil
+}
+
+func (rs ReturnStatement) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["Value"] = rs.Value
+
+	res := make(map[string]any)
+	res["ast.ReturnStatement"] = m
+
+	return json.Marshal(res)
 }
