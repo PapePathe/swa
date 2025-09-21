@@ -96,10 +96,8 @@ start() int {
 	assert.Equal(t, string(output), expectedOutput)
 }
 
-func TestStructPropertyAssignment(t *testing.T) {
-	t.Parallel()
-
-	expectedIR := `; ModuleID = 'swa-main'
+var (
+	TestStructPropertyAssignmentLLIR = `; ModuleID = 'swa-main'
 source_filename = "swa-main"
 
 %Vec = type { i32 }
@@ -116,7 +114,8 @@ func-body:
   ret i32 100
 }
 `
-	sourceCode := `dialect:english;	
+
+	TestStructPropertyAssignmentSrc = `dialect:english;	
 start() int {
 	struct Vec {
 		x: int,
@@ -126,25 +125,33 @@ start() int {
   return 100;
 } 
 `
-	output, err := CompileSwaSourceCode(
-		t,
-		"./examples/struct.property-assignment.swa",
-		"struct.property-assignment",
-		[]byte(sourceCode),
-	)
-	expectedOutput := ""
+)
 
-	assert.NoError(t, err)
-	assert.Equal(t, string(output), expectedOutput)
-
-	assertFileContent(t, "./struct.property-assignment.ll", expectedIR)
-	cleanupSwaCode(t, "./struct.property-assignment")
-}
-
-func TestStructPropertyInReturnExpression(t *testing.T) {
+func TestStructPropertyAssignment(t *testing.T) {
 	t.Parallel()
 
-	sourceCode := `dialect:french;	
+	req := CompileRequest{
+		T:            t,
+		Src:          TestStructPropertyAssignmentSrc,
+		ExpectedLLIR: TestStructPropertyAssignmentLLIR,
+		OutputPath:   "beaf20e1-a00f-436e-8f9e-310503834b26",
+	}
+
+	defer req.Cleanup()
+
+	if err := req.Compile(); err != nil {
+		t.Fatalf("Compiler error (%s)", err)
+	}
+
+	req.AssertGeneratedLLIR()
+
+	if err := req.RunProgram(); err != nil {
+		t.Fatalf("Runtime error (%s)", err)
+	}
+}
+
+var (
+	TestStructPropertyInReturnExpressionSrc = `dialect:french;	
 demarrer() entier {
 	structure Test { 
 		Message: chaine, 
@@ -158,14 +165,8 @@ demarrer() entier {
   retourner ab1.ExitCode;
 }	
 `
-	output, err := CompileSwaSourceCode(
-		t,
-		"./examples/struct.property-access-in-return.swa",
-		"struct.property-access-in-return.swa",
-		[]byte(sourceCode),
-	)
-	expectedOutput := ""
-	expectedIR := `; ModuleID = 'swa-main'
+
+	TestStructPropertyInReturnExpressionLLIR = `; ModuleID = 'swa-main'
 source_filename = "swa-main"
 
 %Test = type { ptr, i32 }
@@ -184,11 +185,27 @@ func-body:
   ret i32 %4
 }
 `
+)
 
-	assert.NoError(t, err)
-	assert.Equal(t, expectedOutput, string(output))
+func TestStructPropertyInReturnExpression(t *testing.T) {
+	t.Parallel()
 
-	assertFileContent(t, "./struct.property-access-in-return.swa.ll", expectedIR)
+	req := CompileRequest{
+		Src:          TestStructPropertyInReturnExpressionSrc,
+		ExpectedLLIR: TestStructPropertyInReturnExpressionLLIR,
+		OutputPath:   "ca2cd604-76a7-40d8-992d-186adedbe12a",
+		T:            t,
+	}
 
-	cleanupSwaCode(t, "./struct.property-access-in-return.swa")
+	defer req.Cleanup()
+
+	if err := req.Compile(); err != nil {
+		t.Fatalf("Compiler error (%s)", err)
+	}
+
+	req.AssertGeneratedLLIR()
+
+	if err := req.RunProgram(); err != nil {
+		t.Fatalf("Runtime error (%s)", err)
+	}
 }
