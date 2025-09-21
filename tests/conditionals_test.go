@@ -24,7 +24,7 @@ declare i32 @printf(ptr, ...)
 
 define i32 @main() {
 func-body:
-  ret i32 0
+  ret i32 100
 }
 `
 
