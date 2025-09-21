@@ -21,7 +21,8 @@ func main() {
 		StringP("output", "o", "json", "output format of the tokenizer (json | yaml | toml)")
 
 	if err := tokenizeCmd.MarkFlagRequired("source"); err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	serverCmd.Flags().
@@ -103,7 +104,8 @@ var tokenizeCmd = &cobra.Command{
 
 		bytes, err := os.ReadFile(source)
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 
 		sourceCode := string(bytes)

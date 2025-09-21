@@ -164,8 +164,7 @@ demarrer() entier {
 		"struct.property-access-in-return.swa",
 		[]byte(sourceCode),
 	)
-	// FIXME: expected output should be empty string but it is "{ab1}\n"
-	expectedOutput := "{ab1}\n"
+	expectedOutput := ""
 	expectedIR := `; ModuleID = 'swa-main'
 source_filename = "swa-main"
 
