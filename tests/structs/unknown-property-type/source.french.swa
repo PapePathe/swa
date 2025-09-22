@@ -1,0 +1,9 @@
+dialect:french;
+
+demarrer() entier {
+	structure Test {
+		Nom: chaine_de_caractere,
+	}
+
+  return 0;
+} 

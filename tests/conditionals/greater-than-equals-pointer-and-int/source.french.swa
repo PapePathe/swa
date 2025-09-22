@@ -1,0 +1,19 @@
+dialect:french;
+
+demarrer() entier {
+  variable salaire_de_lucien: entier = 500000;
+
+  si(salaire_de_lucien >= 500000) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Ast BinaryExpression GreaterThanEqualsImplementationError cond: (salaire_de_lucien >= 500000)");
+  }
+
+  si(500000 >= salaire_de_lucien ) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Ast BinaryExpression GreaterThanEqualsImplementationError cond: (500000 >= salaire_de_lucien) ");
+  }
+
+  retourner 0;
+}
