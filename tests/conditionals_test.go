@@ -2,86 +2,98 @@ package tests
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
-func TestConditionalsEnglish(t *testing.T) {
+func TestConditionals(t *testing.T) {
 	t.Parallel()
 
-	output, err := CompileSwaCode(t, "./examples/conditional.swa", "conditional.english")
+	// t.Run("English", func(t *testing.T) {
+	// 	req := CompileRequest{
+	// 		InputPath:    "./structs/return-expression/source.english.swa",
+	// 		ExpectedLLIR: "./structs/return-expression/source.english.ll",
+	// 		OutputPath:   "uuid",
+	// 		T:            t,
+	// 	}
 
-	assert.NoError(t, err)
-	assert.Equal(t, string(output), "")
+	// 	defer req.Cleanup()
 
-	expectedIR := `; ModuleID = 'swa-main'
-source_filename = "swa-main"
+	// 	if err := req.Compile(); err != nil {
+	// 		t.Fatalf("Compiler error (%s)", err)
+	// 	}
 
-@salary_string = global [11 x i8] c"100000 EUR\00"
-@salary = global i32 500000
+	// 	req.AssertGeneratedLLIR()
 
-declare i32 @printf(ptr, ...)
+	// 	if err := req.RunProgram(); err != nil {
+	// 		t.Fatalf("Runtime error (%s)", err)
+	// 	}
+	// })
 
-define i32 @main() {
-func-body:
-  ret i32 100
+	t.Run("French", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./conditionals/greater-than-equals/source.french.swa",
+			ExpectedLLIR:            "./conditionals/greater-than-equals/source.french.ll",
+			OutputPath:              "5d3bad62-1a59-42db-9308-505dcab59f02",
+			ExpectedExecutionOutput: "okok",
+			T:                       t,
+		}
+
+		defer req.Cleanup()
+
+		if err := req.Compile(); err != nil {
+			t.Fatalf("Compiler error (%s)", err)
+		}
+
+		req.AssertGeneratedLLIR()
+
+		if err := req.RunProgram(); err != nil {
+			t.Fatalf("Runtime error (%s)", err)
+		}
+	})
 }
-`
 
-	assertCodeGenerated(t, "conditional.english")
-	assertFileContent(t, "./conditional.english.ll", expectedIR)
-	cleanupSwaCode(t, "conditional.english")
-}
-
-func TestConditionalsFrench(t *testing.T) {
+func TestGreaterThanEqualsWithPointerAndInt(t *testing.T) {
 	t.Parallel()
 
-	output, err := CompileSwaCode(t, "./examples/conditional.french.swa", "conditional.french")
+	// t.Run("English", func(t *testing.T) {
+	// 	req := CompileRequest{
+	// 		InputPath:    "./structs/return-expression/source.english.swa",
+	// 		ExpectedLLIR: "./structs/return-expression/source.english.ll",
+	// 		OutputPath:   "uuid",
+	// 		T:            t,
+	// 	}
 
-	assert.NoError(t, err)
-	assert.Equal(t, string(output), "")
+	// 	defer req.Cleanup()
 
-	expectedIR := `; ModuleID = 'swa-main'
-source_filename = "swa-main"
+	// 	if err := req.Compile(); err != nil {
+	// 		t.Fatalf("Compiler error (%s)", err)
+	// 	}
 
-@salary_string = global [11 x i8] c"100000 EUR\00"
-@salary = global i32 500000
-@new_salary = global i32 1009
+	// 	req.AssertGeneratedLLIR()
 
-declare i32 @printf(ptr, ...)
+	// 	if err := req.RunProgram(); err != nil {
+	// 		t.Fatalf("Runtime error (%s)", err)
+	// 	}
+	// })
 
-define i32 @main() {
-func-body:
-  store i32 999999, ptr @salary, align 4
-  %0 = icmp uge ptr @salary, @new_salary
-  br i1 %0, label %if, label %else
+	t.Run("French", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./conditionals/greater-than-equals-pointer-and-int/source.french.swa",
+			ExpectedLLIR:            "./conditionals/greater-than-equals-pointer-and-int/source.french.ll",
+			OutputPath:              "5e51c0c9-e8bc-494f-aa01-2afc0a238b91",
+			ExpectedExecutionOutput: "okok",
+			T:                       t,
+		}
 
-if:                                               ; preds = %func-body
-  %1 = alloca [15 x i8], align 1
-  store [15 x i8] c"%s %s %s %s %d\00", ptr %1, align 1
-  %2 = alloca [22 x i8], align 1
-  store [22 x i8] c"new salary is greater\00", ptr %2, align 1
-  %3 = alloca [5 x i8], align 1
-  store [5 x i8] c"than\00", ptr %3, align 1
-  %4 = alloca [7 x i8], align 1
-  store [7 x i8] c"salary\00", ptr %4, align 1
-  %5 = call i32 (ptr, ...) @printf(ptr %1, ptr %2, ptr %3, ptr %4, ptr @salary_string, ptr @salary)
-  ret i32 10
+		defer req.Cleanup()
 
-merge:                                            ; preds = %else
-  ret i32 100
+		if err := req.Compile(); err != nil {
+			t.Fatalf("Compiler error (%s)", err)
+		}
 
-else:                                             ; preds = %func-body
-  %6 = alloca [6 x i8], align 1
-  store [6 x i8] c"%s %d\00", ptr %6, align 1
-  %7 = alloca [39 x i8], align 1
-  store [39 x i8] c"salary is greater ---- from else block\00", ptr %7, align 1
-  %8 = call i32 (ptr, ...) @printf(ptr %6, ptr %7, ptr @new_salary)
-  br label %merge
-}
-`
+		req.AssertGeneratedLLIR()
 
-	assertCodeGenerated(t, "conditional.french")
-	assertFileContent(t, "./conditional.french.ll", expectedIR)
-	cleanupSwaCode(t, "conditional.french")
+		if err := req.RunProgram(); err != nil {
+			t.Fatalf("Runtime error (%s)", err)
+		}
+	})
 }

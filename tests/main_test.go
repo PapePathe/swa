@@ -75,35 +75,43 @@ func CompileSwaSourceCode(t *testing.T, src string, dest string, data []byte) ([
 }
 
 type CompileRequest struct {
-	Src            string
+	Folder         string
+	InputPath      string
 	OutputPath     string
 	ExpectedLLIR   string
 	ExpectedOutput string
-	T              *testing.T
+	// The expected output when the program is executed on the host machine
+	ExpectedExecutionOutput string
+	T                       *testing.T
 }
 
 func (cr CompileRequest) Compile() error {
 	cr.T.Helper()
-	tempFile, err := os.CreateTemp("", "temp-*.swa")
-	if err != nil {
-		cr.T.Error(err)
-	}
-	defer os.Remove(tempFile.Name())
 
-	if _, err := tempFile.Write([]byte(cr.Src)); err != nil {
-		cr.T.Error(err)
-	}
-	assert.NoError(cr.T, err)
+	cmd := exec.Command("./swa", "compile", "-s", cr.InputPath, "-o", cr.OutputPath)
 
-	cmd := exec.Command("./swa", "compile", "-s", tempFile.Name(), "-o", cr.OutputPath)
+	output, err := cmd.CombinedOutput()
 
-	return cmd.Run()
+	assert.Equal(cr.T, cr.ExpectedOutput, string(output))
+
+	return err
 }
 
 func (cr CompileRequest) RunProgram() error {
 	cr.T.Helper()
 
-	return nil
+	cmd := exec.Command(fmt.Sprintf("./%s.exe", cr.OutputPath))
+
+	output, err := cmd.CombinedOutput()
+	if cr.ExpectedExecutionOutput != string(output) {
+		cr.T.Fatalf(
+			"Execution error want: %s, has: %s",
+			cr.ExpectedExecutionOutput,
+			string(output),
+		)
+	}
+
+	return err
 }
 
 func (cr CompileRequest) AssertGeneratedAssembly() {
@@ -115,7 +123,10 @@ func (cr CompileRequest) AssertGeneratedLLIR() {
 	actualStr, err := os.ReadFile(fmt.Sprintf("%s.ll", cr.OutputPath))
 	assert.NoError(cr.T, err)
 
-	assert.Equal(cr.T, string(actualStr), cr.ExpectedLLIR)
+	expectedStr, err := os.ReadFile(cr.ExpectedLLIR)
+	assert.NoError(cr.T, err)
+
+	assert.Equal(cr.T, string(actualStr), string(expectedStr))
 }
 
 func (cr CompileRequest) Cleanup() {
