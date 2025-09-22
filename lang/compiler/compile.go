@@ -62,7 +62,8 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 
 	if err := cmd.Run(); err != nil {
 		err := fmt.Errorf("Error compiling IR %w", err)
-		panic(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	objFilename := fmt.Sprintf("%s.o", target.Output)
