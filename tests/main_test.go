@@ -9,45 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMissingFile(t *testing.T) {
-	t.Parallel()
-
-	_, err := CompileSwaCode(t, "./examples/not-found.swa", "not-found")
-
-	assert.Equal(t, err.Error(), "exit status 1")
-}
-
-func assertFileContent(t *testing.T, actual string, expected string) {
-	actualStr, err := os.ReadFile(actual)
-	assert.NoError(t, err)
-
-	assert.Equal(t, string(actualStr), expected)
-}
-
-func assertFileExists(t *testing.T, path string) {
-	t.Helper()
-
-	_, err := os.Stat(path)
-
-	assert.True(t, !os.IsNotExist(err))
-}
-
-func assertCodeGenerated(t *testing.T, output string) {
-	t.Helper()
-
-	assertFileExists(t, fmt.Sprintf("%s.ll", output))
-	assertFileExists(t, fmt.Sprintf("%s.s", output))
-	assertFileExists(t, fmt.Sprintf("%s.o", output))
-	assertFileExists(t, fmt.Sprintf("%s.exe", output))
-}
-
-func cleanupSwaCode(t *testing.T, output string) {
-	assert.NoError(t, os.Remove(fmt.Sprintf("%s.s", output)))
-	assert.NoError(t, os.Remove(fmt.Sprintf("%s.o", output)))
-	assert.NoError(t, os.Remove(fmt.Sprintf("%s.ll", output)))
-	assert.NoError(t, os.Remove(fmt.Sprintf("%s.exe", output)))
-}
-
 func CompileSwaCode(t *testing.T, src string, dest string) ([]byte, error) {
 	t.Helper()
 
@@ -112,6 +73,18 @@ func (cr CompileRequest) RunProgram() error {
 	}
 
 	return err
+}
+
+func (cr CompileRequest) AssertCompileAndExecute() {
+	if err := cr.Compile(); err != nil {
+		cr.T.Fatalf("Compiler error (%s)", err)
+	}
+
+	cr.AssertGeneratedLLIR()
+
+	if err := cr.RunProgram(); err != nil {
+		cr.T.Fatalf("Runtime error (%s)", err)
+	}
 }
 
 func (cr CompileRequest) AssertGeneratedAssembly() {

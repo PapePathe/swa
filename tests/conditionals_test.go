@@ -4,29 +4,21 @@ import (
 	"testing"
 )
 
-func TestConditionals(t *testing.T) {
+func TestGreaterThanEquals(t *testing.T) {
 	t.Parallel()
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./conditionals/greater-than-equals/source.english.swa",
+			ExpectedLLIR:            "./conditionals/greater-than-equals/source.english.ll",
+			OutputPath:              "64e945b0-5e88-49ce-848c-6dfb4af57412",
+			ExpectedExecutionOutput: "okok",
+			T:                       t,
+		}
 
-	// t.Run("English", func(t *testing.T) {
-	// 	req := CompileRequest{
-	// 		InputPath:    "./structs/return-expression/source.english.swa",
-	// 		ExpectedLLIR: "./structs/return-expression/source.english.ll",
-	// 		OutputPath:   "uuid",
-	// 		T:            t,
-	// 	}
+		defer req.Cleanup()
 
-	// 	defer req.Cleanup()
-
-	// 	if err := req.Compile(); err != nil {
-	// 		t.Fatalf("Compiler error (%s)", err)
-	// 	}
-
-	// 	req.AssertGeneratedLLIR()
-
-	// 	if err := req.RunProgram(); err != nil {
-	// 		t.Fatalf("Runtime error (%s)", err)
-	// 	}
-	// })
+		req.AssertCompileAndExecute()
+	})
 
 	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
@@ -39,41 +31,26 @@ func TestConditionals(t *testing.T) {
 
 		defer req.Cleanup()
 
-		if err := req.Compile(); err != nil {
-			t.Fatalf("Compiler error (%s)", err)
-		}
-
-		req.AssertGeneratedLLIR()
-
-		if err := req.RunProgram(); err != nil {
-			t.Fatalf("Runtime error (%s)", err)
-		}
+		req.AssertCompileAndExecute()
 	})
 }
 
 func TestGreaterThanEqualsWithPointerAndInt(t *testing.T) {
 	t.Parallel()
 
-	// t.Run("English", func(t *testing.T) {
-	// 	req := CompileRequest{
-	// 		InputPath:    "./structs/return-expression/source.english.swa",
-	// 		ExpectedLLIR: "./structs/return-expression/source.english.ll",
-	// 		OutputPath:   "uuid",
-	// 		T:            t,
-	// 	}
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./conditionals/greater-than-equals-pointer-and-int/source.english.swa",
+			ExpectedLLIR:            "./conditionals/greater-than-equals-pointer-and-int/source.english.ll",
+			OutputPath:              "98f0c855-3a27-488f-980c-e6a375d5a627",
+			ExpectedExecutionOutput: "okok",
+			T:                       t,
+		}
 
-	// 	defer req.Cleanup()
+		defer req.Cleanup()
 
-	// 	if err := req.Compile(); err != nil {
-	// 		t.Fatalf("Compiler error (%s)", err)
-	// 	}
-
-	// 	req.AssertGeneratedLLIR()
-
-	// 	if err := req.RunProgram(); err != nil {
-	// 		t.Fatalf("Runtime error (%s)", err)
-	// 	}
-	// })
+		req.AssertCompileAndExecute()
+	})
 
 	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
@@ -86,14 +63,6 @@ func TestGreaterThanEqualsWithPointerAndInt(t *testing.T) {
 
 		defer req.Cleanup()
 
-		if err := req.Compile(); err != nil {
-			t.Fatalf("Compiler error (%s)", err)
-		}
-
-		req.AssertGeneratedLLIR()
-
-		if err := req.RunProgram(); err != nil {
-			t.Fatalf("Runtime error (%s)", err)
-		}
+		req.AssertCompileAndExecute()
 	})
 }
