@@ -2,7 +2,7 @@ dialect:english;
 
 start() int {
 	struct Test {
-		Name: chaine_de_caractere,
+		Nom: unknown_type,
 	}
 
   return 0;

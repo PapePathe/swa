@@ -1,0 +1,19 @@
+dialect:english;
+
+start() int {
+  let salaire_de_lucien: int = 500000;
+
+  if(salaire_de_lucien >= 500000) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Ast BinaryExpression GreaterThanEqualsImplementationError cond: (salaire_de_lucien >= 500000)");
+  }
+
+  if(500000 >= salaire_de_lucien ) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Ast BinaryExpression GreaterThanEqualsImplementationError cond: (500000 >= salaire_de_lucien) ");
+  }
+
+  return 0;
+}

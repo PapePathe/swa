@@ -2,8 +2,8 @@ dialect:french;
 
 demarrer() entier {
 	structure Test {
-		Nom: chaine_de_caractere,
+		Nom: unknown_type,
 	}
 
-  return 0;
+  retourner 0;
 } 
