@@ -1,0 +1,14 @@
+dialect:french;	
+
+demarrer() entier {
+	structure Test { 
+		Message: chaine, 
+		ExitCode: entier, 
+	}
+	variable ab1: Test = Test{ 
+		Message: "Done", 
+  	ExitCode: 0 
+  }; 
+
+  retourner ab1.ExitCode;
+}	

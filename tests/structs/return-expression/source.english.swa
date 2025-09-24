@@ -1,0 +1,14 @@
+dialect:english;	
+
+start() int {
+	struct Test { 
+		Message: string, 
+		ExitCode: int, 
+	}
+	let ab1: Test = Test{ 
+		Message: "Done", 
+  	ExitCode: 0 
+  }; 
+
+  return ab1.ExitCode;
+}

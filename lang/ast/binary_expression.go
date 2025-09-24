@@ -17,39 +17,55 @@ type BinaryExpression struct {
 var _ Expression = (*BinaryExpression)(nil)
 
 func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
-	err, leftVal := be.Left.CompileLLVM(ctx)
+	err, compiledLeftValue := be.Left.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil
 	}
 
-	if leftVal == nil {
+	if compiledLeftValue == nil {
 		return fmt.Errorf("left side of expression is nil"), nil
 	}
 
-	err, rightVal := be.Right.CompileLLVM(ctx)
+	err, compiledRightValue := be.Right.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil
 	}
 
-	if rightVal == nil {
+	if compiledRightValue == nil {
 		return fmt.Errorf("right side of expression is nil"), nil
 	}
 
 	handler, ok := handlers[be.Operator.Kind]
 	if !ok {
-		panic(fmt.Errorf("unsupported operator <%s>", be.Operator.Kind))
+		return fmt.Errorf("unsupported operator <%s>", be.Operator.Kind), nil
 	}
 
-	ctype := commonType(leftVal.Type(), rightVal.Type())
-	left := be.castToType(ctx, ctype, *leftVal)
-	right := be.castToType(ctx, ctype, *rightVal)
+	var finalLeftValue, finalRightValue llvm.Value
 
-	return handler(ctx, left, right)
+	ctype := commonType(compiledLeftValue.Type(), compiledRightValue.Type())
+
+	if compiledLeftValue.Type().TypeKind() == llvm.PointerTypeKind {
+		finalLeftValue = ctx.Builder.CreateLoad(ctype, *compiledLeftValue, "")
+	} else {
+		finalLeftValue = be.castToType(ctx, ctype, *compiledLeftValue)
+	}
+
+	if compiledRightValue.Type().TypeKind() == llvm.PointerTypeKind {
+		finalRightValue = ctx.Builder.CreateLoad(ctype, *compiledRightValue, "")
+	} else {
+		finalRightValue = be.castToType(ctx, ctype, *compiledRightValue)
+	}
+
+	return handler(ctx, finalLeftValue, finalRightValue)
 }
 
 func commonType(l, r llvm.Type) llvm.Type {
-	if l == llvm.PointerType(r, 0) {
+	if l.TypeKind() == llvm.PointerTypeKind {
 		return r
+	}
+
+	if r.TypeKind() == llvm.PointerTypeKind {
+		return l
 	}
 
 	if l == r {

@@ -1,0 +1,20 @@
+dialect:english;
+
+start() int {
+  let salaire_de_lucien: int = 500000;
+  let salaire_de_pathe : int = 50000;
+
+  if(salaire_de_lucien >= salaire_de_pathe) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Ast BinaryExpression GreaterThanEqualsImplementationError");
+  }
+
+  if(salaire_de_pathe >= salaire_de_lucien) {
+    print("%s", "Ast BinaryExpression GreaterThanEqualsImplementationError cond: (salaire_de_pathe >= salaire_de_lucien)");
+  } else {
+    print("%s", "ok");
+  }
+
+  return 0;
+}

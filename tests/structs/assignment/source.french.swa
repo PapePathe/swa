@@ -1,0 +1,12 @@
+dialect:french;
+
+demarrer() entier {
+	structure Vec {
+		x: entier,
+	}
+	variable v:Vec = Vec{x: 0};
+	v.x = 100;
+
+  retourner 0;
+}
+

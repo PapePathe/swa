@@ -40,8 +40,10 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 
 		switch expr.(type) {
 		case StringExpression:
+			glob := llvm.AddGlobal(*ctx.Module, val.Type(), "")
+			glob.SetInitializer(*val)
 			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, "")
-			ctx.Builder.CreateStore(*val, field1Ptr)
+			ctx.Builder.CreateStore(glob, field1Ptr)
 
 		case NumberExpression:
 			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, "")

@@ -13,5 +13,7 @@ start() int {
    TechStack: "Ruby, Rust, Go"
   };
 
-  return 100;
+  print("Name: (%s), TechStack: (%s), Age: (%d)", r1.Name, r1.TechStack, r1.Age);
+
+  return 0;
 }

@@ -1,0 +1,9 @@
+dialect:english;
+
+start() int {
+	struct Test {
+		Nom: unknown_type,
+	}
+
+  return 0;
+} 

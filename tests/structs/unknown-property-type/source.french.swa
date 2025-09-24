@@ -1,0 +1,9 @@
+dialect:french;
+
+demarrer() entier {
+	structure Test {
+		Nom: unknown_type,
+	}
+
+  retourner 0;
+} 

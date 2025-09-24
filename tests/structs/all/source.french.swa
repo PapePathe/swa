@@ -1,0 +1,20 @@
+dialect:french;
+
+demarrer() entier {
+
+  structure Engineer{
+    Age: entier,
+    Name: chaine,
+    TechStack: chaine,
+  }
+ 
+  variable r1: Engineer = Engineer{
+    Age: 40,
+    Name: "Pathe",
+    TechStack: "Ruby, Rust, Go"
+  };
+
+  afficher("Nom: (%s), Stack Technique: (%s), Age: (%d)", r1.Name, r1.TechStack, r1.Age);
+
+  retourner 0;
+}

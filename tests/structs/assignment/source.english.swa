@@ -1,0 +1,12 @@
+dialect:english;
+
+start() int {
+	struct Vec {
+		x: int,
+	}
+	let v:Vec = Vec{x: 0};
+	v.x = 100;
+
+  return 0;
+}
+
