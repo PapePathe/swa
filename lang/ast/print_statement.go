@@ -23,6 +23,14 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 		}
 
 		switch v.(type) {
+		case MemberExpression:
+			expr, _ := v.(MemberExpression)
+
+			err, loadedval := expr.CompileLLVMForPropertyAccess(ctx)
+			if err != nil {
+				return err, nil
+			}
+			printableValues = append(printableValues, *loadedval)
 		case NumberExpression:
 			all := ctx.Builder.CreateAlloca(res.Type(), "")
 			ctx.Builder.CreateStore(*res, all)
