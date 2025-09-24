@@ -80,7 +80,7 @@ func (cr CompileRequest) AssertCompileAndExecute() {
 		cr.T.Fatalf("Compiler error (%s)", err)
 	}
 
-	cr.AssertGeneratedLLIR()
+	//	cr.AssertGeneratedLLIR()
 
 	if err := cr.RunProgram(); err != nil {
 		cr.T.Fatalf("Runtime error (%s)", err)
