@@ -1,0 +1,44 @@
+dialect:french;
+
+demarrer() entier {
+  variable salaire_de_lucien: entier = 50000;
+  variable salaire_de_pathe : entier = 50000;
+
+  si(50000 == salaire_de_pathe) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Equals ImplementationError (50000 == salaire_de_pathe)");
+  }
+ 
+  si(salaire_de_pathe == 50000) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Equals ImplementationError (salaire_de_pathe == 50000)");
+  }
+ 
+  si(50000 == salaire_de_lucien) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Equals ImplementationError (50000 == salaire_de_lucien)");
+  }
+  si(salaire_de_lucien == 50000) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Equals ImplementationError (salaire_de_lucien == 50000)");
+  }
+ 
+  si(salaire_de_pathe == salaire_de_lucien) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Equals ImplementationError (salaire_de_pathe == salaire_de_lucien)");
+  }
+ 
+  si(salaire_de_lucien == salaire_de_pathe) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Equals ImplementationError (salaire_de_lucien == salaire_de_pathe)");
+  }
+
+
+  retourner 0;
+}

@@ -1,0 +1,43 @@
+dialect:english;
+
+start() int {
+  let salaire_de_lucien: int = 50000;
+  let salaire_de_pathe : int = 50000;
+
+  if(50000 == salaire_de_pathe) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Equals ImplementationError (50000 == salaire_de_pathe)");
+  }
+
+  if(salaire_de_pathe == 50000) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Equals ImplementationError (salaire_de_pathe == 50000)");
+  }
+
+  if(50000 == salaire_de_lucien) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Equals ImplementationError (50000 == salaire_de_lucien)");
+  }
+  if(salaire_de_lucien == 50000) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Equals ImplementationError (salaire_de_lucien == 50000)");
+  }
+
+  if(salaire_de_lucien == salaire_de_pathe) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Equals ImplementationError (salaire_de_lucien == salaire_de_pathe)");
+  }
+
+  if(salaire_de_pathe == salaire_de_lucien) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Equals ImplementationError (salaire_de_pathe == salaire_de_lucien)");
+  }
+
+  return 0;
+}

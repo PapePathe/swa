@@ -66,3 +66,33 @@ func TestGreaterThanEqualsWithPointerAndInt(t *testing.T) {
 		req.AssertCompileAndExecute()
 	})
 }
+
+func TestEquals(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./conditionals/equals/source.english.swa",
+			OutputPath:              "530955fd-7a49-4264-a832-53801a81b019",
+			ExpectedExecutionOutput: "okokokokokok",
+			T:                       t,
+		}
+
+		defer req.Cleanup()
+
+		req.AssertCompileAndExecute()
+	})
+
+	t.Run("French", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./conditionals/equals/source.french.swa",
+			OutputPath:              "10a66ac2-024f-4717-be0d-6ccb5379d490",
+			ExpectedExecutionOutput: "okokokokokok",
+			T:                       t,
+		}
+
+		defer req.Cleanup()
+
+		req.AssertCompileAndExecute()
+	})
+}
