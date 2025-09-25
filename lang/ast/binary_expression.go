@@ -61,7 +61,7 @@ func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 
 func commonType(l, r llvm.Value) llvm.Type {
 	if l.Type().TypeKind() == llvm.PointerTypeKind && l.Type().TypeKind() == llvm.PointerTypeKind {
-		return llvm.GlobalContext().Int32Type()
+		return l.GlobalValueType()
 	}
 
 	if l.Type() == r.Type() {
