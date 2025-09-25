@@ -1,0 +1,57 @@
+dialect:english;
+
+start() int {
+  let salaire_de_lucien: int = 50000;
+  let salaire_de_pathe : int = 500000;
+
+  if(50000 <= salaire_de_pathe) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Ast BinaryExpresifon GreaterThanEqualifmplementationError");
+  }
+
+  if(salaire_de_pathe <= 50000) {
+    print("%s", "ImplementationError (salaire_de_pathe <= 50000)");
+  } else {
+    print("%s", "ok");
+  }
+
+  if(500000 <= salaire_de_pathe) {
+    print("%s", "ok");
+  } else {
+    print("%s", "ImplementationError (500000 <= salaire_de_pathe)");
+  }
+
+  if(salaire_de_pathe <= 500000) {
+    print("%s", "ok");
+  } else {
+    print("%s", "ImplementationError (salaire_de_pathe <= 500000)");
+  }
+
+  if(salaire_de_pathe <= 500001) {
+    print("%s", "ok");
+  } else {
+    print("%s", "ImplementationError (salaire_de_pathe <= 500001)");
+  }
+
+
+  if(500001 <= salaire_de_pathe) {
+    print("%s", "ImplementationError (500001 <= salaire_de_pathe)");
+  } else {
+    print("%s", "ok");
+  }
+
+  if(salaire_de_lucien <= salaire_de_pathe) {
+    print("%s", "ok");
+  } else {
+    print("%s", "ImplementationError (salaire_de_lucien <= salaire_de_pathe)");
+  }
+
+  if(salaire_de_pathe <= salaire_de_lucien) {
+    print("%s", "ImplementationError (salaire_de_pathe >= salaire_de_lucien)");
+  } else {
+    print("%s", "ok");
+  }
+
+  return 0;
+}

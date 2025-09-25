@@ -1,0 +1,50 @@
+dialect:french;
+
+demarrer() entier {
+  variable salaire_de_lucien: entier = 50000;
+  variable salaire_de_pathe : entier = 500000;
+
+  si(50000 <= salaire_de_pathe) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "ImplementationError (50000 <= salaire_de_pathe)");
+  }
+
+  si(salaire_de_pathe <= 50000) {
+    afficher("%s", "ImplementationError (salaire_de_pathe <= 50000)");
+  } sinon {
+    afficher("%s", "ok");
+  }
+
+  si(salaire_de_pathe <= 500000 ) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "ImplementationError (salaire_de_pathe <= 500000 )");
+  }
+
+  si(500001 <= salaire_de_pathe) {
+    afficher("%s", "ImplementationError (500001 <= salaire_de_pathe)");
+  } sinon {
+    afficher("%s", "ok");
+  }
+
+  si(salaire_de_pathe <= 500001) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "ImplementationError (salaire_de_pathe <= 500001)");
+  }
+
+  si(salaire_de_lucien <= salaire_de_pathe) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "ImplementationError (salaire_de_lucien <= salaire_de_pathe)");
+  }
+
+  si(salaire_de_pathe <= salaire_de_lucien) {
+    afficher("%s", "ImplementationError (salaire_de_pathe <= salaire_de_lucien)");
+  } sinon {
+    afficher("%s", "ok");
+  }
+
+  retourner 0;
+}

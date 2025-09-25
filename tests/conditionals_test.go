@@ -67,6 +67,36 @@ func TestGreaterThanEqualsWithPointerAndInt(t *testing.T) {
 	})
 }
 
+func TestLessThanEquals(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./conditionals/less-than-equals/source.english.swa",
+			OutputPath:              "2a4ca903-e24a-4018-9c86-1308549f0c4d",
+			ExpectedExecutionOutput: "okokokokokokokok",
+			T:                       t,
+		}
+
+		defer req.Cleanup()
+
+		req.AssertCompileAndExecute()
+	})
+
+	t.Run("French", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./conditionals/less-than-equals/source.french.swa",
+			OutputPath:              "3442cdb6-3950-4b18-a081-b48aa4902499",
+			ExpectedExecutionOutput: "okokokokokokok",
+			T:                       t,
+		}
+
+		defer req.Cleanup()
+
+		req.AssertCompileAndExecute()
+	})
+}
+
 func TestEquals(t *testing.T) {
 	t.Parallel()
 
