@@ -1,3 +1,0 @@
-demarrer() int {
-  retourner 0;
-}

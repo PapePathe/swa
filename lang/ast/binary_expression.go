@@ -42,16 +42,16 @@ func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 
 	var finalLeftValue, finalRightValue llvm.Value
 
-	ctype := commonType(compiledLeftValue.Type(), compiledRightValue.Type())
+	ctype := commonType(*compiledLeftValue, *compiledRightValue)
 
 	if compiledLeftValue.Type().TypeKind() == llvm.PointerTypeKind {
-		finalLeftValue = ctx.Builder.CreateLoad(ctype, *compiledLeftValue, "")
+		finalLeftValue = ctx.Builder.CreateLoad(compiledLeftValue.GlobalValueType(), *compiledLeftValue, "")
 	} else {
 		finalLeftValue = be.castToType(ctx, ctype, *compiledLeftValue)
 	}
 
 	if compiledRightValue.Type().TypeKind() == llvm.PointerTypeKind {
-		finalRightValue = ctx.Builder.CreateLoad(ctype, *compiledRightValue, "")
+		finalRightValue = ctx.Builder.CreateLoad(compiledRightValue.GlobalValueType(), *compiledRightValue, "")
 	} else {
 		finalRightValue = be.castToType(ctx, ctype, *compiledRightValue)
 	}
@@ -59,17 +59,20 @@ func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	return handler(ctx, finalLeftValue, finalRightValue)
 }
 
-func commonType(l, r llvm.Type) llvm.Type {
-	if l.TypeKind() == llvm.PointerTypeKind {
-		return r
+func commonType(l, r llvm.Value) llvm.Type {
+	if l.Type().TypeKind() == llvm.PointerTypeKind && l.Type().TypeKind() == llvm.PointerTypeKind {
+		return llvm.GlobalContext().Int32Type()
 	}
 
-	if r.TypeKind() == llvm.PointerTypeKind {
-		return l
+	if l.Type() == r.Type() {
+		return l.Type()
+	}
+	if l.Type().TypeKind() == llvm.PointerTypeKind {
+		return l.GlobalValueType()
 	}
 
-	if l == r {
-		return l
+	if r.Type().TypeKind() == llvm.PointerTypeKind {
+		return r.GlobalValueType()
 	}
 
 	panic(fmt.Errorf("Unhandled combination %v %v", r, l))
@@ -135,7 +138,7 @@ func lessThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
 }
 
 func equals(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
-	res := ctx.Builder.CreateICmp(llvm.IntULE, l, r, "")
+	res := ctx.Builder.CreateICmp(llvm.IntEQ, l, r, "")
 
 	return nil, &res
 }

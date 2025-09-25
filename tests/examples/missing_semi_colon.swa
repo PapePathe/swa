@@ -1,5 +1,0 @@
-dialect:french;
-
-demarrer() entier {
-  retourner 0
-}
