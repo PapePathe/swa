@@ -135,7 +135,7 @@ func lessThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
 }
 
 func equals(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
-	res := ctx.Builder.CreateICmp(llvm.IntULE, l, r, "")
+	res := ctx.Builder.CreateICmp(llvm.IntEQ, l, r, "")
 
 	return nil, &res
 }
