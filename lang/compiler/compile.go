@@ -51,33 +51,60 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 
 	err = os.WriteFile(llirFileName, []byte(module.String()), FilePerm)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	asmFileName := fmt.Sprintf("%s.s", target.Output)
 
-	cmd := exec.Command("llc-19", llirFileName, "-o", asmFileName)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Run(); err != nil {
-		err := fmt.Errorf("Error compiling IR %w", err)
+	if err := compileToAssembler(llirFileName, asmFileName); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	objFilename := fmt.Sprintf("%s.o", target.Output)
-
-	objectCmd := exec.Command("clang-19", "-c", asmFileName, "-o", objFilename)
-	if err := objectCmd.Run(); err != nil {
-		panic(err)
+	if err := compileToObject(asmFileName, objFilename); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	exeFilename := fmt.Sprintf("%s.exe", target.Output)
-
-	linkCmd := exec.Command("clang-19", objFilename, "-o", exeFilename)
-	if err := linkCmd.Run(); err != nil {
-		err2 := fmt.Errorf("Error durrng linking <%w>", err)
-		panic(err2)
+	if err := compileToExecutable(objFilename, exeFilename); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
+}
+
+func compileToAssembler(llirFileName string, assemblerFilename string) error {
+	cmd := exec.Command("llc-19", llirFileName, "-o", assemblerFilename)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("Error compiling IR %w", err)
+	}
+
+	return nil
+}
+
+func compileToObject(assemblerFilename string, objectFilename string) error {
+	objectCmd := exec.Command("clang-19", "-c", assemblerFilename, "-o", objectFilename)
+	objectCmd.Stdout = os.Stdout
+	objectCmd.Stderr = os.Stderr
+
+	if err := objectCmd.Run(); err != nil {
+		return fmt.Errorf("Error durrng object creation <%w>", err)
+	}
+	return nil
+}
+
+func compileToExecutable(objectFileName string, executableFileName string) error {
+	linkCmd := exec.Command("clang-19", objectFileName, "-o", executableFileName)
+	linkCmd.Stdout = os.Stdout
+	linkCmd.Stderr = os.Stderr
+
+	if err := linkCmd.Run(); err != nil {
+		return fmt.Errorf("Error durrng linking <%w>", err)
+	}
+	return nil
 }
