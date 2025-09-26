@@ -17,27 +17,9 @@ type BinaryExpression struct {
 var _ Expression = (*BinaryExpression)(nil)
 
 func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
-	err, compiledLeftValue := be.Left.CompileLLVM(ctx)
+	err, compiledLeftValue, compiledRightValue := be.compileLeftAndRight(ctx)
 	if err != nil {
 		return err, nil
-	}
-
-	if compiledLeftValue == nil {
-		return fmt.Errorf("left side of expression is nil"), nil
-	}
-
-	err, compiledRightValue := be.Right.CompileLLVM(ctx)
-	if err != nil {
-		return err, nil
-	}
-
-	if compiledRightValue == nil {
-		return fmt.Errorf("right side of expression is nil"), nil
-	}
-
-	handler, ok := handlers[be.Operator.Kind]
-	if !ok {
-		return fmt.Errorf("unsupported operator <%s>", be.Operator.Kind), nil
 	}
 
 	var finalLeftValue, finalRightValue llvm.Value
@@ -56,7 +38,32 @@ func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 		finalRightValue = be.castToType(ctx, ctype, *compiledRightValue)
 	}
 
+	handler, ok := handlers[be.Operator.Kind]
+	if !ok {
+		return fmt.Errorf("unsupported operator <%s>", be.Operator.Kind), nil
+	}
 	return handler(ctx, finalLeftValue, finalRightValue)
+}
+
+func (be BinaryExpression) compileLeftAndRight(ctx *CompilerCtx) (error, *llvm.Value, *llvm.Value) {
+	err, compiledLeftValue := be.Left.CompileLLVM(ctx)
+	if err != nil {
+		return err, nil, nil
+	}
+
+	if compiledLeftValue == nil {
+		return fmt.Errorf("left side of expression is nil"), nil, nil
+	}
+
+	err, compiledRightValue := be.Right.CompileLLVM(ctx)
+	if err != nil {
+		return err, nil, nil
+	}
+
+	if compiledRightValue == nil {
+		return fmt.Errorf("right side of expression is nil"), nil, nil
+	}
+	return nil, compiledLeftValue, compiledRightValue
 }
 
 func commonType(l, r llvm.Value) llvm.Type {
