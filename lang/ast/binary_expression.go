@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"encoding/json"
 	"fmt"
 	"swahili/lang/lexer"
 
@@ -148,4 +149,16 @@ func equals(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
 	res := ctx.Builder.CreateICmp(llvm.IntEQ, l, r, "")
 
 	return nil, &res
+}
+
+func (be BinaryExpression) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["left"] = be.Left
+	m["right"] = be.Right
+	m["operator"] = be.Operator
+
+	res := make(map[string]any)
+	res["ast.BinaryExpression"] = m
+
+	return json.Marshal(res)
 }

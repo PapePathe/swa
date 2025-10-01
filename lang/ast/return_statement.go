@@ -13,6 +13,14 @@ type ReturnStatement struct {
 
 func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	switch v := rs.Value.(type) {
+	case ArrayAccessExpression:
+		err, ptr := rs.Value.CompileLLVM(ctx)
+		if err != nil {
+			return err, nil
+		}
+
+		val := ctx.Builder.CreateLoad(ctx.Context.Int32Type(), *ptr, "")
+		ctx.Builder.CreateRet(val)
 	case MemberExpression:
 		expr, _ := rs.Value.(MemberExpression)
 
