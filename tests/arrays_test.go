@@ -2,6 +2,8 @@ package tests
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestArrays(t *testing.T) {
@@ -31,5 +33,33 @@ func TestArrays(t *testing.T) {
 		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
+	})
+}
+
+func TestArrayIndexOutOfBounds(t *testing.T) {
+	t.Parallel()
+
+	t.Run("French", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:      "./arrays/out-of-bounds/source.french.swa",
+			ExpectedLLIR:   "./arrays/out-of-bounds/source.french.ll",
+			OutputPath:     "78cd171d-69e5-44c9-84c1-85c3939d00a8",
+			ExpectedOutput: "Element at index (5) does not exist in array (tableau)\n",
+			T:              t,
+		}
+
+		assert.Error(t, req.Compile())
+	})
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:      "./arrays/out-of-bounds/source.english.swa",
+			ExpectedLLIR:   "./arrays/out-of-bounds/source.english.ll",
+			OutputPath:     "66ebfb11-c40a-41d5-84c1-de0b710c9a88",
+			ExpectedOutput: "Element at index (5) does not exist in array (array)\n",
+			T:              t,
+		}
+
+		assert.Error(t, req.Compile())
 	})
 }
