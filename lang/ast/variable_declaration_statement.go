@@ -58,6 +58,10 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Va
 		glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
 		glob.SetInitializer(*val)
 		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: glob}
+		ctx.ArraysSymbolTable[vd.Name] = ArraySymbolTableEntry{
+			ElementsCount:  val.Type().ArrayLength(),
+			UnderlyingType: val.Type().ElementType(),
+		}
 	default:
 		panic(fmt.Sprintf("VarDeclarationStatement: Unhandled expression type (%v)", vd.Value))
 	}

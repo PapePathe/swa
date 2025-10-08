@@ -7,55 +7,6 @@ import (
 	"tinygo.org/x/go-llvm"
 )
 
-type ArrayAccessExpression struct {
-	Name  Expression
-	Index Expression
-}
-
-var _ Expression = (*ArrayAccessExpression)(nil)
-
-func (expr ArrayAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
-	varName, ok := expr.Name.(SymbolExpression)
-	if !ok {
-		// FIX: error messages should be translated
-		return fmt.Errorf("Array Name is not a symbol"), nil
-	}
-
-	array, ok := ctx.SymbolTable[varName.Value]
-	if !ok {
-		// FIX: error messages should be translated
-		return fmt.Errorf("Array Name is not a symbol"), nil
-	}
-
-	itemIndex, ok := expr.Index.(NumberExpression)
-	if !ok {
-		// FIX: error messages should be translated
-		return fmt.Errorf("Value should be a number expression"), nil
-	}
-
-	itemPtr := ctx.Builder.CreateInBoundsGEP(
-		ctx.Context.Int32Type(),
-		array.Value,
-		[]llvm.Value{
-			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(itemIndex.Value), false),
-		},
-		"",
-	)
-
-	return nil, &itemPtr
-}
-
-func (cs ArrayAccessExpression) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Name"] = cs.Name
-	m["Index"] = cs.Index
-
-	res := make(map[string]any)
-	res["ast.ArrayAccessExpression"] = m
-
-	return json.Marshal(res)
-}
-
 type ArrayInitializationExpression struct {
 	Underlying Type
 	Contents   []Expression
