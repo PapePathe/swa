@@ -63,3 +63,31 @@ func TestArrayIndexOutOfBounds(t *testing.T) {
 		assert.Error(t, req.Compile())
 	})
 }
+
+func TestArrayAccessWithPrefixExpression(t *testing.T) {
+	t.Parallel()
+
+	t.Run("French", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:      "./arrays/prefix-expression/source.french.swa",
+			ExpectedLLIR:   "./arrays/prefix-expression/source.french.ll",
+			OutputPath:     "a6fe34d3-83f8-4dc5-a03e-c786ce604da2",
+			ExpectedOutput: "Only numbers are supported as array index, current: ({{- MINUS MINUS} {4}})\n",
+			T:              t,
+		}
+
+		assert.Error(t, req.Compile())
+	})
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:      "./arrays/prefix-expression/source.english.swa",
+			ExpectedLLIR:   "./arrays/prefix-expression/source.english.ll",
+			OutputPath:     "89e28b67-a4e4-4a45-855e-eb14ca790ba6",
+			ExpectedOutput: "Only numbers are supported as array index, current: ({{- MINUS MINUS} {4}})\n",
+			T:              t,
+		}
+
+		assert.Error(t, req.Compile())
+	})
+}
