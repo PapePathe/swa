@@ -91,3 +91,31 @@ func TestArrayAccessWithPrefixExpression(t *testing.T) {
 		assert.Error(t, req.Compile())
 	})
 }
+
+func TestArrayAccessWithSymbolExpression(t *testing.T) {
+	t.Parallel()
+
+	t.Run("French", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:      "./arrays/symbol-expression/source.french.swa",
+			ExpectedLLIR:   "./arrays/symbol-expression/source.french.ll",
+			OutputPath:     "31e357ba-aa48-4999-b437-289b3cf1cac4",
+			ExpectedOutput: "Only numbers are supported as array index, current: ({x})\n",
+			T:              t,
+		}
+
+		assert.Error(t, req.Compile())
+	})
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:      "./arrays/symbol-expression/source.english.swa",
+			ExpectedLLIR:   "./arrays/symbol-expression/source.english.ll",
+			OutputPath:     "602748f7-8ced-4180-8247-f27c54524196",
+			ExpectedOutput: "Only numbers are supported as array index, current: ({x})\n",
+			T:              t,
+		}
+
+		assert.Error(t, req.Compile())
+	})
+}
