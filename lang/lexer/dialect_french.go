@@ -73,7 +73,7 @@ func (m French) Error(key string, args ...any) error {
 
 func (m French) translations() map[string]string {
 	return map[string]string{
-		"ArrayAccessExpression.NameNotASymbol":            "L'expression %v n'est pas un nom de variable correct",
+		"ArrayAccessExpression.NameNotASymbol":            "L'expression (%s) n'est pas un nom de variable correct",
 		"ArrayAccessExpression.NotFoundInSymbolTable":     "La variable %s n'existe pas dans la table des symboles",
 		"ArrayAccessExpression.AccessedIndexIsNotANumber": "Seuls les nombres positif sont permis comme indice de tableau, valeur courante: (%s)",
 	}
