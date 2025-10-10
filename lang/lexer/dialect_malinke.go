@@ -1,6 +1,9 @@
 package lexer
 
-import "regexp"
+import (
+	"fmt"
+	"regexp"
+)
 
 type Malinke struct{}
 
@@ -51,6 +54,10 @@ func (m Malinke) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`/`), defaultHandler(Divide, "/")},
 		{regexp.MustCompile(`\*`), defaultHandler(Star, "*")},
 	}
+}
+
+func (m Malinke) Error(key string, args ...any) error {
+	return fmt.Errorf("test")
 }
 
 func (m Malinke) Reserved() map[string]TokenKind {

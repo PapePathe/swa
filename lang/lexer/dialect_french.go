@@ -1,6 +1,10 @@
 package lexer
 
-import "regexp"
+import (
+	"fmt"
+	"regexp"
+	"swahili/lang/errmsg"
+)
 
 type French struct{}
 
@@ -54,6 +58,24 @@ func (m French) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`-`), defaultHandler(Minus, "-")},
 		{regexp.MustCompile(`/`), defaultHandler(Divide, "/")},
 		{regexp.MustCompile(`\*`), defaultHandler(Star, "*")},
+	}
+}
+
+func (m French) Error(key string, args ...any) error {
+	formatted, ok := m.translations()[key]
+
+	if !ok {
+		panic(fmt.Sprintf("key %s does not exist in dialect translations", key))
+	}
+
+	return errmsg.NewAstError(formatted, args)
+}
+
+func (m French) translations() map[string]string {
+	return map[string]string{
+		"ArrayAccessExpression.NameNotASymbol":            "L'expression %v n'est pas un nom de variable correct",
+		"ArrayAccessExpression.NotFoundInSymbolTable":     "La variable %s n'existe pas dans la table des symboles",
+		"ArrayAccessExpression.AccessedIndexIsNotANumber": "Seuls les nombres positif sont permis comme indice de tableau, valeur courante: (%s)",
 	}
 }
 

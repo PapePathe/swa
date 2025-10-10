@@ -1,6 +1,9 @@
 package lexer
 
-import "regexp"
+import (
+	"fmt"
+	"regexp"
+)
 
 type Wolof struct{}
 
@@ -44,6 +47,10 @@ func (m Wolof) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`/`), defaultHandler(Divide, "/")},
 		{regexp.MustCompile(`\*`), defaultHandler(Star, "*")},
 	}
+}
+
+func (m Wolof) Error(key string, args ...any) error {
+	return fmt.Errorf("test")
 }
 
 func (m Wolof) Reserved() map[string]TokenKind {
