@@ -75,6 +75,7 @@ func createTokenLookups() {
 
 	led(lexer.Dot, Member, ParseMemberCallExpression)
 	led(lexer.OpenCurly, Call, ParseStructInstantiationExpression)
+	led(lexer.OpenBracket, Call, ParseArrayAccess)
 	nud(lexer.OpenBracket, ParseArrayInitialization)
 
 	statement(lexer.Print, ParsePrintStatement)

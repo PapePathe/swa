@@ -17,12 +17,18 @@ type SymbolTableEntry struct {
 	Ref   *StructSymbolTableEntry
 }
 
+type ArraySymbolTableEntry struct {
+	UnderlyingType llvm.Type
+	ElementsCount  int
+}
+
 type CompilerCtx struct {
 	Context           *llvm.Context
 	Builder           *llvm.Builder
 	Module            *llvm.Module
 	SymbolTable       map[string]SymbolTableEntry
 	StructSymbolTable map[string]StructSymbolTableEntry
+	ArraysSymbolTable map[string]ArraySymbolTableEntry
 	FuncSymbolTable   map[string]llvm.Type
 }
 

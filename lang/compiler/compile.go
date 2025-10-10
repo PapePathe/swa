@@ -39,6 +39,7 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 		SymbolTable:       map[string]ast.SymbolTableEntry{},
 		StructSymbolTable: map[string]ast.StructSymbolTableEntry{},
 		FuncSymbolTable:   map[string]llvm.Type{},
+		ArraysSymbolTable: map[string]ast.ArraySymbolTableEntry{},
 	}
 
 	err, _ := tree.CompileLLVM(&ctx)

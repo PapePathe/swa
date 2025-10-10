@@ -5,15 +5,22 @@ import (
 	"swahili/lang/lexer"
 )
 
-func ParseArrayInitialization(p *Parser) ast.Expression {
-	var underlying ast.Type
-
-	contents := []ast.Expression{}
+func ParseArrayAccess(p *Parser, left ast.Expression, bp BindingPower) ast.Expression {
+	expr := ast.ArrayAccessExpression{Name: left}
 
 	p.expect(lexer.OpenBracket)
+
+	expr.Index = parseExpression(p, DefaultBindingPower)
+
 	p.expect(lexer.CloseBracket)
 
-	underlying = parseType(p, DefaultBindingPower)
+	return expr
+}
+
+func ParseArrayInitialization(p *Parser) ast.Expression {
+	contents := []ast.Expression{}
+	underlying := parseType(p, DefaultBindingPower)
+
 	p.expect(lexer.OpenCurly)
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
