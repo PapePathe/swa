@@ -25,7 +25,7 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 
 	if !ok {
 		// FIX: error messages should be translated
-		panic(fmt.Sprintf("Type (%s) cannot be casted to array type", expr.Underlying))
+		return fmt.Errorf("Type (%s) cannot be casted to array type", expr.Underlying), nil
 	}
 
 	switch arrayType.Underlying.(type) {
@@ -33,7 +33,7 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 		innerType = ctx.Context.Int32Type()
 	default:
 		// FIX: error messages should be translated
-		panic(fmt.Sprintf("Type (%s) not implemented in array expression", expr.Underlying))
+		return fmt.Errorf("Type (%s) not implemented in array expression", expr.Underlying), nil
 	}
 
 	//	arrayType := llvm.ArrayType(innerType, len(expr.Contents))
