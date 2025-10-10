@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/errmsg"
 )
 
 type ArrayAccessExpression struct {
@@ -17,8 +19,9 @@ var _ Expression = (*ArrayAccessExpression)(nil)
 func (expr ArrayAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	varName, ok := expr.Name.(SymbolExpression)
 	if !ok {
+		err := errmsg.AstError{Message: fmt.Sprintf("%s.ArrayAccessExpression.NameNotASymbol", "en")}
 		// FIX: error messages should be translated
-		return fmt.Errorf("Array Name is not a symbol"), nil
+		return err, nil
 	}
 
 	array, ok := ctx.SymbolTable[varName.Value]
