@@ -5,8 +5,6 @@ import (
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
-
-	"swahili/lang/errmsg"
 )
 
 type ArrayAccessExpression struct {
@@ -19,21 +17,20 @@ var _ Expression = (*ArrayAccessExpression)(nil)
 func (expr ArrayAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	varName, ok := expr.Name.(SymbolExpression)
 	if !ok {
-		err := errmsg.AstError{Message: fmt.Sprintf("%s.ArrayAccessExpression.NameNotASymbol", "en")}
-		// FIX: error messages should be translated
-		return err, nil
+		key := "ArrayAccessExpression.NameNotASymbol"
+		return ctx.Dialect.Error(key, varName.Value), nil
 	}
 
 	array, ok := ctx.SymbolTable[varName.Value]
 	if !ok {
-		// FIX: error messages should be translated
-		return fmt.Errorf("Array Name is not a symbol"), nil
+		key := "ArrayAccessExpression.NotFoundInSymbolTable"
+		return ctx.Dialect.Error(key, varName.Value), nil
 	}
 
 	itemIndex, ok := expr.Index.(NumberExpression)
 	if !ok {
-		// FIX: error messages should be translated
-		return fmt.Errorf("Only numbers are supported as array index, current: (%v)", expr.Index), nil
+		key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
+		return ctx.Dialect.Error(key, expr.Index), nil
 	}
 
 	entry, ok := ctx.ArraysSymbolTable[varName.Value]

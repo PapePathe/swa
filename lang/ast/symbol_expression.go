@@ -13,6 +13,10 @@ type SymbolExpression struct {
 
 var _ Expression = (*SymbolExpression)(nil)
 
+func (e SymbolExpression) String() string {
+	return e.Value
+}
+
 func (se SymbolExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	val, ok := ctx.SymbolTable[se.Value]
 
