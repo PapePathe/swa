@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"swahili/lang/ast"
+	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
 )
@@ -17,7 +18,7 @@ type BuildTarget struct {
 
 const FilePerm = 0600
 
-func Compile(tree ast.BlockStatement, target BuildTarget) {
+func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect) {
 	context := llvm.NewContext()
 	defer context.Dispose()
 
@@ -36,6 +37,7 @@ func Compile(tree ast.BlockStatement, target BuildTarget) {
 		Context:           &context,
 		Builder:           &builder,
 		Module:            &module,
+		Dialect:           dialect,
 		SymbolTable:       map[string]ast.SymbolTableEntry{},
 		StructSymbolTable: map[string]ast.StructSymbolTableEntry{},
 		FuncSymbolTable:   map[string]llvm.Type{},

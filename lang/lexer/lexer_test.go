@@ -8,20 +8,22 @@ import (
 )
 
 func TestNewWithMalinke(t *testing.T) {
-	lex, err := New("dialect:malinke;")
+	lex, dial, err := New("dialect:malinke;")
 	assert.NoError(t, err)
 
 	wf := Malinke{}
+	assert.Equal(t, wf, dial)
 	assert.Equal(t, len(wf.Patterns()), len(lex.Patterns()))
 	assert.Equal(t, len(wf.Reserved()), len(lex.reservedWords))
 }
 
 func TestNewWithWolof(t *testing.T) {
-	lex, err := New("dialect:wolof;")
+	lex, dial, err := New("dialect:wolof;")
 	assert.NoError(t, err)
 
 	wf := Wolof{}
 
+	assert.Equal(t, wf, dial)
 	if len(wf.Patterns()) != len(lex.patterns) {
 		t.Errorf("Expected patterns count to be %d", len(wf.Patterns()))
 	}
@@ -40,20 +42,21 @@ func TestNewWithWolof(t *testing.T) {
 }
 
 func TestNewWithFrench(t *testing.T) {
-	lex, err := New("dialect:french;")
+	lex, dial, err := New("dialect:french;")
 	assert.NoError(t, err)
 
 	wf := French{}
 	assert.Equal(t, len(wf.Patterns()), len(lex.Patterns()))
 	assert.Equal(t, len(wf.Reserved()), len(lex.reservedWords))
+	assert.Equal(t, wf, dial)
 }
 
 func TestNewWithEmptyString(t *testing.T) {
-	_, err := New("")
+	_, _, err := New("")
 	assert.Equal(t, errors.New("you must define your dialect"), err)
 }
 
 func TestNewWithUnknownDialect(t *testing.T) {
-	_, err := New("dialect:japanese;")
+	_, _, err := New("dialect:japanese;")
 	assert.Equal(t, errors.New("dialect <japanese> is not supported"), err)
 }

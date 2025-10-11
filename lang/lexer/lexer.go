@@ -14,10 +14,10 @@ type Lexer struct {
 	reservedWords map[string]TokenKind // list of reserved words
 }
 
-func New(source string) (*Lexer, error) {
+func New(source string) (*Lexer, Dialect, error) {
 	dialect, err := getDialect(source)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	return &Lexer{
@@ -25,7 +25,7 @@ func New(source string) (*Lexer, error) {
 		patterns:      dialect.Patterns(),
 		reservedWords: dialect.Reserved(),
 		source:        source,
-	}, nil
+	}, dialect, nil
 }
 
 func (lex *Lexer) advanceN(n int) {

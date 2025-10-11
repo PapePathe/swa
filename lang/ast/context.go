@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
 )
@@ -26,6 +27,7 @@ type CompilerCtx struct {
 	Context           *llvm.Context
 	Builder           *llvm.Builder
 	Module            *llvm.Module
+	Dialect           lexer.Dialect
 	SymbolTable       map[string]SymbolTableEntry
 	StructSymbolTable map[string]StructSymbolTableEntry
 	ArraysSymbolTable map[string]ArraySymbolTableEntry
