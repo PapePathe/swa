@@ -55,6 +55,19 @@ func TestStructPropertyAssignment(t *testing.T) {
 func TestStructAll(t *testing.T) {
 	t.Parallel()
 
+	t.Run("Soussou", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./structs/all/source.soussou.swa",
+			OutputPath:              "91e6b01d-187c-4f45-85b0-e0e37d0df079",
+			ExpectedExecutionOutput: "Nom: (Pathe), Stack Technique: (Ruby, Rust, Go), Age: (40)",
+			T:                       t,
+		}
+
+		defer req.Cleanup()
+
+		req.AssertCompileAndExecute()
+	})
+
 	t.Run("English", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./structs/all/source.english.swa",
