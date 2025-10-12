@@ -1,0 +1,45 @@
+dialect:soussou;
+
+labali() konti {
+  kouicé salaire_de_lucien: konti = 50000;
+  kouicé salaire_de_pathe : konti = 50000;
+
+  xa(50000 == salaire_de_pathe) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Equals ImplementationError (50000 == salaire_de_pathe)");
+  }
+ 
+  xa(salaire_de_pathe == 50000) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Equals ImplementationError (salaire_de_pathe == 50000)");
+  }
+ 
+  xa(50000 == salaire_de_lucien) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Equals ImplementationError (50000 == salaire_de_lucien)");
+  }
+
+  xa(salaire_de_lucien == 50000) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Equals ImplementationError (salaire_de_lucien == 50000)");
+  }
+ 
+  xa(salaire_de_pathe == salaire_de_lucien) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Equals ImplementationError (salaire_de_pathe == salaire_de_lucien)");
+  }
+ 
+  xa(salaire_de_lucien == salaire_de_pathe) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Equals ImplementationError (salaire_de_lucien == salaire_de_pathe)");
+  }
+
+
+  ragbilen 0;
+}

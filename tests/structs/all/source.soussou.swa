@@ -1,0 +1,20 @@
+dialect:soussou;
+
+labali() konti{
+
+  structure Engineer{
+    Age: konti,
+    Name: sèbèli,
+    TechStack: sèbèli,
+  }
+ 
+  kouicé r1: Engineer = Engineer{
+    Age: 40,
+    Name: "Pathe",
+    TechStack: "Ruby, Rust, Go"
+  };
+
+  masen("Nom: (%s), Stack Technique: (%s), Age: (%d)", r1.Name, r1.TechStack, r1.Age);
+
+  ragbilen 0;
+}
