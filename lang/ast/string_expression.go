@@ -11,6 +11,10 @@ type StringExpression struct {
 
 var _ Expression = (*StringExpression)(nil)
 
+func (se StringExpression) String() string {
+	return se.Value
+}
+
 func (se StringExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	res := ctx.Context.ConstString(se.Value, true)
 

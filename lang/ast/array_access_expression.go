@@ -2,7 +2,6 @@ package ast
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"tinygo.org/x/go-llvm"
 )
@@ -35,12 +34,13 @@ func (expr ArrayAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Va
 
 	entry, ok := ctx.ArraysSymbolTable[varName.Value]
 	if !ok {
-		// FIX: error messages should be translated
-		return fmt.Errorf("Array (%s) does not exist in symbol table", varName.Value), nil
+		key := "ArrayAccessExpression.NotFoundInArraysSymbolTable"
+		return ctx.Dialect.Error(key, varName.Value), nil
 	}
 
 	if int(itemIndex.Value) > entry.ElementsCount-1 {
-		return fmt.Errorf("Element at index (%d) does not exist in array (%s)", int(itemIndex.Value), varName.Value), nil
+		key := "ArrayAccessExpression.IndexOutOfBounds"
+		return ctx.Dialect.Error(key, itemIndex, varName.Value), nil
 	}
 
 	itemPtr := ctx.Builder.CreateInBoundsGEP(
