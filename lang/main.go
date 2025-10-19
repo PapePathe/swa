@@ -62,14 +62,14 @@ var compileCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		sourceCode := string(bytes)
-		tokens := lexer.Tokenize(sourceCode)
+		tokens, dialect := lexer.Tokenize(sourceCode)
 		tree := parser.Parse(tokens)
 		target := compiler.BuildTarget{
 			OperatingSystem: "Gnu/Linux",
 			Architecture:    "X86-64",
 			Output:          output,
 		}
-		compiler.Compile(tree, target)
+		compiler.Compile(tree, target, dialect)
 	},
 }
 
@@ -109,7 +109,7 @@ var tokenizeCmd = &cobra.Command{
 		}
 
 		sourceCode := string(bytes)
-		tokens := lexer.Tokenize(sourceCode)
+		tokens, _ := lexer.Tokenize(sourceCode)
 		st := parser.Parse(tokens)
 
 		result, err := json.MarshalIndent(st, " ", "  ")

@@ -2,6 +2,7 @@ package ast
 
 import (
 	"encoding/json"
+	"fmt"
 	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
@@ -16,6 +17,10 @@ var _ Expression = (*PrefixExpression)(nil)
 
 func (PrefixExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	panic("PrefixExpression compilation is not implemented")
+}
+
+func (e PrefixExpression) String() string {
+	return fmt.Sprintf("%s %s", e.Operator.Value, e.RightExpression)
 }
 
 func (cs PrefixExpression) MarshalJSON() ([]byte, error) {

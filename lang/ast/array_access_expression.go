@@ -2,11 +2,8 @@ package ast
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"tinygo.org/x/go-llvm"
-
-	"swahili/lang/errmsg"
 )
 
 type ArrayAccessExpression struct {
@@ -19,31 +16,31 @@ var _ Expression = (*ArrayAccessExpression)(nil)
 func (expr ArrayAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	varName, ok := expr.Name.(SymbolExpression)
 	if !ok {
-		err := errmsg.AstError{Message: fmt.Sprintf("%s.ArrayAccessExpression.NameNotASymbol", "en")}
-		// FIX: error messages should be translated
-		return err, nil
+		key := "ArrayAccessExpression.NameNotASymbol"
+		return ctx.Dialect.Error(key, varName.Value), nil
 	}
 
 	array, ok := ctx.SymbolTable[varName.Value]
 	if !ok {
-		// FIX: error messages should be translated
-		return fmt.Errorf("Array Name is not a symbol"), nil
+		key := "ArrayAccessExpression.NotFoundInSymbolTable"
+		return ctx.Dialect.Error(key, varName.Value), nil
 	}
 
 	itemIndex, ok := expr.Index.(NumberExpression)
 	if !ok {
-		// FIX: error messages should be translated
-		return fmt.Errorf("Only numbers are supported as array index, current: (%v)", expr.Index), nil
+		key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
+		return ctx.Dialect.Error(key, expr.Index), nil
 	}
 
 	entry, ok := ctx.ArraysSymbolTable[varName.Value]
 	if !ok {
-		// FIX: error messages should be translated
-		return fmt.Errorf("Array (%s) does not exist in symbol table", varName.Value), nil
+		key := "ArrayAccessExpression.NotFoundInArraysSymbolTable"
+		return ctx.Dialect.Error(key, varName.Value), nil
 	}
 
 	if int(itemIndex.Value) > entry.ElementsCount-1 {
-		return fmt.Errorf("Element at index (%d) does not exist in array (%s)", int(itemIndex.Value), varName.Value), nil
+		key := "ArrayAccessExpression.IndexOutOfBounds"
+		return ctx.Dialect.Error(key, itemIndex, varName.Value), nil
 	}
 
 	itemPtr := ctx.Builder.CreateInBoundsGEP(
