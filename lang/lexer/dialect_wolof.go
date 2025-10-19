@@ -3,6 +3,7 @@ package lexer
 import (
 	"fmt"
 	"regexp"
+	"swahili/lang/errmsg"
 )
 
 type Wolof struct{}
@@ -50,9 +51,21 @@ func (m Wolof) Patterns() []RegexpPattern {
 }
 
 func (m Wolof) Error(key string, args ...any) error {
-	return fmt.Errorf("test")
+	formatted, ok := m.translations()[key]
+
+	if !ok {
+		panic(fmt.Sprintf("key %s does not exist in dialect translations", key))
+	}
+
+	return errmsg.NewAstError(formatted, args)
+}
+
+func (m Wolof) translations() map[string]string {
+	// TODO: add reserved words
+	return map[string]string{}
 }
 
 func (m Wolof) Reserved() map[string]TokenKind {
+	// TODO: add reserved for wolof
 	return map[string]TokenKind{}
 }
