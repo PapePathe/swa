@@ -68,14 +68,16 @@ func (m French) Error(key string, args ...any) error {
 		panic(fmt.Sprintf("key %s does not exist in dialect translations", key))
 	}
 
-	return errmsg.NewAstError(formatted, args)
+	return errmsg.NewAstError(formatted, args...)
 }
 
 func (m French) translations() map[string]string {
 	return map[string]string{
-		"ArrayAccessExpression.NameNotASymbol":            "L'expression (%s) n'est pas un nom de variable correct",
-		"ArrayAccessExpression.NotFoundInSymbolTable":     "La variable %s n'existe pas dans la table des symboles",
-		"ArrayAccessExpression.AccessedIndexIsNotANumber": "Seuls les nombres positif sont permis comme indice de tableau, valeur courante: (%s)",
+		"ArrayAccessExpression.NameNotASymbol":             "L'expression (%s) n'est pas un nom de variable correct",
+		"ArrayAccessExpression.NotFoundInSymbolTable":      "La variable %s n'existe pas dans la table des symboles",
+		"ArrayAccessExpression.AccessedIndexIsNotANumber":  "Seuls les nombres positif sont permis comme indice de tableau, valeur courante: (%s)",
+		"ArrayAccessExpression.NotFoundInArraySymbolTable": "Le tableau (%s) n'existe pas dans la table des symboles",
+		"ArrayAccessExpression.IndexOutOfBounds":           "L'element a la position (%s) depasse les limites du tableau (%s)",
 	}
 }
 
