@@ -1,0 +1,13 @@
+dialect:french;
+
+demarrer() entier{
+  variable tableau : []string= []string{"abc", "efg", "ijk"};
+  // TODO: Fix bug with array assignment when it's a pointer to strings
+  //  tableau[s] = "ijk+lmn";
+  afficher(
+    "valeurs dans le tableau: (%s),(%s),(%s)",
+    tableau[0], tableau[1], tableau[2]
+  );
+
+  retourner 0;
+}

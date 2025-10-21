@@ -1,0 +1,13 @@
+dialect:english;
+
+start() int {
+  let array : []string= []string{"abc", "efg", "ijk"};
+  // TODO: Fix bug with array assignment when it's a pointer to strings
+  //  array[s] = "ijk+lmn";
+  print(
+    "values in the array: (%s),(%s),(%s)",
+    array[0], array[1], array[2]
+  );
+
+  return 0;
+}
