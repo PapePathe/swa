@@ -1,0 +1,10 @@
+dialect:french;
+
+demarrer() entier{
+  variable tableau : []entier = []entier{1,2,3,4,5};
+
+  afficher("La valeur a la position 0 est %d,", tableau[0]);
+  afficher("La valeur a la position 1 est %d", tableau[1]);
+
+  retourner 0;
+}
