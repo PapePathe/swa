@@ -20,5 +20,4 @@ ENV PATH="/usr/local/go/bin:${PATH}"
 WORKDIR /tmp/go-build
 COPY lang/go.mod .
 COPY lang/go.sum .
-RUN go mod download
-RUN go mod tidy
+RUN go mod download && go mod tidy
