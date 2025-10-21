@@ -44,11 +44,9 @@ func (expr ArrayAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Va
 	}
 
 	itemPtr := ctx.Builder.CreateInBoundsGEP(
-		ctx.Context.Int32Type(),
+		entry.UnderlyingType,
 		array.Value,
-		[]llvm.Value{
-			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(itemIndex.Value), false),
-		},
+		[]llvm.Value{llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(itemIndex.Value), false)},
 		"",
 	)
 

@@ -28,12 +28,16 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 		return fmt.Errorf("Type (%s) cannot be casted to array type", expr.Underlying), nil
 	}
 
-	switch arrayType.Underlying.(type) {
-	case NumberType:
+	switch arrayType.Underlying.Value() {
+	case DataTypeNumber:
 		innerType = ctx.Context.Int32Type()
+	case DataTypeSymbol:
+		innerType = llvm.PointerType(ctx.Context.Int32Type(), 0)
+	case DataTypeString:
+		innerType = llvm.PointerType(ctx.Context.Int32Type(), 0)
 	default:
 		// FIX: error messages should be translated
-		return fmt.Errorf("Type (%s) not implemented in array expression", expr.Underlying), nil
+		return fmt.Errorf("Type (%v) not implemented in array expression", arrayType.Underlying.Value()), nil
 	}
 
 	//	arrayType := llvm.ArrayType(innerType, len(expr.Contents))
@@ -44,7 +48,15 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 		if err != nil {
 			return err, nil
 		}
-		contents = append(contents, *content)
+
+		switch value.(type) {
+		case NumberExpression:
+			contents = append(contents, *content)
+		case StringExpression:
+			glob := llvm.AddGlobal(*ctx.Module, content.Type(), "")
+			glob.SetInitializer(*content)
+			contents = append(contents, glob)
+		}
 	}
 	arrayConst := llvm.ConstArray(innerType, contents)
 
