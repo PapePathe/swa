@@ -6,6 +6,33 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestArraysInPrintStatement(t *testing.T) {
+	t.Parallel()
+
+	t.Run("French", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./arrays/print/source.french.swa",
+			ExpectedOutput:          "",
+			ExpectedExecutionOutput: "La valeur a la position 0 est 1,La valeur a la position 1 est 2",
+			T:                       t,
+		}
+		defer req.Cleanup()
+
+		req.AssertCompileAndExecute()
+	})
+
+	// t.Run("English", func(t *testing.T) {
+	// 	req := CompileRequest{
+	// 		InputPath:      "./arrays/ok/source.english.swa",
+	// 		ExpectedOutput: "",
+	// 		T:              t,
+	// 	}
+	// 	defer req.Cleanup()
+
+	// 	req.AssertCompileAndExecute()
+	// })
+}
+
 func TestArrays(t *testing.T) {
 	t.Parallel()
 
