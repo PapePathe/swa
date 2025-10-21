@@ -1,5 +1,7 @@
 package ast
 
+import "encoding/json"
+
 type DataType = int
 
 const (
@@ -34,6 +36,14 @@ var _ Type = (*ArrayType)(nil)
 
 func (ArrayType) Value() DataType {
 	return DataTypeArray
+}
+
+func (a ArrayType) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["Type"] = a.Value()
+	m["UnderlyingType"] = a.Underlying.Value()
+
+	return json.Marshal(m)
 }
 
 type NumberType struct{}
