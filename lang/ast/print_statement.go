@@ -2,6 +2,7 @@ package ast
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"tinygo.org/x/go-llvm"
 )
@@ -31,10 +32,11 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 				return err, nil
 			}
 			printableValues = append(printableValues, *loadedval)
+		case ArrayAccessExpression:
+			ldd := ctx.Builder.CreateLoad(res.Type(), *res, "")
+			printableValues = append(printableValues, ldd)
 		case NumberExpression:
-			all := ctx.Builder.CreateAlloca(res.Type(), "")
-			ctx.Builder.CreateStore(*res, all)
-			printableValues = append(printableValues, all)
+			printableValues = append(printableValues, *res)
 		case SymbolExpression:
 			name, _ := v.(SymbolExpression)
 
@@ -45,6 +47,8 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 			ctx.Builder.CreateStore(*res, all)
 
 			printableValues = append(printableValues, all)
+		default:
+			panic(fmt.Sprintf("Expression %v not supported in print statement", v))
 		}
 	}
 

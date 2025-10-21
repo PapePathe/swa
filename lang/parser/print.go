@@ -24,10 +24,14 @@ func ParsePrintStatement(p *Parser) ast.Statement {
 			if err != nil {
 				values = append(values, ast.SymbolExpression{Value: p.expect(lexer.Identifier).Value})
 			} else {
-				if next.Kind == lexer.Dot {
+				switch next.Kind {
+				case lexer.Dot:
 					left := ast.SymbolExpression{Value: p.expect(lexer.Identifier).Value}
 					values = append(values, ParseMemberCallExpression(p, left, Relational))
-				} else {
+				case lexer.OpenBracket:
+					left := ast.SymbolExpression{Value: p.expect(lexer.Identifier).Value}
+					values = append(values, ParseArrayAccess(p, left, Relational))
+				default:
 					values = append(values, ast.SymbolExpression{Value: p.expect(lexer.Identifier).Value})
 				}
 			}
