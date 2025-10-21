@@ -3,8 +3,14 @@ dialect:french;
 demarrer() entier{
   variable tableau : []entier = []entier{1,2,3,4,5};
 
-  afficher("La valeur a la position 0 est %d,", tableau[0]);
-  afficher("La valeur a la position 1 est %d", tableau[1]);
+  afficher(
+    "Les valeurs dans le tableau sont: %d %d %d %d %d",
+    tableau[0],
+    tableau[1],
+    tableau[2],
+    tableau[3],
+    tableau[4],
+  );
 
   retourner 0;
 }

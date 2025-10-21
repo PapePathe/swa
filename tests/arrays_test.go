@@ -13,7 +13,7 @@ func TestArraysInPrintStatement(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./arrays/print/source.french.swa",
 			ExpectedOutput:          "",
-			ExpectedExecutionOutput: "La valeur a la position 0 est 1,La valeur a la position 1 est 2",
+			ExpectedExecutionOutput: "Les valeurs dans le tableau sont: 1 2 3 4 5",
 			T:                       t,
 		}
 		defer req.Cleanup()
@@ -21,16 +21,17 @@ func TestArraysInPrintStatement(t *testing.T) {
 		req.AssertCompileAndExecute()
 	})
 
-	// t.Run("English", func(t *testing.T) {
-	// 	req := CompileRequest{
-	// 		InputPath:      "./arrays/ok/source.english.swa",
-	// 		ExpectedOutput: "",
-	// 		T:              t,
-	// 	}
-	// 	defer req.Cleanup()
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./arrays/print/source.english.swa",
+			ExpectedOutput:          "",
+			ExpectedExecutionOutput: "Array values are: 1 2 3 4 5",
+			T:                       t,
+		}
+		defer req.Cleanup()
 
-	// 	req.AssertCompileAndExecute()
-	// })
+		req.AssertCompileAndExecute()
+	})
 }
 
 func TestArrays(t *testing.T) {
