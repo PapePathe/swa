@@ -51,6 +51,7 @@ func (SymbolType) Value() DataType {
 func (se SymbolType) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Value"] = se.Value().String()
+	m["Name"] = se.Name
 
 	res := make(map[string]any)
 	res["ast.SymbolType"] = m
@@ -71,6 +72,7 @@ func (ArrayType) Value() DataType {
 func (se ArrayType) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Value"] = se.Value().String()
+	m["Underlying"] = se.Underlying
 
 	res := make(map[string]any)
 	res["ast.ArrayType"] = m
