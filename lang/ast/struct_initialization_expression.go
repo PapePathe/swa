@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
@@ -52,4 +53,16 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 	}
 
 	return nil, &structInstance
+}
+
+func (cs StructInitializationExpression) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["Name"] = cs.Name
+	m["Properties"] = cs.Properties
+	m["Values"] = cs.Values
+
+	res := make(map[string]any)
+	res["ast.StructInitializationExpression"] = m
+
+	return json.Marshal(res)
 }

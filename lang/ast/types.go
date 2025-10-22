@@ -1,8 +1,28 @@
 package ast
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+)
 
-type DataType = int
+type DataType int
+
+func (dt DataType) String() string {
+	switch dt {
+	case DataTypeString:
+		return "DataTypeString"
+	case DataTypeIntType:
+		return "DataTypeIntType"
+	case DataTypeNumber:
+		return "DataTypeNumber"
+	case DataTypeArray:
+		return "DataTypeArray"
+	case DataTypeSymbol:
+		return "DataTypeSymbol"
+	default:
+		panic(fmt.Sprintf("Unmatched data type %d", dt))
+	}
+}
 
 const (
 	DataTypeArray = iota
@@ -28,6 +48,16 @@ func (SymbolType) Value() DataType {
 	return DataTypeSymbol
 }
 
+func (se SymbolType) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["Value"] = se.Value().String()
+
+	res := make(map[string]any)
+	res["ast.SymbolType"] = m
+
+	return json.Marshal(res)
+}
+
 type ArrayType struct {
 	Underlying Type
 }
@@ -38,12 +68,14 @@ func (ArrayType) Value() DataType {
 	return DataTypeArray
 }
 
-func (a ArrayType) MarshalJSON() ([]byte, error) {
+func (se ArrayType) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
-	m["Type"] = a.Value()
-	m["UnderlyingType"] = a.Underlying.Value()
+	m["Value"] = se.Value().String()
 
-	return json.Marshal(m)
+	res := make(map[string]any)
+	res["ast.ArrayType"] = m
+
+	return json.Marshal(res)
 }
 
 type NumberType struct{}
@@ -54,10 +86,30 @@ func (NumberType) Value() DataType {
 	return DataTypeNumber
 }
 
+func (se NumberType) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["Value"] = se.Value().String()
+
+	res := make(map[string]any)
+	res["ast.NumberType"] = m
+
+	return json.Marshal(res)
+}
+
 type StringType struct{}
 
 var _ Type = (*StringType)(nil)
 
 func (StringType) Value() DataType {
 	return DataTypeString
+}
+
+func (se StringType) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["Value"] = se.Value().String()
+
+	res := make(map[string]any)
+	res["ast.StringType"] = m
+
+	return json.Marshal(res)
 }

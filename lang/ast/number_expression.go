@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
@@ -21,4 +22,14 @@ func (se NumberExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 	res := llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(se.Value), false)
 
 	return nil, &res
+}
+
+func (se NumberExpression) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["Value"] = se.Value
+
+	res := make(map[string]any)
+	res["ast.NumberExpression"] = m
+
+	return json.Marshal(res)
 }
