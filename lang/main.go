@@ -40,7 +40,8 @@ func main() {
 	rootCmd.AddCommand(compileCmd, tokenizeCmd, serverCmd)
 
 	if err := rootCmd.Execute(); err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 }
 
