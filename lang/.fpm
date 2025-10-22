@@ -1,0 +1,14 @@
+-s dir
+--name swahili
+--license agpl3
+--version 0.1.0
+--architecture all
+--depends llvm-19 
+--depends lldb-19 
+--depends lld-19 
+--depends clang-19 
+--description "A multi dialect programming language"
+--url "https://swahili.lang"
+--maintainer "Pathe SENE <pathe.sene@gmail.com>"
+
+swahili=/usr/bin/swahili swahili.1=/usr/share/man/man1/swahili.1
