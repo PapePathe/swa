@@ -31,8 +31,6 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 	switch arrayType.Underlying.Value() {
 	case DataTypeNumber:
 		innerType = ctx.Context.Int32Type()
-	case DataTypeSymbol:
-		innerType = llvm.PointerType(ctx.Context.Int32Type(), 0)
 	case DataTypeString:
 		innerType = llvm.PointerType(ctx.Context.Int32Type(), 0)
 	default:
@@ -40,7 +38,6 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 		return fmt.Errorf("Type (%v) not implemented in array expression", arrayType.Underlying.Value()), nil
 	}
 
-	//	arrayType := llvm.ArrayType(innerType, len(expr.Contents))
 	contents := []llvm.Value{}
 
 	for _, value := range expr.Contents {
