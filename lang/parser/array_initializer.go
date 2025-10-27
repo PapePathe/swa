@@ -14,6 +14,12 @@ func ParseArrayAccess(p *Parser, left ast.Expression, bp BindingPower) ast.Expre
 
 	p.expect(lexer.CloseBracket)
 
+	if p.currentToken().Kind == lexer.Dot {
+		memberCall := ParseMemberCallExpression(p, expr, Member)
+
+		return memberCall
+	}
+
 	return expr
 }
 
