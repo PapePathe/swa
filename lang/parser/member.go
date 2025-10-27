@@ -10,7 +10,7 @@ func ParseMemberCallExpression(p *Parser, left ast.Expression, bp BindingPower) 
 	p.expect(lexer.Dot)
 
 	if p.currentToken().Kind == lexer.OpenParen {
-		panic("function calls not yet supported")
+		panic("ParseMemberCallExpression: function calls not yet supported")
 	}
 
 	_member := parseExpression(p, Member)
