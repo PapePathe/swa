@@ -3,6 +3,7 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
@@ -56,6 +57,10 @@ func (be BinaryExpression) compileLeftAndRight(ctx *CompilerCtx) (error, *llvm.V
 		return fmt.Errorf("left side of expression is nil"), nil, nil
 	}
 
+	if compiledLeftValue.Type().TypeKind() == llvm.VoidTypeKind {
+		return fmt.Errorf("left side of expression is of type void"), nil, nil
+	}
+
 	err, compiledRightValue := be.Right.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil, nil
@@ -63,6 +68,10 @@ func (be BinaryExpression) compileLeftAndRight(ctx *CompilerCtx) (error, *llvm.V
 
 	if compiledRightValue == nil {
 		return fmt.Errorf("right side of expression is nil"), nil, nil
+	}
+
+	if compiledRightValue.Type().TypeKind() == llvm.VoidTypeKind {
+		return fmt.Errorf("right side of expression is of type void"), nil, nil
 	}
 	return nil, compiledLeftValue, compiledRightValue
 }
@@ -83,11 +92,11 @@ func commonType(l, r llvm.Value) llvm.Type {
 		return r.GlobalValueType()
 	}
 
-	panic(fmt.Errorf("Unhandled combination %v %v", r, l))
+	panic(fmt.Errorf("Unhandled combination %v %v", r.Type(), l.Type()))
 }
 
 func (be BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Value) llvm.Value {
-	if t == v.Type() {
+	if t.TypeKind() == v.Type().TypeKind() {
 		return v
 	}
 
@@ -97,8 +106,11 @@ func (be BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Valu
 		case llvm.IntegerTypeKind:
 			return ctx.Builder.CreatePtrToInt(v, t, "")
 		}
+	case llvm.IntegerTypeKind:
+		fmt.Println(fmt.Errorf("Value %v is of type integer and other is %s", v.Type().TypeKind(), t.TypeKind()))
+		os.Exit(1)
 	default:
-		panic(fmt.Errorf("Unhandled type %v, %v", v, t))
+		panic(fmt.Errorf("Unhandled type %s, %s", t.TypeKind(), v.Type().TypeKind()))
 	}
 
 	return llvm.Value{}

@@ -47,17 +47,17 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Va
 
 		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val, Ref: &typeDef}
 	case StringExpression:
-		glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
-		glob.SetInitializer(*val)
-		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: glob}
+		alloc := ctx.Builder.CreateAlloca(val.Type(), "")
+		ctx.Builder.CreateStore(*val, alloc)
+		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val}
 	case NumberExpression:
-		glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
-		glob.SetInitializer(*val)
-		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: glob}
+		alloc := ctx.Builder.CreateAlloca(val.Type(), "")
+		ctx.Builder.CreateStore(*val, alloc)
+		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val}
 	case ArrayInitializationExpression:
-		glob := llvm.AddGlobal(*ctx.Module, val.Type(), vd.Name)
-		glob.SetInitializer(*val)
-		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: glob}
+		alloc := ctx.Builder.CreateAlloca(val.Type(), "")
+		ctx.Builder.CreateStore(*val, alloc)
+		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: alloc}
 		ctx.ArraysSymbolTable[vd.Name] = ArraySymbolTableEntry{
 			ElementsCount:  val.Type().ArrayLength(),
 			UnderlyingType: val.Type().ElementType(),
