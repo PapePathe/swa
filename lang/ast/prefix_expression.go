@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"swahili/lang/lexer"
-
-	"tinygo.org/x/go-llvm"
 )
 
 type PrefixExpression struct {
@@ -15,7 +13,7 @@ type PrefixExpression struct {
 
 var _ Expression = (*PrefixExpression)(nil)
 
-func (PrefixExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (PrefixExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	panic("PrefixExpression compilation is not implemented")
 }
 

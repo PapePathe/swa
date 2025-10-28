@@ -3,8 +3,6 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
-
-	"tinygo.org/x/go-llvm"
 )
 
 // VarDeclarationStatement ...
@@ -21,7 +19,7 @@ type VarDeclarationStatement struct {
 
 var _ Statement = (*VarDeclarationStatement)(nil)
 
-func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	err, val := vd.Value.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil
@@ -45,23 +43,18 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Va
 			return fmt.Errorf("Could not find typedef for %s in structs symbol table", explicitType.Name), nil
 		}
 
-		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val, Ref: &typeDef}
+		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val.Value, Ref: &typeDef}
 	case StringExpression:
-		alloc := ctx.Builder.CreateAlloca(val.Type(), "")
-		ctx.Builder.CreateStore(*val, alloc)
-		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val}
+		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), "")
+		ctx.Builder.CreateStore(*val.Value, alloc)
+		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val.Value}
 	case NumberExpression:
-		alloc := ctx.Builder.CreateAlloca(val.Type(), "")
-		ctx.Builder.CreateStore(*val, alloc)
-		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val}
+		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), "")
+		ctx.Builder.CreateStore(*val.Value, alloc)
+		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val.Value}
 	case ArrayInitializationExpression:
-		alloc := ctx.Builder.CreateAlloca(val.Type(), "")
-		ctx.Builder.CreateStore(*val, alloc)
-		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: alloc}
-		ctx.ArraysSymbolTable[vd.Name] = ArraySymbolTableEntry{
-			ElementsCount:  val.Type().ArrayLength(),
-			UnderlyingType: val.Type().ElementType(),
-		}
+		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val.Value}
+		ctx.ArraysSymbolTable[vd.Name] = *val.ArraySymbolTableEntry
 	default:
 		panic(fmt.Sprintf("VarDeclarationStatement: Unhandled expression type (%v)", vd.Value))
 	}

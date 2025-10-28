@@ -2,8 +2,6 @@ package ast
 
 import (
 	"fmt"
-
-	"tinygo.org/x/go-llvm"
 )
 
 // SymbolExpression ...
@@ -17,12 +15,12 @@ func (e SymbolExpression) String() string {
 	return e.Value
 }
 
-func (se SymbolExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (se SymbolExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	val, ok := ctx.SymbolTable[se.Value]
 
 	if !ok {
 		return fmt.Errorf("Variable %s does not exist", se.Value), nil
 	}
 
-	return nil, &val.Value
+	return nil, &CompilerResult{Value: &val.Value}
 }

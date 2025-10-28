@@ -2,8 +2,6 @@ package ast
 
 import (
 	"encoding/json"
-
-	"tinygo.org/x/go-llvm"
 )
 
 // ExpressionStatement ...
@@ -14,7 +12,7 @@ type ExpressionStatement struct {
 
 var _ Statement = (*ExpressionStatement)(nil)
 
-func (exp ExpressionStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (exp ExpressionStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	err, _ := exp.Exp.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil

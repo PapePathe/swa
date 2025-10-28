@@ -2,8 +2,6 @@ package ast
 
 import (
 	"encoding/json"
-
-	"tinygo.org/x/go-llvm"
 )
 
 // BlockStatement ...
@@ -14,7 +12,7 @@ type BlockStatement struct {
 
 var _ Statement = (*BlockStatement)(nil)
 
-func (bs BlockStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (bs BlockStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	for _, stmt := range bs.Body {
 		err, _ := stmt.CompileLLVM(ctx)
 		if err != nil {

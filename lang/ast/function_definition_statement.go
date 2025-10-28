@@ -21,7 +21,7 @@ type FuncDeclStatement struct {
 
 var _ Statement = (*FuncDeclStatement)(nil)
 
-func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	params := []llvm.Type{}
 
 	for _, arg := range fd.Args {

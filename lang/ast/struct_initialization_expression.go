@@ -15,7 +15,7 @@ type StructInitializationExpression struct {
 
 var _ Expression = (*StructInitializationExpression)(nil)
 
-func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	newtype, ok := ctx.StructSymbolTable[si.Name]
 
 	if !ok {
@@ -41,18 +41,18 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 
 		switch expr.(type) {
 		case StringExpression:
-			glob := llvm.AddGlobal(*ctx.Module, val.Type(), "")
-			glob.SetInitializer(*val)
+			glob := llvm.AddGlobal(*ctx.Module, val.Value.Type(), "")
+			glob.SetInitializer(*val.Value)
 			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, "")
 			ctx.Builder.CreateStore(glob, field1Ptr)
 
 		case NumberExpression:
 			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, "")
-			ctx.Builder.CreateStore(*val, field1Ptr)
+			ctx.Builder.CreateStore(*val.Value, field1Ptr)
 		}
 	}
 
-	return nil, &structInstance
+	return nil, &CompilerResult{Value: &structInstance}
 }
 
 func (cs StructInitializationExpression) MarshalJSON() ([]byte, error) {
