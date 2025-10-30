@@ -29,6 +29,6 @@ func ParseMemberCallExpression(p *Parser, left ast.Expression, bp BindingPower) 
 			Property: _member,
 		}
 	default:
-		panic(fmt.Sprintf("Unsupported expression %s", left))
+		panic(fmt.Sprintf("ParseMemberCallExpression %s", left))
 	}
 }
