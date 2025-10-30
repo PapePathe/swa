@@ -1,28 +1,29 @@
-### Swahili
+# Swahili
 
-This is a hacking project while I am exploring low level concepts and programming language design. 
+Multi dialect programming language
 
-### Setup
+## Examples 
+
+### Anatomy of a swahili program 
+
 ```
-cd lang
-./dev.sh
+dialect:english;
 
-Swahili Programming Environment
+start() int {
+  return 0;
+}
+```
 
-Usage:
-  swa [command]
+```
+dialect:french;
 
-Available Commands:
-  compile     Compile the source code to an executable
-  completion  Generate the autocompletion script for the specified shell
-  help        Help about any command
-  interpret   Interpret the source code
-  server      Start the web service
-  tokenize    Tokenize the source code
+demarrer() entier{
+  retourner tableau[0];
+}
+```
 
-Flags:
-  -h, --help   help for swa
 
-Use "swa [command] --help" for more information about a command.
+### Conditionals 
 
+```
 ```
