@@ -1,13 +1,13 @@
 dialect:english;
 
 start() int {
-  structure Engineer{
+  struct Engineer{
     Age: int,
     Name: string,
     TechStack: string,
   }
  
-  variable tableau : []Engineer = []Engineer{
+  let tableau : []Engineer = []Engineer{
     Engineer{ Age: 40, Name: "Pathe",  TechStack: "Ruby, Rust, Go" },
     Engineer{ Age: 24, Name: "Lucien", TechStack: "Typescript, HTML, Css" },
     Engineer{ Age: 25, Name: "Manel",  TechStack: "Typescript, Ruby" },
