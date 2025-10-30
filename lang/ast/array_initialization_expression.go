@@ -14,7 +14,7 @@ type ArrayInitializationExpression struct {
 
 var _ Expression = (*ArrayInitializationExpression)(nil)
 
-func (expr ArrayInitializationExpression) extractArrayType(ctx *CompilerCtx) llvm.Type {
+func (expr ArrayInitializationExpression) extractArrayType(ctx *CompilerCtx) (llvm.Type, *StructSymbolTableEntry) {
 	arrayType, ok := expr.Underlying.(ArrayType)
 
 	if !ok {
@@ -23,7 +23,7 @@ func (expr ArrayInitializationExpression) extractArrayType(ctx *CompilerCtx) llv
 
 	switch arrayType.Underlying.Value() {
 	case DataTypeNumber:
-		return ctx.Context.Int32Type()
+		return ctx.Context.Int32Type(), nil
 	case DataTypeSymbol:
 		sym, _ := arrayType.Underlying.(SymbolType)
 
@@ -31,9 +31,9 @@ func (expr ArrayInitializationExpression) extractArrayType(ctx *CompilerCtx) llv
 		if !ok {
 			panic(fmt.Errorf("Type (%s) is not a valid struct", expr.Underlying))
 		}
-		return sdef.LLVMType
+		return sdef.LLVMType, &sdef
 	case DataTypeString:
-		return llvm.PointerType(ctx.Context.Int32Type(), 0)
+		return llvm.PointerType(ctx.Context.Int32Type(), 0), nil
 	default:
 		panic(fmt.Errorf("Type (%v) not implemented in array expression", arrayType.Underlying.Value()))
 	}
@@ -45,28 +45,64 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 		return fmt.Errorf("Static arrays must be initialized"), nil
 	}
 
-	innerType := expr.extractArrayType(ctx)
+	innerType, sdef := expr.extractArrayType(ctx)
 	arrayType := llvm.ArrayType(innerType, len(expr.Contents))
 	arrayPtr := ctx.Builder.CreateAlloca(arrayType, "")
 	for i, value := range expr.Contents {
-		err, content := value.CompileLLVM(ctx)
-		if err != nil {
-			return err, nil
+		switch value.(type) {
+		case NumberExpression, StringExpression:
+			err, content := value.CompileLLVM(ctx)
+			if err != nil {
+				return err, nil
+			}
+			gep := ctx.Builder.CreateGEP(
+				arrayType,
+				arrayPtr,
+				[]llvm.Value{
+					llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false),
+					llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(i), false),
+				}, "",
+			)
+			ctx.Builder.CreateStore(*content.Value, gep)
+		case StructInitializationExpression:
+			structExpr, _ := value.(StructInitializationExpression)
+			err, structFields := structExpr.InitValues(ctx)
+			if err != nil {
+				return err, nil
+			}
+			itemGep := ctx.Builder.CreateGEP(
+				arrayType,
+				arrayPtr,
+				[]llvm.Value{
+					llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false),
+					llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(i), false),
+				}, "",
+			)
+
+			for _, field := range structFields {
+				gep := ctx.Builder.CreateGEP(
+					innerType,
+					itemGep,
+					[]llvm.Value{
+						llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false),
+						llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(field.Position), false),
+					}, "",
+				)
+				ctx.Builder.CreateStore(*field.Value, gep)
+			}
+
+		default:
+			panic(fmt.Sprintf("Expression %s not supported", value))
 		}
-		gep := ctx.Builder.CreateGEP(
-			innerType,
-			arrayPtr,
-			[]llvm.Value{llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(i), false)}, "",
-		)
-		ctx.Builder.CreateStore(*content.Value, gep)
 	}
 
 	res := CompilerResult{
 		Value: &arrayPtr,
 		ArraySymbolTableEntry: &ArraySymbolTableEntry{
-			ElementsCount:  arrayType.ArrayLength(),
-			UnderlyingType: arrayType.ElementType(),
-			Type:           arrayType,
+			ElementsCount:     arrayType.ArrayLength(),
+			UnderlyingType:    arrayType.ElementType(),
+			UnderlyingTypeDef: sdef,
+			Type:              arrayType,
 		},
 	}
 	return nil, &res

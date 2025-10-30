@@ -19,9 +19,10 @@ type SymbolTableEntry struct {
 }
 
 type ArraySymbolTableEntry struct {
-	UnderlyingType llvm.Type
-	Type           llvm.Type
-	ElementsCount  int
+	UnderlyingType    llvm.Type
+	UnderlyingTypeDef *StructSymbolTableEntry
+	Type              llvm.Type
+	ElementsCount     int
 }
 
 type CompilerCtx struct {

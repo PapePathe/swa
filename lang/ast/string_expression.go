@@ -30,4 +30,3 @@ func (se StringExpression) MarshalJSON() ([]byte, error) {
 
 	return json.Marshal(res)
 }
-
