@@ -18,10 +18,10 @@ func (e NumberExpression) String() string {
 	return fmt.Sprintf("%d", int(e.Value))
 }
 
-func (se NumberExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (se NumberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	res := llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(se.Value), false)
 
-	return nil, &res
+	return nil, &CompilerResult{Value: &res}
 }
 
 func (se NumberExpression) MarshalJSON() ([]byte, error) {

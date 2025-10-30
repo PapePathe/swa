@@ -2,8 +2,6 @@ package ast
 
 import (
 	"swahili/lang/lexer"
-
-	"tinygo.org/x/go-llvm"
 )
 
 // AssignmentExpression.
@@ -11,6 +9,7 @@ import (
 //
 // a = a +5;
 // foo.bar = foo.bar + 10;
+
 type AssignmentExpression struct {
 	Operator lexer.Token
 	Assignee Expression
@@ -19,7 +18,7 @@ type AssignmentExpression struct {
 
 var _ Expression = (*AssignmentExpression)(nil)
 
-func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	err, val := expr.Value.CompileLLVM(ctx)
 
 	if err != nil {
@@ -32,7 +31,7 @@ func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Val
 		return err, nil
 	}
 
-	str := ctx.Builder.CreateStore(*val, *assignee)
+	str := ctx.Builder.CreateStore(*val.Value, *assignee.Value)
 
-	return nil, &str
+	return nil, &CompilerResult{Value: &str}
 }

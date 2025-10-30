@@ -14,7 +14,7 @@ type ConditionalStatetement struct {
 
 var _ Statement = (*ConditionalStatetement)(nil)
 
-func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	err, condition := cs.Condition.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil
@@ -26,7 +26,7 @@ func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Val
 	thenBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "if")
 	elseBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "else")
 
-	ctx.Builder.CreateCondBr(*condition, thenBlock, elseBlock)
+	ctx.Builder.CreateCondBr(*condition.Value, thenBlock, elseBlock)
 
 	ctx.Builder.SetInsertPointAtEnd(thenBlock)
 
@@ -51,20 +51,20 @@ func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Val
 
 	var phi llvm.Value
 	if successVal != nil {
-		phi := ctx.Builder.CreatePHI(successVal.Type(), "")
-		phi.AddIncoming([]llvm.Value{*successVal}, []llvm.BasicBlock{thenBlock})
+		phi := ctx.Builder.CreatePHI(successVal.Value.Type(), "")
+		phi.AddIncoming([]llvm.Value{*successVal.Value}, []llvm.BasicBlock{thenBlock})
 	}
 
 	if failureVal != nil {
-		phi := ctx.Builder.CreatePHI(successVal.Type(), "")
-		phi.AddIncoming([]llvm.Value{*successVal}, []llvm.BasicBlock{thenBlock})
+		phi := ctx.Builder.CreatePHI(successVal.Value.Type(), "")
+		phi.AddIncoming([]llvm.Value{*successVal.Value}, []llvm.BasicBlock{thenBlock})
 	}
 
 	thenBlock.MoveAfter(bodyBlock)
 	elseBlock.MoveAfter(thenBlock)
 	mergeBlock.MoveAfter(thenBlock)
 
-	return nil, &phi
+	return nil, &CompilerResult{Value: &phi}
 }
 
 func (cs ConditionalStatetement) MarshalJSON() ([]byte, error) {

@@ -10,7 +10,7 @@ type MainStatement struct {
 	Body BlockStatement
 }
 
-func (ms MainStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (ms MainStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	mainFunc := llvm.AddFunction(
 		*ctx.Module,
 		"main",

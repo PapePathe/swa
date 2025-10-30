@@ -3,6 +3,7 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
@@ -17,7 +18,7 @@ type BinaryExpression struct {
 
 var _ Expression = (*BinaryExpression)(nil)
 
-func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	err, compiledLeftValue, compiledRightValue := be.compileLeftAndRight(ctx)
 	if err != nil {
 		return err, nil
@@ -56,6 +57,10 @@ func (be BinaryExpression) compileLeftAndRight(ctx *CompilerCtx) (error, *llvm.V
 		return fmt.Errorf("left side of expression is nil"), nil, nil
 	}
 
+	if compiledLeftValue.Value.Type().TypeKind() == llvm.VoidTypeKind {
+		return fmt.Errorf("left side of expression is of type void"), nil, nil
+	}
+
 	err, compiledRightValue := be.Right.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil, nil
@@ -64,7 +69,11 @@ func (be BinaryExpression) compileLeftAndRight(ctx *CompilerCtx) (error, *llvm.V
 	if compiledRightValue == nil {
 		return fmt.Errorf("right side of expression is nil"), nil, nil
 	}
-	return nil, compiledLeftValue, compiledRightValue
+
+	if compiledRightValue.Value.Type().TypeKind() == llvm.VoidTypeKind {
+		return fmt.Errorf("right side of expression is of type void"), nil, nil
+	}
+	return nil, compiledLeftValue.Value, compiledRightValue.Value
 }
 
 func commonType(l, r llvm.Value) llvm.Type {
@@ -83,11 +92,11 @@ func commonType(l, r llvm.Value) llvm.Type {
 		return r.GlobalValueType()
 	}
 
-	panic(fmt.Errorf("Unhandled combination %v %v", r, l))
+	panic(fmt.Errorf("Unhandled combination %v %v", r.Type(), l.Type()))
 }
 
 func (be BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Value) llvm.Value {
-	if t == v.Type() {
+	if t.TypeKind() == v.Type().TypeKind() {
 		return v
 	}
 
@@ -97,14 +106,17 @@ func (be BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Valu
 		case llvm.IntegerTypeKind:
 			return ctx.Builder.CreatePtrToInt(v, t, "")
 		}
+	case llvm.IntegerTypeKind:
+		fmt.Println(fmt.Errorf("Value %v is of type integer and other is %s", v.Type().TypeKind(), t.TypeKind()))
+		os.Exit(1)
 	default:
-		panic(fmt.Errorf("Unhandled type %v, %v", v, t))
+		panic(fmt.Errorf("Unhandled type %s, %s", t.TypeKind(), v.Type().TypeKind()))
 	}
 
 	return llvm.Value{}
 }
 
-type binaryHandlerFunc func(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value)
+type binaryHandlerFunc func(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult)
 
 var handlers = map[lexer.TokenKind]binaryHandlerFunc{
 	lexer.Plus:              add,
@@ -115,40 +127,40 @@ var handlers = map[lexer.TokenKind]binaryHandlerFunc{
 	lexer.Equals:            equals,
 }
 
-func add(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
+func add(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	res := ctx.Builder.CreateAdd(l, r, "")
 
-	return nil, &res
+	return nil, &CompilerResult{Value: &res}
 }
 
-func greaterThan(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
+func greaterThan(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	res := ctx.Builder.CreateICmp(llvm.IntUGT, l, r, "")
 
-	return nil, &res
+	return nil, &CompilerResult{Value: &res}
 }
 
-func greaterThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
+func greaterThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	res := ctx.Builder.CreateICmp(llvm.IntUGE, l, r, "")
 
-	return nil, &res
+	return nil, &CompilerResult{Value: &res}
 }
 
-func lessThan(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
+func lessThan(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	res := ctx.Builder.CreateICmp(llvm.IntULT, l, r, "")
 
-	return nil, &res
+	return nil, &CompilerResult{Value: &res}
 }
 
-func lessThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
+func lessThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	res := ctx.Builder.CreateICmp(llvm.IntULE, l, r, "")
 
-	return nil, &res
+	return nil, &CompilerResult{Value: &res}
 }
 
-func equals(ctx *CompilerCtx, l, r llvm.Value) (error, *llvm.Value) {
+func equals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	res := ctx.Builder.CreateICmp(llvm.IntEQ, l, r, "")
 
-	return nil, &res
+	return nil, &CompilerResult{Value: &res}
 }
 
 func (be BinaryExpression) MarshalJSON() ([]byte, error) {

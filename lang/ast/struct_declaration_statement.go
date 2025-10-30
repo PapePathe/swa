@@ -25,7 +25,7 @@ func (sd StructDeclarationStatement) PropertyIndex(name string) (error, int) {
 	return fmt.Errorf("Property with name (%s) does not exist on struct %s", name, sd.Name), 0
 }
 
-func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	attrs := []llvm.Type{}
 
 	for idx := range sd.Properties {

@@ -14,7 +14,7 @@ type PrintStatetement struct {
 var _ Statement = (*PrintStatetement)(nil)
 
 // TODO : print all the values in a single call
-func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	printableValues := []llvm.Value{}
 
 	for _, v := range ps.Values {
@@ -33,18 +33,24 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 			}
 			printableValues = append(printableValues, *loadedval)
 		case ArrayAccessExpression:
-			ldd := ctx.Builder.CreateLoad(res.Type(), *res, "")
-			printableValues = append(printableValues, ldd)
-		case NumberExpression:
+			vv, _ := v.(ArrayAccessExpression)
+			err, res := vv.CompileLLVMForPrint(ctx)
+			if err != nil {
+				return err, nil
+			}
 			printableValues = append(printableValues, *res)
+		case ArrayOfStructsAccessExpression:
+			printableValues = append(printableValues, *res.Value)
+		case NumberExpression:
+			printableValues = append(printableValues, *res.Value)
 		case SymbolExpression:
 			name, _ := v.(SymbolExpression)
 
 			global := ctx.Module.NamedGlobal(name.Value)
 			printableValues = append(printableValues, global)
 		case StringExpression:
-			all := ctx.Builder.CreateAlloca(res.Type(), "")
-			ctx.Builder.CreateStore(*res, all)
+			all := ctx.Builder.CreateAlloca(res.Value.Type(), "")
+			ctx.Builder.CreateStore(*res.Value, all)
 
 			printableValues = append(printableValues, all)
 		default:

@@ -1,0 +1,45 @@
+dialect:french;
+
+demarrer() entier {
+  structure Engineer{
+Age: entier,
+       Nom: chaine,
+       StackTechnique: chaine,
+  }
+
+  variable tableau : []Engineer = []Engineer{
+    Engineer{ Age: 40, Nom: "Pathe",  StackTechnique: "Ruby, Rust, Go" },
+    Engineer{ Age: 24, Nom: "Lucien", StackTechnique: "Typescript, HTML, Css" },
+    Engineer{ Age: 25, Nom: "Manel",  StackTechnique: "Typescript, Ruby" },
+    Engineer{ Age: 28, Nom: "Bintou", StackTechnique: "Javascript, Css, HTML" },
+  };
+
+  afficher(
+      "(nom: %s, age: %d, stack: %s) ", 
+      tableau[0].Nom, 
+      tableau[0].Age, 
+      tableau[0].StackTechnique
+      );
+
+  afficher(
+      "(nom: %s, age: %d, stack: %s) ", 
+      tableau[1].Nom, 
+      tableau[1].Age, 
+      tableau[1].StackTechnique
+      );
+
+  afficher(
+      "(nom: %s, age: %d, stack: %s) ", 
+      tableau[2].Nom, 
+      tableau[2].Age, 
+      tableau[2].StackTechnique
+      );
+
+  afficher(
+      "(nom: %s, age: %d, stack: %s)", 
+      tableau[3].Nom, 
+      tableau[3].Age, 
+      tableau[3].StackTechnique
+      ); 
+  retourner 0;
+}

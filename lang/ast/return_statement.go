@@ -11,7 +11,7 @@ type ReturnStatement struct {
 	Value Expression
 }
 
-func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	switch v := rs.Value.(type) {
 	case ArrayAccessExpression:
 		err, ptr := rs.Value.CompileLLVM(ctx)
@@ -19,7 +19,7 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 			return err, nil
 		}
 
-		val := ctx.Builder.CreateLoad(ctx.Context.Int32Type(), *ptr, "")
+		val := ctx.Builder.CreateLoad(ctx.Context.Int32Type(), *ptr.Value, "")
 		ctx.Builder.CreateRet(val)
 	case MemberExpression:
 		expr, _ := rs.Value.(MemberExpression)
@@ -51,7 +51,7 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
 			return err, nil
 		}
 
-		ctx.Builder.CreateRet(*res)
+		ctx.Builder.CreateRet(*res.Value)
 	default:
 		err := fmt.Errorf("unknown expression in ReturnStatement <%s>", rs.Value)
 

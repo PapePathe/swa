@@ -1,7 +1,5 @@
 package ast
 
-import "tinygo.org/x/go-llvm"
-
 // CallExpression ...
 type CallExpression struct {
 	Arguments []Expression
@@ -10,6 +8,6 @@ type CallExpression struct {
 
 var _ Expression = (*CallExpression)(nil)
 
-func (CallExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (CallExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	panic("CallExpression compilation is not implemented")
 }

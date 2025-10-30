@@ -1,0 +1,46 @@
+dialect:english;
+
+start() int {
+  struct Engineer{
+    Age: int,
+    Name: string,
+    TechStack: string,
+  }
+ 
+  let tableau : []Engineer = []Engineer{
+    Engineer{ Age: 40, Name: "Pathe",  TechStack: "Ruby, Rust, Go" },
+    Engineer{ Age: 24, Name: "Lucien", TechStack: "Typescript, HTML, Css" },
+    Engineer{ Age: 25, Name: "Manel",  TechStack: "Typescript, Ruby" },
+    Engineer{ Age: 28, Name: "Bintou", TechStack: "Javascript, Css, HTML" },
+  };
+
+  print(
+      "(nom: %s, age: %d, stack: %s) ", 
+      tableau[0].Name, 
+      tableau[0].Age, 
+      tableau[0].TechStack
+      );
+
+  print(
+      "(nom: %s, age: %d, stack: %s) ", 
+      tableau[1].Name, 
+      tableau[1].Age, 
+      tableau[1].TechStack
+      );
+
+  print(
+      "(nom: %s, age: %d, stack: %s) ", 
+      tableau[2].Name, 
+      tableau[2].Age, 
+      tableau[2].TechStack
+      );
+
+  print(
+      "(nom: %s, age: %d, stack: %s)", 
+      tableau[3].Name, 
+      tableau[3].Age, 
+      tableau[3].TechStack
+      ); 
+
+  return 0;
+}

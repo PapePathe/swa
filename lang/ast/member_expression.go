@@ -15,7 +15,7 @@ type MemberExpression struct {
 
 var _ Expression = (*MemberExpression)(nil)
 
-func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	obj, ok := expr.Object.(SymbolExpression)
 	if !ok {
 		return fmt.Errorf("struct object should be a symbol %v", obj), nil
@@ -38,7 +38,7 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) 
 
 	addr := ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, varDef.Value, propIndex, "")
 
-	return nil, &addr
+	return nil, &CompilerResult{Value: &addr}
 }
 
 func (expr MemberExpression) CompileLLVMForPropertyAccess(ctx *CompilerCtx) (error, *llvm.Value) {

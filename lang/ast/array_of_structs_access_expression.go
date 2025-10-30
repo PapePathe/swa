@@ -2,18 +2,18 @@ package ast
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"tinygo.org/x/go-llvm"
 )
 
-type ArrayAccessExpression struct {
-	Name  Expression
-	Index Expression
+type ArrayOfStructsAccessExpression struct {
+	Name     Expression
+	Index    Expression
+	Property Expression
 }
 
-var _ Expression = (*ArrayAccessExpression)(nil)
-
-func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error, *ArraySymbolTableEntry, *SymbolTableEntry, int) {
+func (expr ArrayOfStructsAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error, *ArraySymbolTableEntry, *SymbolTableEntry, int) {
 	varName, ok := expr.Name.(SymbolExpression)
 	if !ok {
 		key := "ArrayAccessExpression.NameNotASymbol"
@@ -44,51 +44,48 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 	return nil, &entry, &array, int(itemIndex.Value)
 }
 
-func (expr ArrayAccessExpression) CompileLLVMForPrint(ctx *CompilerCtx) (error, *llvm.Value) {
+func (expr ArrayOfStructsAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	err, entry, array, itemIndex := expr.findSymbolTableEntry(ctx)
 	if err != nil {
 		return err, nil
 	}
 
 	itemPtr := ctx.Builder.CreateInBoundsGEP(
-		entry.UnderlyingType,
+		entry.Type,
 		array.Value,
-		[]llvm.Value{llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(itemIndex), false)},
+		[]llvm.Value{
+			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false),
+			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(itemIndex), false),
+		},
 		"",
 	)
 
-	if entry.UnderlyingType.TypeKind() == llvm.IntegerTypeKind {
-		load := ctx.Builder.CreateLoad(entry.UnderlyingType, itemPtr, "")
-
-		return nil, &load
-	}
-
-	return nil, &itemPtr
-}
-
-func (expr ArrayAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	err, entry, array, itemIndex := expr.findSymbolTableEntry(ctx)
+	propertyName, _ := expr.Property.(SymbolExpression)
+	err, index := entry.UnderlyingTypeDef.Metadata.PropertyIndex(propertyName.Value)
 	if err != nil {
-		return err, nil
+		return fmt.Errorf("ArrayOfStructsAccessExpression: property %s not found", propertyName.Value), nil
 	}
 
-	itemPtr := ctx.Builder.CreateInBoundsGEP(
+	structPtr := ctx.Builder.CreateStructGEP(
 		entry.UnderlyingType,
-		array.Value,
-		[]llvm.Value{llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(itemIndex), false)},
+		itemPtr,
+		index,
 		"",
 	)
 
-	return nil, &CompilerResult{Value: &itemPtr}
+	load := ctx.Builder.CreateLoad(entry.UnderlyingTypeDef.PropertyTypes[index], structPtr, "")
+
+	return nil, &CompilerResult{Value: &load}
 }
 
-func (cs ArrayAccessExpression) MarshalJSON() ([]byte, error) {
+func (cs ArrayOfStructsAccessExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Name"] = cs.Name
 	m["Index"] = cs.Index
+	m["Property"] = cs.Property
 
 	res := make(map[string]any)
-	res["ast.ArrayAccessExpression"] = m
+	res["ast.ArrayOfStructsAccessExpression"] = m
 
 	return json.Marshal(res)
 }

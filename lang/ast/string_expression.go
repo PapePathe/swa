@@ -2,8 +2,6 @@ package ast
 
 import (
 	"encoding/json"
-
-	"tinygo.org/x/go-llvm"
 )
 
 // StringExpression ...
@@ -17,10 +15,10 @@ func (se StringExpression) String() string {
 	return se.Value
 }
 
-func (se StringExpression) CompileLLVM(ctx *CompilerCtx) (error, *llvm.Value) {
+func (se StringExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	res := ctx.Context.ConstString(se.Value, true)
 
-	return nil, &res
+	return nil, &CompilerResult{Value: &res}
 }
 
 func (se StringExpression) MarshalJSON() ([]byte, error) {
