@@ -49,35 +49,28 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 	arrayType := llvm.ArrayType(innerType, len(expr.Contents))
 	arrayPtr := ctx.Builder.CreateAlloca(arrayType, "")
 	for i, value := range expr.Contents {
+		itemGep := ctx.Builder.CreateGEP(
+			arrayType,
+			arrayPtr,
+			[]llvm.Value{
+				llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false),
+				llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(i), false),
+			}, "",
+		)
 		switch value.(type) {
 		case NumberExpression, StringExpression:
 			err, content := value.CompileLLVM(ctx)
 			if err != nil {
 				return err, nil
 			}
-			gep := ctx.Builder.CreateGEP(
-				arrayType,
-				arrayPtr,
-				[]llvm.Value{
-					llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false),
-					llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(i), false),
-				}, "",
-			)
-			ctx.Builder.CreateStore(*content.Value, gep)
+
+			ctx.Builder.CreateStore(*content.Value, itemGep)
 		case StructInitializationExpression:
 			structExpr, _ := value.(StructInitializationExpression)
 			err, structFields := structExpr.InitValues(ctx)
 			if err != nil {
 				return err, nil
 			}
-			itemGep := ctx.Builder.CreateGEP(
-				arrayType,
-				arrayPtr,
-				[]llvm.Value{
-					llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false),
-					llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(i), false),
-				}, "",
-			)
 
 			for _, field := range structFields {
 				gep := ctx.Builder.CreateGEP(
@@ -92,7 +85,7 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 			}
 
 		default:
-			panic(fmt.Sprintf("Expression %s not supported", value))
+			panic(fmt.Sprintf("ArrayInitializationExpression: Expression %s not supported", value))
 		}
 	}
 

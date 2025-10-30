@@ -44,10 +44,6 @@ func (expr ArrayOfStructsAccessExpression) findSymbolTableEntry(ctx *CompilerCtx
 	return nil, &entry, &array, int(itemIndex.Value)
 }
 
-func (expr ArrayOfStructsAccessExpression) CompileLLVMForPrint(ctx *CompilerCtx) (error, *llvm.Value) {
-	return nil, nil
-}
-
 func (expr ArrayOfStructsAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	err, entry, array, itemIndex := expr.findSymbolTableEntry(ctx)
 	if err != nil {

@@ -3,6 +3,8 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+
+	"tinygo.org/x/go-llvm"
 )
 
 // VarDeclarationStatement ...
@@ -45,12 +47,12 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 
 		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val.Value, Ref: &typeDef}
 	case StringExpression:
-		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), "")
-		ctx.Builder.CreateStore(*val.Value, alloc)
-		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val.Value}
+		glob := llvm.AddGlobal(*ctx.Module, val.Value.Type(), "")
+		glob.SetInitializer(*val.Value)
+		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: glob}
 	case NumberExpression:
-		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), "")
-		ctx.Builder.CreateStore(*val.Value, alloc)
+		glob := llvm.AddGlobal(*ctx.Module, val.Value.Type(), "")
+		glob.SetInitializer(*val.Value)
 		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val.Value}
 	case ArrayInitializationExpression:
 		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val.Value}
