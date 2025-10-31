@@ -1,0 +1,15 @@
+dialect:french;
+
+demarrer() entier {
+  structure Engineer{
+    Age: entier,
+  }
+
+  variable tableau : []Engineer = []Engineer{
+    Engineer{ Age: 40 },
+  };
+
+  afficher("%d", tableau[0].Name);
+
+  retourner 0;
+}

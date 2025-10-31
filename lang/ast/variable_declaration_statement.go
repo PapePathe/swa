@@ -66,10 +66,10 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 
 func (cs VarDeclarationStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
-	m["name"] = cs.Name
-	m["is_constant"] = cs.IsConstant
-	m["value"] = cs.Value
-	m["explicit_type"] = cs.ExplicitType
+	m["Name"] = cs.Name
+	m["IsConstant"] = cs.IsConstant
+	m["Value"] = cs.Value
+	m["ExplicitType"] = cs.ExplicitType
 
 	res := make(map[string]any)
 	res["ast.VarDeclarationStatement"] = m

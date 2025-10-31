@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"encoding/json"
+
 	"swahili/lang/lexer"
 )
 
@@ -34,4 +36,16 @@ func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 	str := ctx.Builder.CreateStore(*val.Value, *assignee.Value)
 
 	return nil, &CompilerResult{Value: &str}
+}
+
+func (expr AssignmentExpression) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["Operator"] = expr.Operator
+	m["Assignee"] = expr.Assignee
+	m["Value"] = expr.Value
+
+	res := make(map[string]any)
+	res["ast.AssignmentExpression"] = m
+
+	return json.Marshal(res)
 }
