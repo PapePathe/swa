@@ -6,10 +6,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestArrayOfStructsWithUndefinedProperty(t *testing.T) {
-	t.Run("English", func(t *testing.T) {
+func TestArrayOfStructsWithUndefinedPropertyAccess(t *testing.T) {
+	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
-			InputPath:      "./arrays/structs/undefined-property.french.swa",
+			InputPath:      "./arrays/structs/undefined-property-access.french.swa",
+			ExpectedOutput: "ArrayOfStructsAccessExpression: property Name not found\n",
+			T:              t,
+		}
+
+		assert.Error(t, req.Compile())
+	})
+}
+
+func TestArrayOfStructsWithUndefinedPropertyInitialization(t *testing.T) {
+	t.Run("French", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:      "./arrays/structs/undefined-property-initialization.french.swa",
 			ExpectedOutput: "StructInitializationExpression: property Name not found\n",
 			T:              t,
 		}
