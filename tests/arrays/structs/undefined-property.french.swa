@@ -1,0 +1,11 @@
+dialect:french;
+
+demarrer() entier {
+  structure Engineer{
+    Age: entier,
+  }
+
+  variable tableau : []Engineer = []Engineer{
+    Engineer{ Name: "test" },
+  };
+}

@@ -6,6 +6,30 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestArrayOfStructsWithUndefinedProperty(t *testing.T) {
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:      "./arrays/structs/undefined-property.french.swa",
+			ExpectedOutput: "StructInitializationExpression: property Name not found\n",
+			T:              t,
+		}
+
+		assert.Error(t, req.Compile())
+	})
+}
+
+func TestArrayOfStructsWithUndefined(t *testing.T) {
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:      "./arrays/structs/undefined-struct.english.swa",
+			ExpectedOutput: "Type ({{Engineer}}) is not a valid struct\n",
+			T:              t,
+		}
+
+		assert.Error(t, req.Compile())
+	})
+}
+
 func TestArrayOfStructs(t *testing.T) {
 	t.Parallel()
 

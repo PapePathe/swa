@@ -14,7 +14,7 @@ type ArrayInitializationExpression struct {
 
 var _ Expression = (*ArrayInitializationExpression)(nil)
 
-func (expr ArrayInitializationExpression) extractArrayType(ctx *CompilerCtx) (llvm.Type, *StructSymbolTableEntry) {
+func (expr ArrayInitializationExpression) extractArrayType(ctx *CompilerCtx) (*llvm.Type, *StructSymbolTableEntry, error) {
 	arrayType, ok := expr.Underlying.(ArrayType)
 
 	if !ok {
@@ -23,19 +23,21 @@ func (expr ArrayInitializationExpression) extractArrayType(ctx *CompilerCtx) (ll
 
 	switch arrayType.Underlying.Value() {
 	case DataTypeNumber:
-		return ctx.Context.Int32Type(), nil
+		typ := ctx.Context.Int32Type()
+		return &typ, nil, nil
 	case DataTypeSymbol:
 		sym, _ := arrayType.Underlying.(SymbolType)
 
 		sdef, ok := ctx.StructSymbolTable[sym.Name]
 		if !ok {
-			panic(fmt.Errorf("Type (%s) is not a valid struct", expr.Underlying))
+			return nil, nil, fmt.Errorf("Type (%s) is not a valid struct", expr.Underlying)
 		}
-		return sdef.LLVMType, &sdef
+		return &sdef.LLVMType, &sdef, nil
 	case DataTypeString:
-		return llvm.PointerType(ctx.Context.Int32Type(), 0), nil
+		typ := llvm.PointerType(ctx.Context.Int32Type(), 0)
+		return &typ, nil, nil
 	default:
-		panic(fmt.Errorf("Type (%v) not implemented in array expression", arrayType.Underlying.Value()))
+		return nil, nil, fmt.Errorf("Type (%v) not implemented in array expression", arrayType.Underlying.Value())
 	}
 }
 
@@ -45,8 +47,11 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 		return fmt.Errorf("Static arrays must be initialized"), nil
 	}
 
-	innerType, sdef := expr.extractArrayType(ctx)
-	arrayType := llvm.ArrayType(innerType, len(expr.Contents))
+	innerType, sdef, err := expr.extractArrayType(ctx)
+	if err != nil {
+		return err, nil
+	}
+	arrayType := llvm.ArrayType(*innerType, len(expr.Contents))
 	arrayPtr := ctx.Builder.CreateAlloca(arrayType, "")
 	for i, value := range expr.Contents {
 		itemGep := ctx.Builder.CreateGEP(
@@ -57,6 +62,7 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 				llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(i), false),
 			}, "",
 		)
+
 		switch value.(type) {
 		case NumberExpression, StringExpression:
 			err, content := value.CompileLLVM(ctx)
@@ -74,7 +80,7 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 
 			for _, field := range structFields {
 				gep := ctx.Builder.CreateGEP(
-					innerType,
+					*innerType,
 					itemGep,
 					[]llvm.Value{
 						llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false),

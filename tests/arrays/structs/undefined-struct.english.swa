@@ -1,0 +1,9 @@
+dialect:english;
+
+start() int {
+  let tableau : []Engineer = []Engineer{
+    Engineer{ Age: 40, Name: "Pathe",  TechStack: "Ruby, Rust, Go" },
+  };
+
+  return 0;
+}
