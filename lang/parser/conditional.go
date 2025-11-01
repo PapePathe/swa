@@ -5,43 +5,67 @@ import (
 	"swahili/lang/lexer"
 )
 
-func ParseBlockStatement(p *Parser) ast.BlockStatement {
+func ParseBlockStatement(p *Parser) (ast.BlockStatement, error) {
+	tokens := []lexer.Token{}
 	body := []ast.Statement{}
 
-	p.expect(lexer.OpenCurly)
+	tokens = append(tokens, p.expect(lexer.OpenCurly))
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
-		body = append(body, ParseStatement(p))
+		stmt, err := ParseStatement(p)
+		if err != nil {
+			return ast.BlockStatement{}, err
+		}
+
+		tokens = append(tokens, stmt.TokenStream()...)
+		body = append(body, stmt)
 	}
 
-	p.expect(lexer.CloseCurly)
+	tokens = append(tokens, p.expect(lexer.CloseCurly))
 
 	return ast.BlockStatement{
-		Body: body,
-	}
+		Body:   body,
+		Tokens: tokens,
+	}, nil
 }
 
-func ParseConditionalExpression(p *Parser) ast.Statement {
+func ParseConditionalExpression(p *Parser) (ast.Statement, error) {
+	tokens := []lexer.Token{}
 	failBlock := ast.BlockStatement{}
 
-	p.expect(lexer.KeywordIf)
-	p.expect(lexer.OpenParen)
+	tokens = append(tokens, p.expect(lexer.KeywordIf))
+	tokens = append(tokens, p.expect(lexer.OpenParen))
 
-	condition := parseExpression(p, DefaultBindingPower)
+	condition, err := parseExpression(p, DefaultBindingPower)
+	if err != nil {
+		return nil, err
+	}
 
-	p.expect(lexer.CloseParen)
+	tokens = append(tokens, condition.TokenStream()...)
+	tokens = append(tokens, p.expect(lexer.CloseParen))
 
-	successBlock := ParseBlockStatement(p)
+	successBlock, err := ParseBlockStatement(p)
+	if err != nil {
+		return nil, err
+	}
+
+	tokens = append(tokens, successBlock.TokenStream()...)
 
 	if p.currentToken().Kind == lexer.KeywordElse {
-		p.expect(lexer.KeywordElse)
+		tokens = append(tokens, p.expect(lexer.KeywordElse))
 
-		failBlock = ParseBlockStatement(p)
+		failBlock, err = ParseBlockStatement(p)
+		if err != nil {
+			return nil, err
+		}
+
+		tokens = append(tokens, failBlock.TokenStream()...)
 	}
 
 	return ast.ConditionalStatetement{
 		Condition: condition,
 		Success:   successBlock,
 		Failure:   failBlock,
-	}
+		Tokens:    tokens,
+	}, nil
 }

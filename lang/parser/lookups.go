@@ -6,13 +6,13 @@ import (
 )
 
 // StatementHandlerFunc ...
-type StatementHandlerFunc func(p *Parser) ast.Statement
+type StatementHandlerFunc func(p *Parser) (ast.Statement, error)
 
 // NudHandlerFunc ...
-type NudHandlerFunc func(p *Parser) ast.Expression
+type NudHandlerFunc func(p *Parser) (ast.Expression, error)
 
 // LedHandlerFunc ...
-type LedHandlerFunc func(p *Parser, left ast.Expression, bp BindingPower) ast.Expression
+type LedHandlerFunc func(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error)
 
 // StatementLookup ...
 type StatementLookup map[lexer.TokenKind]StatementHandlerFunc

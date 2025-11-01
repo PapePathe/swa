@@ -3,46 +3,61 @@ package parser
 import (
 	"fmt"
 	"slices"
+
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
 
 // ParseStatement ...
-func ParseStatement(p *Parser) ast.Statement {
+func ParseStatement(p *Parser) (ast.Statement, error) {
+	tokens := []lexer.Token{}
 	statementFn, exists := statementLookup[p.currentToken().Kind]
 
 	if exists {
 		return statementFn(p)
 	}
 
-	expression := parseExpression(p, DefaultBindingPower)
-	p.expect(lexer.SemiColon)
+	expression, err := parseExpression(p, DefaultBindingPower)
+	if err != nil {
+		return nil, err
+	}
+
+	tokens = append(tokens, expression.TokenStream()...)
+	tokens = append(tokens, p.expect(lexer.SemiColon))
 
 	return ast.ExpressionStatement{
-		Exp: expression,
-	}
+		Exp:    expression,
+		Tokens: tokens,
+	}, nil
 }
 
-func ParseStructDeclarationStatement(p *Parser) ast.Statement {
-	p.expect(lexer.Struct)
-	structName := p.expect(lexer.Identifier).Value
+func ParseStructDeclarationStatement(p *Parser) (ast.Statement, error) {
+	tokens := []lexer.Token{}
+
+	tokens = append(tokens, p.expect(lexer.Struct))
+	structName := p.expect(lexer.Identifier)
+	tokens = append(tokens, structName)
 
 	properties := []string{}
 	types := []ast.Type{}
 
-	p.expect(lexer.OpenCurly)
+	tokens = append(tokens, p.expect(lexer.OpenCurly))
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
 		var propertyName string
 
 		if p.currentToken().Kind == lexer.Identifier {
-			propertyName = p.expect(lexer.Identifier).Value
-			p.expectError(lexer.Colon, "Expected to find colon following struct property name")
-			propType := parseType(p, DefaultBindingPower)
-			p.expect(lexer.Comma)
+			prop := p.expect(lexer.Identifier)
+			tokens = append(tokens, prop)
+			propertyName = prop.Value
+			tok := p.expectError(lexer.Colon, "Expected to find colon following struct property name")
+			tokens = append(tokens, tok)
+			propType, toks := parseType(p, DefaultBindingPower)
+			tokens = append(tokens, toks...)
+			tokens = append(tokens, p.expect(lexer.Comma))
 
 			if slices.Contains(properties, propertyName) {
-				panic(fmt.Sprintf("property %s has already been defined", propertyName))
+				return nil, fmt.Errorf("property %s has already been defined", propertyName)
 			}
 
 			properties = append(properties, propertyName)
@@ -52,11 +67,12 @@ func ParseStructDeclarationStatement(p *Parser) ast.Statement {
 		}
 	}
 
-	p.expect(lexer.CloseCurly)
+	tokens = append(tokens, p.expect(lexer.CloseCurly))
 
 	return ast.StructDeclarationStatement{
-		Name:       structName,
+		Name:       structName.Value,
 		Properties: properties,
 		Types:      types,
-	}
+		Tokens:     tokens,
+	}, nil
 }

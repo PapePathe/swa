@@ -2,16 +2,26 @@ package parser
 
 import (
 	"swahili/lang/ast"
+	"swahili/lang/lexer"
 )
 
 // ParseBinaryExpression ...
-func ParseBinaryExpression(p *Parser, left ast.Expression, bp BindingPower) ast.Expression {
+func ParseBinaryExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
+	tokens := []lexer.Token{}
 	operatorToken := p.advance()
-	right := parseExpression(p, bp)
+	tokens = append(tokens, left.TokenStream()...)
+	tokens = append(tokens, operatorToken)
+	right, err := parseExpression(p, bp)
+	if err != nil {
+		return nil, err
+	}
+
+	tokens = append(tokens, right.TokenStream()...)
 
 	return ast.BinaryExpression{
 		Left:     left,
 		Right:    right,
 		Operator: operatorToken,
-	}
+		Tokens:   tokens,
+	}, nil
 }

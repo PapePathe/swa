@@ -5,13 +5,17 @@ import (
 	"swahili/lang/lexer"
 )
 
-func ParseReturnStatement(p *Parser) ast.Statement {
-	p.expect(lexer.Return)
+func ParseReturnStatement(p *Parser) (ast.Statement, error) {
+	tokens := []lexer.Token{}
+	tokens = append(tokens, p.expect(lexer.Return))
 
-	rs := ast.ReturnStatement{}
-	rs.Value = parseExpression(p, DefaultBindingPower)
+	value, err := parseExpression(p, DefaultBindingPower)
+	if err != nil {
+		return nil, err
+	}
 
-	p.expect(lexer.SemiColon)
+	tokens = append(tokens, value.TokenStream()...)
+	tokens = append(tokens, p.expect(lexer.SemiColon))
 
-	return rs
+	return ast.ReturnStatement{Value: value, Tokens: tokens}, nil
 }

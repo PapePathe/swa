@@ -4,12 +4,15 @@ import (
 	"encoding/json"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 type ConditionalStatetement struct {
 	Condition Expression
 	Success   BlockStatement
 	Failure   BlockStatement
+	Tokens    []lexer.Token
 }
 
 var _ Statement = (*ConditionalStatetement)(nil)
@@ -65,6 +68,10 @@ func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 	mergeBlock.MoveAfter(thenBlock)
 
 	return nil, &CompilerResult{Value: &phi}
+}
+
+func (expr ConditionalStatetement) TokenStream() []lexer.Token {
+	return expr.Tokens
 }
 
 func (cs ConditionalStatetement) MarshalJSON() ([]byte, error) {

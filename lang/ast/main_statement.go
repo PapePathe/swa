@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 type MainStatement struct {
@@ -25,6 +27,10 @@ func (ms MainStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	ctx.Builder.SetInsertPointAtEnd(block)
 
 	return ms.Body.CompileLLVM(ctx)
+}
+
+func (expr MainStatement) TokenStream() []lexer.Token {
+	return []lexer.Token{}
 }
 
 func (cs MainStatement) MarshalJSON() ([]byte, error) {

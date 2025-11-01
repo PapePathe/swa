@@ -2,12 +2,15 @@ package ast
 
 import (
 	"encoding/json"
+
+	"swahili/lang/lexer"
 )
 
 // BlockStatement ...
 type BlockStatement struct {
 	// The body of the block statement
-	Body []Statement
+	Body   []Statement
+	Tokens []lexer.Token
 }
 
 var _ Statement = (*BlockStatement)(nil)
@@ -21,6 +24,10 @@ func (bs BlockStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) 
 	}
 
 	return nil, nil
+}
+
+func (expr BlockStatement) TokenStream() []lexer.Token {
+	return expr.Tokens
 }
 
 func (bs BlockStatement) MarshalJSON() ([]byte, error) {

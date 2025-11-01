@@ -3,31 +3,46 @@ package parser
 import (
 	"fmt"
 	"strconv"
+
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
 
 // ParsePrimaryExpression ...
-func ParsePrimaryExpression(p *Parser) ast.Expression {
+func ParsePrimaryExpression(p *Parser) (ast.Expression, error) {
+	tokens := []lexer.Token{}
+
 	switch p.currentToken().Kind {
 	case lexer.Number:
-		number, _ := strconv.ParseFloat(p.advance().Value, 64)
+		tok := p.advance()
+		tokens = append(tokens, tok)
+		number, err := strconv.ParseFloat(tok.Value, 64)
+		if err != nil {
+			return nil, err
+		}
 
 		return ast.NumberExpression{
-			Value: number,
-		}
+			Value:  number,
+			Tokens: tokens,
+		}, nil
 	case lexer.String:
-		value := p.advance().Value
+		tok := p.advance()
+		tokens = append(tokens, tok)
+		value := tok.Value
 
 		return ast.StringExpression{
-			Value: value[1 : len(value)-1],
-		}
+			Value:  value[1 : len(value)-1],
+			Tokens: tokens,
+		}, nil
 	case lexer.Identifier:
+		tok := p.advance()
+		tokens = append(tokens, tok)
 		return ast.SymbolExpression{
-			Value: p.advance().Value,
-		}
+			Value:  tok.Value,
+			Tokens: tokens,
+		}, nil
 
 	default:
-		panic(fmt.Sprintf("Cannot create PrimaryExpression from %s", p.currentToken().Kind))
+		return nil, fmt.Errorf("Cannot create PrimaryExpression from %s", p.currentToken().Kind)
 	}
 }

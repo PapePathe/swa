@@ -5,12 +5,15 @@ import (
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 type StructDeclarationStatement struct {
 	Name       string
 	Properties []string
 	Types      []Type
+	Tokens     []lexer.Token
 }
 
 var _ Statement = (*StructDeclarationStatement)(nil)
@@ -53,11 +56,16 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Comp
 	return nil, nil
 }
 
+func (expr StructDeclarationStatement) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
 func (expr StructDeclarationStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Name"] = expr.Name
 	m["Properties"] = expr.Properties
 	m["Types"] = expr.Types
+	m["Tokens"] = expr.Tokens
 
 	res := make(map[string]any)
 	res["ast.StructDeclarationStatement"] = m

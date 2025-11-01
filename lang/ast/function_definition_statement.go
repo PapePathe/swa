@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 type FuncArg struct {
@@ -17,6 +19,7 @@ type FuncDeclStatement struct {
 	Name       string
 	ReturnType string
 	Args       []FuncArg
+	Tokens     []lexer.Token
 }
 
 var _ Statement = (*FuncDeclStatement)(nil)
@@ -64,6 +67,10 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 	}
 
 	return nil, nil
+}
+
+func (expr FuncDeclStatement) TokenStream() []lexer.Token {
+	return expr.Tokens
 }
 
 func (fd FuncDeclStatement) MarshalJSON() ([]byte, error) {

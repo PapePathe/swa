@@ -5,10 +5,13 @@ import (
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 type ReturnStatement struct {
-	Value Expression
+	Value  Expression
+	Tokens []lexer.Token
 }
 
 func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
@@ -61,9 +64,14 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 	return nil, nil
 }
 
+func (expr ReturnStatement) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
 func (rs ReturnStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Value"] = rs.Value
+	m["Tokens"] = rs.Tokens
 
 	res := make(map[string]any)
 	res["ast.ReturnStatement"] = m

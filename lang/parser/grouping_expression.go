@@ -5,11 +5,17 @@ import (
 	"swahili/lang/lexer"
 )
 
-func ParseGroupingExpression(p *Parser) ast.Expression {
-	p.advance() // move past start of grouping expression
+func ParseGroupingExpression(p *Parser) (ast.Expression, error) {
+	tokens := []lexer.Token{}
+	tokens = append(tokens, p.advance())
 
-	expr := parseExpression(p, DefaultBindingPower)
-	p.expect(lexer.CloseParen) // move past end of grouping expression
+	expr, err := parseExpression(p, DefaultBindingPower)
+	if err != nil {
+		return nil, err
+	}
 
-	return expr
+	tokens = append(tokens, expr.TokenStream()...)
+	tokens = append(tokens, p.expect(lexer.CloseParen))
+
+	return expr, nil
 }

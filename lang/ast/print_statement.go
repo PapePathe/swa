@@ -5,10 +5,13 @@ import (
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 type PrintStatetement struct {
 	Values []Expression
+	Tokens []lexer.Token
 }
 
 var _ Statement = (*PrintStatetement)(nil)
@@ -66,6 +69,10 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 	)
 
 	return nil, nil
+}
+
+func (expr PrintStatetement) TokenStream() []lexer.Token {
+	return expr.Tokens
 }
 
 func (cs PrintStatetement) MarshalJSON() ([]byte, error) {

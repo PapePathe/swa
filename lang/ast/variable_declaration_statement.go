@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 // VarDeclarationStatement ...
@@ -17,6 +19,7 @@ type VarDeclarationStatement struct {
 	Value Expression
 	// The explicit type of the variable
 	ExplicitType Type
+	Tokens       []lexer.Token
 }
 
 var _ Statement = (*VarDeclarationStatement)(nil)
@@ -64,12 +67,17 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 	return nil, nil
 }
 
+func (expr VarDeclarationStatement) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
 func (cs VarDeclarationStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Name"] = cs.Name
 	m["IsConstant"] = cs.IsConstant
 	m["Value"] = cs.Value
 	m["ExplicitType"] = cs.ExplicitType
+	m["Tokens"] = cs.TokenStream()
 
 	res := make(map[string]any)
 	res["ast.VarDeclarationStatement"] = m

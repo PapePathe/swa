@@ -5,16 +5,27 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
+
+	"github.com/spf13/cobra"
+
 	"swahili/lang/compiler"
 	"swahili/lang/lexer"
 	"swahili/lang/parser"
 	"swahili/lang/server"
-	"time"
-
-	"github.com/spf13/cobra"
 )
 
 func main() {
+	parseCmd.Flags().
+		StringP("source", "s", "", "location of the file containing the source code")
+	parseCmd.Flags().
+		StringP("output", "o", "json", "output format of the tokenizer (json | yaml | toml)")
+
+	if err := parseCmd.MarkFlagRequired("source"); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	tokenizeCmd.Flags().
 		StringP("source", "s", "", "location of the file containing the source code")
 	tokenizeCmd.Flags().
@@ -37,7 +48,7 @@ func main() {
 		panic(err)
 	}
 
-	rootCmd.AddCommand(compileCmd, tokenizeCmd, serverCmd)
+	rootCmd.AddCommand(compileCmd, parseCmd, tokenizeCmd, serverCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err.Error())
@@ -64,7 +75,11 @@ var compileCmd = &cobra.Command{
 		}
 		sourceCode := string(bytes)
 		tokens, dialect := lexer.Tokenize(sourceCode)
-		tree := parser.Parse(tokens)
+		tree, err := parser.Parse(tokens)
+		if err != nil {
+			os.Stdout.WriteString(err.Error())
+			os.Exit(1)
+		}
 		target := compiler.BuildTarget{
 			OperatingSystem: "Gnu/Linux",
 			Architecture:    "X86-64",
@@ -100,6 +115,7 @@ var serverCmd = &cobra.Command{
 var tokenizeCmd = &cobra.Command{
 	Use:   "tokenize",
 	Short: "Tokenize the source code",
+
 	Run: func(cmd *cobra.Command, _ []string) {
 		source, _ := cmd.Flags().GetString("source")
 
@@ -111,11 +127,35 @@ var tokenizeCmd = &cobra.Command{
 
 		sourceCode := string(bytes)
 		tokens, _ := lexer.Tokenize(sourceCode)
-		st := parser.Parse(tokens)
+
+		fmt.Println(tokens)
+	},
+}
+
+var parseCmd = &cobra.Command{
+	Use:   "parse",
+	Short: "Parse the source code",
+	Run: func(cmd *cobra.Command, _ []string) {
+		source, _ := cmd.Flags().GetString("source")
+
+		bytes, err := os.ReadFile(source)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		sourceCode := string(bytes)
+		tokens, _ := lexer.Tokenize(sourceCode)
+		st, err := parser.Parse(tokens)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 
 		result, err := json.MarshalIndent(st, " ", "  ")
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
+			os.Exit(1)
 		}
 
 		fmt.Println(string(result))
