@@ -11,6 +11,7 @@ var _ Dialect = (*Malinke)(nil)
 
 func (m Malinke) Patterns() []RegexpPattern {
 	return []RegexpPattern{
+		{regexp.MustCompile(`\n`), newlineHandler},
 		{regexp.MustCompile(`\s+`), skipHandler},
 		{regexp.MustCompile(`dialect`), defaultHandler(DialectDeclaration, "dialect")},
 		{regexp.MustCompile(`fèndo`), defaultHandler(TypeInt, "fèndo")},

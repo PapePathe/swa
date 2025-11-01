@@ -3,6 +3,7 @@ package lexer
 import (
 	"fmt"
 	"regexp"
+
 	"swahili/lang/errmsg"
 )
 
@@ -12,6 +13,7 @@ var _ Dialect = (*Wolof)(nil)
 
 func (m Wolof) Patterns() []RegexpPattern {
 	return []RegexpPattern{
+		{regexp.MustCompile(`\n`), newlineHandler},
 		{regexp.MustCompile(`\s+`), skipHandler},
 		{regexp.MustCompile(`dialect`), defaultHandler(DialectDeclaration, "dialect")},
 		{regexp.MustCompile(`fèndo`), defaultHandler(TypeInt, "fèndo")},

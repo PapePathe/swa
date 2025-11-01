@@ -7,9 +7,10 @@ import (
 
 // Lexer ...
 type Lexer struct {
-	Tokens        []Token              // The tokens
-	source        string               // The source code
-	position      int                  // The current position of the lexer
+	Tokens        []Token // The tokens
+	source        string  // The source code
+	position      int     // The current position of the lexer
+	line          int
 	patterns      []RegexpPattern      // the list of patterns of the language
 	reservedWords map[string]TokenKind // list of reserved words
 }
@@ -30,6 +31,10 @@ func New(source string) (*Lexer, Dialect, error) {
 
 func (lex *Lexer) advanceN(n int) {
 	lex.position += n
+}
+
+func (lex *Lexer) newLine() {
+	lex.line += 1
 }
 
 func (lex *Lexer) Patterns() []RegexpPattern {
