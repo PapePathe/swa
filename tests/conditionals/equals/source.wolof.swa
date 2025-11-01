@@ -1,0 +1,44 @@
+dialect:wolof;
+
+tambali() sifaru lëmm {
+  dencukaay salaire_de_lucien: sifaru lëmm = 50000;
+  dencukaay salaire_de_pathe : sifaru lëmm = 50000;
+
+  sude(50000 == salaire_de_pathe) {
+    bindal("%s", "ok");
+  } wala {
+    bindal("%s", "Equals ImplementationError (50000 == salaire_de_pathe)");
+  }
+ 
+  sude(salaire_de_pathe == 50000) {
+    bindal("%s", "ok");
+  } wala {
+    bindal("%s", "Equals ImplementationError (salaire_de_pathe == 50000)");
+  }
+ 
+  sude(50000 == salaire_de_lucien) {
+    bindal("%s", "ok");
+  } wala {
+    bindal("%s", "Equals ImplementationError (50000 == salaire_de_lucien)");
+  }
+  sude(salaire_de_lucien == 50000) {
+    bindal("%s", "ok");
+  } wala {
+    bindal("%s", "Equals ImplementationError (salaire_de_lucien == 50000)");
+  }
+ 
+  sude(salaire_de_pathe == salaire_de_lucien) {
+    bindal("%s", "ok");
+  } wala {
+    bindal("%s", "Equals ImplementationError (salaire_de_pathe == salaire_de_lucien)");
+  }
+ 
+  sude(salaire_de_lucien == salaire_de_pathe) {
+    bindal("%s", "ok");
+  } wala {
+    bindal("%s", "Equals ImplementationError (salaire_de_lucien == salaire_de_pathe)");
+  }
+
+
+  deloko 0;
+}

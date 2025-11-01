@@ -20,10 +20,15 @@ func (m Wolof) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`\n`), newlineHandler},
 		{regexp.MustCompile(`\s+`), skipHandler},
 		{regexp.MustCompile(`dialect`), defaultHandler(DialectDeclaration, "dialect")},
-		{regexp.MustCompile(`fèndo`), defaultHandler(TypeInt, "fèndo")},
-		{regexp.MustCompile(`nii`), defaultHandler(KeywordElse, "nii")},
-		{regexp.MustCompile(`ni`), defaultHandler(KeywordIf, "ni")},
+		{regexp.MustCompile(`sifaru lëmm`), defaultHandler(TypeInt, "sifaru lëmm")},
+		{regexp.MustCompile(`taxawlu araf`), defaultHandler(TypeString, "taxawlu araf")},
+		{regexp.MustCompile(`wala`), defaultHandler(KeywordElse, "wala")},
+		{regexp.MustCompile(`sude`), defaultHandler(KeywordIf, "sude")},
 		{regexp.MustCompile(`struct`), defaultHandler(Struct, "struct")},
+		{regexp.MustCompile(`tambali`), defaultHandler(Main, "tambali")},
+		{regexp.MustCompile(`fonction`), defaultHandler(Function, "fonction")},
+		{regexp.MustCompile(`deloko`), defaultHandler(Return, "deloko")},
+		{regexp.MustCompile(`bindal`), defaultHandler(Print, "bindal")},
 		{regexp.MustCompile(`\/\/.*`), commentHandler},
 		{regexp.MustCompile(`"[^"]*"`), stringHandler},
 		{regexp.MustCompile(`[-]?[0-9]+\.[0-9]+`), floatHandler},
@@ -73,6 +78,15 @@ func (m Wolof) translations() map[string]string {
 }
 
 func (m Wolof) Reserved() map[string]TokenKind {
-	// TODO: add reserved for wolof
-	return map[string]TokenKind{}
+	return map[string]TokenKind{
+		"sude":         KeywordIf,
+		"deloko":       Return,
+		"tambali":      Main,
+		"wala":         KeywordElse,
+		"structure":    Struct,
+		"dencukaay":    Let,
+		"constante":    Const,
+		"sifaru lëmm":  TypeInt,
+		"taxawlu araf": TypeString,
+	}
 }

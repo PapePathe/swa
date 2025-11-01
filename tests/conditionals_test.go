@@ -82,6 +82,18 @@ func TestLessThanEquals(t *testing.T) {
 func TestEquals(t *testing.T) {
 	t.Parallel()
 
+	t.Run("Wolof", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./conditionals/equals/source.wolof.swa",
+			ExpectedExecutionOutput: "okokokokokok",
+			T:                       t,
+		}
+
+		defer req.Cleanup()
+
+		req.AssertCompileAndExecute()
+	})
+
 	t.Run("English", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./conditionals/equals/source.english.swa",
