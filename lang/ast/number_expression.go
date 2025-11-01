@@ -5,11 +5,14 @@ import (
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 // NumberExpression ...
 type NumberExpression struct {
-	Value float64
+	Value  float64
+	Tokens []lexer.Token
 }
 
 var _ Expression = (*NumberExpression)(nil)
@@ -22,6 +25,10 @@ func (se NumberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 	res := llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(se.Value), false)
 
 	return nil, &CompilerResult{Value: &res}
+}
+
+func (expr NumberExpression) TokenStream() []lexer.Token {
+	return expr.Tokens
 }
 
 func (se NumberExpression) MarshalJSON() ([]byte, error) {

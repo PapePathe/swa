@@ -3,11 +3,14 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+
+	"swahili/lang/lexer"
 )
 
 // SymbolExpression ...
 type SymbolExpression struct {
-	Value string
+	Value  string
+	Tokens []lexer.Token
 }
 
 var _ Expression = (*SymbolExpression)(nil)
@@ -26,9 +29,13 @@ func (se SymbolExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 	return nil, &CompilerResult{Value: &val.Value}
 }
 
+func (expr SymbolExpression) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
 func (expr SymbolExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
-	m["operator"] = expr.Value
+	m["Operator"] = expr.Value
 
 	res := make(map[string]any)
 	res["ast.SymbolExpression"] = m

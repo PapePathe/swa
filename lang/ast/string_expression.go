@@ -2,11 +2,14 @@ package ast
 
 import (
 	"encoding/json"
+
+	"swahili/lang/lexer"
 )
 
 // StringExpression ...
 type StringExpression struct {
-	Value string
+	Value  string
+	Tokens []lexer.Token
 }
 
 var _ Expression = (*StringExpression)(nil)
@@ -19,6 +22,10 @@ func (se StringExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 	res := ctx.Context.ConstString(se.Value, true)
 
 	return nil, &CompilerResult{Value: &res}
+}
+
+func (expr StringExpression) TokenStream() []lexer.Token {
+	return expr.Tokens
 }
 
 func (se StringExpression) MarshalJSON() ([]byte, error) {

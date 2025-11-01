@@ -5,12 +5,15 @@ import (
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 type ArrayOfStructsAccessExpression struct {
 	Name     Expression
 	Index    Expression
 	Property Expression
+	Tokens   []lexer.Token
 }
 
 func (expr ArrayOfStructsAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error, *ArraySymbolTableEntry, *SymbolTableEntry, int) {
@@ -78,11 +81,16 @@ func (expr ArrayOfStructsAccessExpression) CompileLLVM(ctx *CompilerCtx) (error,
 	return nil, &CompilerResult{Value: &load}
 }
 
+func (expr ArrayOfStructsAccessExpression) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
 func (cs ArrayOfStructsAccessExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Name"] = cs.Name
 	m["Index"] = cs.Index
 	m["Property"] = cs.Property
+	m["Tokens"] = cs.Tokens
 
 	res := make(map[string]any)
 	res["ast.ArrayOfStructsAccessExpression"] = m

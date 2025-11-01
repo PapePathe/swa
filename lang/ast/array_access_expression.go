@@ -85,6 +85,10 @@ func (expr ArrayAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 	return nil, &CompilerResult{Value: &itemPtr}
 }
 
+func (expr ArrayAccessExpression) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
 func (cs ArrayAccessExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Name"] = cs.Name

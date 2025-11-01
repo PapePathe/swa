@@ -5,12 +5,15 @@ import (
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 type StructInitializationExpression struct {
 	Name       string
 	Properties []string
 	Values     []Expression
+	Tokens     []lexer.Token
 }
 
 var _ Expression = (*StructInitializationExpression)(nil)
@@ -96,6 +99,10 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 	return nil, &CompilerResult{Value: &structInstance}
 }
 
+func (expr StructInitializationExpression) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
 func (cs StructInitializationExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Name"] = cs.Name
@@ -107,4 +114,3 @@ func (cs StructInitializationExpression) MarshalJSON() ([]byte, error) {
 
 	return json.Marshal(res)
 }
-

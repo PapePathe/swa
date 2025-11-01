@@ -39,11 +39,16 @@ func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 	return nil, &CompilerResult{Value: &str}
 }
 
+func (expr AssignmentExpression) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
 func (expr AssignmentExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Operator"] = expr.Operator
 	m["Assignee"] = expr.Assignee
 	m["Value"] = expr.Value
+	m["Tokens"] = expr.Tokens
 
 	res := make(map[string]any)
 	res["ast.AssignmentExpression"] = m

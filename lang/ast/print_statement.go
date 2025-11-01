@@ -71,6 +71,10 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 	return nil, nil
 }
 
+func (expr PrintStatetement) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
 func (cs PrintStatetement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Values"] = cs.Values

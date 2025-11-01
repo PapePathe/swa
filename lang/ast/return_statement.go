@@ -64,6 +64,10 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 	return nil, nil
 }
 
+func (expr ReturnStatement) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
 func (rs ReturnStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Value"] = rs.Value

@@ -110,6 +110,10 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 	return nil, &res
 }
 
+func (expr ArrayInitializationExpression) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
 func (cs ArrayInitializationExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["UnderlyingType"] = cs.Underlying

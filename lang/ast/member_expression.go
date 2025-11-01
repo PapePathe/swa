@@ -5,12 +5,15 @@ import (
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 type MemberExpression struct {
 	Object   Expression
 	Property Expression
 	Computed bool
+	Tokens   []lexer.Token
 }
 
 var _ Expression = (*MemberExpression)(nil)
@@ -66,6 +69,10 @@ func (expr MemberExpression) CompileLLVMForPropertyAccess(ctx *CompilerCtx) (err
 	loadedval := ctx.Builder.CreateLoad(varDef.Ref.PropertyTypes[propIndex], addr, "")
 
 	return nil, &loadedval
+}
+
+func (expr MemberExpression) TokenStream() []lexer.Token {
+	return expr.Tokens
 }
 
 func (expr MemberExpression) MarshalJSON() ([]byte, error) {

@@ -165,6 +165,10 @@ func equals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	return nil, &CompilerResult{Value: &res}
 }
 
+func (expr BinaryExpression) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
 func (be BinaryExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["left"] = be.Left
