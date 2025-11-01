@@ -2,18 +2,23 @@ package parser
 
 import (
 	"fmt"
+
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
 
-func ParseMemberCallExpression(p *Parser, left ast.Expression, bp BindingPower) ast.Expression {
-	p.expect(lexer.Dot)
+func ParseMemberCallExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
+	tokens := []lexer.Token{}
+	tokens = append(tokens, p.expect(lexer.Dot))
 
 	if p.currentToken().Kind == lexer.OpenParen {
-		panic("ParseMemberCallExpression: function calls not yet supported")
+		return nil, fmt.Errorf("ParseMemberCallExpression: function calls not yet supported")
 	}
 
-	_member := parseExpression(p, Member)
+	_member, err := parseExpression(p, Member)
+	if err != nil {
+		return nil, err
+	}
 
 	switch left.(type) {
 	case ast.ArrayAccessExpression:
@@ -22,13 +27,13 @@ func ParseMemberCallExpression(p *Parser, left ast.Expression, bp BindingPower) 
 			Property: _member,
 			Name:     arr.Name,
 			Index:    arr.Index,
-		}
+		}, nil
 	case ast.SymbolExpression:
 		return ast.MemberExpression{
 			Object:   left,
 			Property: _member,
-		}
+		}, nil
 	default:
-		panic(fmt.Sprintf("ParseMemberCallExpression %s", left))
+		return nil, fmt.Errorf("ParseMemberCallExpression %s", left)
 	}
 }

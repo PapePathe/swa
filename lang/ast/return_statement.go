@@ -5,10 +5,13 @@ import (
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 type ReturnStatement struct {
-	Value Expression
+	Value  Expression
+	Tokens []lexer.Token
 }
 
 func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {

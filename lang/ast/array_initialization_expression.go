@@ -5,11 +5,14 @@ import (
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 type ArrayInitializationExpression struct {
 	Underlying Type
 	Contents   []Expression
+	Tokens     []lexer.Token
 }
 
 var _ Expression = (*ArrayInitializationExpression)(nil)
@@ -111,6 +114,7 @@ func (cs ArrayInitializationExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["UnderlyingType"] = cs.Underlying
 	m["Contents"] = cs.Contents
+	m["Tokens"] = cs.Tokens
 
 	res := make(map[string]any)
 	res["ast.ArrayInitializationExpression"] = m

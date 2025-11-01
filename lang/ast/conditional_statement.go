@@ -4,12 +4,15 @@ import (
 	"encoding/json"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 type ConditionalStatetement struct {
 	Condition Expression
 	Success   BlockStatement
 	Failure   BlockStatement
+	Tokens    []lexer.Token
 }
 
 var _ Statement = (*ConditionalStatetement)(nil)

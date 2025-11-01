@@ -3,12 +3,14 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+
 	"swahili/lang/lexer"
 )
 
 type PrefixExpression struct {
 	Operator        lexer.Token
 	RightExpression Expression
+	Tokens          []lexer.Token
 }
 
 var _ Expression = (*PrefixExpression)(nil)

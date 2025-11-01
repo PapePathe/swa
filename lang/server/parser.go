@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 	"swahili/lang/parser"
@@ -67,7 +68,10 @@ func (WebParser) expectPayload(r *http.Request) (*WebParserRequest, error) {
 
 func (WebParser) expectResponse(data *WebParserRequest) ([]byte, error) {
 	tokens, _ := lexer.Tokenize(data.Src)
-	absTree := parser.Parse(tokens)
+	absTree, err := parser.Parse(tokens)
+	if err != nil {
+		return nil, err
+	}
 
 	jsonData, err := json.MarshalIndent(absTree, "", "  ")
 	if err != nil {

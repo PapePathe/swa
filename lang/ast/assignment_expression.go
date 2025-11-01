@@ -16,6 +16,7 @@ type AssignmentExpression struct {
 	Operator lexer.Token
 	Assignee Expression
 	Value    Expression
+	Tokens   []lexer.Token
 }
 
 var _ Expression = (*AssignmentExpression)(nil)

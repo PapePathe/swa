@@ -5,7 +5,7 @@ import (
 	"swahili/lang/lexer"
 )
 
-func ParseMainStatement(p *Parser) ast.Statement {
+func ParseMainStatement(p *Parser) (ast.Statement, error) {
 	ms := ast.MainStatement{}
 
 	p.expect(lexer.Main)
@@ -13,7 +13,12 @@ func ParseMainStatement(p *Parser) ast.Statement {
 	p.expect(lexer.CloseParen)
 	p.expect(lexer.TypeInt)
 
-	ms.Body = ParseBlockStatement(p)
+	body, err := ParseBlockStatement(p)
+	if err != nil {
+		return nil, err
+	}
 
-	return ms
+	ms.Body = body
+
+	return ms, nil
 }

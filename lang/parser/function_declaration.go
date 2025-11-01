@@ -5,7 +5,7 @@ import (
 	"swahili/lang/lexer"
 )
 
-func ParseFunctionDeclaration(p *Parser) ast.Statement {
+func ParseFunctionDeclaration(p *Parser) (ast.Statement, error) {
 	funDecl := ast.FuncDeclStatement{}
 	args := []ast.FuncArg{}
 
@@ -31,8 +31,14 @@ func ParseFunctionDeclaration(p *Parser) ast.Statement {
 	funDecl.Args = args
 
 	p.expect(lexer.CloseParen)
-	funDecl.ReturnType = p.expect(lexer.Identifier).Value
-	funDecl.Body = ParseBlockStatement(p)
 
-	return funDecl
+	funDecl.ReturnType = p.expect(lexer.Identifier).Value
+	body, err := ParseBlockStatement(p)
+	if err != nil {
+		return nil, err
+	}
+
+	funDecl.Body = body
+
+	return funDecl, nil
 }
