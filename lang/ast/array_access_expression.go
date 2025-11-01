@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 type ArrayAccessExpression struct {
-	Name  Expression
-	Index Expression
+	Name   Expression
+	Index  Expression
+	Tokens []lexer.Token
 }
 
 var _ Expression = (*ArrayAccessExpression)(nil)
@@ -86,6 +89,7 @@ func (cs ArrayAccessExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Name"] = cs.Name
 	m["Index"] = cs.Index
+	m["Tokens"] = cs.Tokens
 
 	res := make(map[string]any)
 	res["ast.ArrayAccessExpression"] = m

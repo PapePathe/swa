@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 // BinaryExpression ...
@@ -14,6 +15,7 @@ type BinaryExpression struct {
 	Left     Expression
 	Right    Expression
 	Operator lexer.Token
+	Tokens   []lexer.Token
 }
 
 var _ Expression = (*BinaryExpression)(nil)

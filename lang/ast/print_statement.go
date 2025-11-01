@@ -5,10 +5,13 @@ import (
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 type PrintStatetement struct {
 	Values []Expression
+	Tokens []lexer.Token
 }
 
 var _ Statement = (*PrintStatetement)(nil)

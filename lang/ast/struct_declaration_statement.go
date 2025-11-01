@@ -5,12 +5,15 @@ import (
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
+
+	"swahili/lang/lexer"
 )
 
 type StructDeclarationStatement struct {
 	Name       string
 	Properties []string
 	Types      []Type
+	Tokens     []lexer.Token
 }
 
 var _ Statement = (*StructDeclarationStatement)(nil)
@@ -58,6 +61,7 @@ func (expr StructDeclarationStatement) MarshalJSON() ([]byte, error) {
 	m["Name"] = expr.Name
 	m["Properties"] = expr.Properties
 	m["Types"] = expr.Types
+	m["Tokens"] = expr.Tokens
 
 	res := make(map[string]any)
 	res["ast.StructDeclarationStatement"] = m
