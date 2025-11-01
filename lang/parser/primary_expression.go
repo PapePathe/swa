@@ -22,7 +22,8 @@ func ParsePrimaryExpression(p *Parser) (ast.Expression, error) {
 		}
 
 		return ast.NumberExpression{
-			Value: number,
+			Value:  number,
+			Tokens: tokens,
 		}, nil
 	case lexer.String:
 		tok := p.advance()
@@ -30,13 +31,15 @@ func ParsePrimaryExpression(p *Parser) (ast.Expression, error) {
 		value := tok.Value
 
 		return ast.StringExpression{
-			Value: value[1 : len(value)-1],
+			Value:  value[1 : len(value)-1],
+			Tokens: tokens,
 		}, nil
 	case lexer.Identifier:
 		tok := p.advance()
 		tokens = append(tokens, tok)
 		return ast.SymbolExpression{
-			Value: tok.Value,
+			Value:  tok.Value,
+			Tokens: tokens,
 		}, nil
 
 	default:

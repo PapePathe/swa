@@ -38,6 +38,7 @@ func ParsePrintStatement(p *Parser) (ast.Statement, error) {
 					if err != nil {
 						return nil, err
 					}
+					tokens = append(tokens, memberCallExpr.TokenStream()...)
 					values = append(values, memberCallExpr)
 				case lexer.OpenBracket:
 					tok := p.expect(lexer.Identifier)
@@ -47,6 +48,8 @@ func ParsePrintStatement(p *Parser) (ast.Statement, error) {
 					if err != nil {
 						return nil, err
 					}
+
+					tokens = append(tokens, arrayAccessExpr.TokenStream()...)
 					values = append(values, arrayAccessExpr)
 				default:
 					tok := p.expect(lexer.Identifier)

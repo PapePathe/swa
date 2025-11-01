@@ -10,6 +10,7 @@ import (
 
 // ParseStatement ...
 func ParseStatement(p *Parser) (ast.Statement, error) {
+	tokens := []lexer.Token{}
 	statementFn, exists := statementLookup[p.currentToken().Kind]
 
 	if exists {
@@ -21,10 +22,12 @@ func ParseStatement(p *Parser) (ast.Statement, error) {
 		return nil, err
 	}
 
-	p.expect(lexer.SemiColon)
+	tokens = append(tokens, expression.TokenStream()...)
+	tokens = append(tokens, p.expect(lexer.SemiColon))
 
 	return ast.ExpressionStatement{
-		Exp: expression,
+		Exp:    expression,
+		Tokens: tokens,
 	}, nil
 }
 

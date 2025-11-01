@@ -6,22 +6,26 @@ import (
 )
 
 func ParseBlockStatement(p *Parser) (ast.BlockStatement, error) {
+	tokens := []lexer.Token{}
 	body := []ast.Statement{}
 
-	p.expect(lexer.OpenCurly)
+	tokens = append(tokens, p.expect(lexer.OpenCurly))
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
 		stmt, err := ParseStatement(p)
 		if err != nil {
 			return ast.BlockStatement{}, err
 		}
+
+		tokens = append(tokens, stmt.TokenStream()...)
 		body = append(body, stmt)
 	}
 
-	p.expect(lexer.CloseCurly)
+	tokens = append(tokens, p.expect(lexer.CloseCurly))
 
 	return ast.BlockStatement{
-		Body: body,
+		Body:   body,
+		Tokens: tokens,
 	}, nil
 }
 
@@ -37,12 +41,15 @@ func ParseConditionalExpression(p *Parser) (ast.Statement, error) {
 		return nil, err
 	}
 
+	tokens = append(tokens, condition.TokenStream()...)
 	tokens = append(tokens, p.expect(lexer.CloseParen))
 
 	successBlock, err := ParseBlockStatement(p)
 	if err != nil {
 		return nil, err
 	}
+
+	tokens = append(tokens, successBlock.TokenStream()...)
 
 	if p.currentToken().Kind == lexer.KeywordElse {
 		tokens = append(tokens, p.expect(lexer.KeywordElse))
@@ -51,6 +58,8 @@ func ParseConditionalExpression(p *Parser) (ast.Statement, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		tokens = append(tokens, failBlock.TokenStream()...)
 	}
 
 	return ast.ConditionalStatetement{

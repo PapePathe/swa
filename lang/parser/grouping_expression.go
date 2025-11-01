@@ -13,6 +13,8 @@ func ParseGroupingExpression(p *Parser) (ast.Expression, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	tokens = append(tokens, expr.TokenStream()...)
 	tokens = append(tokens, p.expect(lexer.CloseParen))
 
 	return expr, nil

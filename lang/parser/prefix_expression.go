@@ -14,6 +14,8 @@ func ParsePrefixExpression(p *Parser) (ast.Expression, error) {
 		return nil, err
 	}
 
+	tokens = append(tokens, rightHandSide.TokenStream()...)
+
 	return ast.PrefixExpression{
 		Operator:        operatorToken,
 		RightExpression: rightHandSide,

@@ -9,6 +9,7 @@ import (
 
 func ParseMemberCallExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
 	tokens := []lexer.Token{}
+	tokens = append(tokens, left.TokenStream()...)
 	tokens = append(tokens, p.expect(lexer.Dot))
 
 	if p.currentToken().Kind == lexer.OpenParen {
@@ -20,6 +21,8 @@ func ParseMemberCallExpression(p *Parser, left ast.Expression, bp BindingPower) 
 		return nil, err
 	}
 
+	tokens = append(tokens, _member.TokenStream()...)
+
 	switch left.(type) {
 	case ast.ArrayAccessExpression:
 		arr, _ := left.(ast.ArrayAccessExpression)
@@ -27,11 +30,13 @@ func ParseMemberCallExpression(p *Parser, left ast.Expression, bp BindingPower) 
 			Property: _member,
 			Name:     arr.Name,
 			Index:    arr.Index,
+			Tokens:   tokens,
 		}, nil
 	case ast.SymbolExpression:
 		return ast.MemberExpression{
 			Object:   left,
 			Property: _member,
+			Tokens:   tokens,
 		}, nil
 	default:
 		return nil, fmt.Errorf("ParseMemberCallExpression %s", left)

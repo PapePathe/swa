@@ -9,11 +9,14 @@ import (
 func ParseBinaryExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
 	tokens := []lexer.Token{}
 	operatorToken := p.advance()
+	tokens = append(tokens, left.TokenStream()...)
 	tokens = append(tokens, operatorToken)
 	right, err := parseExpression(p, bp)
 	if err != nil {
 		return nil, err
 	}
+
+	tokens = append(tokens, right.TokenStream()...)
 
 	return ast.BinaryExpression{
 		Left:     left,
