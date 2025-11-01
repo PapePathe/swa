@@ -6,13 +6,14 @@ import (
 )
 
 func ParseGroupingExpression(p *Parser) (ast.Expression, error) {
-	p.advance() // move past start of grouping expression
+	tokens := []lexer.Token{}
+	tokens = append(tokens, p.advance())
 
 	expr, err := parseExpression(p, DefaultBindingPower)
 	if err != nil {
 		return nil, err
 	}
-	p.expect(lexer.CloseParen) // move past end of grouping expression
+	tokens = append(tokens, p.expect(lexer.CloseParen))
 
 	return expr, nil
 }

@@ -12,12 +12,10 @@ func parseExpression(p *Parser, bp BindingPower) (ast.Expression, error) {
 
 	if !exists {
 		return nil, fmt.Errorf(
-			fmt.Sprintf(
-				"nud handler expected for token %s and binding power %v \n %v",
-				tokenKind,
-				bp,
-				p.tokens,
-			),
+			"nud handler expected for token %s and binding power %v \n %v",
+			tokenKind,
+			bp,
+			p.tokens,
 		)
 	}
 
@@ -31,11 +29,9 @@ func parseExpression(p *Parser, bp BindingPower) (ast.Expression, error) {
 
 		if !exists {
 			return nil, fmt.Errorf(
-				fmt.Sprintf(
-					"led handler expected for token (%s: value(%s))\n",
-					tokenKind,
-					p.currentToken().Value,
-				),
+				"led handler expected for token (%s: value(%s))\n",
+				tokenKind,
+				p.currentToken().Value,
 			)
 		}
 

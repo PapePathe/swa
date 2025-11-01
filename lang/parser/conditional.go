@@ -26,17 +26,18 @@ func ParseBlockStatement(p *Parser) (ast.BlockStatement, error) {
 }
 
 func ParseConditionalExpression(p *Parser) (ast.Statement, error) {
+	tokens := []lexer.Token{}
 	failBlock := ast.BlockStatement{}
 
-	p.expect(lexer.KeywordIf)
-	p.expect(lexer.OpenParen)
+	tokens = append(tokens, p.expect(lexer.KeywordIf))
+	tokens = append(tokens, p.expect(lexer.OpenParen))
 
 	condition, err := parseExpression(p, DefaultBindingPower)
 	if err != nil {
 		return nil, err
 	}
 
-	p.expect(lexer.CloseParen)
+	tokens = append(tokens, p.expect(lexer.CloseParen))
 
 	successBlock, err := ParseBlockStatement(p)
 	if err != nil {
@@ -44,18 +45,18 @@ func ParseConditionalExpression(p *Parser) (ast.Statement, error) {
 	}
 
 	if p.currentToken().Kind == lexer.KeywordElse {
-		p.expect(lexer.KeywordElse)
+		tokens = append(tokens, p.expect(lexer.KeywordElse))
 
 		failBlock, err = ParseBlockStatement(p)
 		if err != nil {
 			return nil, err
 		}
-
 	}
 
 	return ast.ConditionalStatetement{
 		Condition: condition,
 		Success:   successBlock,
 		Failure:   failBlock,
+		Tokens:    tokens,
 	}, nil
 }

@@ -1,9 +1,14 @@
 package parser
 
-import "swahili/lang/ast"
+import (
+	"swahili/lang/ast"
+	"swahili/lang/lexer"
+)
 
 func ParseAssignmentExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
+	tokens := []lexer.Token{}
 	operatorToken := p.advance()
+	tokens = append(tokens, operatorToken)
 	rightHandSide, err := parseExpression(p, DefaultBindingPower)
 	if err != nil {
 		return nil, err
@@ -13,5 +18,6 @@ func ParseAssignmentExpression(p *Parser, left ast.Expression, bp BindingPower) 
 		Operator: operatorToken,
 		Value:    rightHandSide,
 		Assignee: left,
+		Tokens:   tokens,
 	}, nil
 }

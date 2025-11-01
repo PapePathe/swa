@@ -8,7 +8,8 @@ import (
 )
 
 func ParseMemberCallExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
-	p.expect(lexer.Dot)
+	tokens := []lexer.Token{}
+	tokens = append(tokens, p.expect(lexer.Dot))
 
 	if p.currentToken().Kind == lexer.OpenParen {
 		return nil, fmt.Errorf("ParseMemberCallExpression: function calls not yet supported")

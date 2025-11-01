@@ -10,41 +10,54 @@ import (
 
 func ParsePrintStatement(p *Parser) (ast.Statement, error) {
 	values := []ast.Expression{}
+	tokens := []lexer.Token{}
 
-	p.expect(lexer.Print)
-	p.expect(lexer.OpenParen)
+	tokens = append(tokens, p.expect(lexer.Print))
+	tokens = append(tokens, p.expect(lexer.OpenParen))
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseParen {
 		switch p.currentToken().Kind {
 		case lexer.String:
-			str := p.expect(lexer.String).Value
+			tok := p.expect(lexer.String)
+			tokens = append(tokens, tok)
+			str := tok.Value
 			values = append(values, ast.StringExpression{Value: str[1 : len(str)-1]})
 		case lexer.Identifier:
 			err, next := p.nextToken()
 			if err != nil {
-				values = append(values, ast.SymbolExpression{Value: p.expect(lexer.Identifier).Value})
+				tok := p.expect(lexer.Identifier)
+				tokens = append(tokens, tok)
+				values = append(values, ast.SymbolExpression{Value: tok.Value})
 			} else {
 				switch next.Kind {
 				case lexer.Dot:
-					left := ast.SymbolExpression{Value: p.expect(lexer.Identifier).Value}
+					tok := p.expect(lexer.Identifier)
+					tokens = append(tokens, tok)
+					left := ast.SymbolExpression{Value: tok.Value}
 					memberCallExpr, err := ParseMemberCallExpression(p, left, Relational)
 					if err != nil {
 						return nil, err
 					}
 					values = append(values, memberCallExpr)
 				case lexer.OpenBracket:
-					left := ast.SymbolExpression{Value: p.expect(lexer.Identifier).Value}
+					tok := p.expect(lexer.Identifier)
+					tokens = append(tokens, tok)
+					left := ast.SymbolExpression{Value: tok.Value}
 					arrayAccessExpr, err := ParseArrayAccess(p, left, Relational)
 					if err != nil {
 						return nil, err
 					}
 					values = append(values, arrayAccessExpr)
 				default:
-					values = append(values, ast.SymbolExpression{Value: p.expect(lexer.Identifier).Value})
+					tok := p.expect(lexer.Identifier)
+					tokens = append(tokens, tok)
+					values = append(values, ast.SymbolExpression{Value: tok.Value})
 				}
 			}
 		case lexer.Number:
-			value := p.expect(lexer.Number).Value
+			tok := p.expect(lexer.Number)
+			tokens = append(tokens, tok)
+			value := tok.Value
 
 			number, err := strconv.ParseFloat(value, 64)
 			if err != nil {
@@ -57,12 +70,12 @@ func ParsePrintStatement(p *Parser) (ast.Statement, error) {
 		}
 
 		if p.currentToken().Kind == lexer.Comma {
-			p.expect(lexer.Comma)
+			tokens = append(tokens, p.expect(lexer.Comma))
 		}
 	}
 
-	p.expect(lexer.CloseParen)
-	p.expect(lexer.SemiColon)
+	tokens = append(tokens, p.expect(lexer.CloseParen))
+	tokens = append(tokens, p.expect(lexer.SemiColon))
 
-	return ast.PrintStatetement{Values: values}, nil
+	return ast.PrintStatetement{Values: values, Tokens: tokens}, nil
 }

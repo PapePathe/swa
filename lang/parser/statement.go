@@ -18,7 +18,7 @@ func ParseStatement(p *Parser) (ast.Statement, error) {
 
 	expression, err := parseExpression(p, DefaultBindingPower)
 	if err != nil {
-		return ast.ExpressionStatement{}, err
+		return nil, err
 	}
 
 	p.expect(lexer.SemiColon)
@@ -29,22 +29,29 @@ func ParseStatement(p *Parser) (ast.Statement, error) {
 }
 
 func ParseStructDeclarationStatement(p *Parser) (ast.Statement, error) {
-	p.expect(lexer.Struct)
-	structName := p.expect(lexer.Identifier).Value
+	tokens := []lexer.Token{}
+
+	tokens = append(tokens, p.expect(lexer.Struct))
+	structName := p.expect(lexer.Identifier)
+	tokens = append(tokens, structName)
 
 	properties := []string{}
 	types := []ast.Type{}
 
-	p.expect(lexer.OpenCurly)
+	tokens = append(tokens, p.expect(lexer.OpenCurly))
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
 		var propertyName string
 
 		if p.currentToken().Kind == lexer.Identifier {
-			propertyName = p.expect(lexer.Identifier).Value
-			p.expectError(lexer.Colon, "Expected to find colon following struct property name")
-			propType := parseType(p, DefaultBindingPower)
-			p.expect(lexer.Comma)
+			prop := p.expect(lexer.Identifier)
+			tokens = append(tokens, prop)
+			propertyName = prop.Value
+			tok := p.expectError(lexer.Colon, "Expected to find colon following struct property name")
+			tokens = append(tokens, tok)
+			propType, toks := parseType(p, DefaultBindingPower)
+			tokens = append(tokens, toks...)
+			tokens = append(tokens, p.expect(lexer.Comma))
 
 			if slices.Contains(properties, propertyName) {
 				return nil, fmt.Errorf("property %s has already been defined", propertyName)
@@ -57,11 +64,12 @@ func ParseStructDeclarationStatement(p *Parser) (ast.Statement, error) {
 		}
 	}
 
-	p.expect(lexer.CloseCurly)
+	tokens = append(tokens, p.expect(lexer.CloseCurly))
 
 	return ast.StructDeclarationStatement{
-		Name:       structName,
+		Name:       structName.Value,
 		Properties: properties,
 		Types:      types,
+		Tokens:     tokens,
 	}, nil
 }

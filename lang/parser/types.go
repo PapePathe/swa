@@ -8,10 +8,10 @@ import (
 )
 
 // NudHandlerFunc ...
-type TypeNudHandlerFunc func(p *Parser) ast.Type
+type TypeNudHandlerFunc func(p *Parser) (ast.Type, []lexer.Token)
 
 // LedHandlerFunc ...
-type TypeLedHandlerFunc func(p *Parser, left ast.Type, bp BindingPower) ast.Type
+type TypeLedHandlerFunc func(p *Parser, left ast.Type, bp BindingPower) (ast.Type, []lexer.Token)
 
 // NudLookup ...
 type TypeNudLookup map[lexer.TokenKind]TypeNudHandlerFunc
@@ -25,11 +25,6 @@ var (
 	typeLedLookup          TypeLedLookup = make(TypeLedLookup)
 )
 
-//func typeLed(kind lexer.TokenKind, bp BindingPower, ledFn TypeLedHandlerFunc) {
-//	typeBindingPowerLookup[kind] = bp
-//	typeLedLookup[kind] = ledFn
-//}
-
 func typeNud(kind lexer.TokenKind, nudFn TypeNudHandlerFunc) {
 	typeNudLookup[kind] = nudFn
 }
@@ -41,43 +36,53 @@ func createTokenTypeLookups() {
 	typeNud(lexer.OpenBracket, parseArrayType)
 }
 
-func parseStringType(p *Parser) ast.Type {
-	p.advance()
+func parseStringType(p *Parser) (ast.Type, []lexer.Token) {
+	tokens := []lexer.Token{p.advance()}
 
-	return ast.StringType{}
+	return ast.StringType{}, tokens
 }
 
-func parseIntType(p *Parser) ast.Type {
-	p.advance()
+func parseIntType(p *Parser) (ast.Type, []lexer.Token) {
+	tokens := []lexer.Token{p.advance()}
 
-	return ast.NumberType{}
+	return ast.NumberType{}, tokens
 }
 
-func parseSymbolType(p *Parser) ast.Type {
+func parseSymbolType(p *Parser) (ast.Type, []lexer.Token) {
+	tokens := []lexer.Token{}
+
+	name := p.expect(lexer.Identifier)
+	tokens = append(tokens, name)
+
 	return ast.SymbolType{
-		Name: p.expect(lexer.Identifier).Value,
-	}
+		Name: name.Value,
+	}, tokens
 }
 
-func parseArrayType(p *Parser) ast.Type {
-	p.advance()
-	p.expect(lexer.CloseBracket)
-	underlying := parseType(p, DefaultBindingPower)
+func parseArrayType(p *Parser) (ast.Type, []lexer.Token) {
+	tokens := []lexer.Token{}
+
+	tokens = append(tokens, p.advance())
+	tokens = append(tokens, p.expect(lexer.CloseBracket))
+
+	underlying, tokens := parseType(p, DefaultBindingPower)
 
 	return ast.ArrayType{
 		Underlying: underlying,
-	}
+	}, tokens
 }
 
-func parseType(p *Parser, bp BindingPower) ast.Type {
+func parseType(p *Parser, bp BindingPower) (ast.Type, []lexer.Token) {
 	tokenKind := p.currentToken().Kind
 	nudFn, exists := typeNudLookup[tokenKind]
+	tokens := []lexer.Token{}
 
 	if !exists {
 		panic(fmt.Sprintf("type nud handler expected for token kind: %s, value: %s\n", tokenKind, p.currentToken().Value))
 	}
 
-	left := nudFn(p)
+	left, toks := nudFn(p)
+	tokens = append(tokens, toks...)
 
 	for typeBindingPowerLookup[p.currentToken().Kind] > bp {
 		ledFn, exists := typeLedLookup[p.currentToken().Kind]
@@ -92,8 +97,9 @@ func parseType(p *Parser, bp BindingPower) ast.Type {
 			)
 		}
 
-		left = ledFn(p, left, typeBindingPowerLookup[p.currentToken().Kind])
+		left, toks = ledFn(p, left, typeBindingPowerLookup[p.currentToken().Kind])
+		tokens = append(tokens, toks...)
 	}
 
-	return left
+	return left, tokens
 }

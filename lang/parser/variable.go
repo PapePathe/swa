@@ -19,7 +19,7 @@ func ParseVarDeclarationStatement(p *Parser) (ast.Statement, error) {
 	variableName := p.expectError(lexer.Identifier, errStr).Value
 
 	p.expect(lexer.Colon)
-	explicitType = parseType(p, DefaultBindingPower)
+	explicitType, _ = parseType(p, DefaultBindingPower)
 
 	if p.currentToken().Kind != lexer.SemiColon {
 		p.expect(lexer.Assignment)
