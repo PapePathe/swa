@@ -1,12 +1,14 @@
 package parser
 
 import (
+	"fmt"
+
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
 
 // ParseVarDeclarationStatement ...
-func ParseVarDeclarationStatement(p *Parser) ast.Statement {
+func ParseVarDeclarationStatement(p *Parser) (ast.Statement, error) {
 	var explicitType ast.Type
 
 	var assigedValue ast.Expression
@@ -20,13 +22,13 @@ func ParseVarDeclarationStatement(p *Parser) ast.Statement {
 
 	if p.currentToken().Kind != lexer.SemiColon {
 		p.expect(lexer.Assignment)
-		assigedValue = parseExpression(p, Assignment)
+		assigedValue, _ = parseExpression(p, Assignment)
 	} else if explicitType == nil {
-		panic("Missing either right hand side in var declaration or exlicit type")
+		return nil, fmt.Errorf("Missing either right hand side in var declaration or exlicit type")
 	}
 
 	if isConstant && assigedValue == nil {
-		panic("Cannot define constant wihtout a value")
+		return nil, fmt.Errorf("Cannot define constant wihtout a value")
 	}
 
 	p.expect(lexer.SemiColon)
@@ -36,5 +38,5 @@ func ParseVarDeclarationStatement(p *Parser) ast.Statement {
 		Value:        assigedValue,
 		Name:         variableName,
 		ExplicitType: explicitType,
-	}
+	}, nil
 }

@@ -2,15 +2,16 @@ package parser
 
 import (
 	"fmt"
+
 	"swahili/lang/ast"
 )
 
-func parseExpression(p *Parser, bp BindingPower) ast.Expression {
+func parseExpression(p *Parser, bp BindingPower) (ast.Expression, error) {
 	tokenKind := p.currentToken().Kind
 	nudFn, exists := nudLookup[tokenKind]
 
 	if !exists {
-		panic(
+		return nil, fmt.Errorf(
 			fmt.Sprintf(
 				"nud handler expected for token %s and binding power %v \n %v",
 				tokenKind,
@@ -20,13 +21,13 @@ func parseExpression(p *Parser, bp BindingPower) ast.Expression {
 		)
 	}
 
-	left := nudFn(p)
+	left, _ := nudFn(p)
 
 	for bindingPowerLookup[p.currentToken().Kind] > bp {
 		ledFn, exists := ledLookup[p.currentToken().Kind]
 
 		if !exists {
-			panic(
+			return nil, fmt.Errorf(
 				fmt.Sprintf(
 					"led handler expected for token (%s: value(%s))\n",
 					tokenKind,
@@ -35,8 +36,8 @@ func parseExpression(p *Parser, bp BindingPower) ast.Expression {
 			)
 		}
 
-		left = ledFn(p, left, bindingPowerLookup[p.currentToken().Kind])
+		left, _ = ledFn(p, left, bindingPowerLookup[p.currentToken().Kind])
 	}
 
-	return left
+	return left, nil
 }

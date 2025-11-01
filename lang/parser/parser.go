@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"os"
+
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
@@ -14,7 +15,7 @@ type Parser struct {
 }
 
 // Parse ...
-func Parse(tokens []lexer.Token) ast.BlockStatement {
+func Parse(tokens []lexer.Token) (ast.BlockStatement, error) {
 	body := make([]ast.Statement, 0)
 
 	createTokenLookups()
@@ -30,12 +31,16 @@ func Parse(tokens []lexer.Token) ast.BlockStatement {
 	}
 
 	for psr.hasTokens() {
-		body = append(body, ParseStatement(psr))
+		stmt, err := ParseStatement(psr)
+		if err != nil {
+			return ast.BlockStatement{}, err
+		}
+		body = append(body, stmt)
 	}
 
 	return ast.BlockStatement{
 		Body: body,
-	}
+	}, nil
 }
 
 func (p *Parser) currentToken() lexer.Token {

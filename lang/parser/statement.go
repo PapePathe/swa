@@ -3,27 +3,32 @@ package parser
 import (
 	"fmt"
 	"slices"
+
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
 
 // ParseStatement ...
-func ParseStatement(p *Parser) ast.Statement {
+func ParseStatement(p *Parser) (ast.Statement, error) {
 	statementFn, exists := statementLookup[p.currentToken().Kind]
 
 	if exists {
 		return statementFn(p)
 	}
 
-	expression := parseExpression(p, DefaultBindingPower)
+	expression, err := parseExpression(p, DefaultBindingPower)
+	if err != nil {
+		return ast.ExpressionStatement{}, err
+	}
+
 	p.expect(lexer.SemiColon)
 
 	return ast.ExpressionStatement{
 		Exp: expression,
-	}
+	}, nil
 }
 
-func ParseStructDeclarationStatement(p *Parser) ast.Statement {
+func ParseStructDeclarationStatement(p *Parser) (ast.Statement, error) {
 	p.expect(lexer.Struct)
 	structName := p.expect(lexer.Identifier).Value
 
@@ -42,7 +47,7 @@ func ParseStructDeclarationStatement(p *Parser) ast.Statement {
 			p.expect(lexer.Comma)
 
 			if slices.Contains(properties, propertyName) {
-				panic(fmt.Sprintf("property %s has already been defined", propertyName))
+				return ast.StructDeclarationStatement{}, fmt.Errorf("property %s has already been defined", propertyName)
 			}
 
 			properties = append(properties, propertyName)
@@ -58,5 +63,5 @@ func ParseStructDeclarationStatement(p *Parser) ast.Statement {
 		Name:       structName,
 		Properties: properties,
 		Types:      types,
-	}
+	}, nil
 }
