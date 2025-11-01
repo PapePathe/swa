@@ -16,7 +16,10 @@ func ParseStructInstantiationExpression(p *Parser, left ast.Expression, bp Bindi
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
 		propertyName := p.expect(lexer.Identifier).Value
 		p.expect(lexer.Colon)
-		expr, _ := parseExpression(p, Logical)
+		expr, err := parseExpression(p, Logical)
+		if err != nil {
+			return nil, err
+		}
 		values = append(values, expr)
 		properties = append(properties, propertyName)
 

@@ -19,7 +19,10 @@ func ParseArrayAccess(p *Parser, left ast.Expression, bp BindingPower) (ast.Expr
 	p.expect(lexer.CloseBracket)
 
 	if p.currentToken().Kind == lexer.Dot {
-		memberCall, _ := ParseMemberCallExpression(p, expr, Member)
+		memberCall, err := ParseMemberCallExpression(p, expr, Member)
+		if err != nil {
+			return nil, err
+		}
 
 		return memberCall, nil
 	}
@@ -34,7 +37,10 @@ func ParseArrayInitialization(p *Parser) (ast.Expression, error) {
 	p.expect(lexer.OpenCurly)
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
-		expr, _ := parseExpression(p, Logical)
+		expr, err := parseExpression(p, Logical)
+		if err != nil {
+			return nil, err
+		}
 		contents = append(contents, expr)
 
 		if p.currentToken().Kind != lexer.CloseCurly {

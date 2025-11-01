@@ -21,7 +21,10 @@ func parseExpression(p *Parser, bp BindingPower) (ast.Expression, error) {
 		)
 	}
 
-	left, _ := nudFn(p)
+	left, err := nudFn(p)
+	if err != nil {
+		return nil, err
+	}
 
 	for bindingPowerLookup[p.currentToken().Kind] > bp {
 		ledFn, exists := ledLookup[p.currentToken().Kind]
@@ -36,7 +39,10 @@ func parseExpression(p *Parser, bp BindingPower) (ast.Expression, error) {
 			)
 		}
 
-		left, _ = ledFn(p, left, bindingPowerLookup[p.currentToken().Kind])
+		left, err = ledFn(p, left, bindingPowerLookup[p.currentToken().Kind])
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return left, nil

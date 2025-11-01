@@ -12,7 +12,6 @@ func ParsePrintStatement(p *Parser) (ast.Statement, error) {
 	values := []ast.Expression{}
 
 	p.expect(lexer.Print)
-
 	p.expect(lexer.OpenParen)
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseParen {
@@ -49,12 +48,12 @@ func ParsePrintStatement(p *Parser) (ast.Statement, error) {
 
 			number, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return ast.PrintStatetement{}, fmt.Errorf("Error parsing number expression <%s> in PRINT statement", err)
+				return nil, fmt.Errorf("Error parsing number expression <%s> in PRINT statement", err)
 			}
 
 			values = append(values, ast.NumberExpression{Value: number})
 		default:
-			return ast.PrintStatetement{}, fmt.Errorf("Token %s not supported in print statement", p.currentToken().Kind)
+			return nil, fmt.Errorf("Token %s not supported in print statement", p.currentToken().Kind)
 		}
 
 		if p.currentToken().Kind == lexer.Comma {

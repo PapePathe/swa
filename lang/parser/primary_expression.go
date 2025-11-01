@@ -14,7 +14,7 @@ func ParsePrimaryExpression(p *Parser) (ast.Expression, error) {
 	case lexer.Number:
 		number, err := strconv.ParseFloat(p.advance().Value, 64)
 		if err != nil {
-			return ast.SymbolExpression{}, err
+			return nil, err
 		}
 
 		return ast.NumberExpression{
@@ -32,6 +32,6 @@ func ParsePrimaryExpression(p *Parser) (ast.Expression, error) {
 		}, nil
 
 	default:
-		return ast.SymbolExpression{}, fmt.Errorf("Cannot create PrimaryExpression from %s", p.currentToken().Kind)
+		return nil, fmt.Errorf("Cannot create PrimaryExpression from %s", p.currentToken().Kind)
 	}
 }

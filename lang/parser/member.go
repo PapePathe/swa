@@ -11,12 +11,12 @@ func ParseMemberCallExpression(p *Parser, left ast.Expression, bp BindingPower) 
 	p.expect(lexer.Dot)
 
 	if p.currentToken().Kind == lexer.OpenParen {
-		return ast.MemberExpression{}, fmt.Errorf("ParseMemberCallExpression: function calls not yet supported")
+		return nil, fmt.Errorf("ParseMemberCallExpression: function calls not yet supported")
 	}
 
 	_member, err := parseExpression(p, Member)
 	if err != nil {
-		return ast.MemberExpression{}, err
+		return nil, err
 	}
 
 	switch left.(type) {
@@ -33,6 +33,6 @@ func ParseMemberCallExpression(p *Parser, left ast.Expression, bp BindingPower) 
 			Property: _member,
 		}, nil
 	default:
-		return ast.MemberExpression{}, fmt.Errorf("ParseMemberCallExpression %s", left)
+		return nil, fmt.Errorf("ParseMemberCallExpression %s", left)
 	}
 }

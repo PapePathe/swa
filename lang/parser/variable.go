@@ -10,6 +10,7 @@ import (
 // ParseVarDeclarationStatement ...
 func ParseVarDeclarationStatement(p *Parser) (ast.Statement, error) {
 	var explicitType ast.Type
+	var err error
 
 	var assigedValue ast.Expression
 
@@ -22,7 +23,11 @@ func ParseVarDeclarationStatement(p *Parser) (ast.Statement, error) {
 
 	if p.currentToken().Kind != lexer.SemiColon {
 		p.expect(lexer.Assignment)
-		assigedValue, _ = parseExpression(p, Assignment)
+
+		assigedValue, err = parseExpression(p, Assignment)
+		if err != nil {
+			return nil, err
+		}
 	} else if explicitType == nil {
 		return nil, fmt.Errorf("Missing either right hand side in var declaration or exlicit type")
 	}

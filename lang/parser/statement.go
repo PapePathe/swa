@@ -47,7 +47,7 @@ func ParseStructDeclarationStatement(p *Parser) (ast.Statement, error) {
 			p.expect(lexer.Comma)
 
 			if slices.Contains(properties, propertyName) {
-				return ast.StructDeclarationStatement{}, fmt.Errorf("property %s has already been defined", propertyName)
+				return nil, fmt.Errorf("property %s has already been defined", propertyName)
 			}
 
 			properties = append(properties, propertyName)
