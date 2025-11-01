@@ -9,11 +9,12 @@ type Token struct {
 	Value string
 	Name  string
 	Kind  TokenKind `json:"-"`
+	Line  int
 }
 
 // NewToken ...
-func NewToken(kind TokenKind, value string) Token {
-	return Token{Kind: kind, Value: value, Name: kind.String()}
+func NewToken(kind TokenKind, value string, line int) Token {
+	return Token{Kind: kind, Value: value, Name: kind.String(), Line: line}
 }
 
 func (t Token) isOneOfMany(expectedTokens ...TokenKind) bool {

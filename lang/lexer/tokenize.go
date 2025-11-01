@@ -33,7 +33,7 @@ func Tokenize(source string) ([]Token, Dialect) {
 		}
 	}
 
-	lex.push(NewToken(EOF, "EOF"))
+	lex.push(NewToken(EOF, "EOF", lex.line))
 
 	return lex.Tokens, dialect
 }
