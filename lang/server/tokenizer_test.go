@@ -16,42 +16,52 @@ func TestTokenizer(t *testing.T) {
 	response := httptest.NewRecorder()
 	expectedResponse := `[{
         "Name": "DIALECT",
-        "Value": "dialect"
+        "Value": "dialect",
+        "Line": 0
     },
     {
         "Name": "COLON",
+        "Line": 0,
         "Value": ":"
     },
     {
         "Name": "IDENTIFIER",
+        "Line": 0,
         "Value": "french"
     },
     {
         "Name": "SEMI_COLON",
+        "Line": 0,
         "Value": ";"
     },
     {
         "Name": "LET",
+        "Line": 0,
         "Value": "variable"
     },
     {
         "Name": "IDENTIFIER",
+        "Line": 0,
         "Value": "x"
     },
     {
         "Name": "ASSIGNMENT",
+        "Line": 0,
         "Value": "="
     },
     {
         "Name": "NUMBER",
+        "Line": 0,
         "Value": "10"
     },
     {
         "Name": "SEMI_COLON",
+        "Line": 0,
         "Value": ";"
     },
     {
         "Name": "EOF",
+        "Line": 0,
         "Value": "EOF"
     }]`
 
