@@ -74,10 +74,9 @@ func (p *Parser) expectError(kind lexer.TokenKind, err any) lexer.Token {
 	if kind != token.Kind {
 		if err == nil {
 			err := fmt.Errorf(
-				"expected %s, but got %s  current: %s",
+				"expected %s, but got %s",
 				kind,
 				token.Kind,
-				token,
 			)
 			fmt.Println(err)
 			os.Exit(1)
