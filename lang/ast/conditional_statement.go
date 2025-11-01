@@ -70,6 +70,10 @@ func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 	return nil, &CompilerResult{Value: &phi}
 }
 
+func (expr ConditionalStatetement) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
 func (cs ConditionalStatetement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["success"] = cs.Success

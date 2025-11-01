@@ -2,12 +2,15 @@ package ast
 
 import (
 	"encoding/json"
+
+	"swahili/lang/lexer"
 )
 
 // ExpressionStatement ...
 type ExpressionStatement struct {
 	// The expression
-	Exp Expression
+	Exp    Expression
+	Tokens []lexer.Token
 }
 
 var _ Statement = (*ExpressionStatement)(nil)
@@ -21,9 +24,14 @@ func (exp ExpressionStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerRe
 	return nil, nil
 }
 
+func (expr ExpressionStatement) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
 func (es ExpressionStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
-	m["expression"] = es.Exp
+	m["Expression"] = es.Exp
+	m["Tokens"] = es.Tokens
 
 	res := make(map[string]any)
 	res["ast.ExpressionStatement"] = m

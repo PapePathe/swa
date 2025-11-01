@@ -93,7 +93,7 @@ func (cs ArrayAccessExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Name"] = cs.Name
 	m["Index"] = cs.Index
-	m["Tokens"] = cs.Tokens
+	m["Tokens"] = cs.TokenStream()
 
 	res := make(map[string]any)
 	res["ast.ArrayAccessExpression"] = m

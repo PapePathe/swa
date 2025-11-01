@@ -71,6 +71,7 @@ func (expr ReturnStatement) TokenStream() []lexer.Token {
 func (rs ReturnStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Value"] = rs.Value
+	m["Tokens"] = rs.Tokens
 
 	res := make(map[string]any)
 	res["ast.ReturnStatement"] = m

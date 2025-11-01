@@ -103,11 +103,12 @@ func (expr StructInitializationExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
 
-func (cs StructInitializationExpression) MarshalJSON() ([]byte, error) {
+func (expr StructInitializationExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
-	m["Name"] = cs.Name
-	m["Properties"] = cs.Properties
-	m["Values"] = cs.Values
+	m["Name"] = expr.Name
+	m["Properties"] = expr.Properties
+	m["Values"] = expr.Values
+	m["Tokens"] = expr.Tokens
 
 	res := make(map[string]any)
 	res["ast.StructInitializationExpression"] = m

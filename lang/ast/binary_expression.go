@@ -20,8 +20,8 @@ type BinaryExpression struct {
 
 var _ Expression = (*BinaryExpression)(nil)
 
-func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	err, compiledLeftValue, compiledRightValue := be.compileLeftAndRight(ctx)
+func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
+	err, compiledLeftValue, compiledRightValue := expr.compileLeftAndRight(ctx)
 	if err != nil {
 		return err, nil
 	}
@@ -33,24 +33,41 @@ func (be BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 	if compiledLeftValue.Type().TypeKind() == llvm.PointerTypeKind {
 		finalLeftValue = ctx.Builder.CreateLoad(compiledLeftValue.GlobalValueType(), *compiledLeftValue, "")
 	} else {
-		finalLeftValue = be.castToType(ctx, ctype, *compiledLeftValue)
+		finalLeftValue = expr.castToType(ctx, ctype, *compiledLeftValue)
 	}
 
 	if compiledRightValue.Type().TypeKind() == llvm.PointerTypeKind {
 		finalRightValue = ctx.Builder.CreateLoad(compiledRightValue.GlobalValueType(), *compiledRightValue, "")
 	} else {
-		finalRightValue = be.castToType(ctx, ctype, *compiledRightValue)
+		finalRightValue = expr.castToType(ctx, ctype, *compiledRightValue)
 	}
 
-	handler, ok := handlers[be.Operator.Kind]
+	handler, ok := handlers[expr.Operator.Kind]
 	if !ok {
-		return fmt.Errorf("unsupported operator <%s>", be.Operator.Kind), nil
+		return fmt.Errorf("unsupported operator <%s>", expr.Operator.Kind), nil
 	}
 	return handler(ctx, finalLeftValue, finalRightValue)
 }
 
-func (be BinaryExpression) compileLeftAndRight(ctx *CompilerCtx) (error, *llvm.Value, *llvm.Value) {
-	err, compiledLeftValue := be.Left.CompileLLVM(ctx)
+func (expr BinaryExpression) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
+func (expr BinaryExpression) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["Left"] = expr.Left
+	m["Right"] = expr.Right
+	m["Operator"] = expr.Operator
+	m["Tokens"] = expr.TokenStream()
+
+	res := make(map[string]any)
+	res["ast.BinaryExpression"] = m
+
+	return json.Marshal(res)
+}
+
+func (expr BinaryExpression) compileLeftAndRight(ctx *CompilerCtx) (error, *llvm.Value, *llvm.Value) {
+	err, compiledLeftValue := expr.Left.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil, nil
 	}
@@ -63,7 +80,7 @@ func (be BinaryExpression) compileLeftAndRight(ctx *CompilerCtx) (error, *llvm.V
 		return fmt.Errorf("left side of expression is of type void"), nil, nil
 	}
 
-	err, compiledRightValue := be.Right.CompileLLVM(ctx)
+	err, compiledRightValue := expr.Right.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil, nil
 	}
@@ -97,7 +114,7 @@ func commonType(l, r llvm.Value) llvm.Type {
 	panic(fmt.Errorf("Unhandled combination %v %v", r.Type(), l.Type()))
 }
 
-func (be BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Value) llvm.Value {
+func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Value) llvm.Value {
 	if t.TypeKind() == v.Type().TypeKind() {
 		return v
 	}
@@ -163,20 +180,4 @@ func equals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	res := ctx.Builder.CreateICmp(llvm.IntEQ, l, r, "")
 
 	return nil, &CompilerResult{Value: &res}
-}
-
-func (expr BinaryExpression) TokenStream() []lexer.Token {
-	return expr.Tokens
-}
-
-func (be BinaryExpression) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["left"] = be.Left
-	m["right"] = be.Right
-	m["operator"] = be.Operator
-
-	res := make(map[string]any)
-	res["ast.BinaryExpression"] = m
-
-	return json.Marshal(res)
 }

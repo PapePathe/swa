@@ -6,6 +6,7 @@ import "swahili/lang/lexer"
 type Statement interface {
 	CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 	MarshalJSON() ([]byte, error)
+	TokenStream() []lexer.Token
 }
 
 // Expression ...

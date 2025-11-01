@@ -56,6 +56,10 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Comp
 	return nil, nil
 }
 
+func (expr StructDeclarationStatement) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
 func (expr StructDeclarationStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Name"] = expr.Name
