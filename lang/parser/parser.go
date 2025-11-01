@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"os"
+
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
