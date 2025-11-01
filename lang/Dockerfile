@@ -6,4 +6,4 @@ COPY . .
 
 RUN go build -o swa main.go && rm -rf ./*.go
 
-CMD ["./swa"]
+ENTRYPOINT ["./DockerfileEntrypoint.sh"]
