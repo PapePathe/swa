@@ -139,6 +139,9 @@ type binaryHandlerFunc func(ctx *CompilerCtx, l, r llvm.Value) (error, *Compiler
 
 var handlers = map[lexer.TokenKind]binaryHandlerFunc{
 	lexer.Plus:              add,
+	lexer.Minus:             substract,
+	lexer.Star:              multiply,
+	lexer.Divide:            divide,
 	lexer.GreaterThan:       greaterThan,
 	lexer.GreaterThanEquals: greaterThanEquals,
 	lexer.LessThan:          lessThan,
@@ -148,6 +151,24 @@ var handlers = map[lexer.TokenKind]binaryHandlerFunc{
 
 func add(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	res := ctx.Builder.CreateAdd(l, r, "")
+
+	return nil, &CompilerResult{Value: &res}
+}
+
+func divide(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
+	res := ctx.Builder.CreateSDiv(l, r, "")
+
+	return nil, &CompilerResult{Value: &res}
+}
+
+func multiply(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
+	res := ctx.Builder.CreateMul(l, r, "")
+
+	return nil, &CompilerResult{Value: &res}
+}
+
+func substract(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
+	res := ctx.Builder.CreateSub(l, r, "")
 
 	return nil, &CompilerResult{Value: &res}
 }
