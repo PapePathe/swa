@@ -3,10 +3,9 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
-
-	"swahili/lang/lexer"
 )
 
 type StructDeclarationStatement struct {
@@ -47,11 +46,13 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Comp
 	newtype := ctx.Context.StructCreateNamed(sd.Name)
 	newtype.StructSetBody(attrs, false)
 
-	ctx.StructSymbolTable[sd.Name] = StructSymbolTableEntry{
-		LLVMType:      newtype,
-		Metadata:      sd,
-		PropertyTypes: attrs,
-	}
+	ctx.AddStructSymbol(
+		sd.Name,
+		&StructSymbolTableEntry{
+			LLVMType:      newtype,
+			Metadata:      sd,
+			PropertyTypes: attrs,
+		})
 
 	return nil, nil
 }

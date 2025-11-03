@@ -2,10 +2,9 @@ package ast
 
 import (
 	"encoding/json"
+	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
-
-	"swahili/lang/lexer"
 )
 
 type ArrayAccessExpression struct {
@@ -23,14 +22,14 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 		return ctx.Dialect.Error(key, varName.Value), nil, nil, 0
 	}
 
-	array, ok := ctx.SymbolTable[varName.Value]
-	if !ok {
+	err, array := ctx.FindSymbol(varName.Value)
+	if err != nil {
 		key := "ArrayAccessExpression.NotFoundInSymbolTable"
 		return ctx.Dialect.Error(key, varName.Value), nil, nil, 0
 	}
 
-	entry, ok := ctx.ArraysSymbolTable[varName.Value]
-	if !ok {
+	err, entry := ctx.FindArraySymbol(varName.Value)
+	if err != nil {
 		key := "ArrayAccessExpression.NotFoundInArraysSymbolTable"
 		return ctx.Dialect.Error(key, varName.Value), nil, nil, 0
 	}
@@ -44,7 +43,7 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 		return ctx.Dialect.Error(key, itemIndex, varName.Value), nil, nil, 0
 	}
 
-	return nil, &entry, &array, int(itemIndex.Value)
+	return nil, entry, array, int(itemIndex.Value)
 }
 
 func (expr ArrayAccessExpression) CompileLLVMForPrint(ctx *CompilerCtx) (error, *llvm.Value) {

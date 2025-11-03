@@ -3,7 +3,6 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
-
 	"swahili/lang/lexer"
 )
 
@@ -20,13 +19,12 @@ func (e SymbolExpression) String() string {
 }
 
 func (expr SymbolExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	val, ok := ctx.SymbolTable[expr.Value]
-
-	if !ok {
+	err, val := ctx.FindSymbol(expr.Value)
+	if err != nil {
 		return fmt.Errorf("Variable %s does not exist", expr.Value), nil
 	}
 
-	return nil, &CompilerResult{Value: &val.Value}
+	return nil, &CompilerResult{Value: &val.Value, SymbolTableEntry: val}
 }
 
 func (expr SymbolExpression) TokenStream() []lexer.Token {
