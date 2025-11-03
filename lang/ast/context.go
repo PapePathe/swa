@@ -162,6 +162,8 @@ type CompilerResult struct {
 	// Some expressions return results
 	Value *llvm.Value
 
+	SymbolTableEntry *SymbolTableEntry
+
 	// Some expressions return a value that will be added to the structs symbol table
 	StructSymbolTableEntry *StructSymbolTableEntry
 
