@@ -3,10 +3,9 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
-
-	"swahili/lang/lexer"
 )
 
 // VarDeclarationStatement ...
@@ -43,23 +42,24 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 			return fmt.Errorf("explicit type is not a symbol %v", vd.ExplicitType), nil
 		}
 
-		typeDef, ok := ctx.StructSymbolTable[explicitType.Name]
-		if !ok {
+		err, typeDef := ctx.FindStructSymbol(explicitType.Name)
+		if err != nil {
 			return fmt.Errorf("Could not find typedef for %s in structs symbol table", explicitType.Name), nil
 		}
 
-		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val.Value, Ref: &typeDef}
+		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Ref: typeDef})
 	case StringExpression:
 		glob := llvm.AddGlobal(*ctx.Module, val.Value.Type(), "")
 		glob.SetInitializer(*val.Value)
-		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: glob}
+		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: glob})
 	case NumberExpression:
-		glob := llvm.AddGlobal(*ctx.Module, val.Value.Type(), "")
-		glob.SetInitializer(*val.Value)
-		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val.Value}
+		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), "")
+
+		ctx.Builder.CreateStore(*val.Value, alloc)
+		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
 	case ArrayInitializationExpression:
-		ctx.SymbolTable[vd.Name] = SymbolTableEntry{Value: *val.Value}
-		ctx.ArraysSymbolTable[vd.Name] = *val.ArraySymbolTableEntry
+		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: val.Value})
+		ctx.AddArraySymbol(vd.Name, val.ArraySymbolTableEntry)
 	default:
 		panic(fmt.Sprintf("VarDeclarationStatement: Unhandled expression type (%v)", vd.Value))
 	}

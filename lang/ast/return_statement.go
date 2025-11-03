@@ -3,10 +3,9 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
-
-	"swahili/lang/lexer"
 )
 
 type ReturnStatement struct {
@@ -34,8 +33,8 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 
 		ctx.Builder.CreateRet(*loadedval)
 	case SymbolExpression:
-		val, ok := ctx.SymbolTable[v.Value]
-		if !ok {
+		err, val := ctx.FindSymbol(v.Value)
+		if err != nil {
 			return fmt.Errorf("Undefined variable %s", v.Value), nil
 		}
 

@@ -3,10 +3,9 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
-
-	"swahili/lang/lexer"
 )
 
 type StructInitializationExpression struct {
@@ -24,9 +23,8 @@ type StructItemValue struct {
 }
 
 func (si StructInitializationExpression) InitValues(ctx *CompilerCtx) (error, []StructItemValue) {
-	newtype, ok := ctx.StructSymbolTable[si.Name]
-
-	if !ok {
+	err, newtype := ctx.FindStructSymbol(si.Name)
+	if err != nil {
 		err := fmt.Errorf("StructInitializationExpression: Undefined struct named %s", si.Name)
 
 		return err, nil
@@ -60,9 +58,8 @@ func (si StructInitializationExpression) InitValues(ctx *CompilerCtx) (error, []
 }
 
 func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	newtype, ok := ctx.StructSymbolTable[si.Name]
-
-	if !ok {
+	err, newtype := ctx.FindStructSymbol(si.Name)
+	if err != nil {
 		err := fmt.Errorf("StructInitializationExpression: Undefined struct named %s", si.Name)
 
 		return err, nil

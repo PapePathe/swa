@@ -3,10 +3,9 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
-
-	"swahili/lang/lexer"
 )
 
 type MemberExpression struct {
@@ -24,8 +23,8 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 		return fmt.Errorf("struct object should be a symbol %v", obj), nil
 	}
 
-	varDef, ok := ctx.SymbolTable[obj.Value]
-	if !ok {
+	err, varDef := ctx.FindSymbol(obj.Value)
+	if err != nil {
 		return fmt.Errorf("Variable %s of type Struct is not defined", obj.Value), nil
 	}
 
@@ -50,8 +49,8 @@ func (expr MemberExpression) CompileLLVMForPropertyAccess(ctx *CompilerCtx) (err
 		return fmt.Errorf("struct object should be a symbol %v", obj), nil
 	}
 
-	varDef, ok := ctx.SymbolTable[obj.Value]
-	if !ok {
+	err, varDef := ctx.FindSymbol(obj.Value)
+	if err != nil {
 		return fmt.Errorf("Variable %s of type Struct is not defined", obj.Value), nil
 	}
 

@@ -3,10 +3,9 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
-
-	"swahili/lang/lexer"
 )
 
 type ArrayInitializationExpression struct {
@@ -31,11 +30,11 @@ func (expr ArrayInitializationExpression) extractArrayType(ctx *CompilerCtx) (*l
 	case DataTypeSymbol:
 		sym, _ := arrayType.Underlying.(SymbolType)
 
-		sdef, ok := ctx.StructSymbolTable[sym.Name]
-		if !ok {
+		err, sdef := ctx.FindStructSymbol(sym.Name)
+		if err != nil {
 			return nil, nil, fmt.Errorf("Type (%s) is not a valid struct", expr.Underlying)
 		}
-		return &sdef.LLVMType, &sdef, nil
+		return &sdef.LLVMType, sdef, nil
 	case DataTypeString:
 		typ := llvm.PointerType(ctx.Context.Int32Type(), 0)
 		return &typ, nil, nil

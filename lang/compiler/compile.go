@@ -33,18 +33,15 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect)
 
 	builder := context.NewBuilder()
 	defer builder.Dispose()
-	ctx := ast.CompilerCtx{
-		Context:           &context,
-		Builder:           &builder,
-		Module:            &module,
-		Dialect:           dialect,
-		SymbolTable:       map[string]ast.SymbolTableEntry{},
-		StructSymbolTable: map[string]ast.StructSymbolTableEntry{},
-		FuncSymbolTable:   map[string]llvm.Type{},
-		ArraysSymbolTable: map[string]ast.ArraySymbolTableEntry{},
-	}
+	ctx := ast.NewCompilerContext(
+		&context,
+		&builder,
+		&module,
+		dialect,
+		nil,
+	)
 
-	err, _ := tree.CompileLLVM(&ctx)
+	err, _ := tree.CompileLLVM(ctx)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)

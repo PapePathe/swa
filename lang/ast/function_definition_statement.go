@@ -3,21 +3,20 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
-
-	"swahili/lang/lexer"
 )
 
 type FuncArg struct {
 	Name    string
-	ArgType string
+	ArgType Type
 }
 
 type FuncDeclStatement struct {
 	Body       BlockStatement
 	Name       string
-	ReturnType string
+	ReturnType Type
 	Args       []FuncArg
 	Tokens     []lexer.Token
 }
@@ -30,32 +29,42 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 	for _, arg := range fd.Args {
 		var param llvm.Type
 
-		switch arg.ArgType {
-		case "Entier_32":
+		switch arg.ArgType.Value() {
+		case DataTypeNumber:
 			param = llvm.GlobalContext().Int32Type()
-		case "Chaine":
-			param = llvm.GlobalContext().Int8Type()
+		case DataTypeIntType:
+			param = llvm.GlobalContext().Int32Type()
+		case DataTypeString:
+			param = llvm.PointerType(llvm.GlobalContext().Int8Type(), 0)
 		default:
-			panic(fmt.Errorf("argument type %s not supported", arg.ArgType))
+			panic(fmt.Errorf("argument type %v not supported", arg))
 		}
 
 		params = append(params, param)
 	}
 
-	newFunc := llvm.AddFunction(
-		*ctx.Module,
-		fd.Name,
-		llvm.FunctionType(
-			llvm.GlobalContext().Int32Type(),
-			params,
-			false,
-		),
-	)
+	var returnType llvm.Type
+	switch fd.ReturnType.Value() {
+	case DataTypeNumber:
+		returnType = llvm.GlobalContext().Int32Type()
+	case DataTypeIntType:
+		returnType = llvm.GlobalContext().Int32Type()
+	case DataTypeString:
+		returnType = llvm.PointerType(llvm.GlobalContext().Int8Type(), 0)
+	default:
+		panic(fmt.Errorf("argument type %v not supported in return type", fd.ReturnType))
+	}
+
+	newfuncType := llvm.FunctionType(returnType, params, false)
+	newFunc := llvm.AddFunction(*ctx.Module, fd.Name, newfuncType)
+	if err := ctx.AddFuncSymbol(fd.Name, &newfuncType); err != nil {
+		return err, nil
+	}
 
 	for i, p := range newFunc.Params() {
 		name := fd.Args[i].Name
 
-		ctx.SymbolTable[name] = SymbolTableEntry{Value: p}
+		ctx.AddSymbol(name, &SymbolTableEntry{Value: p})
 		p.SetName(name)
 	}
 
@@ -79,6 +88,7 @@ func (fd FuncDeclStatement) MarshalJSON() ([]byte, error) {
 	m["Body"] = fd.Body
 	m["Name"] = fd.Name
 	m["ReturnType"] = fd.ReturnType
+	m["Tokens"] = fd.Tokens
 
 	res := make(map[string]any)
 	res["ast.FuncDeclStatement"] = m

@@ -2,7 +2,6 @@ package ast
 
 import (
 	"encoding/json"
-
 	"swahili/lang/lexer"
 )
 
