@@ -86,4 +86,5 @@ func createTokenLookups() {
 	statement(lexer.Main, ParseMainStatement)
 	statement(lexer.Function, ParseFunctionDeclaration)
 	statement(lexer.Return, ParseReturnStatement)
+	led(lexer.OpenParen, Call, ParseFunctionCall)
 }
