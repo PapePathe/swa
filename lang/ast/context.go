@@ -34,6 +34,7 @@ func NewCompilerContext(
 	p *CompilerCtx,
 ) *CompilerCtx {
 	return &CompilerCtx{
+		parent:            p,
 		Context:           c,
 		Builder:           b,
 		Module:            m,
