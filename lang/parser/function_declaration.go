@@ -6,39 +6,76 @@ import (
 )
 
 func ParseFunctionDeclaration(p *Parser) (ast.Statement, error) {
+	tokens := []lexer.Token{}
+
 	funDecl := ast.FuncDeclStatement{}
 	args := []ast.FuncArg{}
 
-	p.expect(lexer.Function)
-	funDecl.Name = p.expect(lexer.Identifier).Value
-	p.expect(lexer.OpenParen)
+	tokens = append(tokens, p.expect(lexer.Function))
+	tok := p.expect(lexer.Identifier)
+	tokens = append(tokens, tok)
+	funDecl.Name = tok.Value
+	tokens = append(tokens, p.expect(lexer.OpenParen))
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseParen {
-		name := p.expect(lexer.Identifier).Value
-		p.expect(lexer.Colon)
-		argType := p.expect(lexer.Identifier).Value
+		tok := p.expect(lexer.Identifier)
+		tokens = append(tokens, tok)
+		tokens = append(tokens, p.expect(lexer.Colon))
+		argType, toks := parseType(p, DefaultBindingPower)
+		tokens = append(tokens, toks...)
 		arg := ast.FuncArg{
-			Name:    name,
+			Name:    tok.Value,
 			ArgType: argType,
 		}
 		args = append(args, arg)
 
 		if p.currentToken().Kind == lexer.Comma {
-			p.expect(lexer.Comma)
+			tokens = append(tokens, p.expect(lexer.Comma))
 		}
 	}
 
 	funDecl.Args = args
 
-	p.expect(lexer.CloseParen)
+	tokens = append(tokens, p.expect(lexer.CloseParen))
 
-	funDecl.ReturnType = p.expect(lexer.Identifier).Value
+	returnType, tokens := parseType(p, DefaultBindingPower)
+	tokens = append(tokens, tokens...)
+	funDecl.ReturnType = returnType
 	body, err := ParseBlockStatement(p)
 	if err != nil {
 		return nil, err
 	}
+	tokens = append(tokens, body.TokenStream()...)
 
 	funDecl.Body = body
+	funDecl.Tokens = tokens
 
 	return funDecl, nil
+}
+
+func ParseFunctionCall(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
+	tokens := []lexer.Token{}
+	args := []ast.Expression{}
+	tokens = append(tokens, left.TokenStream()...)
+	tokens = append(tokens, p.expect(lexer.OpenParen))
+
+	for p.hasTokens() && p.currentToken().Kind != lexer.CloseParen {
+		arg, err := parseExpression(p, DefaultBindingPower)
+		if err != nil {
+			return nil, err
+		}
+		args = append(args, arg)
+		tokens = append(tokens, arg.TokenStream()...)
+		if p.currentToken().Kind == lexer.Comma {
+			tokens = append(tokens, p.expect(lexer.Comma))
+		}
+	}
+
+	tokens = append(tokens, p.expect(lexer.CloseParen))
+
+	return ast.FunctionCallExpression{
+		Name:   left,
+		Args:   args,
+		Tokens: tokens,
+	}, nil
 }
