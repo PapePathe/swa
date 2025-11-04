@@ -51,10 +51,9 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 	case StringExpression:
 		glob := llvm.AddGlobal(*ctx.Module, val.Value.Type(), "")
 		glob.SetInitializer(*val.Value)
-		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: glob})
+		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: glob, Address: &glob})
 	case NumberExpression:
 		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), "")
-
 		ctx.Builder.CreateStore(*val.Value, alloc)
 		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
 	case ArrayInitializationExpression:

@@ -40,7 +40,7 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 
 	addr := ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, varDef.Value, propIndex, "")
 
-	return nil, &CompilerResult{Value: &addr}
+	return nil, &CompilerResult{Value: &addr, SymbolTableEntry: varDef}
 }
 
 func (expr MemberExpression) CompileLLVMForPropertyAccess(ctx *CompilerCtx) (error, *llvm.Value) {
