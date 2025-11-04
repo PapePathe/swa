@@ -13,7 +13,5 @@ func TestMissingDialect(t *testing.T) {
 		T:                       t,
 	}
 
-	defer req.Cleanup()
-
 	req.AssertCompileAndExecute()
 }
