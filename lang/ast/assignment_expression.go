@@ -36,9 +36,11 @@ func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 		return nil, &CompilerResult{Value: &str}
 	}
 
-	str := ctx.Builder.CreateStore(*val.Value, *assignee.Value)
+	panic("test")
 
-	return nil, &CompilerResult{Value: &str}
+	// str := ctx.Builder.CreateStore(*val.Value, *assignee.Value)
+	//
+	// return nil, &CompilerResult{Value: &str}
 }
 
 func (expr AssignmentExpression) TokenStream() []lexer.Token {
