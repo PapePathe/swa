@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -56,12 +57,23 @@ func (cr *CompileRequest) RunProgram() error {
 
 func (cr *CompileRequest) AssertCompileAndExecute() {
 	if err := cr.Compile(); err != nil {
-		cr.T.Fatalf("Compiler error (%s)", err)
+		sb := strings.Builder{}
+		sb.WriteString(fmt.Sprintf("Compiler error (%s)", err))
+
+		data, err := os.ReadFile(fmt.Sprintf("%s.ll", cr.OutputPath))
+		if err == nil {
+			sb.WriteString("\n")
+			sb.WriteString(string(data))
+		}
+
+		cr.T.Fatal(sb.String())
 	}
 
 	if err := cr.RunProgram(); err != nil {
 		cr.T.Fatalf("Runtime error (%s)", err)
 	}
+
+	cr.Cleanup()
 }
 
 func (cr *CompileRequest) Cleanup() {

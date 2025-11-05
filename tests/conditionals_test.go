@@ -14,8 +14,6 @@ func TestGreaterThanEquals(t *testing.T) {
 			T:                       t,
 		}
 
-		defer req.Cleanup()
-
 		req.AssertCompileAndExecute()
 	})
 
@@ -26,8 +24,6 @@ func TestGreaterThanEquals(t *testing.T) {
 			ExpectedExecutionOutput: "okok",
 			T:                       t,
 		}
-
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
@@ -44,8 +40,6 @@ func TestGreaterThanEqualsWithPointerAndInt(t *testing.T) {
 			T:                       t,
 		}
 
-		defer req.Cleanup()
-
 		req.AssertCompileAndExecute()
 	})
 
@@ -56,8 +50,6 @@ func TestGreaterThanEqualsWithPointerAndInt(t *testing.T) {
 			ExpectedExecutionOutput: "okok",
 			T:                       t,
 		}
-
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
@@ -73,8 +65,6 @@ func TestLessThanEquals(t *testing.T) {
 			T:                       t,
 		}
 
-		defer req.Cleanup()
-
 		req.AssertCompileAndExecute()
 	})
 
@@ -84,8 +74,6 @@ func TestLessThanEquals(t *testing.T) {
 			ExpectedExecutionOutput: "okokokokokokok",
 			T:                       t,
 		}
-
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
@@ -101,8 +89,6 @@ func TestEquals(t *testing.T) {
 			T:                       t,
 		}
 
-		defer req.Cleanup()
-
 		req.AssertCompileAndExecute()
 	})
 
@@ -112,8 +98,6 @@ func TestEquals(t *testing.T) {
 			ExpectedExecutionOutput: "okokokokokok",
 			T:                       t,
 		}
-
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})

@@ -39,8 +39,6 @@ func TestStructPropertyAssignment(t *testing.T) {
 			T:         t,
 		}
 
-		defer req.Cleanup()
-
 		req.AssertCompileAndExecute()
 	})
 
@@ -49,8 +47,6 @@ func TestStructPropertyAssignment(t *testing.T) {
 			InputPath: "./structs/assignment/source.english.swa",
 			T:         t,
 		}
-
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
@@ -67,8 +63,6 @@ func TestStructAll(t *testing.T) {
 			T:                       t,
 		}
 
-		defer req.Cleanup()
-
 		req.AssertCompileAndExecute()
 	})
 
@@ -79,8 +73,6 @@ func TestStructAll(t *testing.T) {
 			ExpectedExecutionOutput: "Nom: (Pathe), Stack Technique: (Ruby, Rust, Go), Age: (40)",
 			T:                       t,
 		}
-
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
@@ -95,8 +87,6 @@ func TestStructPropertyInReturnExpression(t *testing.T) {
 			T:         t,
 		}
 
-		defer req.Cleanup()
-
 		req.AssertCompileAndExecute()
 	})
 
@@ -105,8 +95,6 @@ func TestStructPropertyInReturnExpression(t *testing.T) {
 			InputPath: "./structs/return-expression/source.french.swa",
 			T:         t,
 		}
-
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
