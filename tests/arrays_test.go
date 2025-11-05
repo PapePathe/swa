@@ -52,7 +52,6 @@ func TestArrayOfStructs(t *testing.T) {
 			ExpectedExecutionOutput: "(nom: Pathe, age: 40, stack: Ruby, Rust, Go) (nom: Lucien, age: 24, stack: Typescript, HTML, Css) (nom: Manel, age: 25, stack: Typescript, Ruby) (nom: Bintou, age: 28, stack: Javascript, Css, HTML)",
 			T:                       t,
 		}
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
@@ -64,7 +63,6 @@ func TestArrayOfStructs(t *testing.T) {
 			ExpectedExecutionOutput: "(nom: Pathe, age: 40, stack: Ruby, Rust, Go) (nom: Lucien, age: 24, stack: Typescript, HTML, Css) (nom: Manel, age: 25, stack: Typescript, Ruby) (nom: Bintou, age: 28, stack: Javascript, Css, HTML)",
 			T:                       t,
 		}
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
@@ -80,7 +78,6 @@ func TestArrayOfStrings(t *testing.T) {
 			ExpectedExecutionOutput: "valeurs dans le tableau: (abc),(efg),(ijk)",
 			T:                       t,
 		}
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
@@ -92,7 +89,6 @@ func TestArrayOfStrings(t *testing.T) {
 			ExpectedExecutionOutput: "values in the array: (abc),(efg),(ijk)",
 			T:                       t,
 		}
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
@@ -108,7 +104,6 @@ func TestArraysInPrintStatement(t *testing.T) {
 			ExpectedExecutionOutput: "Les valeurs dans le tableau sont: 1 2 3 4 5",
 			T:                       t,
 		}
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
@@ -120,7 +115,6 @@ func TestArraysInPrintStatement(t *testing.T) {
 			ExpectedExecutionOutput: "Array values are: 1 2 3 4 5",
 			T:                       t,
 		}
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
@@ -135,7 +129,6 @@ func TestArrays(t *testing.T) {
 			ExpectedOutput: "",
 			T:              t,
 		}
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
@@ -146,7 +139,6 @@ func TestArrays(t *testing.T) {
 			ExpectedOutput: "",
 			T:              t,
 		}
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
