@@ -53,7 +53,6 @@ func (expr AssignmentExpression) MarshalJSON() ([]byte, error) {
 	m["Operator"] = expr.Operator
 	m["Assignee"] = expr.Assignee
 	m["Value"] = expr.Value
-	m["Tokens"] = expr.TokenStream()
 
 	res := make(map[string]any)
 	res["ast.AssignmentExpression"] = m

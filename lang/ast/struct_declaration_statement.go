@@ -66,7 +66,6 @@ func (expr StructDeclarationStatement) MarshalJSON() ([]byte, error) {
 	m["Name"] = expr.Name
 	m["Properties"] = expr.Properties
 	m["Types"] = expr.Types
-	m["Tokens"] = expr.Tokens
 
 	res := make(map[string]any)
 	res["ast.StructDeclarationStatement"] = m

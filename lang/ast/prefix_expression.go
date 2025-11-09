@@ -31,7 +31,6 @@ func (cs PrefixExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Operator"] = cs.Operator
 	m["RightExpression"] = cs.RightExpression
-	m["Tokens"] = cs.Tokens
 
 	res := make(map[string]any)
 	res["ast.PrefixExpression"] = m

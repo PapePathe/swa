@@ -76,7 +76,6 @@ func (cs VarDeclarationStatement) MarshalJSON() ([]byte, error) {
 	m["IsConstant"] = cs.IsConstant
 	m["Value"] = cs.Value
 	m["ExplicitType"] = cs.ExplicitType
-	m["Tokens"] = cs.TokenStream()
 
 	res := make(map[string]any)
 	res["ast.VarDeclarationStatement"] = m

@@ -60,7 +60,6 @@ func (fd FunctionCallExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Name"] = fd.Name
 	m["Args"] = fd.Args
-	m["Tokens"] = fd.Tokens
 
 	res := make(map[string]any)
 	res["ast.FunctionCallExpression"] = m
