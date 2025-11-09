@@ -105,7 +105,6 @@ func (expr StructInitializationExpression) MarshalJSON() ([]byte, error) {
 	m["Name"] = expr.Name
 	m["Properties"] = expr.Properties
 	m["Values"] = expr.Values
-	m["Tokens"] = expr.Tokens
 
 	res := make(map[string]any)
 	res["ast.StructInitializationExpression"] = m

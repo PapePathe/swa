@@ -117,7 +117,6 @@ func (cs ArrayInitializationExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["UnderlyingType"] = cs.Underlying
 	m["Contents"] = cs.Contents
-	m["Tokens"] = cs.Tokens
 
 	res := make(map[string]any)
 	res["ast.ArrayInitializationExpression"] = m

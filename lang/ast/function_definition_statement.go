@@ -88,7 +88,6 @@ func (fd FuncDeclStatement) MarshalJSON() ([]byte, error) {
 	m["Body"] = fd.Body
 	m["Name"] = fd.Name
 	m["ReturnType"] = fd.ReturnType
-	m["Tokens"] = fd.Tokens
 
 	res := make(map[string]any)
 	res["ast.FuncDeclStatement"] = m

@@ -78,7 +78,6 @@ func (expr PrintStatetement) TokenStream() []lexer.Token {
 func (expr PrintStatetement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Values"] = expr.Values
-	m["Tokens"] = expr.Tokens
 
 	res := make(map[string]any)
 	res["ast.PrintStatetement"] = m
