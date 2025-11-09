@@ -89,7 +89,6 @@ func (cs ArrayOfStructsAccessExpression) MarshalJSON() ([]byte, error) {
 	m["Name"] = cs.Name
 	m["Index"] = cs.Index
 	m["Property"] = cs.Property
-	m["Tokens"] = cs.Tokens
 
 	res := make(map[string]any)
 	res["ast.ArrayOfStructsAccessExpression"] = m
