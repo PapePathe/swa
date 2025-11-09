@@ -22,15 +22,18 @@ var _ Expression = (*AssignmentExpression)(nil)
 
 func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	err, val := expr.Value.CompileLLVM(ctx)
-
 	if err != nil {
 		return err, nil
 	}
 
 	err, assignee := expr.Assignee.CompileLLVM(ctx)
-
 	if err != nil {
 		return err, nil
+	}
+
+	if assignee.SymbolTableEntry != nil && assignee.SymbolTableEntry.Address != nil {
+		str := ctx.Builder.CreateStore(*val.Value, *assignee.SymbolTableEntry.Address)
+		return nil, &CompilerResult{Value: &str}
 	}
 
 	str := ctx.Builder.CreateStore(*val.Value, *assignee.Value)
