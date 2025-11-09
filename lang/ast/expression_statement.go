@@ -31,7 +31,6 @@ func (expr ExpressionStatement) TokenStream() []lexer.Token {
 func (es ExpressionStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Expression"] = es.Exp
-	m["Tokens"] = es.Tokens
 
 	res := make(map[string]any)
 	res["ast.ExpressionStatement"] = m

@@ -58,7 +58,6 @@ func (expr BinaryExpression) MarshalJSON() ([]byte, error) {
 	m["Left"] = expr.Left
 	m["Right"] = expr.Right
 	m["Operator"] = expr.Operator
-	m["Tokens"] = expr.TokenStream()
 
 	res := make(map[string]any)
 	res["ast.BinaryExpression"] = m
