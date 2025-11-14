@@ -10,6 +10,7 @@ var _ Statement = (*WhileStatement)(nil)
 type WhileStatement struct {
 	Condition Expression
 	Body      BlockStatement
+	Tokens    []lexer.Token
 }
 
 func (expr WhileStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
@@ -43,7 +44,7 @@ func (expr WhileStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 }
 
 func (expr WhileStatement) TokenStream() []lexer.Token {
-	return []lexer.Token{}
+	return expr.Tokens
 }
 
 func (expr WhileStatement) MarshalJSON() ([]byte, error) {
