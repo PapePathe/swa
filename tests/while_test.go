@@ -27,6 +27,16 @@ func TestWhileStatement(t *testing.T) {
 
 			req.AssertCompileAndExecute()
 		})
+
+		t.Run("Iterate from zero to ten included", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./while/from-zero-to-ten-included.french.swa",
+				T:                       t,
+				ExpectedExecutionOutput: "0 1 2 3 4 5 6 7 8 9 10 ",
+			}
+
+			req.AssertCompileAndExecute()
+		})
 	})
 
 	t.Run("English", func(t *testing.T) {
@@ -45,6 +55,26 @@ func TestWhileStatement(t *testing.T) {
 				InputPath:               "./while/from-zero-to-ten.english.swa",
 				T:                       t,
 				ExpectedExecutionOutput: "0 1 2 3 4 5 6 7 8 9 ",
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("Iterate array", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./while/array.english.swa",
+				T:                       t,
+				ExpectedExecutionOutput: "5 15 25 35 45 55 65 75 85 95 ",
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("Iterate from zero to ten included", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./while/from-zero-to-ten-included.english.swa",
+				T:                       t,
+				ExpectedExecutionOutput: "0 1 2 3 4 5 6 7 8 9 10 ",
 			}
 
 			req.AssertCompileAndExecute()
