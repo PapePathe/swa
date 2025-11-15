@@ -21,7 +21,6 @@ var _ Expression = (*AssignmentExpression)(nil)
 
 func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	err, val := expr.Value.CompileLLVM(ctx)
-
 	if err != nil {
 		return err, nil
 	}
