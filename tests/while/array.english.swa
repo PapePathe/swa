@@ -1,0 +1,14 @@
+dialect:english;
+
+start() int {
+  let x : int = 0;
+  let array : []int = []int{5,15,25,35,45,55,65,75,85,95};
+
+  while (x < 10) {
+    print("%d ", array[x]);
+
+    x = x + 1;
+  }
+
+  return 0;
+}

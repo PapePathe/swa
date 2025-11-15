@@ -23,6 +23,7 @@ var tks = map[TokenKind]string{
 	Identifier:         "IDENTIFIER",
 	KeywordIf:          "IF",
 	KeywordElse:        "ELSE",
+	KeywordWhile:       "WHILE",
 	LessThan:           "LESS_THAN",
 	LessThanEquals:     "LESS_THAN_EQUALS",
 	Let:                "LET",
@@ -73,7 +74,8 @@ const (
 	KeywordIf
 	// KeywordElse represents the "else" keyword.
 	KeywordElse
-
+	// KeywordWhile represents the while statement
+	KeywordWhile
 	// TypeInt represents the "int" type.
 	TypeInt
 	// TypeString represents the "string" type.

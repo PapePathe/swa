@@ -1,0 +1,12 @@
+dialect:french;
+
+demarrer() entier {
+  variable x : entier = 10;
+  tant que(x > 0) {
+    afficher("%d ", x);
+
+    x = x - 1;
+  }
+
+  retourner 0;
+}

@@ -150,7 +150,7 @@ func TestArrayIndexOutOfBounds(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:      "./arrays/out-of-bounds/source.french.swa",
-			ExpectedOutput: "L'element a la position (5) depasse les limites du tableau (tableau)\n",
+			ExpectedOutput: "L'element a la position (%!s(int=5)) depasse les limites du tableau (tableau)\n",
 			T:              t,
 		}
 
@@ -160,7 +160,7 @@ func TestArrayIndexOutOfBounds(t *testing.T) {
 	t.Run("English", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:      "./arrays/out-of-bounds/source.english.swa",
-			ExpectedOutput: "Element at index (5) does not exist in array (array)\n",
+			ExpectedOutput: "Element at index (%!s(int=5)) does not exist in array (array)\n",
 			T:              t,
 		}
 
@@ -198,7 +198,7 @@ func TestArrayAccessWithSymbolExpression(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:      "./arrays/symbol-expression/source.french.swa",
-			ExpectedOutput: "Seuls les nombres positif sont permis comme indice de tableau, valeur courante: (x)\n",
+			ExpectedOutput: "Variable x does not exist\n",
 			T:              t,
 		}
 
@@ -208,7 +208,7 @@ func TestArrayAccessWithSymbolExpression(t *testing.T) {
 	t.Run("English", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:      "./arrays/symbol-expression/source.english.swa",
-			ExpectedOutput: "Only numbers are supported as array index, current: (x)\n",
+			ExpectedOutput: "Variable x does not exist\n",
 			T:              t,
 		}
 

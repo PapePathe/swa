@@ -18,6 +18,7 @@ func (m English) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`dialect`), defaultHandler(DialectDeclaration, "dialect")},
 		{regexp.MustCompile(`int`), defaultHandler(TypeInt, "int")},
 		{regexp.MustCompile(`string`), defaultHandler(TypeString, "string")},
+		{regexp.MustCompile(`while`), defaultHandler(KeywordWhile, "while")},
 		{regexp.MustCompile(`if`), defaultHandler(KeywordIf, "if")},
 		{regexp.MustCompile(`else`), defaultHandler(KeywordElse, "else")},
 		{regexp.MustCompile(`print`), defaultHandler(Print, "print")},

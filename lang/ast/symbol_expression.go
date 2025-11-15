@@ -24,7 +24,10 @@ func (expr SymbolExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 		return fmt.Errorf("Variable %s does not exist", expr.Value), nil
 	}
 
-	return nil, &CompilerResult{Value: &val.Value, SymbolTableEntry: val}
+	// the value may have changed so we load it.
+	load := ctx.Builder.CreateLoad(val.Value.Type(), *val.Address, "")
+
+	return nil, &CompilerResult{Value: &load, SymbolTableEntry: val}
 }
 
 func (expr SymbolExpression) TokenStream() []lexer.Token {

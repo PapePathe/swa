@@ -20,6 +20,7 @@ func (m French) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`chaine`), defaultHandler(TypeString, "chaine")},
 		{regexp.MustCompile(`sinon`), defaultHandler(KeywordElse, "sinon")},
 		{regexp.MustCompile(`si`), defaultHandler(KeywordIf, "si")},
+		{regexp.MustCompile(`tant que`), defaultHandler(KeywordWhile, "tant que")},
 		{regexp.MustCompile(`afficher`), defaultHandler(Print, "afficher")},
 		{regexp.MustCompile(`structure`), defaultHandler(Struct, "structure")},
 		{regexp.MustCompile(`demarrer`), defaultHandler(Main, "demarrer")},
