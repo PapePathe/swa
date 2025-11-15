@@ -1,0 +1,15 @@
+dialect:french;
+
+fonction multiplication(first : entier, last: entier) entier {
+  retourner first * last;
+}
+
+demarrer() entier {
+  variable m : entier = 0;
+
+  m = multiplication(10, 5);
+
+  afficher("10 * 5 = %d", m);
+
+  retourner 0; 
+}

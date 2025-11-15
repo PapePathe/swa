@@ -10,7 +10,6 @@ import (
 //
 // a = a +5;
 // foo.bar = foo.bar + 10;
-
 type AssignmentExpression struct {
 	Operator lexer.Token
 	Assignee Expression
@@ -28,14 +27,21 @@ func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 	}
 
 	err, assignee := expr.Assignee.CompileLLVM(ctx)
-
 	if err != nil {
 		return err, nil
 	}
 
-	str := ctx.Builder.CreateStore(*val.Value, *assignee.Value)
+	if assignee.SymbolTableEntry != nil && assignee.SymbolTableEntry.Address != nil {
+		str := ctx.Builder.CreateStore(*val.Value, *assignee.SymbolTableEntry.Address)
 
-	return nil, &CompilerResult{Value: &str}
+		return nil, &CompilerResult{Value: &str}
+	}
+
+	panic("test")
+
+	// str := ctx.Builder.CreateStore(*val.Value, *assignee.Value)
+	//
+	// return nil, &CompilerResult{Value: &str}
 }
 
 func (expr AssignmentExpression) TokenStream() []lexer.Token {
