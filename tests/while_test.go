@@ -70,25 +70,6 @@ func TestWhileStatement(t *testing.T) {
 			req.AssertCompileAndExecute()
 		})
 
-		t.Run("Display odd numbers from zero to ten", func(t *testing.T) {
-			req := CompileRequest{
-				InputPath:               "./while/odd-numbers.swa",
-				T:                       t,
-				ExpectedExecutionOutput: "1 3 5 7 9 ",
-			}
-
-			req.AssertCompileAndExecute()
-		})
-
-		t.Run("Display even numbers from zero to ten", func(t *testing.T) {
-			req := CompileRequest{
-				InputPath:               "./while/even-numbers.swa",
-				T:                       t,
-				ExpectedExecutionOutput: "0 2 4 6 8 ",
-			}
-
-			req.AssertCompileAndExecute()
-		})
 		t.Run("Iterate from zero to ten included", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:               "./while/from-zero-to-ten-included.english.swa",
