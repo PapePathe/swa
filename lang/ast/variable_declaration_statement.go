@@ -52,7 +52,7 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		glob := llvm.AddGlobal(*ctx.Module, val.Value.Type(), "")
 		glob.SetInitializer(*val.Value)
 		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: glob})
-	case NumberExpression:
+	case NumberExpression, BinaryExpression:
 		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), "")
 
 		ctx.Builder.CreateStore(*val.Value, alloc)
