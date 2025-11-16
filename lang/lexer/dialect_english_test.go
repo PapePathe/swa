@@ -69,17 +69,24 @@ func TestFloatTokenization(t *testing.T) {
 }
 
 func TestIntegerVsFloatTokenization(t *testing.T) {
-	input := "dialect:english; 42 3.14 100 2.5"
+	input := "dialect:english; let x = 42; let y = 3.14; let z = 100; let w = 2.5;"
 	tokens, _ := Tokenize(input)
 
-	// Skip dialect:english; tokens (3 tokens), then we have 4 numbers + EOF
-	assert.True(t, len(tokens) >= 8, "Expected at least 8 tokens")
-	assert.Equal(t, Integer, tokens[3].Kind)
-	assert.Equal(t, "42", tokens[3].Value)
-	assert.Equal(t, Float, tokens[4].Kind)
-	assert.Equal(t, "3.14", tokens[4].Value)
-	assert.Equal(t, Integer, tokens[5].Kind)
-	assert.Equal(t, "100", tokens[5].Value)
-	assert.Equal(t, Float, tokens[6].Kind)
-	assert.Equal(t, "2.5", tokens[6].Value)
+	// Find the numeric tokens
+	var numbers []Token
+	for _, tok := range tokens {
+		if tok.Kind == Integer || tok.Kind == Float {
+			numbers = append(numbers, tok)
+		}
+	}
+
+	assert.Equal(t, 4, len(numbers), "Expected 4 numeric tokens")
+	assert.Equal(t, Integer, numbers[0].Kind)
+	assert.Equal(t, "42", numbers[0].Value)
+	assert.Equal(t, Float, numbers[1].Kind)
+	assert.Equal(t, "3.14", numbers[1].Value)
+	assert.Equal(t, Integer, numbers[2].Kind)
+	assert.Equal(t, "100", numbers[2].Value)
+	assert.Equal(t, Float, numbers[3].Kind)
+	assert.Equal(t, "2.5", numbers[3].Value)
 }
