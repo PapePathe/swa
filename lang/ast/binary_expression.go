@@ -114,6 +114,13 @@ func commonType(l, r llvm.Value) llvm.Type {
 		return r.GlobalValueType()
 	}
 
+	// Handle int vs float: promote to float
+	if (l.Type().TypeKind() == llvm.IntegerTypeKind && (r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind)) ||
+		((l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind) && r.Type().TypeKind() == llvm.IntegerTypeKind) {
+		// Promote to double (float type)
+		return llvm.GlobalContext().DoubleType()
+	}
+
 	panic(fmt.Errorf("Unhandled combination %v %v", r.Type(), l.Type()))
 }
 
@@ -129,8 +136,14 @@ func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Va
 			return ctx.Builder.CreatePtrToInt(v, t, "")
 		}
 	case llvm.IntegerTypeKind:
-		fmt.Println(fmt.Errorf("Value %v is of type integer and other is %s", v.Type().TypeKind(), t.TypeKind()))
-		os.Exit(1)
+		switch t.TypeKind() {
+		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
+			// Convert int to float
+			return ctx.Builder.CreateSIToFP(v, t, "")
+		default:
+			fmt.Println(fmt.Errorf("Value %v is of type integer and other is %s", v.Type().TypeKind(), t.TypeKind()))
+			os.Exit(1)
+		}
 	default:
 		panic(fmt.Errorf("Unhandled type %s, %s", t.TypeKind(), v.Type().TypeKind()))
 	}
