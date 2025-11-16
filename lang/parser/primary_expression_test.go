@@ -91,7 +91,7 @@ func TestParseIntegerType(t *testing.T) {
 
 	intType, ok := typ.(ast.IntegerType)
 	assert.True(t, ok, "Expected IntegerType")
-	assert.Equal(t, ast.DataTypeInteger, intType.Value())
+	assert.Equal(t, ast.DataTypeInteger, int(intType.Value()))
 }
 
 func TestParseFloatType(t *testing.T) {
@@ -112,5 +112,5 @@ func TestParseFloatType(t *testing.T) {
 
 	floatType, ok := typ.(ast.FloatType)
 	assert.True(t, ok, "Expected FloatType")
-	assert.Equal(t, ast.DataTypeFloat, floatType.Value())
+	assert.Equal(t, ast.DataTypeFloat, int(floatType.Value()))
 }
