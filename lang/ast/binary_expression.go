@@ -3,7 +3,6 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"tinygo.org/x/go-llvm"
 
