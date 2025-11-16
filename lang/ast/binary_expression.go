@@ -174,40 +174,42 @@ func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Va
 		return v
 	}
 
-	// If type kinds match, no need to cast (both are same kind like integers or floats)
-	if t.TypeKind() == v.Type().TypeKind() {
+	// Handle type kind matching but different actual types (shouldn't happen with our code)
+	vKind := v.Type().TypeKind()
+	tKind := t.TypeKind()
+
+	if vKind == tKind {
+		// Same kind, assume compatible (both int32 or both double)
 		return v
 	}
 
-	switch v.Type().TypeKind() {
-	case llvm.PointerTypeKind:
-		switch t.TypeKind() {
-		case llvm.IntegerTypeKind:
-			return ctx.Builder.CreatePtrToInt(v, t, "")
-		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
-			// This shouldn't happen in normal code, but return the value as-is
-			return v
-		default:
-			panic(fmt.Errorf("Cannot cast pointer to %s", t.TypeKind()))
-		}
+	// Different kinds - need actual conversion
+	switch vKind {
 	case llvm.IntegerTypeKind:
-		switch t.TypeKind() {
+		switch tKind {
 		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
 			// Convert int to float
 			return ctx.Builder.CreateSIToFP(v, t, "")
 		default:
-			panic(fmt.Errorf("Cannot cast integer to %s", t.TypeKind()))
+			panic(fmt.Errorf("Cannot cast integer to %s", tKind))
 		}
 	case llvm.DoubleTypeKind, llvm.FloatTypeKind:
-		switch t.TypeKind() {
+		switch tKind {
 		case llvm.IntegerTypeKind:
 			// Convert float to int
 			return ctx.Builder.CreateFPToSI(v, t, "")
 		default:
-			panic(fmt.Errorf("Cannot cast float to %s", t.TypeKind()))
+			panic(fmt.Errorf("Cannot cast float to %s", tKind))
+		}
+	case llvm.PointerTypeKind:
+		switch tKind {
+		case llvm.IntegerTypeKind:
+			return ctx.Builder.CreatePtrToInt(v, t, "")
+		default:
+			panic(fmt.Errorf("Cannot cast pointer to %s", tKind))
 		}
 	default:
-		panic(fmt.Errorf("Unhandled type conversion from %s to %s", v.Type().TypeKind(), t.TypeKind()))
+		panic(fmt.Errorf("Unhandled type conversion from %s to %s", vKind, tKind))
 	}
 }
 
