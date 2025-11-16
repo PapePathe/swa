@@ -15,21 +15,21 @@ func TestParseIntegerExpression(t *testing.T) {
 		input    string
 		expected int64
 	}{
-		{"simple integer", "42", 42},
-		{"zero", "0", 0},
-		{"large integer", "123456", 123456},
+		{"simple integer", "dialect:english; 42", 42},
+		{"zero", "dialect:english; 0", 0},
+		{"large integer", "dialect:english; 123456", 123456},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lex := &lexer.Lexer{
-				Tokens:        make([]lexer.Token, 0),
-				patterns:      lexer.English{}.Patterns(),
-				reservedWords: lexer.English{}.Reserved(),
-				source:        tt.input,
-			}
-			tokens := lex.Tokenize()
+			tokens, _ := lexer.Tokenize(tt.input)
 			parser := New(tokens)
+
+			// Skip to the number token (after dialect:english;)
+			parser.advance() // dialect
+			parser.advance() // :
+			parser.advance() // english
+			parser.advance() // ;
 
 			expr, err := ParsePrimaryExpression(parser)
 			assert.NoError(t, err)
@@ -47,21 +47,21 @@ func TestParseFloatExpression(t *testing.T) {
 		input    string
 		expected float64
 	}{
-		{"simple float", "3.14", 3.14},
-		{"float with zero", "0.5", 0.5},
-		{"large float", "123.456", 123.456},
+		{"simple float", "dialect:english; 3.14", 3.14},
+		{"float with zero", "dialect:english; 0.5", 0.5},
+		{"large float", "dialect:english; 123.456", 123.456},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lex := &lexer.Lexer{
-				Tokens:        make([]lexer.Token, 0),
-				patterns:      lexer.English{}.Patterns(),
-				reservedWords: lexer.English{}.Reserved(),
-				source:        tt.input,
-			}
-			tokens := lex.Tokenize()
+			tokens, _ := lexer.Tokenize(tt.input)
 			parser := New(tokens)
+
+			// Skip to the number token (after dialect:english;)
+			parser.advance() // dialect
+			parser.advance() // :
+			parser.advance() // english
+			parser.advance() // ;
 
 			expr, err := ParsePrimaryExpression(parser)
 			assert.NoError(t, err)
@@ -74,15 +74,15 @@ func TestParseFloatExpression(t *testing.T) {
 }
 
 func TestParseIntegerType(t *testing.T) {
-	input := "int"
-	lex := &lexer.Lexer{
-		Tokens:        make([]lexer.Token, 0),
-		patterns:      lexer.English{}.Patterns(),
-		reservedWords: lexer.English{}.Reserved(),
-		source:        input,
-	}
-	tokens := lex.Tokenize()
+	input := "dialect:english; int"
+	tokens, _ := lexer.Tokenize(input)
 	parser := New(tokens)
+
+	// Skip to type token
+	parser.advance() // dialect
+	parser.advance() // :
+	parser.advance() // english
+	parser.advance() // ;
 
 	typ, _ := parseType(parser, DefaultBindingPower)
 
@@ -92,15 +92,15 @@ func TestParseIntegerType(t *testing.T) {
 }
 
 func TestParseFloatType(t *testing.T) {
-	input := "float"
-	lex := &lexer.Lexer{
-		Tokens:        make([]lexer.Token, 0),
-		patterns:      lexer.English{}.Patterns(),
-		reservedWords: lexer.English{}.Reserved(),
-		source:        input,
-	}
-	tokens := lex.Tokenize()
+	input := "dialect:english; float"
+	tokens, _ := lexer.Tokenize(input)
 	parser := New(tokens)
+
+	// Skip to type token
+	parser.advance() // dialect
+	parser.advance() // :
+	parser.advance() // english
+	parser.advance() // ;
 
 	typ, _ := parseType(parser, DefaultBindingPower)
 
