@@ -58,10 +58,21 @@ func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 		rightValue = *rightResult.Value
 	}
 
-	// Now determine the common type and cast both values
+	// Determine the common type
 	ctype := commonType(leftValue, rightValue)
-	finalLeftValue = expr.castToType(ctx, ctype, leftValue)
-	finalRightValue = expr.castToType(ctx, ctype, rightValue)
+
+	// Cast only if necessary
+	if leftValue.Type() == ctype {
+		finalLeftValue = leftValue
+	} else {
+		finalLeftValue = expr.castToType(ctx, ctype, leftValue)
+	}
+
+	if rightValue.Type() == ctype {
+		finalRightValue = rightValue
+	} else {
+		finalRightValue = expr.castToType(ctx, ctype, rightValue)
+	}
 
 	handler, ok := handlers[expr.Operator.Kind]
 	if !ok {
