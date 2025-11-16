@@ -23,7 +23,7 @@ func TestParseIntegerExpression(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tokens, _ := lexer.Tokenize(tt.input)
-			parser := New(tokens)
+			parser := &Parser{tokens: tokens}
 
 			// Skip to the number token (after dialect:english;)
 			parser.advance() // dialect
@@ -55,7 +55,7 @@ func TestParseFloatExpression(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tokens, _ := lexer.Tokenize(tt.input)
-			parser := New(tokens)
+			parser := &Parser{tokens: tokens}
 
 			// Skip to the number token (after dialect:english;)
 			parser.advance() // dialect
@@ -76,7 +76,7 @@ func TestParseFloatExpression(t *testing.T) {
 func TestParseIntegerType(t *testing.T) {
 	input := "dialect:english; int"
 	tokens, _ := lexer.Tokenize(input)
-	parser := New(tokens)
+	parser := &Parser{tokens: tokens}
 
 	// Skip to type token
 	parser.advance() // dialect
@@ -94,7 +94,7 @@ func TestParseIntegerType(t *testing.T) {
 func TestParseFloatType(t *testing.T) {
 	input := "dialect:english; float"
 	tokens, _ := lexer.Tokenize(input)
-	parser := New(tokens)
+	parser := &Parser{tokens: tokens}
 
 	// Skip to type token
 	parser.advance() // dialect
