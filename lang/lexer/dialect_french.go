@@ -58,6 +58,7 @@ func (m French) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`:`), defaultHandler(Colon, ":")},
 		{regexp.MustCompile(`,`), defaultHandler(Comma, ",")},
 		{regexp.MustCompile(`\+`), defaultHandler(Plus, "+")},
+		{regexp.MustCompile(`\%`), defaultHandler(Modulo, "%")},
 		{regexp.MustCompile(`-`), defaultHandler(Minus, "-")},
 		{regexp.MustCompile(`/`), defaultHandler(Divide, "/")},
 		{regexp.MustCompile(`\*`), defaultHandler(Star, "*")},
