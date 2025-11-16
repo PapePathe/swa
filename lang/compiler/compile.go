@@ -75,8 +75,18 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect)
 	}
 }
 
+func findCommand(candidates ...string) string {
+	for _, cmd := range candidates {
+		if _, err := exec.LookPath(cmd); err == nil {
+			return cmd
+		}
+	}
+	return candidates[0] // Return first as fallback
+}
+
 func compileToAssembler(llirFileName string, assemblerFilename string) error {
-	cmd := exec.Command("llc-18", llirFileName, "-o", assemblerFilename)
+	llc := findCommand("llc-18", "llc-19", "llc")
+	cmd := exec.Command(llc, llirFileName, "-o", assemblerFilename)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -88,7 +98,8 @@ func compileToAssembler(llirFileName string, assemblerFilename string) error {
 }
 
 func compileToObject(assemblerFilename string, objectFilename string) error {
-	objectCmd := exec.Command("clang-18", "-c", assemblerFilename, "-o", objectFilename)
+	clang := findCommand("clang-18", "clang-19", "clang")
+	objectCmd := exec.Command(clang, "-c", assemblerFilename, "-o", objectFilename)
 	objectCmd.Stdout = os.Stdout
 	objectCmd.Stderr = os.Stderr
 
@@ -99,7 +110,8 @@ func compileToObject(assemblerFilename string, objectFilename string) error {
 }
 
 func compileToExecutable(objectFileName string, executableFileName string) error {
-	linkCmd := exec.Command("clang-18", objectFileName, "-o", executableFileName)
+	clang := findCommand("clang-18", "clang-19", "clang")
+	linkCmd := exec.Command(clang, objectFileName, "-o", executableFileName)
 	linkCmd.Stdout = os.Stdout
 	linkCmd.Stderr = os.Stderr
 
