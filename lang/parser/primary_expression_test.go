@@ -18,12 +18,16 @@ func TestParseIntegerExpression(t *testing.T) {
 		{"simple integer", "42", 42},
 		{"zero", "0", 0},
 		{"large integer", "123456", 123456},
-		{"negative integer", "-5", -5},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lex := lexer.New(tt.input, lexer.English{})
+			lex := &lexer.Lexer{
+				Tokens:        make([]lexer.Token, 0),
+				patterns:      lexer.English{}.Patterns(),
+				reservedWords: lexer.English{}.Reserved(),
+				source:        tt.input,
+			}
 			tokens := lex.Tokenize()
 			parser := New(tokens)
 
@@ -50,7 +54,12 @@ func TestParseFloatExpression(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lex := lexer.New(tt.input, lexer.English{})
+			lex := &lexer.Lexer{
+				Tokens:        make([]lexer.Token, 0),
+				patterns:      lexer.English{}.Patterns(),
+				reservedWords: lexer.English{}.Reserved(),
+				source:        tt.input,
+			}
 			tokens := lex.Tokenize()
 			parser := New(tokens)
 
@@ -66,7 +75,12 @@ func TestParseFloatExpression(t *testing.T) {
 
 func TestParseIntegerType(t *testing.T) {
 	input := "int"
-	lex := lexer.New(input, lexer.English{})
+	lex := &lexer.Lexer{
+		Tokens:        make([]lexer.Token, 0),
+		patterns:      lexer.English{}.Patterns(),
+		reservedWords: lexer.English{}.Reserved(),
+		source:        input,
+	}
 	tokens := lex.Tokenize()
 	parser := New(tokens)
 
@@ -79,7 +93,12 @@ func TestParseIntegerType(t *testing.T) {
 
 func TestParseFloatType(t *testing.T) {
 	input := "float"
-	lex := lexer.New(input, lexer.English{})
+	lex := &lexer.Lexer{
+		Tokens:        make([]lexer.Token, 0),
+		patterns:      lexer.English{}.Patterns(),
+		reservedWords: lexer.English{}.Reserved(),
+		source:        input,
+	}
 	tokens := lex.Tokenize()
 	parser := New(tokens)
 

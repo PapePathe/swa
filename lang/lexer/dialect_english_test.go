@@ -36,8 +36,13 @@ func TestIntegerTokenization(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lexer := New(tt.input, English{})
-			tokens := lexer.Tokenize()
+			lex := &Lexer{
+				Tokens:        make([]Token, 0),
+				patterns:      English{}.Patterns(),
+				reservedWords: English{}.Reserved(),
+				source:        tt.input,
+			}
+			tokens := lex.Tokenize()
 			assert.Equal(t, 2, len(tokens), "Expected 2 tokens (value + EOF)")
 			assert.Equal(t, tt.expected, tokens[0].Kind)
 			assert.Equal(t, tt.value, tokens[0].Value)
@@ -59,8 +64,13 @@ func TestFloatTokenization(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lexer := New(tt.input, English{})
-			tokens := lexer.Tokenize()
+			lex := &Lexer{
+				Tokens:        make([]Token, 0),
+				patterns:      English{}.Patterns(),
+				reservedWords: English{}.Reserved(),
+				source:        tt.input,
+			}
+			tokens := lex.Tokenize()
 			assert.Equal(t, 2, len(tokens), "Expected 2 tokens (value + EOF)")
 			assert.Equal(t, tt.expected, tokens[0].Kind)
 			assert.Equal(t, tt.value, tokens[0].Value)
@@ -70,8 +80,13 @@ func TestFloatTokenization(t *testing.T) {
 
 func TestIntegerVsFloatTokenization(t *testing.T) {
 	input := "42 3.14 100 2.5"
-	lexer := New(input, English{})
-	tokens := lexer.Tokenize()
+	lex := &Lexer{
+		Tokens:        make([]Token, 0),
+		patterns:      English{}.Patterns(),
+		reservedWords: English{}.Reserved(),
+		source:        input,
+	}
+	tokens := lex.Tokenize()
 
 	assert.Equal(t, 5, len(tokens), "Expected 5 tokens (4 numbers + EOF)")
 	assert.Equal(t, Integer, tokens[0].Kind)

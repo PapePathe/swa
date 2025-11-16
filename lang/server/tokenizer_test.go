@@ -50,7 +50,7 @@ func TestTokenizer(t *testing.T) {
         "Value": "="
     },
     {
-        "Name": "NUMBER",
+        "Name": "INTEGER",
         "Line": 0,
         "Value": "10"
     },
