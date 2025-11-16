@@ -101,10 +101,7 @@ func (expr ArrayAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		"",
 	)
 
-	// Load the value from the pointer for use in expressions
-	loadedValue := ctx.Builder.CreateLoad(entry.UnderlyingType, itemPtr, "")
-
-	return nil, &CompilerResult{Value: &loadedValue}
+	return nil, &CompilerResult{Value: &itemPtr}
 }
 
 func (expr ArrayAccessExpression) TokenStream() []lexer.Token {
