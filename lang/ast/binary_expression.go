@@ -163,23 +163,9 @@ func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Va
 		return v
 	}
 
-	// If type kinds are the same but types differ (e.g., different int widths), cast
+	// If type kinds match, no need to cast (both are same kind like integers or floats)
 	if t.TypeKind() == v.Type().TypeKind() {
-		switch v.Type().TypeKind() {
-		case llvm.IntegerTypeKind:
-			// Cast between integer types (e.g., i64 to i32)
-			if t.IntTypeWidth() > v.Type().IntTypeWidth() {
-				return ctx.Builder.CreateZExt(v, t, "")
-			} else if t.IntTypeWidth() < v.Type().IntTypeWidth() {
-				return ctx.Builder.CreateTrunc(v, t, "")
-			}
-			return v
-		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
-			// Cast between float types
-			return ctx.Builder.CreateFPCast(v, t, "")
-		default:
-			return v
-		}
+		return v
 	}
 
 	switch v.Type().TypeKind() {
