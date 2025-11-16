@@ -1,0 +1,10 @@
+dialect:english;
+
+start() int {
+  let x : int = 4 % 3;
+  let y : int = 4 % 2;
+
+  print("x: %d, y: %d", x, y);
+
+  return 0;
+}
