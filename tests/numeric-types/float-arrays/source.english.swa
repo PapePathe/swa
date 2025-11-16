@@ -1,0 +1,25 @@
+dialect:english;
+
+start() int {
+  let numbers: []float = [1.1, 2.2, 3.3];
+
+  if(numbers[0] == 1.1) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Float array access [0] failed");
+  }
+
+  if(numbers[1] == 2.2) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Float array access [1] failed");
+  }
+
+  if(numbers[2] == 3.3) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Float array access [2] failed");
+  }
+
+  return 0;
+}

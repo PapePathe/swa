@@ -149,7 +149,13 @@ var handlers = map[lexer.TokenKind]binaryHandlerFunc{
 }
 
 func add(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateAdd(l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFAdd(l, r, "")
+	} else {
+		res = ctx.Builder.CreateAdd(l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }
@@ -173,31 +179,61 @@ func substract(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 }
 
 func greaterThan(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateICmp(llvm.IntUGT, l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFCmp(llvm.FloatOGT, l, r, "")
+	} else {
+		res = ctx.Builder.CreateICmp(llvm.IntUGT, l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }
 
 func greaterThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateICmp(llvm.IntUGE, l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFCmp(llvm.FloatOGE, l, r, "")
+	} else {
+		res = ctx.Builder.CreateICmp(llvm.IntUGE, l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }
 
 func lessThan(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateICmp(llvm.IntULT, l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFCmp(llvm.FloatOLT, l, r, "")
+	} else {
+		res = ctx.Builder.CreateICmp(llvm.IntULT, l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }
 
 func lessThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateICmp(llvm.IntULE, l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFCmp(llvm.FloatOLE, l, r, "")
+	} else {
+		res = ctx.Builder.CreateICmp(llvm.IntULE, l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }
 
 func equals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateICmp(llvm.IntEQ, l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFCmp(llvm.FloatOEQ, l, r, "")
+	} else {
+		res = ctx.Builder.CreateICmp(llvm.IntEQ, l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }

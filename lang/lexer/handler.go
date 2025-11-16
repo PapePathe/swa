@@ -46,6 +46,18 @@ func numberHandler(lex *Lexer, regex *regexp.Regexp) {
 	lex.advanceN(len(match))
 }
 
+func integerHandler(lex *Lexer, regex *regexp.Regexp) {
+	match := regex.FindString(lex.remainder())
+	lex.push(NewToken(Integer, match, lex.line))
+	lex.advanceN(len(match))
+}
+
+func floatHandler(lex *Lexer, regex *regexp.Regexp) {
+	match := regex.FindString(lex.remainder())
+	lex.push(NewToken(Float, match, lex.line))
+	lex.advanceN(len(match))
+}
+
 func symbolHandler(lex *Lexer, regex *regexp.Regexp) {
 	match := regex.FindString(lex.remainder())
 

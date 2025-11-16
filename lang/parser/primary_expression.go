@@ -25,6 +25,30 @@ func ParsePrimaryExpression(p *Parser) (ast.Expression, error) {
 			Value:  number,
 			Tokens: tokens,
 		}, nil
+	case lexer.Integer:
+		tok := p.advance()
+		tokens = append(tokens, tok)
+		integer, err := strconv.ParseInt(tok.Value, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+
+		return ast.IntegerExpression{
+			Value:  integer,
+			Tokens: tokens,
+		}, nil
+	case lexer.Float:
+		tok := p.advance()
+		tokens = append(tokens, tok)
+		float, err := strconv.ParseFloat(tok.Value, 64)
+		if err != nil {
+			return nil, err
+		}
+
+		return ast.FloatExpression{
+			Value:  float,
+			Tokens: tokens,
+		}, nil
 	case lexer.String:
 		tok := p.advance()
 		tokens = append(tokens, tok)

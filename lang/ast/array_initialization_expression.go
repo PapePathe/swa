@@ -27,6 +27,12 @@ func (expr ArrayInitializationExpression) extractArrayType(ctx *CompilerCtx) (*l
 	case DataTypeNumber:
 		typ := ctx.Context.Int32Type()
 		return &typ, nil, nil
+	case DataTypeInteger:
+		typ := ctx.Context.Int32Type()
+		return &typ, nil, nil
+	case DataTypeFloat:
+		typ := ctx.Context.DoubleType()
+		return &typ, nil, nil
 	case DataTypeSymbol:
 		sym, _ := arrayType.Underlying.(SymbolType)
 
@@ -66,7 +72,7 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 		)
 
 		switch value.(type) {
-		case NumberExpression, StringExpression:
+		case NumberExpression, IntegerExpression, FloatExpression, StringExpression:
 			err, content := value.CompileLLVM(ctx)
 			if err != nil {
 				return err, nil

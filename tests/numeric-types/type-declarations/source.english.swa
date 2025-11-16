@@ -1,0 +1,20 @@
+dialect:english;
+
+start() int {
+  let intVar: int = 42;
+  let floatVar: float = 3.14;
+
+  if(intVar == 42) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Integer type declaration failed");
+  }
+
+  if(floatVar == 3.14) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Float type declaration failed");
+  }
+
+  return 0;
+}

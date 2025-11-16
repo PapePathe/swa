@@ -1,0 +1,25 @@
+dialect:english;
+
+start() int {
+  let numbers: []int = [1, 2, 3, 4, 5];
+
+  if(numbers[0] == 1) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Integer array access [0] failed");
+  }
+
+  if(numbers[2] == 3) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Integer array access [2] failed");
+  }
+
+  if(numbers[4] == 5) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Integer array access [4] failed");
+  }
+
+  return 0;
+}

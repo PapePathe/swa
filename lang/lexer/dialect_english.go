@@ -16,6 +16,7 @@ func (m English) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`\n`), newlineHandler},
 		{regexp.MustCompile(`\s+`), skipHandler},
 		{regexp.MustCompile(`dialect`), defaultHandler(DialectDeclaration, "dialect")},
+		{regexp.MustCompile(`float`), defaultHandler(TypeFloat, "float")},
 		{regexp.MustCompile(`int`), defaultHandler(TypeInt, "int")},
 		{regexp.MustCompile(`string`), defaultHandler(TypeString, "string")},
 		{regexp.MustCompile(`while`), defaultHandler(KeywordWhile, "while")},
@@ -29,7 +30,8 @@ func (m English) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`\/\/.*`), commentHandler},
 		{regexp.MustCompile(`'[a-zA-Z0-9]'`), characterHandler},
 		{regexp.MustCompile(`"[^"]*"`), stringHandler},
-		{regexp.MustCompile(`[0-9]+(\.[0-9]+)?`), numberHandler},
+		{regexp.MustCompile(`[0-9]+\.[0-9]+`), floatHandler},
+		{regexp.MustCompile(`[0-9]+`), integerHandler},
 		{regexp.MustCompile(`\[`), defaultHandler(OpenBracket, "[")},
 		{regexp.MustCompile(`\]`), defaultHandler(CloseBracket, "]")},
 		{regexp.MustCompile(`\{`), defaultHandler(OpenCurly, "{")},
@@ -86,6 +88,7 @@ func (m English) Reserved() map[string]TokenKind {
 		"let":    Let,
 		"const":  Const,
 		"int":    TypeInt,
+		"float":  TypeFloat,
 		"string": TypeString,
 	}
 }
