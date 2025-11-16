@@ -45,8 +45,10 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 			loadedval := ctx.Builder.CreateLoad(llvm.GlobalContext().Int32Type(), val.Value, "")
 			ctx.Builder.CreateRet(loadedval)
 		}
-	case NumberExpression:
+	case NumberExpression, IntegerExpression:
 		ctx.Builder.CreateRet(llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(v.Value), false))
+	case FloatExpression:
+		ctx.Builder.CreateRet(llvm.ConstFloat(llvm.GlobalContext().DoubleType(), v.Value))
 	case BinaryExpression:
 		err, res := rs.Value.CompileLLVM(ctx)
 		if err != nil {

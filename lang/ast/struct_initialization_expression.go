@@ -50,7 +50,7 @@ func (si StructInitializationExpression) InitValues(ctx *CompilerCtx) (error, []
 			glob.SetInitializer(*val.Value)
 			fieldValues = append(fieldValues, StructItemValue{Position: propIndex, Value: &glob})
 
-		case NumberExpression:
+		case NumberExpression, IntegerExpression, FloatExpression:
 			fieldValues = append(fieldValues, StructItemValue{Position: propIndex, Value: val.Value})
 		}
 	}
@@ -87,7 +87,7 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, "")
 			ctx.Builder.CreateStore(glob, field1Ptr)
 
-		case NumberExpression:
+		case NumberExpression, IntegerExpression, FloatExpression:
 			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, "")
 			ctx.Builder.CreateStore(*val.Value, field1Ptr)
 		}

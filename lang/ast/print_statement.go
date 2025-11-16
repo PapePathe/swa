@@ -44,7 +44,7 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 			printableValues = append(printableValues, *res)
 		case ArrayOfStructsAccessExpression:
 			printableValues = append(printableValues, *res.Value)
-		case NumberExpression:
+		case NumberExpression, IntegerExpression, FloatExpression:
 			printableValues = append(printableValues, *res.Value)
 		case SymbolExpression:
 			printableValues = append(printableValues, *res.Value)

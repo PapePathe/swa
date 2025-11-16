@@ -44,6 +44,14 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 			return ctx.Dialect.Error(key, int(idx.Value), varName.Value), nil, nil, nil
 		}
 		indices = []llvm.Value{llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(idx.Value), false)}
+	case IntegerExpression:
+		idx, _ := expr.Index.(IntegerExpression)
+
+		if int(idx.Value) > entry.ElementsCount-1 {
+			key := "ArrayAccessExpression.IndexOutOfBounds"
+			return ctx.Dialect.Error(key, int(idx.Value), varName.Value), nil, nil, nil
+		}
+		indices = []llvm.Value{llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(idx.Value), false)}
 	case SymbolExpression:
 		err, res := expr.Index.CompileLLVM(ctx)
 		if err != nil {
