@@ -104,19 +104,29 @@ func (expr BinaryExpression) compileLeftAndRight(ctx *CompilerCtx) (error, *llvm
 }
 
 func commonType(l, r llvm.Value) llvm.Type {
-	if l.Type().TypeKind() == llvm.PointerTypeKind && l.Type().TypeKind() == llvm.PointerTypeKind {
+	// Both pointers
+	if l.Type().TypeKind() == llvm.PointerTypeKind && r.Type().TypeKind() == llvm.PointerTypeKind {
 		return l.GlobalValueType()
 	}
 
+	// Same type
 	if l.Type() == r.Type() {
 		return l.Type()
 	}
+
+	// Left is pointer
 	if l.Type().TypeKind() == llvm.PointerTypeKind {
 		return l.GlobalValueType()
 	}
 
+	// Right is pointer
 	if r.Type().TypeKind() == llvm.PointerTypeKind {
 		return r.GlobalValueType()
+	}
+
+	// Both integers - return the common integer type
+	if l.Type().TypeKind() == llvm.IntegerTypeKind && r.Type().TypeKind() == llvm.IntegerTypeKind {
+		return llvm.GlobalContext().Int32Type()
 	}
 
 	// Handle int vs float: promote to float
@@ -126,7 +136,13 @@ func commonType(l, r llvm.Value) llvm.Type {
 		return llvm.GlobalContext().DoubleType()
 	}
 
-	panic(fmt.Errorf("Unhandled combination %v %v", r.Type(), l.Type()))
+	// Both floats
+	if (l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind) &&
+		(r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind) {
+		return llvm.GlobalContext().DoubleType()
+	}
+
+	panic(fmt.Errorf("Unhandled type combination: left=%s, right=%s", l.Type().TypeKind(), r.Type().TypeKind()))
 }
 
 func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Value) llvm.Value {
