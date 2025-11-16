@@ -25,6 +25,7 @@ func (m English) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`struct`), defaultHandler(Struct, "struct")},
 		{regexp.MustCompile(`start`), defaultHandler(Main, "start")},
 		{regexp.MustCompile(`return`), defaultHandler(Return, "return")},
+		{regexp.MustCompile(`func`), defaultHandler(Function, "func")},
 		{regexp.MustCompile(`[a-zA-Z_]([a-zA-Z0-9_])*`), symbolHandler},
 		{regexp.MustCompile(`\/\/.*`), commentHandler},
 		{regexp.MustCompile(`'[a-zA-Z0-9]'`), characterHandler},
