@@ -16,8 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN curl -OL https://apt.llvm.org/llvm.sh && \
   chmod +x llvm.sh && \
-  ./llvm.sh 19 all && \
-  apt-get install -y --no-install-recommends clang-19 llvm-19 lldb-19 lld-19 \
+  ./llvm.sh 18 all && \
+  apt-get install -y --no-install-recommends clang-18 llvm-18 lldb-18 lld-18 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   && rm -rf /tmp/* \

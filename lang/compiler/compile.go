@@ -76,7 +76,7 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect)
 }
 
 func compileToAssembler(llirFileName string, assemblerFilename string) error {
-	cmd := exec.Command("llc-19", llirFileName, "-o", assemblerFilename)
+	cmd := exec.Command("llc-18", llirFileName, "-o", assemblerFilename)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -88,7 +88,7 @@ func compileToAssembler(llirFileName string, assemblerFilename string) error {
 }
 
 func compileToObject(assemblerFilename string, objectFilename string) error {
-	objectCmd := exec.Command("clang-19", "-c", assemblerFilename, "-o", objectFilename)
+	objectCmd := exec.Command("clang-18", "-c", assemblerFilename, "-o", objectFilename)
 	objectCmd.Stdout = os.Stdout
 	objectCmd.Stderr = os.Stderr
 
@@ -99,7 +99,7 @@ func compileToObject(assemblerFilename string, objectFilename string) error {
 }
 
 func compileToExecutable(objectFileName string, executableFileName string) error {
-	linkCmd := exec.Command("clang-19", objectFileName, "-o", executableFileName)
+	linkCmd := exec.Command("clang-18", objectFileName, "-o", executableFileName)
 	linkCmd.Stdout = os.Stdout
 	linkCmd.Stderr = os.Stderr
 
