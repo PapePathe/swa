@@ -20,30 +20,42 @@ type BinaryExpression struct {
 var _ Expression = (*BinaryExpression)(nil)
 
 func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	err, compiledLeftValue, compiledRightValue := expr.compileLeftAndRight(ctx)
+	err, leftResult, rightResult := expr.compileLeftAndRightResult(ctx)
 	if err != nil {
 		return err, nil
 	}
 
 	var finalLeftValue, finalRightValue llvm.Value
 
-	// Load values from pointers first
+	// Load values from pointers (e.g., from array access)
 	var leftValue, rightValue llvm.Value
 
-	if compiledLeftValue.Type().TypeKind() == llvm.PointerTypeKind {
-		// Get the element type of the pointer
-		elementType := compiledLeftValue.Type().ElementType()
-		leftValue = ctx.Builder.CreateLoad(elementType, *compiledLeftValue, "")
+	// Left side
+	if leftResult.Value.Type().TypeKind() == llvm.PointerTypeKind {
+		// If it's an array access, use the array's underlying type
+		if leftResult.ArraySymbolTableEntry != nil {
+			leftValue = ctx.Builder.CreateLoad(leftResult.ArraySymbolTableEntry.UnderlyingType, *leftResult.Value, "")
+		} else {
+			// Generic pointer load
+			elementType := leftResult.Value.Type().ElementType()
+			leftValue = ctx.Builder.CreateLoad(elementType, *leftResult.Value, "")
+		}
 	} else {
-		leftValue = *compiledLeftValue
+		leftValue = *leftResult.Value
 	}
 
-	if compiledRightValue.Type().TypeKind() == llvm.PointerTypeKind {
-		// Get the element type of the pointer
-		elementType := compiledRightValue.Type().ElementType()
-		rightValue = ctx.Builder.CreateLoad(elementType, *compiledRightValue, "")
+	// Right side
+	if rightResult.Value.Type().TypeKind() == llvm.PointerTypeKind {
+		// If it's an array access, use the array's underlying type
+		if rightResult.ArraySymbolTableEntry != nil {
+			rightValue = ctx.Builder.CreateLoad(rightResult.ArraySymbolTableEntry.UnderlyingType, *rightResult.Value, "")
+		} else {
+			// Generic pointer load
+			elementType := rightResult.Value.Type().ElementType()
+			rightValue = ctx.Builder.CreateLoad(elementType, *rightResult.Value, "")
+		}
 	} else {
-		rightValue = *compiledRightValue
+		rightValue = *rightResult.Value
 	}
 
 	// Now determine the common type and cast both values
@@ -74,7 +86,7 @@ func (expr BinaryExpression) MarshalJSON() ([]byte, error) {
 	return json.Marshal(res)
 }
 
-func (expr BinaryExpression) compileLeftAndRight(ctx *CompilerCtx) (error, *llvm.Value, *llvm.Value) {
+func (expr BinaryExpression) compileLeftAndRightResult(ctx *CompilerCtx) (error, *CompilerResult, *CompilerResult) {
 	err, compiledLeftValue := expr.Left.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil, nil
@@ -100,7 +112,7 @@ func (expr BinaryExpression) compileLeftAndRight(ctx *CompilerCtx) (error, *llvm
 	if compiledRightValue.Value.Type().TypeKind() == llvm.VoidTypeKind {
 		return fmt.Errorf("right side of expression is of type void"), nil, nil
 	}
-	return nil, compiledLeftValue.Value, compiledRightValue.Value
+	return nil, compiledLeftValue, compiledRightValue
 }
 
 func commonType(l, r llvm.Value) llvm.Type {
