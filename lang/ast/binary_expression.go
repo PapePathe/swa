@@ -210,7 +210,8 @@ func substract(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 func greaterThan(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	var res llvm.Value
 
-	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
 		res = ctx.Builder.CreateFCmp(llvm.FloatOGT, l, r, "")
 	} else {
 		res = ctx.Builder.CreateICmp(llvm.IntUGT, l, r, "")
@@ -222,7 +223,8 @@ func greaterThan(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 func greaterThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	var res llvm.Value
 
-	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
 		res = ctx.Builder.CreateFCmp(llvm.FloatOGE, l, r, "")
 	} else {
 		res = ctx.Builder.CreateICmp(llvm.IntUGE, l, r, "")
@@ -234,7 +236,8 @@ func greaterThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResul
 func lessThan(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	var res llvm.Value
 
-	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
 		res = ctx.Builder.CreateFCmp(llvm.FloatOLT, l, r, "")
 	} else {
 		res = ctx.Builder.CreateICmp(llvm.IntULT, l, r, "")
@@ -246,7 +249,8 @@ func lessThan(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 func lessThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	var res llvm.Value
 
-	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
 		res = ctx.Builder.CreateFCmp(llvm.FloatOLE, l, r, "")
 	} else {
 		res = ctx.Builder.CreateICmp(llvm.IntULE, l, r, "")
@@ -258,7 +262,9 @@ func lessThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) 
 func equals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	var res llvm.Value
 
-	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+	// Check if either side is a float type
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
 		res = ctx.Builder.CreateFCmp(llvm.FloatOEQ, l, r, "")
 	} else {
 		res = ctx.Builder.CreateICmp(llvm.IntEQ, l, r, "")
