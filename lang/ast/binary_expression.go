@@ -158,8 +158,28 @@ func commonType(l, r llvm.Value) llvm.Type {
 }
 
 func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Value) llvm.Value {
-	if t.TypeKind() == v.Type().TypeKind() {
+	// If types are exactly the same, just return the value
+	if t == v.Type() {
 		return v
+	}
+
+	// If type kinds are the same but types differ (e.g., different int widths), cast
+	if t.TypeKind() == v.Type().TypeKind() {
+		switch v.Type().TypeKind() {
+		case llvm.IntegerTypeKind:
+			// Cast between integer types (e.g., i64 to i32)
+			if t.IntTypeWidth() > v.Type().IntTypeWidth() {
+				return ctx.Builder.CreateZExt(v, t, "")
+			} else if t.IntTypeWidth() < v.Type().IntTypeWidth() {
+				return ctx.Builder.CreateTrunc(v, t, "")
+			}
+			return v
+		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
+			// Cast between float types
+			return ctx.Builder.CreateFPCast(v, t, "")
+		default:
+			return v
+		}
 	}
 
 	switch v.Type().TypeKind() {
@@ -178,9 +198,6 @@ func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Va
 		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
 			// Convert int to float
 			return ctx.Builder.CreateSIToFP(v, t, "")
-		case llvm.IntegerTypeKind:
-			// Same type, just return
-			return v
 		default:
 			panic(fmt.Errorf("Cannot cast integer to %s", t.TypeKind()))
 		}
@@ -189,9 +206,6 @@ func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Va
 		case llvm.IntegerTypeKind:
 			// Convert float to int
 			return ctx.Builder.CreateFPToSI(v, t, "")
-		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
-			// Both floats, return as-is or cast between float/double
-			return v
 		default:
 			panic(fmt.Errorf("Cannot cast float to %s", t.TypeKind()))
 		}
