@@ -28,23 +28,29 @@ func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 
 	var finalLeftValue, finalRightValue llvm.Value
 
-	ctype := commonType(*compiledLeftValue, *compiledRightValue)
+	// Load values from pointers first
+	var leftValue, rightValue llvm.Value
 
 	if compiledLeftValue.Type().TypeKind() == llvm.PointerTypeKind {
 		// Get the element type of the pointer
 		elementType := compiledLeftValue.Type().ElementType()
-		finalLeftValue = ctx.Builder.CreateLoad(elementType, *compiledLeftValue, "")
+		leftValue = ctx.Builder.CreateLoad(elementType, *compiledLeftValue, "")
 	} else {
-		finalLeftValue = expr.castToType(ctx, ctype, *compiledLeftValue)
+		leftValue = *compiledLeftValue
 	}
 
 	if compiledRightValue.Type().TypeKind() == llvm.PointerTypeKind {
 		// Get the element type of the pointer
 		elementType := compiledRightValue.Type().ElementType()
-		finalRightValue = ctx.Builder.CreateLoad(elementType, *compiledRightValue, "")
+		rightValue = ctx.Builder.CreateLoad(elementType, *compiledRightValue, "")
 	} else {
-		finalRightValue = expr.castToType(ctx, ctype, *compiledRightValue)
+		rightValue = *compiledRightValue
 	}
+
+	// Now determine the common type and cast both values
+	ctype := commonType(leftValue, rightValue)
+	finalLeftValue = expr.castToType(ctx, ctype, leftValue)
+	finalRightValue = expr.castToType(ctx, ctype, rightValue)
 
 	handler, ok := handlers[expr.Operator.Kind]
 	if !ok {
@@ -134,6 +140,11 @@ func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Va
 		switch t.TypeKind() {
 		case llvm.IntegerTypeKind:
 			return ctx.Builder.CreatePtrToInt(v, t, "")
+		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
+			// This shouldn't happen in normal code, but return the value as-is
+			return v
+		default:
+			panic(fmt.Errorf("Cannot cast pointer to %s", t.TypeKind()))
 		}
 	case llvm.IntegerTypeKind:
 		switch t.TypeKind() {
@@ -144,8 +155,7 @@ func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Va
 			// Same type, just return
 			return v
 		default:
-			fmt.Println(fmt.Errorf("Value %v is of type integer and other is %s", v.Type().TypeKind(), t.TypeKind()))
-			os.Exit(1)
+			panic(fmt.Errorf("Cannot cast integer to %s", t.TypeKind()))
 		}
 	case llvm.DoubleTypeKind, llvm.FloatTypeKind:
 		switch t.TypeKind() {
@@ -155,12 +165,12 @@ func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Va
 		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
 			// Both floats, return as-is or cast between float/double
 			return v
+		default:
+			panic(fmt.Errorf("Cannot cast float to %s", t.TypeKind()))
 		}
 	default:
-		panic(fmt.Errorf("Unhandled type %s, %s", t.TypeKind(), v.Type().TypeKind()))
+		panic(fmt.Errorf("Unhandled type conversion from %s to %s", v.Type().TypeKind(), t.TypeKind()))
 	}
-
-	return llvm.Value{}
 }
 
 type binaryHandlerFunc func(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult)
