@@ -37,10 +37,10 @@ func TestIntegerTokenization(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tokens, _ := Tokenize(tt.input)
-			// Skip dialect tokens, semicolon - the number should be at index 3
-			assert.True(t, len(tokens) >= 4, "Expected at least 4 tokens")
-			assert.Equal(t, tt.expected, tokens[3].Kind)
-			assert.Equal(t, tt.value, tokens[3].Value)
+			// tokens: [dialect, :, english, ;, NUMBER, EOF]
+			assert.True(t, len(tokens) >= 5, "Expected at least 5 tokens")
+			assert.Equal(t, tt.expected, tokens[4].Kind)
+			assert.Equal(t, tt.value, tokens[4].Value)
 		})
 	}
 }
@@ -60,10 +60,10 @@ func TestFloatTokenization(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tokens, _ := Tokenize(tt.input)
-			// Skip dialect tokens, semicolon - the number should be at index 3
-			assert.True(t, len(tokens) >= 4, "Expected at least 4 tokens")
-			assert.Equal(t, tt.expected, tokens[3].Kind)
-			assert.Equal(t, tt.value, tokens[3].Value)
+			// tokens: [dialect, :, english, ;, NUMBER, EOF]
+			assert.True(t, len(tokens) >= 5, "Expected at least 5 tokens")
+			assert.Equal(t, tt.expected, tokens[4].Kind)
+			assert.Equal(t, tt.value, tokens[4].Value)
 		})
 	}
 }
