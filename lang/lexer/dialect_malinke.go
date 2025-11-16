@@ -13,12 +13,12 @@ func (m Malinke) Patterns() []RegexpPattern {
 	return []RegexpPattern{
 		{regexp.MustCompile(`\n`), newlineHandler},
 		{regexp.MustCompile(`\s+`), skipHandler},
-		{regexp.MustCompile(`dialect`), defaultHandler(DialectDeclaration, "dialect")},
+		{regexp.MustCompile(`\bdialect\b`), defaultHandler(DialectDeclaration, "dialect")},
 		{regexp.MustCompile(`fèndo`), defaultHandler(TypeInt, "fèndo")},
-		{regexp.MustCompile(`nii`), defaultHandler(KeywordElse, "nii")},
-		{regexp.MustCompile(`ni`), defaultHandler(KeywordIf, "ni")},
-		{regexp.MustCompile(`afo`), defaultHandler(Print, "afo")},
-		{regexp.MustCompile(`struct`), defaultHandler(Struct, "struct")},
+		{regexp.MustCompile(`\bnii\b`), defaultHandler(KeywordElse, "nii")},
+		{regexp.MustCompile(`\bni\b`), defaultHandler(KeywordIf, "ni")},
+		{regexp.MustCompile(`\bafo\b`), defaultHandler(Print, "afo")},
+		{regexp.MustCompile(`\bstruct\b`), defaultHandler(Struct, "struct")},
 		{
 			regexp.MustCompile(
 				`'[aáàâãäåæçćčđéèêëíìîïðñóòôõöøœśšşțúùûüýÿžAÁÀÂÃÄÅÆÇĆČĐÉÈÊËÍÌÎÏÐÑÓÒÔÕÖØŒŚŠŞȚÚÙÛÜÝŸŽa-zA-Z0-9]'`,

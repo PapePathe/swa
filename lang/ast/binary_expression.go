@@ -140,9 +140,21 @@ func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Va
 		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
 			// Convert int to float
 			return ctx.Builder.CreateSIToFP(v, t, "")
+		case llvm.IntegerTypeKind:
+			// Same type, just return
+			return v
 		default:
 			fmt.Println(fmt.Errorf("Value %v is of type integer and other is %s", v.Type().TypeKind(), t.TypeKind()))
 			os.Exit(1)
+		}
+	case llvm.DoubleTypeKind, llvm.FloatTypeKind:
+		switch t.TypeKind() {
+		case llvm.IntegerTypeKind:
+			// Convert float to int
+			return ctx.Builder.CreateFPToSI(v, t, "")
+		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
+			// Both floats, return as-is or cast between float/double
+			return v
 		}
 	default:
 		panic(fmt.Errorf("Unhandled type %s, %s", t.TypeKind(), v.Type().TypeKind()))
