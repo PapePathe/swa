@@ -1,0 +1,21 @@
+dialect:english;
+
+start() int {
+  let x : int = 4;
+  let y : int = 3;
+  let z : int = 2;
+
+  if(x % y == 1) {
+    print("(%d modulo %d is equal to %d)", x, y, 1);
+  } else {
+    print("%s", "modulo error");
+  }
+
+  if(x % z == 0) {
+    print("(%d modulo %d is equal to %d)", x, z, 0);
+  } else {
+    print("%s", "modulo error");
+  }
+
+  return 0;
+}

@@ -17,6 +17,17 @@ func TestBinaryExpressionsModulo(t *testing.T) {
 
 			req.AssertCompileAndExecute()
 		})
+
+		t.Run("Modulo in conditionals", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./binary-expressions/modulo/conditionals.english.swa",
+				T:                       t,
+				ExpectedExecutionOutput: "(4 modulo 3 is equal to 1)(4 modulo 2 is equal to 0)",
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
 		t.Run("Modulo with integer expressions", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:               "./binary-expressions/modulo/variable-declaration.english.swa",
