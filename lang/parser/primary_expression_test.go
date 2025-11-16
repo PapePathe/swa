@@ -78,6 +78,9 @@ func TestParseIntegerType(t *testing.T) {
 	tokens, _ := lexer.Tokenize(input)
 	parser := &Parser{tokens: tokens}
 
+	// Initialize type handlers
+	createTokenTypeLookups()
+
 	// Skip to type token
 	parser.advance() // dialect
 	parser.advance() // :
@@ -95,6 +98,9 @@ func TestParseFloatType(t *testing.T) {
 	input := "dialect:english; float"
 	tokens, _ := lexer.Tokenize(input)
 	parser := &Parser{tokens: tokens}
+
+	// Initialize type handlers
+	createTokenTypeLookups()
 
 	// Skip to type token
 	parser.advance() // dialect
