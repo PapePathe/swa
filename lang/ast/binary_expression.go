@@ -31,13 +31,17 @@ func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 	ctype := commonType(*compiledLeftValue, *compiledRightValue)
 
 	if compiledLeftValue.Type().TypeKind() == llvm.PointerTypeKind {
-		finalLeftValue = ctx.Builder.CreateLoad(compiledLeftValue.GlobalValueType(), *compiledLeftValue, "")
+		// Get the element type of the pointer
+		elementType := compiledLeftValue.Type().ElementType()
+		finalLeftValue = ctx.Builder.CreateLoad(elementType, *compiledLeftValue, "")
 	} else {
 		finalLeftValue = expr.castToType(ctx, ctype, *compiledLeftValue)
 	}
 
 	if compiledRightValue.Type().TypeKind() == llvm.PointerTypeKind {
-		finalRightValue = ctx.Builder.CreateLoad(compiledRightValue.GlobalValueType(), *compiledRightValue, "")
+		// Get the element type of the pointer
+		elementType := compiledRightValue.Type().ElementType()
+		finalRightValue = ctx.Builder.CreateLoad(elementType, *compiledRightValue, "")
 	} else {
 		finalRightValue = expr.castToType(ctx, ctype, *compiledRightValue)
 	}
