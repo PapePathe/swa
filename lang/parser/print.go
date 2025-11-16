@@ -68,6 +68,28 @@ func ParsePrintStatement(p *Parser) (ast.Statement, error) {
 			}
 
 			values = append(values, ast.NumberExpression{Value: number})
+		case lexer.Integer:
+			tok := p.expect(lexer.Integer)
+			tokens = append(tokens, tok)
+			value := tok.Value
+
+			integer, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("Error parsing integer expression <%s> in PRINT statement", err)
+			}
+
+			values = append(values, ast.IntegerExpression{Value: integer})
+		case lexer.Float:
+			tok := p.expect(lexer.Float)
+			tokens = append(tokens, tok)
+			value := tok.Value
+
+			float, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				return nil, fmt.Errorf("Error parsing float expression <%s> in PRINT statement", err)
+			}
+
+			values = append(values, ast.FloatExpression{Value: float})
 		default:
 			return nil, fmt.Errorf("Token %s not supported in print statement", p.currentToken().Kind)
 		}

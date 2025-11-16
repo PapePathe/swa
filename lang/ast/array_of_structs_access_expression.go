@@ -33,17 +33,23 @@ func (expr ArrayOfStructsAccessExpression) findSymbolTableEntry(ctx *CompilerCtx
 		key := "ArrayAccessExpression.NotFoundInArraysSymbolTable"
 		return ctx.Dialect.Error(key, varName.Value), nil, nil, 0
 	}
-	itemIndex, ok := expr.Index.(NumberExpression)
-	if !ok {
+	var indexValue int
+	switch idx := expr.Index.(type) {
+	case NumberExpression:
+		indexValue = int(idx.Value)
+	case IntegerExpression:
+		indexValue = int(idx.Value)
+	default:
 		key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
 		return ctx.Dialect.Error(key, expr.Index), nil, nil, 0
 	}
-	if int(itemIndex.Value) > entry.ElementsCount-1 {
+
+	if indexValue > entry.ElementsCount-1 {
 		key := "ArrayAccessExpression.IndexOutOfBounds"
-		return ctx.Dialect.Error(key, itemIndex, varName.Value), nil, nil, 0
+		return ctx.Dialect.Error(key, indexValue, varName.Value), nil, nil, 0
 	}
 
-	return nil, entry, array, int(itemIndex.Value)
+	return nil, entry, array, indexValue
 }
 
 func (expr ArrayOfStructsAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
