@@ -140,6 +140,7 @@ var handlers = map[lexer.TokenKind]binaryHandlerFunc{
 	lexer.Plus:              add,
 	lexer.Minus:             substract,
 	lexer.Star:              multiply,
+	lexer.Modulo:            modulo,
 	lexer.Divide:            divide,
 	lexer.GreaterThan:       greaterThan,
 	lexer.GreaterThanEquals: greaterThanEquals,
@@ -154,6 +155,11 @@ func add(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	return nil, &CompilerResult{Value: &res}
 }
 
+func modulo(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
+	res := ctx.Builder.CreateSRem(l, r, "")
+
+	return nil, &CompilerResult{Value: &res}
+}
 func divide(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	res := ctx.Builder.CreateSDiv(l, r, "")
 
