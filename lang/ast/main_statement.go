@@ -2,14 +2,14 @@ package ast
 
 import (
 	"encoding/json"
+	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
-
-	"swahili/lang/lexer"
 )
 
 type MainStatement struct {
-	Body BlockStatement
+	Body   BlockStatement
+	Tokens []lexer.Token
 }
 
 func (ms MainStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
@@ -30,12 +30,13 @@ func (ms MainStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 }
 
 func (expr MainStatement) TokenStream() []lexer.Token {
-	return []lexer.Token{}
+	return expr.Tokens
 }
 
 func (cs MainStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
-	m["body"] = cs.Body
+	m["Body"] = cs.Body
+	m["Tokens"] = cs.TokenStream()
 
 	res := make(map[string]any)
 	res["ast.MainProGram"] = m
