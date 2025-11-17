@@ -40,31 +40,28 @@ func ParseArrayAccess(p *Parser, left ast.Expression, bp BindingPower) (ast.Expr
 }
 
 func ParseArrayInitialization(p *Parser) (ast.Expression, error) {
-	contents := []ast.Expression{}
-	tokens := []lexer.Token{}
+	arrayExpr := ast.ArrayInitializationExpression{}
+	p.currentExpression = &arrayExpr
 	underlying, toks := parseType(p, DefaultBindingPower)
-
-	tokens = append(tokens, toks...)
-	tokens = append(tokens, p.expect(lexer.OpenCurly))
+	arrayExpr.Underlying = underlying
+	arrayExpr.Tokens = append(arrayExpr.Tokens, toks...)
+	arrayExpr.Tokens = append(arrayExpr.Tokens, p.expect(lexer.OpenCurly))
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
 		expr, err := parseExpression(p, Logical)
 		if err != nil {
 			return nil, err
 		}
-		contents = append(contents, expr)
-		tokens = append(tokens, expr.TokenStream()...)
+		arrayExpr.Tokens = append(arrayExpr.Tokens, expr.TokenStream()...)
+		arrayExpr.Contents = append(arrayExpr.Contents, expr)
+		arrayExpr.Tokens = append(arrayExpr.Tokens, expr.TokenStream()...)
 
 		if p.currentToken().Kind != lexer.CloseCurly {
-			tokens = append(tokens, p.expect(lexer.Comma))
+			arrayExpr.Tokens = append(arrayExpr.Tokens, p.expect(lexer.Comma))
 		}
 	}
 
-	tokens = append(tokens, p.expect(lexer.CloseCurly))
+	arrayExpr.Tokens = append(arrayExpr.Tokens, p.expect(lexer.CloseCurly))
 
-	return ast.ArrayInitializationExpression{
-		Underlying: underlying,
-		Contents:   contents,
-		Tokens:     tokens,
-	}, nil
+	return arrayExpr, nil
 }

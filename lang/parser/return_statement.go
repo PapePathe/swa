@@ -6,16 +6,18 @@ import (
 )
 
 func ParseReturnStatement(p *Parser) (ast.Statement, error) {
-	tokens := []lexer.Token{}
-	tokens = append(tokens, p.expect(lexer.Return))
+	stmt := ast.ReturnStatement{}
+	p.currentStatement = &stmt
+	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.Return))
 
 	value, err := parseExpression(p, DefaultBindingPower)
 	if err != nil {
 		return nil, err
 	}
 
-	tokens = append(tokens, value.TokenStream()...)
-	tokens = append(tokens, p.expect(lexer.SemiColon))
+	stmt.Value = value
+	stmt.Tokens = append(stmt.Tokens, value.TokenStream()...)
+	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.SemiColon))
 
-	return ast.ReturnStatement{Value: value, Tokens: tokens}, nil
+	return stmt, nil
 }
