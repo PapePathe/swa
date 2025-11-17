@@ -1,28 +1,41 @@
-### Toolchain Installation
+## How to install
 
-Swahili requires the LLVM and Clang toolchain for compilation. Please follow the instructions below depending on your operating system.
+### Docker 
+It's simpler to use the docker image if you do not want to install llvm manually.
+
+```bash
+alias swahili='docker run -w "$(pwd)" -v "$(pwd)":"$(pwd)" ghcr.io/papepathe/swa-lang:master'
+
+swahili compile -s my-code.swa
+swahili tokenize -s my-code.swa
+swahili parse -s my-code.swa
+```
+
+### Manual 
+
+Swahili requires the LLVM and Clang toolchain for compilation.
+Please follow the instructions below depending on your operating system.
 
 #### Linux (Ubuntu/Debian)
 ```bash
 sudo apt update
-sudo apt install -y clang llvm
+sudo apt install -y clang llvm-19
 ```
 
 #### Linux (Fedora)
 ```bash
-sudo dnf install clang llvm
+sudo dnf install clang llvm-19
 ```
 
 #### Linux (Arch)
 ```bash
-sudo pacman -S clang llvm
+sudo pacman -S clang llvm-19
 ```
 
 #### macOS (Homebrew)
 ```bash
 brew update
-brew install llvm
-# Clang is provided with llvm via Homebrew. For system clang, install Xcode Command Line Tools:
+brew install llvm@19
 xcode-select --install
 ```
 
@@ -32,7 +45,8 @@ clang --version
 llvm-config --version
 ```
 
-Make sure the installed tools are in your PATH. If you installed via Homebrew on macOS, you may need to add the following to your shell profile:
+Make sure the installed tools are in your PATH. If you installed via 
+Homebrew on macOS, you may need to add the following to your shell profile:
 ```bash
 export PATH="/usr/local/opt/llvm/bin:$PATH"
 ```
@@ -40,30 +54,3 @@ export PATH="/usr/local/opt/llvm/bin:$PATH"
 For more details, refer to the official documentation:
 - [LLVM Getting Started](https://llvm.org/docs/GettingStarted.html)
 - [Clang Documentation](https://clang.llvm.org/docs/)
-
----
-
-### Setup
-```
-cd lang
-./dev.sh
-
-Swahili Programming Environment
-
-Usage:
-  swa [command]
-
-Available Commands:
-  compile     Compile the source code to an executable
-  completion  Generate the autocompletion script for the specified shell
-  help        Help about any command
-  interpret   Interpret the source code
-  server      Start the web service
-  tokenize    Tokenize the source code
-
-Flags:
-  -h, --help   help for swa
-
-Use "swa [command] --help" for more information about a command.
-
-```
