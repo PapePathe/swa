@@ -25,7 +25,7 @@ func (expr ArrayInitializationExpression) extractArrayType(ctx *CompilerCtx) (*l
 
 	switch arrayType.Underlying.Value() {
 	case DataTypeNumber:
-		typ := ctx.Context.Int32Type()
+		typ := llvm.GlobalContext().Int32Type()
 		return &typ, nil, nil
 	case DataTypeSymbol:
 		sym, _ := arrayType.Underlying.(SymbolType)
@@ -36,7 +36,7 @@ func (expr ArrayInitializationExpression) extractArrayType(ctx *CompilerCtx) (*l
 		}
 		return &sdef.LLVMType, sdef, nil
 	case DataTypeString:
-		typ := llvm.PointerType(ctx.Context.Int32Type(), 0)
+		typ := llvm.PointerType(llvm.GlobalContext().Int32Type(), 0)
 		return &typ, nil, nil
 	default:
 		return nil, nil, fmt.Errorf("Type (%v) not implemented in array expression", arrayType.Underlying.Value())
