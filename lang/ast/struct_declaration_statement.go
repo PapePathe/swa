@@ -34,9 +34,9 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Comp
 		typ := sd.Types[idx]
 		switch typ.(type) {
 		case StringType:
-			attrs = append(attrs, llvm.PointerType(ctx.Context.Int8Type(), 0))
+			attrs = append(attrs, llvm.PointerType(llvm.GlobalContext().Int8Type(), 0))
 		case NumberType:
-			attrs = append(attrs, ctx.Context.Int32Type())
+			attrs = append(attrs, llvm.GlobalContext().Int32Type())
 		default:
 			err := fmt.Errorf("struct proprerty type (%s) not supported", typ)
 			return err, nil
