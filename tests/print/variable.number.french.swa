@@ -1,0 +1,8 @@
+dialect:french;
+
+demarrer() entier {
+  variable m : entier = 10;
+  afficher("contenu de la variable: %d", m);
+
+  retourner 0; 
+}
