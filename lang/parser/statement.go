@@ -3,7 +3,6 @@ package parser
 import (
 	"fmt"
 	"slices"
-
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
@@ -32,29 +31,30 @@ func ParseStatement(p *Parser) (ast.Statement, error) {
 }
 
 func ParseStructDeclarationStatement(p *Parser) (ast.Statement, error) {
-	tokens := []lexer.Token{}
+	stmt := ast.StructDeclarationStatement{}
+	p.currentStatement = &stmt
 
-	tokens = append(tokens, p.expect(lexer.Struct))
+	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.Struct))
 	structName := p.expect(lexer.Identifier)
-	tokens = append(tokens, structName)
+	stmt.Tokens = append(stmt.Tokens, structName)
 
 	properties := []string{}
 	types := []ast.Type{}
 
-	tokens = append(tokens, p.expect(lexer.OpenCurly))
+	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.OpenCurly))
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
 		var propertyName string
 
 		if p.currentToken().Kind == lexer.Identifier {
 			prop := p.expect(lexer.Identifier)
-			tokens = append(tokens, prop)
+			stmt.Tokens = append(stmt.Tokens, prop)
 			propertyName = prop.Value
-			tok := p.expectError(lexer.Colon, "Expected to find colon following struct property name")
-			tokens = append(tokens, tok)
+			tok := p.expect(lexer.Colon)
+			stmt.Tokens = append(stmt.Tokens, tok)
 			propType, toks := parseType(p, DefaultBindingPower)
-			tokens = append(tokens, toks...)
-			tokens = append(tokens, p.expect(lexer.Comma))
+			stmt.Tokens = append(stmt.Tokens, toks...)
+			stmt.Tokens = append(stmt.Tokens, p.expect(lexer.Comma))
 
 			if slices.Contains(properties, propertyName) {
 				return nil, fmt.Errorf("property %s has already been defined", propertyName)
@@ -67,12 +67,10 @@ func ParseStructDeclarationStatement(p *Parser) (ast.Statement, error) {
 		}
 	}
 
-	tokens = append(tokens, p.expect(lexer.CloseCurly))
+	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.CloseCurly))
+	stmt.Name = structName.Value
+	stmt.Properties = properties
+	stmt.Types = types
 
-	return ast.StructDeclarationStatement{
-		Name:       structName.Value,
-		Properties: properties,
-		Types:      types,
-		Tokens:     tokens,
-	}, nil
+	return stmt, nil
 }
