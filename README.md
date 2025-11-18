@@ -1,28 +1,56 @@
-### Swahili
+## How to install
 
-This is a hacking project while I am exploring low level concepts and programming language design. 
+### Docker 
+It's simpler to use the docker image if you do not want to install llvm manually.
 
-### Setup
+```bash
+alias swahili='docker run -w "$(pwd)" -v "$(pwd)":"$(pwd)" ghcr.io/papepathe/swa-lang:master'
+
+swahili compile -s my-code.swa
+swahili tokenize -s my-code.swa
+swahili parse -s my-code.swa
 ```
-cd lang
-./dev.sh
 
-Swahili Programming Environment
+### Manual 
 
-Usage:
-  swa [command]
+Swahili requires the LLVM and Clang toolchain for compilation.
+Please follow the instructions below depending on your operating system.
 
-Available Commands:
-  compile     Compile the source code to an executable
-  completion  Generate the autocompletion script for the specified shell
-  help        Help about any command
-  interpret   Interpret the source code
-  server      Start the web service
-  tokenize    Tokenize the source code
-
-Flags:
-  -h, --help   help for swa
-
-Use "swa [command] --help" for more information about a command.
-
+#### Linux (Ubuntu/Debian)
+```bash
+sudo apt update
+sudo apt install -y clang llvm-19
 ```
+
+#### Linux (Fedora)
+```bash
+sudo dnf install clang llvm-19
+```
+
+#### Linux (Arch)
+```bash
+sudo pacman -S clang llvm-19
+```
+
+#### macOS (Homebrew)
+```bash
+brew update
+brew install llvm@19
+xcode-select --install
+```
+
+After installation, you can check your clang and llvm versions:
+```bash
+clang --version
+llvm-config --version
+```
+
+Make sure the installed tools are in your PATH. If you installed via 
+Homebrew on macOS, you may need to add the following to your shell profile:
+```bash
+export PATH="/usr/local/opt/llvm/bin:$PATH"
+```
+
+For more details, refer to the official documentation:
+- [LLVM Getting Started](https://llvm.org/docs/GettingStarted.html)
+- [Clang Documentation](https://clang.llvm.org/docs/)
