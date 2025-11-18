@@ -20,3 +20,10 @@ func TestReservedEnglish(t *testing.T) {
 
 	assert.Equal(t, expected, english.Reserved())
 }
+
+func TestPatternsEnglish(t *testing.T) {
+	english := English{}
+
+	assert.Equal(t, 44, len(english.Patterns()))
+
+}

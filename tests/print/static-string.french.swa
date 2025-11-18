@@ -1,0 +1,8 @@
+dialect:french;
+
+demarrer() entier {
+  variable s : chaine = "french";
+  afficher("contenu de la variable: %s", s);
+
+  retourner 0; 
+}

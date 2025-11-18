@@ -15,10 +15,12 @@ type WhileStatement struct {
 
 func (expr WhileStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	bodyBlock := ctx.Builder.GetInsertBlock()
-	loopBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "loopBlock")
-	conditionBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "conditionBlock")
+	parentFunc := bodyBlock.Parent()
+
+	loopBlock := ctx.Context.AddBasicBlock(parentFunc, "loopBlock")
+	conditionBlock := ctx.Context.AddBasicBlock(parentFunc, "conditionBlock")
 	ctx.Builder.CreateBr(loopBlock)
-	exitBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "exitBlock")
+	exitBlock := ctx.Context.AddBasicBlock(parentFunc, "exitBlock")
 	ctx.Builder.SetInsertPointAtEnd(conditionBlock)
 
 	err, cond := expr.Condition.CompileLLVM(ctx)

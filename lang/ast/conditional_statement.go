@@ -2,10 +2,9 @@ package ast
 
 import (
 	"encoding/json"
+	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
-
-	"swahili/lang/lexer"
 )
 
 type ConditionalStatetement struct {
@@ -24,10 +23,11 @@ func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 	}
 
 	bodyBlock := ctx.Builder.GetInsertBlock()
+	parentFunc := bodyBlock.Parent()
 
-	mergeBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "merge")
-	thenBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "if")
-	elseBlock := ctx.Context.InsertBasicBlock(ctx.Builder.GetInsertBlock(), "else")
+	mergeBlock := ctx.Context.AddBasicBlock(parentFunc, "merge")
+	thenBlock := ctx.Context.AddBasicBlock(parentFunc, "if")
+	elseBlock := ctx.Context.AddBasicBlock(parentFunc, "else")
 
 	ctx.Builder.CreateCondBr(*condition.Value, thenBlock, elseBlock)
 

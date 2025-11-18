@@ -3,11 +3,9 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
-	"os"
+	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
-
-	"swahili/lang/lexer"
 )
 
 // BinaryExpression ...
@@ -21,25 +19,58 @@ type BinaryExpression struct {
 var _ Expression = (*BinaryExpression)(nil)
 
 func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	err, compiledLeftValue, compiledRightValue := expr.compileLeftAndRight(ctx)
+	err, leftResult, rightResult := expr.compileLeftAndRightResult(ctx)
 	if err != nil {
 		return err, nil
 	}
 
 	var finalLeftValue, finalRightValue llvm.Value
 
-	ctype := commonType(*compiledLeftValue, *compiledRightValue)
+	// Load values from pointers (e.g., from array access)
+	var leftValue, rightValue llvm.Value
 
-	if compiledLeftValue.Type().TypeKind() == llvm.PointerTypeKind {
-		finalLeftValue = ctx.Builder.CreateLoad(compiledLeftValue.GlobalValueType(), *compiledLeftValue, "")
+	// Left side
+	if leftResult.Value.Type().TypeKind() == llvm.PointerTypeKind {
+		// If it's an array access, use the array's underlying type
+		if leftResult.ArraySymbolTableEntry != nil {
+			leftValue = ctx.Builder.CreateLoad(leftResult.ArraySymbolTableEntry.UnderlyingType, *leftResult.Value, "")
+		} else {
+			// Generic pointer load
+			elementType := leftResult.Value.Type().ElementType()
+			leftValue = ctx.Builder.CreateLoad(elementType, *leftResult.Value, "")
+		}
 	} else {
-		finalLeftValue = expr.castToType(ctx, ctype, *compiledLeftValue)
+		leftValue = *leftResult.Value
 	}
 
-	if compiledRightValue.Type().TypeKind() == llvm.PointerTypeKind {
-		finalRightValue = ctx.Builder.CreateLoad(compiledRightValue.GlobalValueType(), *compiledRightValue, "")
+	// Right side
+	if rightResult.Value.Type().TypeKind() == llvm.PointerTypeKind {
+		// If it's an array access, use the array's underlying type
+		if rightResult.ArraySymbolTableEntry != nil {
+			rightValue = ctx.Builder.CreateLoad(rightResult.ArraySymbolTableEntry.UnderlyingType, *rightResult.Value, "")
+		} else {
+			// Generic pointer load
+			elementType := rightResult.Value.Type().ElementType()
+			rightValue = ctx.Builder.CreateLoad(elementType, *rightResult.Value, "")
+		}
 	} else {
-		finalRightValue = expr.castToType(ctx, ctype, *compiledRightValue)
+		rightValue = *rightResult.Value
+	}
+
+	// Determine the common type
+	ctype := commonType(leftValue, rightValue)
+
+	// Cast only if necessary
+	if leftValue.Type() == ctype {
+		finalLeftValue = leftValue
+	} else {
+		finalLeftValue = expr.castToType(ctx, ctype, leftValue)
+	}
+
+	if rightValue.Type() == ctype {
+		finalRightValue = rightValue
+	} else {
+		finalRightValue = expr.castToType(ctx, ctype, rightValue)
 	}
 
 	handler, ok := handlers[expr.Operator.Kind]
@@ -65,7 +96,7 @@ func (expr BinaryExpression) MarshalJSON() ([]byte, error) {
 	return json.Marshal(res)
 }
 
-func (expr BinaryExpression) compileLeftAndRight(ctx *CompilerCtx) (error, *llvm.Value, *llvm.Value) {
+func (expr BinaryExpression) compileLeftAndRightResult(ctx *CompilerCtx) (error, *CompilerResult, *CompilerResult) {
 	err, compiledLeftValue := expr.Left.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil, nil
@@ -91,47 +122,94 @@ func (expr BinaryExpression) compileLeftAndRight(ctx *CompilerCtx) (error, *llvm
 	if compiledRightValue.Value.Type().TypeKind() == llvm.VoidTypeKind {
 		return fmt.Errorf("right side of expression is of type void"), nil, nil
 	}
-	return nil, compiledLeftValue.Value, compiledRightValue.Value
+	return nil, compiledLeftValue, compiledRightValue
 }
 
 func commonType(l, r llvm.Value) llvm.Type {
-	if l.Type().TypeKind() == llvm.PointerTypeKind && l.Type().TypeKind() == llvm.PointerTypeKind {
+	// Both pointers
+	if l.Type().TypeKind() == llvm.PointerTypeKind && r.Type().TypeKind() == llvm.PointerTypeKind {
 		return l.GlobalValueType()
 	}
 
+	// Same type
 	if l.Type() == r.Type() {
 		return l.Type()
 	}
+
+	// Left is pointer
 	if l.Type().TypeKind() == llvm.PointerTypeKind {
 		return l.GlobalValueType()
 	}
 
+	// Right is pointer
 	if r.Type().TypeKind() == llvm.PointerTypeKind {
 		return r.GlobalValueType()
 	}
 
-	panic(fmt.Errorf("Unhandled combination %v %v", r.Type(), l.Type()))
+	// Both integers - return the common integer type
+	if l.Type().TypeKind() == llvm.IntegerTypeKind && r.Type().TypeKind() == llvm.IntegerTypeKind {
+		return llvm.GlobalContext().Int32Type()
+	}
+
+	// Handle int vs float: promote to float
+	if (l.Type().TypeKind() == llvm.IntegerTypeKind && (r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind)) ||
+		((l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind) && r.Type().TypeKind() == llvm.IntegerTypeKind) {
+		// Promote to double (float type)
+		return llvm.GlobalContext().DoubleType()
+	}
+
+	// Both floats
+	if (l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind) &&
+		(r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind) {
+		return llvm.GlobalContext().DoubleType()
+	}
+
+	panic(fmt.Errorf("Unhandled type combination: left=%s, right=%s", l.Type().TypeKind(), r.Type().TypeKind()))
 }
 
 func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Value) llvm.Value {
-	if t.TypeKind() == v.Type().TypeKind() {
+	// If types are exactly the same, just return the value
+	if t == v.Type() {
 		return v
 	}
 
-	switch v.Type().TypeKind() {
-	case llvm.PointerTypeKind:
-		switch t.TypeKind() {
-		case llvm.IntegerTypeKind:
-			return ctx.Builder.CreatePtrToInt(v, t, "")
-		}
-	case llvm.IntegerTypeKind:
-		fmt.Println(fmt.Errorf("Value %v is of type integer and other is %s", v.Type().TypeKind(), t.TypeKind()))
-		os.Exit(1)
-	default:
-		panic(fmt.Errorf("Unhandled type %s, %s", t.TypeKind(), v.Type().TypeKind()))
+	// Handle type kind matching but different actual types (shouldn't happen with our code)
+	vKind := v.Type().TypeKind()
+	tKind := t.TypeKind()
+
+	if vKind == tKind {
+		// Same kind, assume compatible (both int32 or both double)
+		return v
 	}
 
-	return llvm.Value{}
+	// Different kinds - need actual conversion
+	switch vKind {
+	case llvm.IntegerTypeKind:
+		switch tKind {
+		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
+			// Convert int to float
+			return ctx.Builder.CreateSIToFP(v, t, "")
+		default:
+			panic(fmt.Errorf("Cannot cast integer to %s", tKind))
+		}
+	case llvm.DoubleTypeKind, llvm.FloatTypeKind:
+		switch tKind {
+		case llvm.IntegerTypeKind:
+			// Convert float to int
+			return ctx.Builder.CreateFPToSI(v, t, "")
+		default:
+			panic(fmt.Errorf("Cannot cast float to %s", tKind))
+		}
+	case llvm.PointerTypeKind:
+		switch tKind {
+		case llvm.IntegerTypeKind:
+			return ctx.Builder.CreatePtrToInt(v, t, "")
+		default:
+			panic(fmt.Errorf("Cannot cast pointer to %s", tKind))
+		}
+	default:
+		panic(fmt.Errorf("Unhandled type conversion from %s to %s", vKind, tKind))
+	}
 }
 
 type binaryHandlerFunc func(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult)
@@ -140,6 +218,7 @@ var handlers = map[lexer.TokenKind]binaryHandlerFunc{
 	lexer.Plus:              add,
 	lexer.Minus:             substract,
 	lexer.Star:              multiply,
+	lexer.Modulo:            modulo,
 	lexer.Divide:            divide,
 	lexer.GreaterThan:       greaterThan,
 	lexer.GreaterThanEquals: greaterThanEquals,
@@ -149,11 +228,22 @@ var handlers = map[lexer.TokenKind]binaryHandlerFunc{
 }
 
 func add(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateAdd(l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFAdd(l, r, "")
+	} else {
+		res = ctx.Builder.CreateAdd(l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }
 
+func modulo(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
+	res := ctx.Builder.CreateSRem(l, r, "")
+
+	return nil, &CompilerResult{Value: &res}
+}
 func divide(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	res := ctx.Builder.CreateSDiv(l, r, "")
 
@@ -173,31 +263,67 @@ func substract(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 }
 
 func greaterThan(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateICmp(llvm.IntUGT, l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFCmp(llvm.FloatOGT, l, r, "")
+	} else {
+		res = ctx.Builder.CreateICmp(llvm.IntUGT, l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }
 
 func greaterThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateICmp(llvm.IntUGE, l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFCmp(llvm.FloatOGE, l, r, "")
+	} else {
+		res = ctx.Builder.CreateICmp(llvm.IntUGE, l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }
 
 func lessThan(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateICmp(llvm.IntULT, l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFCmp(llvm.FloatOLT, l, r, "")
+	} else {
+		res = ctx.Builder.CreateICmp(llvm.IntULT, l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }
 
 func lessThanEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateICmp(llvm.IntULE, l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFCmp(llvm.FloatOLE, l, r, "")
+	} else {
+		res = ctx.Builder.CreateICmp(llvm.IntULE, l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }
 
 func equals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateICmp(llvm.IntEQ, l, r, "")
+	var res llvm.Value
+
+	// Check if either side is a float type
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFCmp(llvm.FloatOEQ, l, r, "")
+	} else {
+		res = ctx.Builder.CreateICmp(llvm.IntEQ, l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }
