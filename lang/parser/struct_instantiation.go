@@ -7,41 +7,37 @@ import (
 )
 
 func ParseStructInstantiationExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
+	sInitExpr := ast.StructInitializationExpression{}
+	p.currentExpression = &sInitExpr
 	tok := helpers.ExpectType[ast.SymbolExpression](left)
-	structName := tok.Value
-	properties := []string{}
-	values := []ast.Expression{}
-	tokens := []lexer.Token{}
+	sInitExpr.Name = tok.Value
 
-	tokens = append(tokens, left.TokenStream()...)
-
-	tokens = append(tokens, p.expect(lexer.OpenCurly))
+	sInitExpr.Tokens = append(sInitExpr.Tokens, left.TokenStream()...)
+	sInitExpr.Tokens = append(sInitExpr.Tokens, p.expect(lexer.OpenCurly))
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
 		tok := p.expect(lexer.Identifier)
 		propertyName := tok.Value
-		tokens = append(tokens, tok)
-		tokens = append(tokens, p.expect(lexer.Colon))
+		sInitExpr.Tokens = append(sInitExpr.Tokens, tok)
+		sInitExpr.Tokens = append(sInitExpr.Tokens, p.expect(lexer.Colon))
+
 		expr, err := parseExpression(p, Logical)
 		if err != nil {
 			return nil, err
 		}
 
-		tokens = append(tokens, expr.TokenStream()...)
-		values = append(values, expr)
-		properties = append(properties, propertyName)
+		sInitExpr.Tokens = append(sInitExpr.Tokens, expr.TokenStream()...)
+		sInitExpr.Values = append(sInitExpr.Values, expr)
+		sInitExpr.Properties = append(sInitExpr.Properties, propertyName)
 
 		if p.currentToken().Kind != lexer.CloseCurly {
-			tokens = append(tokens, p.expect(lexer.Comma))
+			sInitExpr.Tokens = append(sInitExpr.Tokens, p.expect(lexer.Comma))
 		}
 	}
 
-	tokens = append(tokens, p.expect(lexer.CloseCurly))
+	sInitExpr.Tokens = append(sInitExpr.Tokens, p.expect(lexer.CloseCurly))
 
-	return ast.StructInitializationExpression{
-		Name:       structName,
-		Properties: properties,
-		Values:     values,
-		Tokens:     tokens,
-	}, nil
+	p.currentExpression = nil
+
+	return sInitExpr, nil
 }

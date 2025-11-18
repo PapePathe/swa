@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 )
@@ -12,28 +11,28 @@ func ParseVarDeclarationStatement(p *Parser) (ast.Statement, error) {
 	var explicitType ast.Type
 	var err error
 	var assigedValue ast.Expression
-	tokens := []lexer.Token{}
+	stmt := ast.VarDeclarationStatement{}
+	p.currentStatement = &stmt
 
 	isConstant := p.advance().Kind == lexer.Const
 	errStr := "Inside variable declaration expected to find variable name"
 	tok := p.expectError(lexer.Identifier, errStr)
-	tokens = append(tokens, tok)
+	stmt.Tokens = append(stmt.Tokens, tok)
 	variableName := tok.Value
 
-	tokens = append(tokens, p.expect(lexer.Colon))
+	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.Colon))
 	explicitType, toks := parseType(p, DefaultBindingPower)
-	tokens = append(tokens, toks...)
+	stmt.ExplicitType = explicitType
+	stmt.Tokens = append(stmt.Tokens, toks...)
 
 	if p.currentToken().Kind != lexer.SemiColon {
-		tokens = append(tokens, p.expect(lexer.Assignment))
-
+		stmt.Tokens = append(stmt.Tokens, p.expect(lexer.Assignment))
 		assigedValue, err = parseExpression(p, Assignment)
 		if err != nil {
 			return nil, err
 		}
 
-		tokens = append(tokens, assigedValue.TokenStream()...)
-
+		stmt.Tokens = append(stmt.Tokens, assigedValue.TokenStream()...)
 	} else if explicitType == nil {
 		return nil, fmt.Errorf("Missing either right hand side in var declaration or exlicit type")
 	}
@@ -42,13 +41,10 @@ func ParseVarDeclarationStatement(p *Parser) (ast.Statement, error) {
 		return nil, fmt.Errorf("Cannot define constant wihtout a value")
 	}
 
-	tokens = append(tokens, p.expect(lexer.SemiColon))
+	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.SemiColon))
+	stmt.IsConstant = isConstant
+	stmt.Value = assigedValue
+	stmt.Name = variableName
 
-	return ast.VarDeclarationStatement{
-		IsConstant:   isConstant,
-		Value:        assigedValue,
-		Name:         variableName,
-		ExplicitType: explicitType,
-		Tokens:       tokens,
-	}, nil
+	return stmt, nil
 }

@@ -6,10 +6,11 @@ import (
 )
 
 func ParseBlockStatement(p *Parser) (ast.BlockStatement, error) {
-	tokens := []lexer.Token{}
+	blockStatement := ast.BlockStatement{}
 	body := []ast.Statement{}
+	p.currentStatement = &blockStatement
 
-	tokens = append(tokens, p.expect(lexer.OpenCurly))
+	blockStatement.Tokens = append(blockStatement.Tokens, p.expect(lexer.OpenCurly))
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
 		stmt, err := ParseStatement(p)
@@ -17,16 +18,14 @@ func ParseBlockStatement(p *Parser) (ast.BlockStatement, error) {
 			return ast.BlockStatement{}, err
 		}
 
-		tokens = append(tokens, stmt.TokenStream()...)
+		blockStatement.Tokens = append(blockStatement.Tokens, stmt.TokenStream()...)
 		body = append(body, stmt)
 	}
 
-	tokens = append(tokens, p.expect(lexer.CloseCurly))
+	blockStatement.Tokens = append(blockStatement.Tokens, p.expect(lexer.CloseCurly))
+	blockStatement.Body = body
 
-	return ast.BlockStatement{
-		Body:   body,
-		Tokens: tokens,
-	}, nil
+	return blockStatement, nil
 }
 
 func ParseConditionalExpression(p *Parser) (ast.Statement, error) {
