@@ -30,6 +30,7 @@ var tks = map[TokenKind]string{
 	Main:               "MAIN_PROGRAM",
 	Minus:              "MINUS",
 	Multiply:           "MULTIPLY",
+	Modulo:             "MODULO",
 	Not:                "NOT",
 	NotEquals:          "NOT_EQUALS",
 	Number:             "NUMBER",
@@ -154,4 +155,5 @@ const (
 	Function
 	Main
 	Return
+	Modulo
 )

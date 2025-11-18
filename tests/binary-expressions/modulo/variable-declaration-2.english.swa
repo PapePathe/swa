@@ -1,0 +1,14 @@
+dialect:english;
+
+start() int {
+  let x : int = 4;
+  let y : int = 2;
+  let z : int = 3;
+
+  let v1 : int = x % y;
+  let v2 : int = x % z;
+
+  print("v1: %d, v2: %d", v1, v2);
+
+  return 0;
+}
