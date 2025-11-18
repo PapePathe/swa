@@ -21,7 +21,7 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 			return err, nil
 		}
 
-		val := ctx.Builder.CreateLoad(ctx.Context.Int32Type(), *ptr.Value, "")
+		val := ctx.Builder.CreateLoad(llvm.GlobalContext().Int32Type(), *ptr.Value, "")
 		ctx.Builder.CreateRet(val)
 	case MemberExpression:
 		expr, _ := rs.Value.(MemberExpression)

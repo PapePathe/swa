@@ -93,7 +93,7 @@ func (expr ArrayAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		"",
 	)
 
-	return nil, &CompilerResult{Value: &itemPtr}
+	return nil, &CompilerResult{Value: &itemPtr, ArraySymbolTableEntry: entry}
 }
 
 func (expr ArrayAccessExpression) TokenStream() []lexer.Token {
