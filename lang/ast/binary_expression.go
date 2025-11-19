@@ -250,6 +250,12 @@ func modulo(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 
 	return nil, &CompilerResult{Value: &res}
 }
+
+func modulo(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
+	res := ctx.Builder.CreateSRem(l, r, "")
+
+	return nil, &CompilerResult{Value: &res}
+}
 func divide(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 	res := ctx.Builder.CreateSDiv(l, r, "")
 
