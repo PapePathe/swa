@@ -1,0 +1,13 @@
+dialect:english;
+
+start() int {
+  let x : int = -2;
+  let y : int = 2;
+  
+  let z : int = x + y;
+  let zz : int = x * y;
+
+  print("x+y: %d, x*y: %d", z, zz);
+  
+  return 0;
+}
