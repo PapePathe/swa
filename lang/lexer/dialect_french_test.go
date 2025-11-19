@@ -11,6 +11,7 @@ func TestReservedFrench(t *testing.T) {
 		"si":        KeywordIf,
 		"sinon":     KeywordElse,
 		"structure": Struct,
+		"fonction":  Function,
 		"variable":  Let,
 		"constante": Const,
 		"entier":    TypeInt,

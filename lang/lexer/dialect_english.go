@@ -85,6 +85,7 @@ func (m English) Reserved() map[string]TokenKind {
 		"if":     KeywordIf,
 		"else":   KeywordElse,
 		"struct": Struct,
+		"func":   Function,
 		"let":    Let,
 		"const":  Const,
 		"int":    TypeInt,

@@ -10,6 +10,7 @@ func TestReservedEnglish(t *testing.T) {
 	expected := map[string]TokenKind{
 		"if":     KeywordIf,
 		"else":   KeywordElse,
+		"func":   Function,
 		"struct": Struct,
 		"let":    Let,
 		"const":  Const,
