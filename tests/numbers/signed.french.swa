@@ -1,0 +1,19 @@
+dialect:french;
+
+demarrer() entier {
+  variable x : entier = -2;
+  variable y : entier = 2;
+  
+  variable z     : entier = x + y;
+  variable zz    : entier = x * y;
+  variable zzz   : entier = x - y;
+  variable zzzz  : entier = x / y;
+  variable zzzzz : entier = x % y;
+
+  afficher(
+    "x+y: %d, x*y: %d, x-y: %d, x/y: %d, x%y: %d", 
+    z, zz, zzz zzzz zzzzz
+  );
+  
+  retourner 0;
+}

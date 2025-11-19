@@ -4,10 +4,16 @@ start() int {
   let x : int = -2;
   let y : int = 2;
   
-  let z : int = x + y;
-  let zz : int = x * y;
+  let z     : int = x + y;
+  let zz    : int = x * y;
+  let zzz   : int = x - y;
+  let zzzz  : int = x / y;
+  let zzzzz : int = x % y;
 
-  print("x+y: %d, x*y: %d", z, zz);
+  print(
+    "x+y: %d, x*y: %d, x-y: %d, x/y: %d, x%y: %d", 
+    z, zz, zzz zzzz zzzzz
+  );
   
   return 0;
 }
