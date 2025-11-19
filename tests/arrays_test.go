@@ -174,7 +174,7 @@ func TestArrayAccessWithPrefixExpression(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:      "./arrays/prefix-expression/source.french.swa",
-			ExpectedOutput: "Seuls les nombres positif sont permis comme indice de tableau, valeur courante: (- 4)\n",
+			ExpectedOutput: "Seuls les nombres positif sont permis comme indice de tableau, valeur courante: (-4)\n",
 			T:              t,
 		}
 
@@ -184,7 +184,7 @@ func TestArrayAccessWithPrefixExpression(t *testing.T) {
 	t.Run("English", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:      "./arrays/prefix-expression/source.english.swa",
-			ExpectedOutput: "Only numbers are supported as array index, current: (- 4)\n",
+			ExpectedOutput: "Only positive numbers are supported as array index, current: (-4)\n",
 			T:              t,
 		}
 
