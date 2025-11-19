@@ -9,11 +9,16 @@ import (
 
 // ParseStatement ...
 func ParseStatement(p *Parser) (ast.Statement, error) {
-	tokens := []lexer.Token{}
+	stmt := ast.ExpressionStatement{}
+	p.currentStatement = &stmt
 	statementFn, exists := statementLookup[p.currentToken().Kind]
 
 	if exists {
-		return statementFn(p)
+		val, err := statementFn(p)
+		if err != nil {
+			return nil, err
+		}
+		return val, nil
 	}
 
 	expression, err := parseExpression(p, DefaultBindingPower)
@@ -21,13 +26,11 @@ func ParseStatement(p *Parser) (ast.Statement, error) {
 		return nil, err
 	}
 
-	tokens = append(tokens, expression.TokenStream()...)
-	tokens = append(tokens, p.expect(lexer.SemiColon))
+	stmt.Exp = expression
+	stmt.Tokens = append(stmt.Tokens, expression.TokenStream()...)
+	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.SemiColon))
 
-	return ast.ExpressionStatement{
-		Exp:    expression,
-		Tokens: tokens,
-	}, nil
+	return stmt, nil
 }
 
 func ParseStructDeclarationStatement(p *Parser) (ast.Statement, error) {
@@ -36,11 +39,8 @@ func ParseStructDeclarationStatement(p *Parser) (ast.Statement, error) {
 
 	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.Struct))
 	structName := p.expect(lexer.Identifier)
+	stmt.Name = structName.Value
 	stmt.Tokens = append(stmt.Tokens, structName)
-
-	properties := []string{}
-	types := []ast.Type{}
-
 	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.OpenCurly))
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
@@ -56,21 +56,18 @@ func ParseStructDeclarationStatement(p *Parser) (ast.Statement, error) {
 			stmt.Tokens = append(stmt.Tokens, toks...)
 			stmt.Tokens = append(stmt.Tokens, p.expect(lexer.Comma))
 
-			if slices.Contains(properties, propertyName) {
+			if slices.Contains(stmt.Properties, propertyName) {
 				return nil, fmt.Errorf("property %s has already been defined", propertyName)
 			}
 
-			properties = append(properties, propertyName)
-			types = append(types, propType)
+			stmt.Properties = append(stmt.Properties, propertyName)
+			stmt.Types = append(stmt.Types, propType)
 
 			continue
 		}
 	}
 
 	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.CloseCurly))
-	stmt.Name = structName.Value
-	stmt.Properties = properties
-	stmt.Types = types
 
 	return stmt, nil
 }

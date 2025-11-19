@@ -6,76 +6,69 @@ import (
 )
 
 func ParseFunctionDeclaration(p *Parser) (ast.Statement, error) {
-	tokens := []lexer.Token{}
-
 	funDecl := ast.FuncDeclStatement{}
-	args := []ast.FuncArg{}
+	p.currentStatement = &funDecl
 
-	tokens = append(tokens, p.expect(lexer.Function))
+	funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.Function))
 	tok := p.expect(lexer.Identifier)
-	tokens = append(tokens, tok)
 	funDecl.Name = tok.Value
-	tokens = append(tokens, p.expect(lexer.OpenParen))
+	funDecl.Tokens = append(funDecl.Tokens, tok)
+	funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.OpenParen))
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseParen {
 		tok := p.expect(lexer.Identifier)
-		tokens = append(tokens, tok)
-		tokens = append(tokens, p.expect(lexer.Colon))
+		funDecl.Tokens = append(funDecl.Tokens, tok)
+		funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.Colon))
 		argType, toks := parseType(p, DefaultBindingPower)
-		tokens = append(tokens, toks...)
+		funDecl.Tokens = append(funDecl.Tokens, toks...)
 		arg := ast.FuncArg{
 			Name:    tok.Value,
 			ArgType: argType,
 		}
-		args = append(args, arg)
+		funDecl.Args = append(funDecl.Args, arg)
 
 		if p.currentToken().Kind == lexer.Comma {
-			tokens = append(tokens, p.expect(lexer.Comma))
+			funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.Comma))
 		}
 	}
 
-	funDecl.Args = args
-
-	tokens = append(tokens, p.expect(lexer.CloseParen))
+	funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.CloseParen))
 
 	returnType, tokens := parseType(p, DefaultBindingPower)
-	tokens = append(tokens, tokens...)
 	funDecl.ReturnType = returnType
+	funDecl.Tokens = append(funDecl.Tokens, tokens...)
+
 	body, err := ParseBlockStatement(p)
 	if err != nil {
 		return nil, err
 	}
-	tokens = append(tokens, body.TokenStream()...)
 
+	funDecl.Tokens = append(funDecl.Tokens, body.TokenStream()...)
 	funDecl.Body = body
-	funDecl.Tokens = tokens
 
 	return funDecl, nil
 }
 
 func ParseFunctionCall(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
-	tokens := []lexer.Token{}
-	args := []ast.Expression{}
-	tokens = append(tokens, left.TokenStream()...)
-	tokens = append(tokens, p.expect(lexer.OpenParen))
+	expr := ast.FunctionCallExpression{}
+	p.currentExpression = &expr
+	expr.Tokens = append(expr.Tokens, left.TokenStream()...)
+	expr.Tokens = append(expr.Tokens, p.expect(lexer.OpenParen))
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseParen {
 		arg, err := parseExpression(p, DefaultBindingPower)
 		if err != nil {
 			return nil, err
 		}
-		args = append(args, arg)
-		tokens = append(tokens, arg.TokenStream()...)
+		expr.Args = append(expr.Args, arg)
+		expr.Tokens = append(expr.Tokens, arg.TokenStream()...)
 		if p.currentToken().Kind == lexer.Comma {
-			tokens = append(tokens, p.expect(lexer.Comma))
+			expr.Tokens = append(expr.Tokens, p.expect(lexer.Comma))
 		}
 	}
 
-	tokens = append(tokens, p.expect(lexer.CloseParen))
+	expr.Tokens = append(expr.Tokens, p.expect(lexer.CloseParen))
+	expr.Name = left
 
-	return ast.FunctionCallExpression{
-		Name:   left,
-		Args:   args,
-		Tokens: tokens,
-	}, nil
+	return expr, nil
 }

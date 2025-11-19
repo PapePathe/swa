@@ -10,37 +10,35 @@ import (
 
 // ParsePrimaryExpression ...
 func ParsePrimaryExpression(p *Parser) (ast.Expression, error) {
-	tokens := []lexer.Token{}
-
 	switch p.currentToken().Kind {
 	case lexer.Number:
+		expr := ast.NumberExpression{}
+		p.currentExpression = &expr
 		tok := p.advance()
-		tokens = append(tokens, tok)
+		expr.Tokens = append(expr.Tokens, tok)
+
 		number, err := strconv.ParseFloat(tok.Value, 64)
 		if err != nil {
 			return nil, err
 		}
+		expr.Value = number
 
-		return ast.NumberExpression{
-			Value:  number,
-			Tokens: tokens,
-		}, nil
+		return expr, nil
 	case lexer.String:
+		expr := ast.StringExpression{}
+		p.currentExpression = &expr
 		tok := p.advance()
-		tokens = append(tokens, tok)
-		value := tok.Value
+		expr.Tokens = append(expr.Tokens, tok)
+		expr.Value = tok.Value[1 : len(tok.Value)-1]
 
-		return ast.StringExpression{
-			Value:  value[1 : len(value)-1],
-			Tokens: tokens,
-		}, nil
+		return expr, nil
 	case lexer.Identifier:
+		expr := ast.SymbolExpression{}
+		p.currentExpression = &expr
 		tok := p.advance()
-		tokens = append(tokens, tok)
-		return ast.SymbolExpression{
-			Value:  tok.Value,
-			Tokens: tokens,
-		}, nil
+		expr.Value = tok.Value
+		expr.Tokens = append(expr.Tokens, tok)
+		return expr, nil
 
 	default:
 		return nil, fmt.Errorf("Cannot create PrimaryExpression from %s", p.currentToken().Kind)

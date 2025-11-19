@@ -6,21 +6,20 @@ import (
 )
 
 func ParseArrayAccess(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
-	tokens := []lexer.Token{}
 	expr := ast.ArrayAccessExpression{Name: left}
+	p.currentExpression = &expr
 
-	tokens = append(tokens, left.TokenStream()...)
-	tokens = append(tokens, p.expect(lexer.OpenBracket))
+	expr.Tokens = append(expr.Tokens, left.TokenStream()...)
+	expr.Tokens = append(expr.Tokens, p.expect(lexer.OpenBracket))
 
 	index, err := parseExpression(p, DefaultBindingPower)
 	if err != nil {
 		return nil, err
 	}
 
-	tokens = append(tokens, index.TokenStream()...)
-
 	expr.Index = index
-	tokens = append(tokens, p.expect(lexer.CloseBracket))
+	expr.Tokens = append(expr.Tokens, index.TokenStream()...)
+	expr.Tokens = append(expr.Tokens, p.expect(lexer.CloseBracket))
 
 	if p.currentToken().Kind == lexer.Dot {
 		memberCall, err := ParseMemberCallExpression(p, expr, Member)
@@ -28,13 +27,8 @@ func ParseArrayAccess(p *Parser, left ast.Expression, bp BindingPower) (ast.Expr
 			return nil, err
 		}
 
-		tokens = append(tokens, memberCall.TokenStream()...)
-		expr.Tokens = tokens
-
 		return memberCall, nil
 	}
-
-	expr.Tokens = tokens
 
 	return expr, nil
 }
