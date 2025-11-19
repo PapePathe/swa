@@ -39,6 +39,11 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 	case NumberExpression:
 		idx, _ := expr.Index.(NumberExpression)
 
+		if int(idx.Value) < 0 {
+			key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
+			return ctx.Dialect.Error(key, expr.Index), nil, nil, nil
+		}
+
 		if int(idx.Value) > entry.ElementsCount-1 {
 			key := "ArrayAccessExpression.IndexOutOfBounds"
 			return ctx.Dialect.Error(key, int(idx.Value), varName.Value), nil, nil, nil
