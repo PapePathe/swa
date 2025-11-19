@@ -15,7 +15,6 @@ func TestFunctions(t *testing.T) {
 				ExpectedExecutionOutput: "10 - 5 = 5",
 				T:                       t,
 			}
-			defer req.Cleanup()
 
 			req.AssertCompileAndExecute()
 		})
@@ -27,7 +26,6 @@ func TestFunctions(t *testing.T) {
 				ExpectedExecutionOutput: "10 + 5 = 15",
 				T:                       t,
 			}
-			defer req.Cleanup()
 
 			req.AssertCompileAndExecute()
 		})
@@ -39,7 +37,6 @@ func TestFunctions(t *testing.T) {
 				ExpectedExecutionOutput: "10 / 5 = 2",
 				T:                       t,
 			}
-			defer req.Cleanup()
 
 			req.AssertCompileAndExecute()
 		})
@@ -51,7 +48,6 @@ func TestFunctions(t *testing.T) {
 				ExpectedExecutionOutput: "10 * 5 = 50",
 				T:                       t,
 			}
-			defer req.Cleanup()
 
 			req.AssertCompileAndExecute()
 		})
