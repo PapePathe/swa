@@ -54,7 +54,6 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: glob})
 	case NumberExpression, BinaryExpression:
 		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), "")
-
 		ctx.Builder.CreateStore(*val.Value, alloc)
 		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
 	case ArrayInitializationExpression:

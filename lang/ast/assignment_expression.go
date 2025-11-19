@@ -10,7 +10,6 @@ import (
 //
 // a = a +5;
 // foo.bar = foo.bar + 10;
-
 type AssignmentExpression struct {
 	Operator lexer.Token
 	Assignee Expression

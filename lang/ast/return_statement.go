@@ -45,6 +45,16 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 			loadedval := ctx.Builder.CreateLoad(llvm.GlobalContext().Int32Type(), val.Value, "")
 			ctx.Builder.CreateRet(loadedval)
 		}
+	case StringExpression:
+		err, ptr := rs.Value.CompileLLVM(ctx)
+		if err != nil {
+			return err, nil
+		}
+
+		alloc := ctx.Builder.CreateAlloca(ptr.Value.Type(), "")
+		ctx.Builder.CreateStore(*ptr.Value, alloc)
+		ctx.Builder.CreateRet(alloc)
+
 	case NumberExpression:
 		ctx.Builder.CreateRet(llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(v.Value), false))
 	case BinaryExpression:
@@ -54,10 +64,16 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 		}
 
 		ctx.Builder.CreateRet(*res.Value)
+	case FunctionCallExpression:
+		err, res := rs.Value.CompileLLVM(ctx)
+		if err != nil {
+			return err, nil
+		}
+
+		ctx.Builder.CreateRet(*res.Value)
 	default:
 		err := fmt.Errorf("unknown expression in ReturnStatement <%s>", rs.Value)
-
-		panic(err)
+		return err, nil
 	}
 
 	return nil, nil
