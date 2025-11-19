@@ -30,7 +30,7 @@ func (m English) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`\/\/.*`), commentHandler},
 		{regexp.MustCompile(`'[a-zA-Z0-9]'`), characterHandler},
 		{regexp.MustCompile(`"[^"]*"`), stringHandler},
-		{regexp.MustCompile(`[0-9]+(\.[0-9]+)?`), numberHandler},
+		{regexp.MustCompile(`[-]?[0-9]+(\.[0-9]+)?`), numberHandler},
 		{regexp.MustCompile(`\[`), defaultHandler(OpenBracket, "[")},
 		{regexp.MustCompile(`\]`), defaultHandler(CloseBracket, "]")},
 		{regexp.MustCompile(`\{`), defaultHandler(OpenCurly, "{")},
