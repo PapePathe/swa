@@ -34,6 +34,7 @@ var tks = map[TokenKind]string{
 	Not:                "NOT",
 	NotEquals:          "NOT_EQUALS",
 	Number:             "NUMBER",
+	Float:              "DECIMAL",
 	OpenCurly:          "OPEN_CURLY",
 	OpenParen:          "OPEN_PAREN",
 	OpenBracket:        "OPEN_BRACKET",
@@ -85,7 +86,8 @@ const (
 	String
 	// Number represents a numeric literal.
 	Number
-
+	// Number represents a decimal literal.
+	Float
 	// Assignment represents an assignment operator.
 	Assignment
 	// Colon represents a colon symbol.
