@@ -8,7 +8,6 @@ import (
 func ParseMainStatement(p *Parser) (ast.Statement, error) {
 	ms := ast.MainStatement{}
 	p.currentStatement = &ms
-
 	ms.Tokens = append(ms.Tokens, p.expect(lexer.Main))
 	ms.Tokens = append(ms.Tokens, p.expect(lexer.OpenParen))
 	ms.Tokens = append(ms.Tokens, p.expect(lexer.CloseParen))
