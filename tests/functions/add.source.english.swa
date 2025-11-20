@@ -1,0 +1,12 @@
+dialect:english;
+
+func addition(first : int, last: int) int {
+  return first + last;
+}
+
+start () int {
+  let m : int = 10;
+  m = addition(10, 5);
+  print("10 + 5 = %d", m);
+  return 0; 
+}
