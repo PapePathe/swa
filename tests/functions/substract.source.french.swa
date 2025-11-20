@@ -7,9 +7,7 @@ fonction soustraction(first : entier, last: entier) entier {
 demarrer() entier {
   variable m : entier = 10;
   m = soustraction(10, 5);
-
   afficher("10 - 5 = %d", m);
-
   retourner 0; 
 }
 
