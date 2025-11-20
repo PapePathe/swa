@@ -49,9 +49,10 @@ func (si StructInitializationExpression) InitValues(ctx *CompilerCtx) (error, []
 			glob := llvm.AddGlobal(*ctx.Module, val.Value.Type(), "")
 			glob.SetInitializer(*val.Value)
 			fieldValues = append(fieldValues, StructItemValue{Position: propIndex, Value: &glob})
-
-		case NumberExpression:
+		case NumberExpression, FloatExpression:
 			fieldValues = append(fieldValues, StructItemValue{Position: propIndex, Value: val.Value})
+		default:
+			return fmt.Errorf("StructInitializationExpression expression: %t is not a known field type", expr), nil
 		}
 	}
 	return nil, fieldValues
