@@ -1,0 +1,10 @@
+dialect:english;
+
+start() int {
+  let x: int = 42;
+  let y: float = 3.14;
+  let z: int = 10 + 5;
+  let w: float = 2.5 + 1.5;
+
+  return 0;
+}
