@@ -1,0 +1,12 @@
+dialect:english;
+
+func multiply(first : int, last: int) int {
+  return first * last;
+}
+
+start() int {
+  let m : int = 0;
+  m = multiply(10, 5);
+  print("10 * 5 = %d", m);
+  return 0; 
+}

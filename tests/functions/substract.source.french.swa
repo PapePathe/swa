@@ -1,15 +1,13 @@
 dialect:french;
 
-fonction soustraction(first : entier, last: entier) entier {
-  retourner first - last;
+fonction soustraction(premierArgument : entier, secondArgument: entier) entier {
+  retourner premierArgument - secondArgument;
 }
 
 demarrer() entier {
   variable m : entier = 10;
   m = soustraction(10, 5);
-
   afficher("10 - 5 = %d", m);
-
   retourner 0; 
 }
 
