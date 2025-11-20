@@ -15,6 +15,7 @@ func TestReservedFrench(t *testing.T) {
 		"variable":  Let,
 		"constante": Const,
 		"entier":    TypeInt,
+		"decimal":   TypeFloat,
 		"chaine":    TypeString,
 	}
 
@@ -27,5 +28,5 @@ func TestReservedFrench(t *testing.T) {
 func TestPatternsFrench(t *testing.T) {
 	french := French{}
 
-	assert.Equal(t, 45, len(french.Patterns()))
+	assert.Equal(t, 46, len(french.Patterns()))
 }
