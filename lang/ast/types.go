@@ -15,6 +15,8 @@ func (dt DataType) String() string {
 		return "DataTypeIntType"
 	case DataTypeNumber:
 		return "DataTypeNumber"
+	case DataTypeFloat:
+		return "DataTypeFloat"
 	case DataTypeArray:
 		return "DataTypeArray"
 	case DataTypeSymbol:
@@ -27,6 +29,7 @@ func (dt DataType) String() string {
 const (
 	DataTypeArray = iota
 	DataTypeNumber
+	DataTypeFloat
 	DataTypeString
 	DataTypeStruct
 	DataTypeIntType
@@ -112,6 +115,24 @@ func (se StringType) MarshalJSON() ([]byte, error) {
 
 	res := make(map[string]any)
 	res["ast.StringType"] = m
+
+	return json.Marshal(res)
+}
+
+type FloatType struct{}
+
+var _ Type = (*FloatType)(nil)
+
+func (FloatType) Value() DataType {
+	return DataTypeFloat
+}
+
+func (se FloatType) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["Value"] = se.Value().String()
+
+	res := make(map[string]any)
+	res["ast.FloatType"] = m
 
 	return json.Marshal(res)
 }
