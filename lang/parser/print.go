@@ -56,6 +56,17 @@ func ParsePrintStatement(p *Parser) (ast.Statement, error) {
 					stmt.Values = append(stmt.Values, ast.SymbolExpression{Value: tok.Value})
 				}
 			}
+		case lexer.Float:
+			tok := p.expect(lexer.Float)
+			stmt.Tokens = append(stmt.Tokens, tok)
+			value := tok.Value
+
+			number, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				return nil, fmt.Errorf("Error parsing float expression <%s> in PRINT statement", err)
+			}
+
+			stmt.Values = append(stmt.Values, ast.FloatExpression{Value: number})
 		case lexer.Number:
 			tok := p.expect(lexer.Number)
 			stmt.Tokens = append(stmt.Tokens, tok)
@@ -68,7 +79,7 @@ func ParsePrintStatement(p *Parser) (ast.Statement, error) {
 
 			stmt.Values = append(stmt.Values, ast.NumberExpression{Value: number})
 		default:
-			return nil, fmt.Errorf("Token %s not supported in print statement", p.currentToken().Kind)
+			return nil, fmt.Errorf("ParsePrintStatement: Token %s not supported in print statement", p.currentToken().Kind)
 		}
 
 		if p.currentToken().Kind == lexer.Comma {
