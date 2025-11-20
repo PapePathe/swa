@@ -3,9 +3,11 @@ dialect:english;
 start() int {
 	struct Vec {
 		x: int,
+		y: float,
 	}
-	let v:Vec = Vec{x: 0};
+	let v:Vec = Vec{x: 0, y: 0.0};
 	v.x = 100;
+	v.y = 100.025;
 
   return 0;
 }

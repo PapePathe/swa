@@ -3,9 +3,11 @@ dialect:french;
 demarrer() entier {
 	structure Vec {
 		x: entier,
+		y: decimal,
 	}
-	variable v:Vec = Vec{x: 0};
+	variable v:Vec = Vec{x: 0, y: 0.0};
 	v.x = 100;
+	v.y = 100.025;
 
   retourner 0;
 }
