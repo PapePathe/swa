@@ -17,6 +17,17 @@ func TestPrint(t *testing.T) {
 
 			req.AssertCompileAndExecute()
 		})
+
+		t.Run("float variable", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./print/float.french.swa",
+				ExpectedExecutionOutput: "a: 10.005000, b: -10.005000",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
 		t.Run("Number variable", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:               "./print/variable.number.french.swa",

@@ -184,7 +184,7 @@ func TestArrayAccessWithPrefixExpression(t *testing.T) {
 	t.Run("English", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:      "./arrays/prefix-expression/source.english.swa",
-			ExpectedOutput: "Only positive numbers are supported as array index, current: (-4)\n",
+			ExpectedOutput: "Only numbers are supported as array index, current: (-4)\n",
 			T:              t,
 		}
 
