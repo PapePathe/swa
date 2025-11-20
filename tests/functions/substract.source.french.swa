@@ -1,7 +1,7 @@
 dialect:french;
 
-fonction soustraction(first : entier, last: entier) entier {
-  retourner first - last;
+fonction soustraction(premierArgument : entier, secondArgument: entier) entier {
+  retourner premierArgument - secondArgument;
 }
 
 demarrer() entier {

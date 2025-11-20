@@ -1,7 +1,7 @@
 dialect:french;
 
-fonction addition(first : entier, last: entier) entier {
-  retourner first + last;
+fonction addition(premierArgument : entier, secondArgument: entier) entier {
+  retourner premierArgument + secondArgument;
 }
 
 demarrer() entier {

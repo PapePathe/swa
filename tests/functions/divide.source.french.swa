@@ -1,7 +1,7 @@
 dialect:french;
 
-fonction division(first : entier, last: entier) entier {
-  retourner first / last;
+fonction division(premierArgument : entier, secondArgument: entier) entier {
+  retourner premierArgument / secondArgument;
 }
 
 demarrer() entier {

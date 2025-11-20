@@ -1,7 +1,7 @@
 dialect:french;
 
-fonction multiplication(first : entier, last: entier) entier {
-  retourner first * last;
+fonction multiplication(premierArgument : entier, secondArgument: entier) entier {
+  retourner premierArgument * secondArgument;
 }
 
 demarrer() entier {
