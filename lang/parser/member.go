@@ -8,37 +8,50 @@ import (
 )
 
 func ParseMemberCallExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
-	tokens := []lexer.Token{}
-	tokens = append(tokens, left.TokenStream()...)
-	tokens = append(tokens, p.expect(lexer.Dot))
-
-	if p.currentToken().Kind == lexer.OpenParen {
-		return nil, fmt.Errorf("ParseMemberCallExpression: function calls not yet supported")
+	switch left.(type) {
+	case ast.ArrayAccessExpression:
+		return parseArrayOfStructsAccessExpression(p, left, bp)
+	case ast.SymbolExpression:
+		return parseMemberExpression(p, left, bp)
+	default:
+		return nil, fmt.Errorf("ParseMemberCallExpression %s", left)
 	}
+}
+
+func parseMemberExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
+	expr := ast.MemberExpression{}
+	p.currentExpression = &expr
+	expr.Object = left
+	expr.Tokens = append(expr.Tokens, left.TokenStream()...)
+	expr.Tokens = append(expr.Tokens, p.expect(lexer.Dot))
 
 	_member, err := parseExpression(p, Member)
 	if err != nil {
 		return nil, err
 	}
 
-	tokens = append(tokens, _member.TokenStream()...)
+	expr.Property = _member
+	expr.Tokens = append(expr.Tokens, _member.TokenStream()...)
 
-	switch left.(type) {
-	case ast.ArrayAccessExpression:
-		arr, _ := left.(ast.ArrayAccessExpression)
-		return ast.ArrayOfStructsAccessExpression{
-			Property: _member,
-			Name:     arr.Name,
-			Index:    arr.Index,
-			Tokens:   tokens,
-		}, nil
-	case ast.SymbolExpression:
-		return ast.MemberExpression{
-			Object:   left,
-			Property: _member,
-			Tokens:   tokens,
-		}, nil
-	default:
-		return nil, fmt.Errorf("ParseMemberCallExpression %s", left)
+	return expr, nil
+}
+
+func parseArrayOfStructsAccessExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
+	expr := ast.ArrayOfStructsAccessExpression{}
+	p.currentExpression = &expr
+	expr.Tokens = append(expr.Tokens, left.TokenStream()...)
+	expr.Tokens = append(expr.Tokens, p.expect(lexer.Dot))
+	arr, _ := left.(ast.ArrayAccessExpression)
+	expr.Name = arr.Name
+	expr.Index = arr.Index
+
+	_member, err := parseExpression(p, Member)
+	if err != nil {
+		return nil, err
 	}
+
+	expr.Property = _member
+	expr.Tokens = append(expr.Tokens, _member.TokenStream()...)
+
+	return expr, nil
 }

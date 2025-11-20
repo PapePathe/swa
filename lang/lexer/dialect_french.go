@@ -90,6 +90,7 @@ func (m French) Reserved() map[string]TokenKind {
 		"si":        KeywordIf,
 		"sinon":     KeywordElse,
 		"structure": Struct,
+		"fonction":  Function,
 		"variable":  Let,
 		"constante": Const,
 		"entier":    TypeInt,

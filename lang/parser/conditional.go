@@ -7,10 +7,8 @@ import (
 
 func ParseBlockStatement(p *Parser) (ast.BlockStatement, error) {
 	blockStatement := ast.BlockStatement{}
-	body := []ast.Statement{}
-	p.currentStatement = &blockStatement
-
 	blockStatement.Tokens = append(blockStatement.Tokens, p.expect(lexer.OpenCurly))
+	p.currentStatement = &blockStatement
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
 		stmt, err := ParseStatement(p)
@@ -19,52 +17,49 @@ func ParseBlockStatement(p *Parser) (ast.BlockStatement, error) {
 		}
 
 		blockStatement.Tokens = append(blockStatement.Tokens, stmt.TokenStream()...)
-		body = append(body, stmt)
+		blockStatement.Body = append(blockStatement.Body, stmt)
 	}
 
 	blockStatement.Tokens = append(blockStatement.Tokens, p.expect(lexer.CloseCurly))
-	blockStatement.Body = body
 
 	return blockStatement, nil
 }
 
 func ParseConditionalExpression(p *Parser) (ast.Statement, error) {
-	tokens := []lexer.Token{}
-	failBlock := ast.BlockStatement{}
+	stmt := ast.ConditionalStatetement{}
+	p.currentStatement = &stmt
 
-	tokens = append(tokens, p.expect(lexer.KeywordIf))
-	tokens = append(tokens, p.expect(lexer.OpenParen))
+	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.KeywordIf))
+	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.OpenParen))
 
 	condition, err := parseExpression(p, DefaultBindingPower)
 	if err != nil {
 		return nil, err
 	}
 
-	tokens = append(tokens, condition.TokenStream()...)
-	tokens = append(tokens, p.expect(lexer.CloseParen))
+	stmt.Condition = condition
+	stmt.Tokens = append(stmt.Tokens, condition.TokenStream()...)
+	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.CloseParen))
 
 	successBlock, err := ParseBlockStatement(p)
 	if err != nil {
 		return nil, err
 	}
 
-	tokens = append(tokens, successBlock.TokenStream()...)
+	stmt.Success = successBlock
+	stmt.Tokens = append(stmt.Tokens, successBlock.TokenStream()...)
 
 	if p.currentToken().Kind == lexer.KeywordElse {
-		tokens = append(tokens, p.expect(lexer.KeywordElse))
+		stmt.Tokens = append(stmt.Tokens, p.expect(lexer.KeywordElse))
 
-		failBlock, err = ParseBlockStatement(p)
+		failBlock, err := ParseBlockStatement(p)
 		if err != nil {
 			return nil, err
 		}
 
-		tokens = append(tokens, failBlock.TokenStream()...)
+		stmt.Failure = failBlock
+		stmt.Tokens = append(stmt.Tokens, failBlock.TokenStream()...)
 	}
 
-	return ast.ConditionalStatetement{
-		Condition: condition,
-		Success:   successBlock,
-		Failure:   failBlock,
-		Tokens:    tokens,
-	}, nil
+	return stmt, nil
 }
