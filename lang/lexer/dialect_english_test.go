@@ -25,6 +25,6 @@ func TestReservedEnglish(t *testing.T) {
 func TestPatternsEnglish(t *testing.T) {
 	english := English{}
 
-	assert.Equal(t, 44, len(english.Patterns()))
+	assert.Equal(t, 45, len(english.Patterns()))
 
 }
