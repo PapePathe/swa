@@ -61,7 +61,7 @@ func ParsePrintStatement(p *Parser) (ast.Statement, error) {
 			stmt.Tokens = append(stmt.Tokens, tok)
 			value := tok.Value
 
-			number, err := strconv.ParseFloat(value, 64)
+			number, err := strconv.ParseInt(value, 10, 64)
 			if err != nil {
 				return nil, fmt.Errorf("Error parsing number expression <%s> in PRINT statement", err)
 			}

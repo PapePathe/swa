@@ -57,6 +57,9 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 
 	case NumberExpression:
 		ctx.Builder.CreateRet(llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(v.Value), false))
+	case FloatExpression:
+		val := rs.Value.(FloatExpression)
+		ctx.Builder.CreateRet(llvm.ConstFloat(llvm.GlobalContext().DoubleType(), val.Value))
 	case BinaryExpression:
 		err, res := rs.Value.CompileLLVM(ctx)
 		if err != nil {

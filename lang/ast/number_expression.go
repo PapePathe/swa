@@ -11,7 +11,7 @@ import (
 
 // NumberExpression ...
 type NumberExpression struct {
-	Value  float64
+	Value  int64
 	Tokens []lexer.Token
 }
 
