@@ -22,7 +22,7 @@ func (m Wolof) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`struct`), defaultHandler(Struct, "struct")},
 		{regexp.MustCompile(`\/\/.*`), commentHandler},
 		{regexp.MustCompile(`"[^"]*"`), stringHandler},
-		{regexp.MustCompile(`[0-9]+(\.[0-9]+)?`), numberHandler},
+		{regexp.MustCompile(`[-]?[0-9]+(\.[0-9]+)?`), numberHandler},
 		{regexp.MustCompile(`[a-zA-Z_][a-zA-Z0-9_]*`), symbolHandler},
 		{regexp.MustCompile(`\[`), defaultHandler(OpenBracket, "[")},
 		{regexp.MustCompile(`\]`), defaultHandler(CloseBracket, "]")},

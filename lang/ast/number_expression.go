@@ -22,7 +22,13 @@ func (e NumberExpression) String() string {
 }
 
 func (se NumberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	res := llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(se.Value), false)
+	var signed bool
+
+	if se.Value < 0 {
+		signed = true
+	}
+
+	res := llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(se.Value), signed)
 
 	return nil, &CompilerResult{Value: &res}
 }
