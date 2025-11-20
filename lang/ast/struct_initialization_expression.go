@@ -86,10 +86,11 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 			glob.SetInitializer(*val.Value)
 			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, "")
 			ctx.Builder.CreateStore(glob, field1Ptr)
-
-		case NumberExpression:
+		case NumberExpression, FloatExpression:
 			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, "")
 			ctx.Builder.CreateStore(*val.Value, field1Ptr)
+		default:
+			return fmt.Errorf("StructInitializationExpression: expression %v not implemented", expr), nil
 		}
 	}
 

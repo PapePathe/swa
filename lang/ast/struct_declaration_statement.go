@@ -35,6 +35,8 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Comp
 		switch typ.(type) {
 		case StringType:
 			attrs = append(attrs, llvm.PointerType(llvm.GlobalContext().Int8Type(), 0))
+		case FloatType:
+			attrs = append(attrs, llvm.GlobalContext().DoubleType())
 		case NumberType:
 			attrs = append(attrs, llvm.GlobalContext().Int32Type())
 		default:
