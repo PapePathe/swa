@@ -1,0 +1,12 @@
+dialect:french;
+
+fonction multiplication(premierArgument : decimal, secondArgument: decimal) decimal {
+  retourner premierArgument * secondArgument;
+}
+
+demarrer() entier {
+  variable m : decimal = 0.0;
+  m = multiplication(10.02, 5.05);
+  afficher("10.02, 5.05 = %f", m);
+  retourner 0; 
+}
