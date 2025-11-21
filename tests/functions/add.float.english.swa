@@ -1,0 +1,12 @@
+dialect:english;
+
+func add(first: float, last: float) float {
+  return first + last;
+}
+
+start () int {
+  let m : float = 0.01;
+  m = add(10.25, 4.75);
+  print("10.25 + 4.75 = %.2f", m);
+  return 0; 
+}
