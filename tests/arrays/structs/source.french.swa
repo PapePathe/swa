@@ -1,45 +1,51 @@
 dialect:french;
 
 demarrer() entier {
-  structure Engineer{
-Age: entier,
-       Nom: chaine,
-       StackTechnique: chaine,
+  structure Ingenieur{
+    Age:            entier,
+    Taille:         decimal,
+    Nom:            chaine,
+    StackTechnique: chaine,
   }
 
-  variable tableau : []Engineer = []Engineer{
-    Engineer{ Age: 40, Nom: "Pathe",  StackTechnique: "Ruby, Rust, Go" },
-    Engineer{ Age: 24, Nom: "Lucien", StackTechnique: "Typescript, HTML, Css" },
-    Engineer{ Age: 25, Nom: "Manel",  StackTechnique: "Typescript, Ruby" },
-    Engineer{ Age: 28, Nom: "Bintou", StackTechnique: "Javascript, Css, HTML" },
+  variable tableau : []Ingenieur = []Ingenieur{
+    Ingenieur{ Age: 40, Taille: 1.80, Nom: "Pathe",  StackTechnique: "Ruby, Rust, Go" },
+    Ingenieur{ Age: 24, Taille: 1.81, Nom: "Lucien", StackTechnique: "Typescript, HTML, Css" },
+    Ingenieur{ Age: 25, Taille: 1.82, Nom: "Manel",  StackTechnique: "Typescript, Ruby" },
+    Ingenieur{ Age: 28, Taille: 1.83, Nom: "Bintou", StackTechnique: "Javascript, Css, HTML" },
   };
 
   afficher(
-      "(nom: %s, age: %d, stack: %s) ", 
+      "(nom: %s, age: %d, taille: %.2f, technos: %s) ", 
       tableau[0].Nom, 
       tableau[0].Age, 
+      tableau[0].Taille, 
       tableau[0].StackTechnique
       );
 
   afficher(
-      "(nom: %s, age: %d, stack: %s) ", 
+      "(nom: %s, age: %d, taille: %.2f, technos: %s) ", 
       tableau[1].Nom, 
       tableau[1].Age, 
+      tableau[1].Taille, 
       tableau[1].StackTechnique
       );
 
   afficher(
-      "(nom: %s, age: %d, stack: %s) ", 
+      "(nom: %s, age: %d, taille: %.2f, technos: %s) ", 
       tableau[2].Nom, 
       tableau[2].Age, 
+      tableau[2].Taille, 
       tableau[2].StackTechnique
       );
 
   afficher(
-      "(nom: %s, age: %d, stack: %s)", 
+      "(nom: %s, age: %d, technos: %s)", 
       tableau[3].Nom, 
       tableau[3].Age, 
+      tableau[3].Taille, 
       tableau[3].StackTechnique
       ); 
+
   retourner 0;
 }

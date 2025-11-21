@@ -1,0 +1,6 @@
+dialect:french;
+
+demarrer() entier {
+  afficher("a: %f, b: %f", 10.005, -10.005);
+  retourner 0; 
+}

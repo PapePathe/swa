@@ -3,42 +3,47 @@ dialect:english;
 start() int {
   struct Engineer{
     Age: int,
+    Height: float,
     Name: string,
     TechStack: string,
   }
  
   let tableau : []Engineer = []Engineer{
-    Engineer{ Age: 40, Name: "Pathe",  TechStack: "Ruby, Rust, Go" },
-    Engineer{ Age: 24, Name: "Lucien", TechStack: "Typescript, HTML, Css" },
-    Engineer{ Age: 25, Name: "Manel",  TechStack: "Typescript, Ruby" },
-    Engineer{ Age: 28, Name: "Bintou", TechStack: "Javascript, Css, HTML" },
+    Engineer{ Age: 40, Height: 1.80, Name: "Pathe",  TechStack: "Ruby, Rust, Go" },
+    Engineer{ Age: 24, Height: 1.81, Name: "Lucien", TechStack: "Typescript, HTML, Css" },
+    Engineer{ Age: 25, Height: 1.82, Name: "Manel",  TechStack: "Typescript, Ruby" },
+    Engineer{ Age: 28, Height: 1.83, Name: "Bintou", TechStack: "Javascript, Css, HTML" },
   };
 
   print(
-      "(nom: %s, age: %d, stack: %s) ", 
+      "(nom: %s, age: %d, taille: %.2f, stack: %s) ", 
       tableau[0].Name, 
       tableau[0].Age, 
+      tableau[0].Height, 
       tableau[0].TechStack
       );
 
   print(
-      "(nom: %s, age: %d, stack: %s) ", 
+      "(nom: %s, age: %d, taille: %.2f, stack: %s) ", 
       tableau[1].Name, 
       tableau[1].Age, 
+      tableau[1].Height, 
       tableau[1].TechStack
       );
 
   print(
-      "(nom: %s, age: %d, stack: %s) ", 
+      "(nom: %s, age: %d, taille: %.2f, stack: %s) ", 
       tableau[2].Name, 
       tableau[2].Age, 
+      tableau[2].Height, 
       tableau[2].TechStack
       );
 
   print(
-      "(nom: %s, age: %d, stack: %s)", 
+      "(nom: %s, age: %d, taille: %.2f, stack: %s) ", 
       tableau[3].Name, 
       tableau[3].Age, 
+      tableau[3].Height, 
       tableau[3].TechStack
       ); 
 

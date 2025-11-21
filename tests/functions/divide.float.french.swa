@@ -1,0 +1,12 @@
+dialect:french;
+
+fonction division(premierArgument : decimal, secondArgument: decimal) decimal {
+  retourner premierArgument / secondArgument;
+}
+
+demarrer() entier {
+  variable m : decimal = 0.0;
+  m = division(10.0, 5.0);
+  afficher("10.0 / 5.0 = %f", m);
+  retourner 0; 
+}

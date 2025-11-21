@@ -1,0 +1,12 @@
+dialect:english;
+
+func substract(first : float, last: float) float {
+  return first - last;
+}
+
+start() int {
+  let m : float = 0.0;
+  m = substract(10.5, 5.25);
+  print("10.5 - 5.25 = %.2f", m);
+  return 0; 
+}

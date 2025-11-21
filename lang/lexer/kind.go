@@ -34,6 +34,7 @@ var tks = map[TokenKind]string{
 	Not:                "NOT",
 	NotEquals:          "NOT_EQUALS",
 	Number:             "NUMBER",
+	Float:              "DECIMAL",
 	OpenCurly:          "OPEN_CURLY",
 	OpenParen:          "OPEN_PAREN",
 	OpenBracket:        "OPEN_BRACKET",
@@ -49,6 +50,7 @@ var tks = map[TokenKind]string{
 	String:             "STRING",
 	Star:               "STAR",
 	TypeInt:            "TYPE_INT",
+	TypeFloat:          "TYPE_FLOAT",
 	TypeString:         "TYPE_STRING",
 }
 
@@ -79,13 +81,15 @@ const (
 	KeywordWhile
 	// TypeInt represents the "int" type.
 	TypeInt
+	TypeFloat
 	// TypeString represents the "string" type.
 	TypeString
 	// String represents a string literal.
 	String
 	// Number represents a numeric literal.
 	Number
-
+	// Number represents a decimal literal.
+	Float
 	// Assignment represents an assignment operator.
 	Assignment
 	// Colon represents a colon symbol.

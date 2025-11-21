@@ -69,11 +69,12 @@ func (cr *CompileRequest) AssertCompileAndExecute() {
 		cr.T.Fatal(sb.String())
 	}
 
+	defer cr.Cleanup()
+
 	if err := cr.RunProgram(); err != nil {
 		cr.T.Fatalf("Runtime error (%s)", err)
 	}
 
-	cr.Cleanup()
 }
 
 func (cr *CompileRequest) Cleanup() {

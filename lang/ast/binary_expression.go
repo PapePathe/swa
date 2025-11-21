@@ -246,19 +246,37 @@ func modulo(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 }
 
 func divide(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateSDiv(l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFDiv(l, r, "")
+	} else {
+		res = ctx.Builder.CreateSDiv(l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }
 
 func multiply(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateMul(l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFMul(l, r, "")
+	} else {
+		res = ctx.Builder.CreateMul(l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }
 
 func substract(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateSub(l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFSub(l, r, "")
+	} else {
+		res = ctx.Builder.CreateSub(l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }

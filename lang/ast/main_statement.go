@@ -36,7 +36,6 @@ func (expr MainStatement) TokenStream() []lexer.Token {
 func (cs MainStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Body"] = cs.Body
-	m["Tokens"] = cs.TokenStream()
 
 	res := make(map[string]any)
 	res["ast.MainProGram"] = m

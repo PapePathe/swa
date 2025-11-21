@@ -40,6 +40,12 @@ func newlineHandler(lex *Lexer, regex *regexp.Regexp) {
 	lex.newLine()
 }
 
+func floatHandler(lex *Lexer, regex *regexp.Regexp) {
+	match := regex.FindString(lex.remainder())
+	lex.push(NewToken(Float, match, lex.line))
+	lex.advanceN(len(match))
+}
+
 func numberHandler(lex *Lexer, regex *regexp.Regexp) {
 	match := regex.FindString(lex.remainder())
 	lex.push(NewToken(Number, match, lex.line))

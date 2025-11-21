@@ -1,0 +1,12 @@
+dialect:english;
+
+func divide(first : float, last: float) float {
+  return first / last;
+}
+
+start() int{
+  let m : float = 0.0;
+  m = divide(10.0, 5.0);
+  print("10.0 / 5.0 = %f", m);
+  return 0; 
+}

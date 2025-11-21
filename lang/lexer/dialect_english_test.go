@@ -15,6 +15,7 @@ func TestReservedEnglish(t *testing.T) {
 		"let":    Let,
 		"const":  Const,
 		"int":    TypeInt,
+		"float":  TypeFloat,
 		"string": TypeString,
 	}
 	english := English{}
@@ -25,6 +26,6 @@ func TestReservedEnglish(t *testing.T) {
 func TestPatternsEnglish(t *testing.T) {
 	english := English{}
 
-	assert.Equal(t, 44, len(english.Patterns()))
+	assert.Equal(t, 46, len(english.Patterns()))
 
 }

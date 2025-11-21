@@ -17,7 +17,7 @@ func ParsePrimaryExpression(p *Parser) (ast.Expression, error) {
 		tok := p.advance()
 		expr.Tokens = append(expr.Tokens, tok)
 
-		number, err := strconv.ParseFloat(tok.Value, 64)
+		number, err := strconv.ParseInt(tok.Value, 10, 64)
 		if err != nil {
 			return nil, err
 		}
@@ -39,7 +39,19 @@ func ParsePrimaryExpression(p *Parser) (ast.Expression, error) {
 		expr.Value = tok.Value
 		expr.Tokens = append(expr.Tokens, tok)
 		return expr, nil
+	case lexer.Float:
+		expr := ast.FloatExpression{}
+		p.currentExpression = &expr
+		tok := p.advance()
+		expr.Tokens = append(expr.Tokens, tok)
 
+		number, err := strconv.ParseFloat(tok.Value, 64)
+		if err != nil {
+			return nil, err
+		}
+		expr.Value = number
+
+		return expr, nil
 	default:
 		return nil, fmt.Errorf("Cannot create PrimaryExpression from %s", p.currentToken().Kind)
 	}

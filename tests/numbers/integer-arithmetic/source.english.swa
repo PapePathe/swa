@@ -1,0 +1,45 @@
+dialect:english;
+
+start() int {
+  let a: int = 10;
+  let b: int = 5;
+  let sum: int = a + b;
+
+  if(sum == 15) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Integer addition failed");
+  }
+
+  if(10 + 5 == 15) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Integer literal addition failed");
+  }
+
+  if(a > b) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Integer greater than failed");
+  }
+
+  if(a >= b) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Integer greater than or equal failed");
+  }
+
+  if(b < a) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Integer less than failed");
+  }
+
+  if(b <= a) {
+    print("%s", "ok");
+  } else {
+    print("%s", "Integer less than or equal failed");
+  }
+
+  return 0;
+}

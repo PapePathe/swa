@@ -1,0 +1,8 @@
+dialect:french;
+
+demarrer() entier {
+  variable a : decimal = 10.005;
+  variable b : decimal = -10.005;
+  afficher("a: %f, b: %f", a, b);
+  retourner 0; 
+}

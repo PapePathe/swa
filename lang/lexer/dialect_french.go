@@ -17,6 +17,7 @@ func (m French) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`\s+`), skipHandler},
 		{regexp.MustCompile(`dialect`), defaultHandler(DialectDeclaration, "dialect")},
 		{regexp.MustCompile(`entier`), defaultHandler(TypeInt, "entier")},
+		{regexp.MustCompile(`\bdecimal\b`), defaultHandler(TypeFloat, "decimal")},
 		{regexp.MustCompile(`chaine`), defaultHandler(TypeString, "chaine")},
 		{regexp.MustCompile(`sinon`), defaultHandler(KeywordElse, "sinon")},
 		{regexp.MustCompile(`si`), defaultHandler(KeywordIf, "si")},
@@ -34,7 +35,8 @@ func (m French) Patterns() []RegexpPattern {
 		},
 		{regexp.MustCompile(`\/\/.*`), commentHandler},
 		{regexp.MustCompile(`"[^"]*"`), stringHandler},
-		{regexp.MustCompile(`[-]?[0-9]+(\.[0-9]+)?`), numberHandler},
+		{regexp.MustCompile(`[-]?[0-9]+\.[0-9]+`), floatHandler},
+		{regexp.MustCompile(`[-]?[0-9]+`), numberHandler},
 		{regexp.MustCompile(`[a-zA-Z_][a-zA-Z0-9_]*`), symbolHandler},
 		{regexp.MustCompile(`\[`), defaultHandler(OpenBracket, "[")},
 		{regexp.MustCompile(`\]`), defaultHandler(CloseBracket, "]")},
@@ -94,6 +96,7 @@ func (m French) Reserved() map[string]TokenKind {
 		"variable":  Let,
 		"constante": Const,
 		"entier":    TypeInt,
+		"decimal":   TypeFloat,
 		"chaine":    TypeString,
 	}
 }
