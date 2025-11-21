@@ -1,0 +1,12 @@
+dialect:french;
+
+fonction soustraction(premierArgument : decimal, secondArgument: decimal) decimal {
+  retourner premierArgument - secondArgument;
+}
+
+demarrer() entier {
+  variable m : decimal = 0.0;
+  m = soustraction(10.5, 5.25);
+  afficher("10.5 - 5.25 = %.2f", m);
+  retourner 0; 
+}
