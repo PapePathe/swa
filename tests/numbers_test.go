@@ -4,10 +4,22 @@ import (
 	"testing"
 )
 
+func TestMixedNumbers(t *testing.T) {
+	t.Run("Mixed", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./numbers/mixed.english.swa",
+			ExpectedExecutionOutput: "(x + y = 7.50, y + x = 7.50)(x * y = 12.50, y * x = 12.50)(x / y = 2.00, y / x = 0.50)(x - y = 2.50, y - x = -2.50)",
+			T:                       t,
+		}
+		req.AssertCompileAndExecute()
+	})
+}
+
 func TestSignedNumbers(t *testing.T) {
 	t.Parallel()
 
 	t.Run("English", func(t *testing.T) {
+
 		t.Run("Signed", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:               "./numbers/signed.english.swa",

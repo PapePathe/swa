@@ -1,0 +1,24 @@
+dialect:english;
+
+start() int {
+  let x: int = 5;
+  let y: float = 2.5;
+
+  let r00: float = x + y;
+  let r01: float = y + x;
+  print("(x + y = %.2f, y + x = %.2f)", r00, r01);
+
+  let r10: float = x * y;
+  let r11: float = y * x;
+  print("(x * y = %.2f, y * x = %.2f)", r10, r11);
+
+  let r20: float = x / y;
+  let r21: float = y / x;
+  print("(x / y = %.2f, y / x = %.2f)", r20, r21);
+
+  let r30: float = x - y;
+  let r31: float = y - x;
+  print("(x - y = %.2f, y - x = %.2f)", r30, r31);
+
+  return 0;
+}
