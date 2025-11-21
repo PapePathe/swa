@@ -1,4 +1,4 @@
-dialect:french;
+dialecte:français;
 
 fonction division(premierArgument : entier, secondArgument: entier) entier {
   retourner premierArgument / secondArgument;
