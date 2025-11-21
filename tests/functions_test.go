@@ -53,13 +53,26 @@ func TestFunctions(t *testing.T) {
 		})
 
 		t.Run("Divide", func(t *testing.T) {
-			req := CompileRequest{
-				InputPath:               "./functions/divide.integer.english.swa",
-				ExpectedExecutionOutput: "10 / 5 = 2",
-				T:                       t,
-			}
+			t.Run("Integer", func(t *testing.T) {
+				req := CompileRequest{
+					InputPath:               "./functions/divide.integer.english.swa",
+					ExpectedExecutionOutput: "10 / 5 = 2",
+					T:                       t,
+				}
 
-			req.AssertCompileAndExecute()
+				req.AssertCompileAndExecute()
+			})
+
+			t.Run("Float", func(t *testing.T) {
+				req := CompileRequest{
+					InputPath:               "./functions/divide.float.english.swa",
+					ExpectedExecutionOutput: "10.0 / 5.0 = 2.000000",
+					T:                       t,
+				}
+
+				req.AssertCompileAndExecute()
+			})
+
 		})
 
 		t.Run("Multiply", func(t *testing.T) {
@@ -134,7 +147,7 @@ func TestFunctions(t *testing.T) {
 			t.Run("Float", func(t *testing.T) {
 				req := CompileRequest{
 					InputPath:               "./functions/divide.float.french.swa",
-					ExpectedExecutionOutput: "10 / 5 = 2",
+					ExpectedExecutionOutput: "10.0 / 5.0 = 2.000000",
 					T:                       t,
 				}
 

@@ -246,7 +246,13 @@ func modulo(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 }
 
 func divide(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateSDiv(l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFDiv(l, r, "")
+	} else {
+		res = ctx.Builder.CreateSDiv(l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }

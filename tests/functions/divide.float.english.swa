@@ -1,12 +1,12 @@
 dialect:english;
 
-func divide(first : int, last: int) int {
+func divide(first : float, last: float) float {
   return first / last;
 }
 
-start() int {
-  let m : int = 10;
-  m = divide(10, 5);
-  print("10 / 5 = %d", m);
+start() int{
+  let m : float = 0.0;
+  m = divide(10.0, 5.0);
+  print("10.0 / 5.0 = %f", m);
   return 0; 
 }
