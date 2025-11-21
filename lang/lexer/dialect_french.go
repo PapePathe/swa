@@ -11,15 +11,15 @@ type French struct{}
 
 var _ Dialect = (*French)(nil)
 
-func (m French) DetectionPattern() *regexp.Regexp {
-	return regexp.MustCompile(`dialect:french;`)
+func (French) DetectionPattern() *regexp.Regexp {
+	return regexp.MustCompile(`dialecte:français;`)
 }
 
 func (m French) Patterns() []RegexpPattern {
 	return []RegexpPattern{
 		{regexp.MustCompile(`\n`), newlineHandler},
 		{regexp.MustCompile(`\s+`), skipHandler},
-		{regexp.MustCompile(`dialect`), defaultHandler(DialectDeclaration, "dialect")},
+		{regexp.MustCompile(`dialecte`), defaultHandler(DialectDeclaration, "dialecte")},
 		{regexp.MustCompile(`entier`), defaultHandler(TypeInt, "entier")},
 		{regexp.MustCompile(`\bdecimal\b`), defaultHandler(TypeFloat, "decimal")},
 		{regexp.MustCompile(`chaine`), defaultHandler(TypeString, "chaine")},
@@ -33,7 +33,13 @@ func (m French) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`retourner`), defaultHandler(Return, "retourner")},
 		{
 			regexp.MustCompile(
-				`'[aáàâãäåæçćčđéèêëíìîïðñóòôõöøœśšşțúùûüýÿžAÁÀÂÃÄÅÆÇĆČĐÉÈÊËÍÌÎÏÐÑÓÒÔÕÖØŒŚŠŞȚÚÙÛÜÝŸŽa-zA-Z0-9]'`,
+				`\b[áàâãäåæçćčđéèêëíìîïðñóòôõöøœśšşțúùûüýÿžAÁÀÂÃÄÅÆÇĆČĐÉÈÊËÍÌÎÏÐÑÓÒÔÕÖØŒŚŠŞȚÚÙÛÜÝŸŽa-zA-Z_][áàâãäåæçćčđéèêëíìîïðñóòôõöøœśšşțúùûüýÿžAÁÀÂÃÄÅÆÇĆČĐÉÈÊËÍÌÎÏÐÑÓÒÔÕÖØŒŚŠŞȚÚÙÛÜÝŸŽaa-zA-Z0-9_]*\b`,
+			),
+			symbolHandler,
+		},
+		{
+			regexp.MustCompile(
+				`'[áàâãäåæçćčđéèêëíìîïðñóòôõöøœśšşțúùûüýÿžAÁÀÂÃÄÅÆÇĆČĐÉÈÊËÍÌÎÏÐÑÓÒÔÕÖØŒŚŠŞȚÚÙÛÜÝŸŽa-zA-Z0-9]'`,
 			),
 			characterHandler,
 		},
@@ -41,7 +47,6 @@ func (m French) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`"[^"]*"`), stringHandler},
 		{regexp.MustCompile(`[-]?[0-9]+\.[0-9]+`), floatHandler},
 		{regexp.MustCompile(`[-]?[0-9]+`), numberHandler},
-		{regexp.MustCompile(`[a-zA-Z_][a-zA-Z0-9_]*`), symbolHandler},
 		{regexp.MustCompile(`\[`), defaultHandler(OpenBracket, "[")},
 		{regexp.MustCompile(`\]`), defaultHandler(CloseBracket, "]")},
 		{regexp.MustCompile(`\{`), defaultHandler(OpenCurly, "{")},

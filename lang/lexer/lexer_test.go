@@ -42,7 +42,7 @@ func TestNewWithWolof(t *testing.T) {
 }
 
 func TestNewWithFrench(t *testing.T) {
-	lex, dial, err := New("dialect:french;")
+	lex, dial, err := New("dialecte:français;")
 	assert.NoError(t, err)
 
 	wf := French{}
