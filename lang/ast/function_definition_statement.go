@@ -23,38 +23,29 @@ type FuncDeclStatement struct {
 
 var _ Statement = (*FuncDeclStatement)(nil)
 
+func (fd FuncDeclStatement) extractType(t Type) llvm.Type {
+	switch t.Value() {
+	case DataTypeNumber:
+		return llvm.GlobalContext().Int32Type()
+	case DataTypeFloat:
+		return llvm.GlobalContext().DoubleType()
+	case DataTypeIntType:
+		return llvm.GlobalContext().Int32Type()
+	case DataTypeString:
+		return llvm.PointerType(llvm.GlobalContext().Int8Type(), 0)
+	default:
+		panic(fmt.Errorf("argument type %v not supported", t))
+	}
+}
+
 func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	params := []llvm.Type{}
 
 	for _, arg := range fd.Args {
-		var param llvm.Type
-
-		switch arg.ArgType.Value() {
-		case DataTypeNumber:
-			param = llvm.GlobalContext().Int32Type()
-		case DataTypeIntType:
-			param = llvm.GlobalContext().Int32Type()
-		case DataTypeString:
-			param = llvm.PointerType(llvm.GlobalContext().Int8Type(), 0)
-		default:
-			panic(fmt.Errorf("argument type %v not supported", arg))
-		}
-
-		params = append(params, param)
+		params = append(params, fd.extractType(arg.ArgType))
 	}
 
-	var returnType llvm.Type
-	switch fd.ReturnType.Value() {
-	case DataTypeNumber:
-		returnType = llvm.GlobalContext().Int32Type()
-	case DataTypeIntType:
-		returnType = llvm.GlobalContext().Int32Type()
-	case DataTypeString:
-		returnType = llvm.PointerType(llvm.GlobalContext().Int8Type(), 0)
-	default:
-		panic(fmt.Errorf("argument type %v not supported in return type", fd.ReturnType))
-	}
-
+	returnType := fd.extractType(fd.ReturnType)
 	newfuncType := llvm.FunctionType(returnType, params, false)
 	newFunc := llvm.AddFunction(*ctx.Module, fd.Name, newfuncType)
 	if err := ctx.AddFuncSymbol(fd.Name, &newfuncType); err != nil {

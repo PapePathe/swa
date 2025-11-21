@@ -44,6 +44,8 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 		case llvm.PointerType(llvm.GlobalContext().Int32Type(), 0):
 			loadedval := ctx.Builder.CreateLoad(llvm.GlobalContext().Int32Type(), val.Value, "")
 			ctx.Builder.CreateRet(loadedval)
+		default:
+			return fmt.Errorf("ReturnStatement value %v not supported", val.Value), nil
 		}
 	case StringExpression:
 		err, ptr := rs.Value.CompileLLVM(ctx)
