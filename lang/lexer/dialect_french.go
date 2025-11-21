@@ -11,6 +11,10 @@ type French struct{}
 
 var _ Dialect = (*French)(nil)
 
+func (m French) DetectionPattern() *regexp.Regexp {
+	return regexp.MustCompile(`dialect:french;`)
+}
+
 func (m French) Patterns() []RegexpPattern {
 	return []RegexpPattern{
 		{regexp.MustCompile(`\n`), newlineHandler},

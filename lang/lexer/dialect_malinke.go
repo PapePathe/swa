@@ -9,6 +9,9 @@ type Malinke struct{}
 
 var _ Dialect = (*Malinke)(nil)
 
+func (Malinke) DetectionPattern() *regexp.Regexp {
+	return regexp.MustCompile(`dialect:malinke;`)
+}
 func (m Malinke) Patterns() []RegexpPattern {
 	return []RegexpPattern{
 		{regexp.MustCompile(`\n`), newlineHandler},
