@@ -258,7 +258,13 @@ func multiply(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 }
 
 func substract(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
-	res := ctx.Builder.CreateSub(l, r, "")
+	var res llvm.Value
+
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFSub(l, r, "")
+	} else {
+		res = ctx.Builder.CreateSub(l, r, "")
+	}
 
 	return nil, &CompilerResult{Value: &res}
 }
