@@ -25,11 +25,10 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect)
 	module := llvm.GlobalContext().NewModule("swa-main")
 	defer module.Dispose()
 
-	llvm.AddFunction(
-		module,
-		"printf",
-		llvm.FunctionType(context.Int32Type(), []llvm.Type{llvm.PointerType(context.Int8Type(), 0)}, true),
-	)
+	printArgTypes := []llvm.Type{llvm.PointerType(context.Int8Type(), 0)}
+	printfFuncType := llvm.FunctionType(context.Int32Type(), printArgTypes, true)
+	printfFunc := llvm.AddFunction(module, "printf", printfFuncType)
+	printfFunc.SetLinkage(llvm.ExternalLinkage)
 
 	builder := context.NewBuilder()
 	defer builder.Dispose()
