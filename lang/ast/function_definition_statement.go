@@ -24,18 +24,25 @@ type FuncDeclStatement struct {
 var _ Statement = (*FuncDeclStatement)(nil)
 
 func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	err, params := fd.funcParams(ctx)
+	newCtx := NewCompilerContext(
+		ctx.Context,
+		ctx.Builder,
+		ctx.Module,
+		ctx.Dialect,
+		ctx,
+	)
+	err, params := fd.funcParams(newCtx)
 	if err != nil {
 		return err, nil
 	}
 
-	err, returnType, _ := fd.extractType(ctx, fd.ReturnType)
+	err, returnType, _ := fd.extractType(newCtx, fd.ReturnType)
 	if err != nil {
 		return err, nil
 	}
 
 	newfuncType := llvm.FunctionType(returnType, params, false)
-	newFunc := llvm.AddFunction(*ctx.Module, fd.Name, newfuncType)
+	newFunc := llvm.AddFunction(*newCtx.Module, fd.Name, newfuncType)
 	if err := ctx.AddFuncSymbol(fd.Name, &newfuncType); err != nil {
 		return err, nil
 	}
@@ -46,7 +53,7 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 		p.SetName(name)
 
 		entry := SymbolTableEntry{Value: p}
-		err, _, strucSymbolEntry := fd.extractType(ctx, argType)
+		err, _, strucSymbolEntry := fd.extractType(newCtx, argType)
 		if err != nil {
 			return err, nil
 		}
@@ -55,7 +62,7 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 			entry.Ref = strucSymbolEntry
 		}
 
-		if err := ctx.AddSymbol(name, &entry); err != nil {
+		if err := newCtx.AddSymbol(name, &entry); err != nil {
 			return fmt.Errorf("failed to add parameter %s to symbol table: %w", name, err), nil
 		}
 	}
@@ -63,7 +70,7 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 	block := ctx.Context.AddBasicBlock(newFunc, "body")
 	ctx.Builder.SetInsertPointAtEnd(block)
 
-	if err, _ := fd.Body.CompileLLVM(ctx); err != nil {
+	if err, _ := fd.Body.CompileLLVM(newCtx); err != nil {
 		return err, nil
 	}
 
