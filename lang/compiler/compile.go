@@ -25,11 +25,10 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect)
 	module := llvm.GlobalContext().NewModule("swa-main")
 	defer module.Dispose()
 
-	llvm.AddFunction(
-		module,
-		"printf",
-		llvm.FunctionType(context.Int32Type(), []llvm.Type{llvm.PointerType(context.Int8Type(), 0)}, true),
-	)
+	printArgTypes := []llvm.Type{llvm.PointerType(context.Int8Type(), 0)}
+	printfFuncType := llvm.FunctionType(context.Int32Type(), printArgTypes, true)
+	printfFunc := llvm.AddFunction(module, "printf", printfFuncType)
+	printfFunc.SetLinkage(llvm.ExternalLinkage)
 
 	builder := context.NewBuilder()
 	defer builder.Dispose()
@@ -76,7 +75,8 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect)
 }
 
 func compileToAssembler(llirFileName string, assemblerFilename string) error {
-	cmd := exec.Command("llc-19", llirFileName, "-o", assemblerFilename)
+	llc := findCommand("llc-19", "llc")
+	cmd := exec.Command(llc, llirFileName, "-o", assemblerFilename)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -88,7 +88,8 @@ func compileToAssembler(llirFileName string, assemblerFilename string) error {
 }
 
 func compileToObject(assemblerFilename string, objectFilename string) error {
-	objectCmd := exec.Command("clang-19", "-c", assemblerFilename, "-o", objectFilename)
+	clang := findCommand("clang-19", "clang")
+	objectCmd := exec.Command(clang, "-c", assemblerFilename, "-o", objectFilename)
 	objectCmd.Stdout = os.Stdout
 	objectCmd.Stderr = os.Stderr
 
@@ -99,7 +100,8 @@ func compileToObject(assemblerFilename string, objectFilename string) error {
 }
 
 func compileToExecutable(objectFileName string, executableFileName string) error {
-	linkCmd := exec.Command("clang-19", objectFileName, "-o", executableFileName)
+	clang := findCommand("clang-19", "clang")
+	linkCmd := exec.Command(clang, objectFileName, "-o", executableFileName)
 	linkCmd.Stdout = os.Stdout
 	linkCmd.Stderr = os.Stderr
 
@@ -107,4 +109,13 @@ func compileToExecutable(objectFileName string, executableFileName string) error
 		return fmt.Errorf("Error durrng linking <%w>", err)
 	}
 	return nil
+}
+
+func findCommand(candidates ...string) string {
+	for _, cmd := range candidates {
+		if _, err := exec.LookPath(cmd); err == nil {
+			return cmd
+		}
+	}
+	return candidates[0] // Return first as fallback
 }

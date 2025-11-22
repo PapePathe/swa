@@ -2,7 +2,7 @@
 
 set -euxo pipefail
 
-go test ./... -count=1
+go test ./...
 go build -o tmp/swa main.go
 
 cp ./tmp/swa ../tests
