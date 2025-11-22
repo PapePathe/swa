@@ -23,46 +23,54 @@ type FuncDeclStatement struct {
 
 var _ Statement = (*FuncDeclStatement)(nil)
 
-func (fd FuncDeclStatement) extractType(t Type) llvm.Type {
-	switch t.Value() {
-	case DataTypeNumber:
-		return llvm.GlobalContext().Int32Type()
-	case DataTypeFloat:
-		return llvm.GlobalContext().DoubleType()
-	case DataTypeIntType:
-		return llvm.GlobalContext().Int32Type()
-	case DataTypeString:
-		return llvm.PointerType(llvm.GlobalContext().Int8Type(), 0)
-	default:
-		panic(fmt.Errorf("argument type %v not supported", t))
-	}
-}
-
 func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	params := []llvm.Type{}
-
-	for _, arg := range fd.Args {
-		params = append(params, fd.extractType(arg.ArgType))
+	newCtx := NewCompilerContext(
+		ctx.Context,
+		ctx.Builder,
+		ctx.Module,
+		ctx.Dialect,
+		ctx,
+	)
+	err, params := fd.funcParams(newCtx)
+	if err != nil {
+		return err, nil
 	}
 
-	returnType := fd.extractType(fd.ReturnType)
+	err, returnType, _ := fd.extractType(newCtx, fd.ReturnType)
+	if err != nil {
+		return err, nil
+	}
+
 	newfuncType := llvm.FunctionType(returnType, params, false)
-	newFunc := llvm.AddFunction(*ctx.Module, fd.Name, newfuncType)
+	newFunc := llvm.AddFunction(*newCtx.Module, fd.Name, newfuncType)
 	if err := ctx.AddFuncSymbol(fd.Name, &newfuncType); err != nil {
 		return err, nil
 	}
 
 	for i, p := range newFunc.Params() {
+		argType := fd.Args[i].ArgType
 		name := fd.Args[i].Name
-
-		ctx.AddSymbol(name, &SymbolTableEntry{Value: p})
 		p.SetName(name)
+
+		entry := SymbolTableEntry{Value: p}
+		err, _, strucSymbolEntry := fd.extractType(newCtx, argType)
+		if err != nil {
+			return err, nil
+		}
+
+		if strucSymbolEntry != nil {
+			entry.Ref = strucSymbolEntry
+		}
+
+		if err := newCtx.AddSymbol(name, &entry); err != nil {
+			return fmt.Errorf("failed to add parameter %s to symbol table: %w", name, err), nil
+		}
 	}
 
-	block := ctx.Context.AddBasicBlock(newFunc, "func-body")
+	block := ctx.Context.AddBasicBlock(newFunc, "body")
 	ctx.Builder.SetInsertPointAtEnd(block)
 
-	if err, _ := fd.Body.CompileLLVM(ctx); err != nil {
+	if err, _ := fd.Body.CompileLLVM(newCtx); err != nil {
 		return err, nil
 	}
 
@@ -84,4 +92,41 @@ func (fd FuncDeclStatement) MarshalJSON() ([]byte, error) {
 	res["ast.FuncDeclStatement"] = m
 
 	return json.Marshal(res)
+}
+
+func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, llvm.Type, *StructSymbolTableEntry) {
+	switch t.Value() {
+	case DataTypeNumber:
+		return nil, llvm.GlobalContext().Int32Type(), nil
+	case DataTypeFloat:
+		return nil, llvm.GlobalContext().DoubleType(), nil
+	case DataTypeIntType:
+		return nil, llvm.GlobalContext().Int32Type(), nil
+	case DataTypeString:
+		return nil, llvm.PointerType(llvm.GlobalContext().Int8Type(), 0), nil
+	case DataTypeSymbol:
+		sym, _ := t.(SymbolType)
+		err, entry := ctx.FindStructSymbol(sym.Name)
+		if err != nil {
+			return err, llvm.Type{}, nil
+		}
+		return nil, llvm.PointerType(entry.LLVMType, 0), entry
+	default:
+		return fmt.Errorf("argument type %v not supported", t), llvm.Type{}, nil
+	}
+}
+
+func (fd FuncDeclStatement) funcParams(ctx *CompilerCtx) (error, []llvm.Type) {
+	params := []llvm.Type{}
+
+	for _, arg := range fd.Args {
+		err, typ, _ := fd.extractType(ctx, arg.ArgType)
+		if err != nil {
+			return err, nil
+		}
+
+		params = append(params, typ)
+	}
+
+	return nil, params
 }

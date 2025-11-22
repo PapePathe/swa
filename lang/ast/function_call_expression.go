@@ -18,13 +18,11 @@ var _ Expression = (*FunctionCallExpression)(nil)
 
 func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	name, ok := expr.Name.(SymbolExpression)
-
 	if !ok {
 		return fmt.Errorf("Expression %v is not a symbol expression", expr.Name), nil
 	}
 
 	funcDef := ctx.Module.NamedFunction(name.Value)
-
 	if funcDef.IsNil() {
 		return fmt.Errorf("function %s does not exist", name.Value), nil
 	}

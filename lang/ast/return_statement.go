@@ -38,6 +38,11 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 			return fmt.Errorf("Undefined variable %s", v.Value), nil
 		}
 
+		if val.Ref != nil {
+			ctx.Builder.CreateRet(val.Value)
+			break
+		}
+
 		switch val.Value.Type() {
 		case llvm.GlobalContext().Int32Type():
 			ctx.Builder.CreateRet(val.Value)
