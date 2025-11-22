@@ -1,4 +1,4 @@
-dialect:french;
+dialecte:français;
 
 fonction division(premierArgument : decimal, secondArgument: decimal) decimal {
   retourner premierArgument / secondArgument;

@@ -2,7 +2,6 @@ package lexer
 
 import (
 	"fmt"
-	"regexp"
 )
 
 // Lexer ...
@@ -54,17 +53,13 @@ func (lex *Lexer) atEOF() bool {
 }
 
 func getDialect(source string) (Dialect, error) {
-	re := regexp.MustCompile(`dialect:([a-zA-Z]+);`)
-	matches := re.FindStringSubmatch(source)
+	for _, d := range dialects {
+		matches := d.DetectionPattern().FindStringSubmatch(source)
 
-	if len(matches) > 1 {
-		dialect, ok := dialects[matches[1]]
-		if !ok {
-			return nil, fmt.Errorf("dialect <%s> is not supported", matches[1])
+		if len(matches) > 0 {
+			return d, nil
 		}
-
-		return dialect, nil
-	} else {
-		return nil, fmt.Errorf("you must define your dialect")
 	}
+
+	return nil, fmt.Errorf("you must define your dialect")
 }

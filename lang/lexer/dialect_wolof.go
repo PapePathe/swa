@@ -11,6 +11,10 @@ type Wolof struct{}
 
 var _ Dialect = (*Wolof)(nil)
 
+func (m Wolof) DetectionPattern() *regexp.Regexp {
+	return regexp.MustCompile(`dialect:wolof;`)
+}
+
 func (m Wolof) Patterns() []RegexpPattern {
 	return []RegexpPattern{
 		{regexp.MustCompile(`\n`), newlineHandler},

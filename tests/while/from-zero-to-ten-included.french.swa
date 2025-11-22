@@ -1,4 +1,4 @@
-dialect:french;
+dialecte:français;
 
 demarrer() entier{
   variable x : int = 0;

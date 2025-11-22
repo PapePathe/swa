@@ -11,12 +11,12 @@ import (
 
 func TestTokenizer(t *testing.T) {
 	web := WebTokenizer{}
-	payload := bytes.NewBuffer([]byte(`{"swa": "dialect:french; variable x = 10;"}`))
+	payload := bytes.NewBuffer([]byte(`{"swa": "dialecte:français; variable x = 10;"}`))
 	request, _ := http.NewRequest(http.MethodPost, "/t", payload)
 	response := httptest.NewRecorder()
 	expectedResponse := `[{
         "Name": "DIALECT",
-        "Value": "dialect",
+        "Value": "dialecte",
         "Line": 0
     },
     {
@@ -27,7 +27,7 @@ func TestTokenizer(t *testing.T) {
     {
         "Name": "IDENTIFIER",
         "Line": 0,
-        "Value": "french"
+        "Value": "français"
     },
     {
         "Name": "SEMI_COLON",
