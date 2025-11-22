@@ -52,7 +52,7 @@ func (si StructInitializationExpression) InitValues(ctx *CompilerCtx) (error, []
 		case NumberExpression, FloatExpression:
 			fieldValues = append(fieldValues, StructItemValue{Position: propIndex, Value: val.Value})
 		default:
-			return fmt.Errorf("StructInitializationExpression expression: %t is not a known field type", expr), nil
+			return fmt.Errorf("StructInitializationExpression expression: %v is not a known field type", expr), nil
 		}
 	}
 	return nil, fieldValues
@@ -66,7 +66,7 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 		return err, nil
 	}
 
-	structInstance := ctx.Builder.CreateAlloca(newtype.LLVMType, "")
+	structInstance := ctx.Builder.CreateAlloca(newtype.LLVMType, fmt.Sprintf("%s.instance", si.Name))
 
 	for _, name := range si.Properties {
 		err, propIndex := newtype.Metadata.PropertyIndex(name)
@@ -81,14 +81,16 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 			return fmt.Errorf("StructInitializationExpression: %w", err), nil
 		}
 
+		field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, "")
+
 		switch expr.(type) {
 		case StringExpression:
 			glob := llvm.AddGlobal(*ctx.Module, val.Value.Type(), "")
 			glob.SetInitializer(*val.Value)
-			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, "")
 			ctx.Builder.CreateStore(glob, field1Ptr)
 		case NumberExpression, FloatExpression:
-			field1Ptr := ctx.Builder.CreateStructGEP(newtype.LLVMType, structInstance, propIndex, "")
+			ctx.Builder.CreateStore(*val.Value, field1Ptr)
+		case SymbolExpression:
 			ctx.Builder.CreateStore(*val.Value, field1Ptr)
 		default:
 			return fmt.Errorf("StructInitializationExpression: expression %v not implemented", expr), nil
