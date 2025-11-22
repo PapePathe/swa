@@ -12,7 +12,7 @@ func TestFunctions(t *testing.T) {
 		t.Run("Function taking struct as argument", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:               "./functions/struct.source.english.swa",
-				ExpectedExecutionOutput: "age: 40, name: Pathe",
+				ExpectedExecutionOutput: "age: 40, height: 1.80, name: Pathe",
 				T:                       t,
 			}
 

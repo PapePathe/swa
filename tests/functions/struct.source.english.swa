@@ -1,8 +1,9 @@
 dialect:english;
 
 struct Person {
-  Age:  int,
-  Name: string, 
+  Age:     int,
+  Height:  float,
+  Name:    string,
 }
 
 func changeAge(person: Person) int {
@@ -11,12 +12,18 @@ func changeAge(person: Person) int {
   return person.Age;
 }
 
+func changHeight(person: Person) float {
+  person.Height= 1.80;
+
+  return person.Height;
+}
+
 start() int {
-  let p : Person = Person{ Age: 0, Name: "Pathe", };
-  let myAge : int = 0;
-  myAge = changeAge(p);
+  let p : Person = Person{ Age: 0, Height: 0.0, Name: "Pathe", };
+  let myAge : int = changeAge(p);
+  let myHeight : float = changHeight(p);
  
-  print("age: %d, name: %s", myAge, p.Name);
+  print("age: %d, height: %.2f, name: %s", myAge, myHeight, p.Name);
 
   return 0; 
 }
