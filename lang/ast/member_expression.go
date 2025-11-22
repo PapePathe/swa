@@ -59,6 +59,10 @@ func (expr MemberExpression) CompileLLVMForPropertyAccess(ctx *CompilerCtx) (err
 		return fmt.Errorf("struct property should be a symbol %v", prop), nil
 	}
 
+	if varDef.Ref == nil {
+		return fmt.Errorf("Variable %v does not have reference to it's struct type", varDef), nil
+	}
+
 	err, propIndex := varDef.Ref.Metadata.PropertyIndex(prop.Value)
 	if err != nil {
 		return fmt.Errorf("Struct %s does not have a field named %s", varDef.Ref.Metadata.Name, prop), nil
