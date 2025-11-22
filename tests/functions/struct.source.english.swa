@@ -2,19 +2,21 @@ dialect:english;
 
 struct Person {
   Age:  int,
-  Name: string 
+  Name: string, 
 }
 
-func age(p: Person) int {
-  return p.Age;
+func changeAge(person: Person) int {
+  person.Age = 40;
+
+  return person.Age;
 }
 
 start() int {
-  let p : person= Person{ Age: 40, Name: "Pathe", };
+  let p : Person = Person{ Age: 0, Name: "Pathe", };
   let myAge : int = 0;
-
-  myAge = age(p);
-  print("my age = %d", myAge);
+  myAge = changeAge(p);
+ 
+  print("age: %d, name: %s", myAge, p.Name);
 
   return 0; 
 }

@@ -8,6 +8,17 @@ func TestFunctions(t *testing.T) {
 	t.Parallel()
 
 	t.Run("English", func(t *testing.T) {
+
+		t.Run("Function taking struct as argument", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./functions/struct.source.english.swa",
+				ExpectedExecutionOutput: "age: 40, name: Pathe",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
 		t.Run("Substract", func(t *testing.T) {
 			t.Run("Integer", func(t *testing.T) {
 				req := CompileRequest{
