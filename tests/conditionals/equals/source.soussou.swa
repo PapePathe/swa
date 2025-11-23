@@ -1,6 +1,6 @@
 dialect:soussou;
 
-labali() konti {
+sodé() konti {
   kouicé salaire_de_lucien: konti = 50000;
   kouicé salaire_de_pathe : konti = 50000;
 

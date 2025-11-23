@@ -1,6 +1,6 @@
 dialect:soussou;
 
-labali() konti {
+sodé() konti {
   kouicé tableau : []konti = []konti {1,2,3,4,5};
   tableau[0] = 0;
   tableau[1] = 1000;

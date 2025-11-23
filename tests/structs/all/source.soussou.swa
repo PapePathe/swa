@@ -1,8 +1,7 @@
 dialect:soussou;
 
-labali() konti{
-
-  structure Engineer{
+sodé () konti{
+  fokhi Engineer{
     Age: konti,
     Name: sèbèli,
     TechStack: sèbèli,
