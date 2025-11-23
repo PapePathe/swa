@@ -58,12 +58,9 @@ func TestStructAll(t *testing.T) {
 	t.Run("Soussou", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./structs/all/source.soussou.swa",
-			OutputPath:              "91e6b01d-187c-4f45-85b0-e0e37d0df079",
 			ExpectedExecutionOutput: "Nom: (Pathe), Stack Technique: (Ruby, Rust, Go), Age: (40)",
 			T:                       t,
 		}
-
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
@@ -71,7 +68,6 @@ func TestStructAll(t *testing.T) {
 	t.Run("English", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./structs/all/source.english.swa",
-			OutputPath:              "15a6540e-5df1-4fbd-b3a1-a2edb12d117b",
 			ExpectedExecutionOutput: "Name: (Pathe), TechStack: (Ruby, Rust, Go), Age: (40), Height: (1.80)",
 			T:                       t,
 		}
@@ -82,7 +78,6 @@ func TestStructAll(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./structs/all/source.french.swa",
-			OutputPath:              "83b453cc-bd0b-432d-96d5-f0192dc2c2d3",
 			ExpectedExecutionOutput: "Nom: (Pathe), Stack Technique: (Ruby, Rust, Go), Age: (40), Taille: (1.80)",
 			T:                       t,
 		}
