@@ -1,10 +1,18 @@
 package lexer
 
-import "regexp"
+import (
+	"fmt"
+	"regexp"
+	"swahili/lang/errmsg"
+)
 
 type Soussou struct{}
 
 var _ Dialect = (*Soussou)(nil)
+
+func (Soussou) DetectionPattern() *regexp.Regexp {
+	return regexp.MustCompile(`dialect:soussou;`)
+}
 
 func (m Soussou) Patterns() []RegexpPattern {
 	return []RegexpPattern{
@@ -71,5 +79,25 @@ func (m Soussou) Reserved() map[string]TokenKind {
 		"constante": Const,
 		"konti":     TypeInt,
 		"sèbèli":    TypeString,
+	}
+}
+
+func (m Soussou) Error(key string, args ...any) error {
+	formatted, ok := m.translations()[key]
+
+	if !ok {
+		panic(fmt.Sprintf("key %s does not exist in dialect translations", key))
+	}
+
+	return errmsg.NewAstError(formatted, args...)
+}
+
+func (m Soussou) translations() map[string]string {
+	return map[string]string{
+		"ArrayAccessExpression.NameNotASymbol":             "L'expression (%s) n'est pas un nom de variable correct",
+		"ArrayAccessExpression.NotFoundInSymbolTable":      "La variable %s n'existe pas dans la table des symboles",
+		"ArrayAccessExpression.AccessedIndexIsNotANumber":  "Seuls les nombres positif sont permis comme indice de tableau, valeur courante: (%s)",
+		"ArrayAccessExpression.NotFoundInArraySymbolTable": "Le tableau (%s) n'existe pas dans la table des symboles",
+		"ArrayAccessExpression.IndexOutOfBounds":           "L'element a la position (%s) depasse les limites du tableau (%s)",
 	}
 }
