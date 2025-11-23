@@ -162,7 +162,8 @@ func (ctx CompilerCtx) PrintVarNames() {
 
 type CompilerResult struct {
 	// Some expressions return results
-	Value *llvm.Value
+	Value                  *llvm.Value
+	StuctPropertyValueType *llvm.Type
 
 	SymbolTableEntry *SymbolTableEntry
 

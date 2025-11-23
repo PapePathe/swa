@@ -3,6 +3,8 @@ package ast
 import (
 	"encoding/json"
 	"swahili/lang/lexer"
+
+	"tinygo.org/x/go-llvm"
 )
 
 // AssignmentExpression.
@@ -20,22 +22,36 @@ type AssignmentExpression struct {
 var _ Expression = (*AssignmentExpression)(nil)
 
 func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	err, val := expr.Value.CompileLLVM(ctx)
-	if err != nil {
-		return err, nil
-	}
-
 	err, assignee := expr.Assignee.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil
 	}
 
+	var val llvm.Value
+
+	switch expr.Value.(type) {
+	case StringExpression:
+		err, value := expr.Value.CompileLLVM(ctx)
+		if err != nil {
+			return err, nil
+		}
+		glob := llvm.AddGlobal(*ctx.Module, value.Value.Type(), "")
+		glob.SetInitializer(*value.Value)
+		val = glob
+	default:
+		err, value := expr.Value.CompileLLVM(ctx)
+		if err != nil {
+			return err, nil
+		}
+		val = *value.Value
+	}
+
 	if assignee.SymbolTableEntry != nil && assignee.SymbolTableEntry.Address != nil {
-		str := ctx.Builder.CreateStore(*val.Value, *assignee.SymbolTableEntry.Address)
+		str := ctx.Builder.CreateStore(val, *assignee.SymbolTableEntry.Address)
 		return nil, &CompilerResult{Value: &str}
 	}
 
-	str := ctx.Builder.CreateStore(*val.Value, *assignee.Value)
+	str := ctx.Builder.CreateStore(val, *assignee.Value)
 
 	return nil, &CompilerResult{Value: &str}
 }
