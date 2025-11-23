@@ -35,9 +35,13 @@ func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 		if leftResult.ArraySymbolTableEntry != nil {
 			leftValue = ctx.Builder.CreateLoad(leftResult.ArraySymbolTableEntry.UnderlyingType, *leftResult.Value, "")
 		} else {
-			// Generic pointer load
-			elementType := leftResult.Value.Type().ElementType()
-			leftValue = ctx.Builder.CreateLoad(elementType, *leftResult.Value, "")
+			if leftResult.StuctPropertyValueType != nil { // load data from a struct property
+				elementType := leftResult.StuctPropertyValueType
+				leftValue = ctx.Builder.CreateLoad(*elementType, *leftResult.Value, "")
+			} else { // Generic pointer load
+				elementType := leftResult.Value.Type().ElementType()
+				leftValue = ctx.Builder.CreateLoad(elementType, *leftResult.Value, "")
+			}
 		}
 	} else {
 		leftValue = *leftResult.Value
@@ -49,9 +53,14 @@ func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 		if rightResult.ArraySymbolTableEntry != nil {
 			rightValue = ctx.Builder.CreateLoad(rightResult.ArraySymbolTableEntry.UnderlyingType, *rightResult.Value, "")
 		} else {
-			// Generic pointer load
-			elementType := rightResult.Value.Type().ElementType()
-			rightValue = ctx.Builder.CreateLoad(elementType, *rightResult.Value, "")
+			if rightResult.StuctPropertyValueType != nil { // load data from a struct property
+				elementType := rightResult.StuctPropertyValueType
+				rightValue = ctx.Builder.CreateLoad(*elementType, *rightResult.Value, "")
+			} else {
+				// Generic pointer load
+				elementType := rightResult.Value.Type().ElementType()
+				rightValue = ctx.Builder.CreateLoad(elementType, *rightResult.Value, "")
+			}
 		}
 	} else {
 		rightValue = *rightResult.Value

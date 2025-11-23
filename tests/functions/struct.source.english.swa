@@ -7,9 +7,17 @@ struct Person {
 }
 
 func changeAge(person: Person) int {
-  person.Age = 40;
+  person.Age = person.Age + 20;
+  person.Age = 20 + person.Age;
+ 
 
   return person.Age;
+}
+
+func changeName(person: Person) string {
+  person.Name = "Pathe SENE";
+
+  return person.Name;
 }
 
 func changHeight(person: Person) float {
@@ -22,8 +30,9 @@ start() int {
   let p : Person = Person{ Age: 0, Height: 0.0, Name: "Pathe", };
   let myAge : int = changeAge(p);
   let myHeight : float = changHeight(p);
+  let myName: string = changeName(p);
  
-  print("age: %d, height: %.2f, name: %s", myAge, myHeight, p.Name);
+  print("age: %d, height: %.2f, name: %s", myAge, myHeight, myName);
 
   return 0; 
 }
