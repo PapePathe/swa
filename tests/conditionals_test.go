@@ -89,10 +89,9 @@ func TestEquals(t *testing.T) {
 			T:                       t,
 		}
 
-		defer req.Cleanup()
-
 		req.AssertCompileAndExecute()
 	})
+
 	t.Run("English", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./conditionals/equals/source.english.swa",

@@ -129,7 +129,6 @@ func TestArrays(t *testing.T) {
 			ExpectedOutput: "",
 			T:              t,
 		}
-		defer req.Cleanup()
 
 		req.AssertCompileAndExecute()
 	})
