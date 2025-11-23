@@ -123,6 +123,16 @@ func TestArraysInPrintStatement(t *testing.T) {
 func TestArrays(t *testing.T) {
 	t.Parallel()
 
+	t.Run("Soussou", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:      "./arrays/ok/source.soussou.swa",
+			ExpectedOutput: "",
+			T:              t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+
 	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:      "./arrays/ok/source.french.swa",
