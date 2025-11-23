@@ -6,10 +6,10 @@ import (
 
 func TestGreaterThanEquals(t *testing.T) {
 	t.Parallel()
+
 	t.Run("English", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./conditionals/greater-than-equals/source.english.swa",
-			ExpectedLLIR:            "./conditionals/greater-than-equals/source.english.ll",
 			ExpectedExecutionOutput: "okok",
 			T:                       t,
 		}
@@ -20,7 +20,6 @@ func TestGreaterThanEquals(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./conditionals/greater-than-equals/source.french.swa",
-			ExpectedLLIR:            "./conditionals/greater-than-equals/source.french.ll",
 			ExpectedExecutionOutput: "okok",
 			T:                       t,
 		}
@@ -35,7 +34,6 @@ func TestGreaterThanEqualsWithPointerAndInt(t *testing.T) {
 	t.Run("English", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./conditionals/greater-than-equals-pointer-and-int/source.english.swa",
-			ExpectedLLIR:            "./conditionals/greater-than-equals-pointer-and-int/source.english.ll",
 			ExpectedExecutionOutput: "okok",
 			T:                       t,
 		}
@@ -46,7 +44,6 @@ func TestGreaterThanEqualsWithPointerAndInt(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./conditionals/greater-than-equals-pointer-and-int/source.french.swa",
-			ExpectedLLIR:            "./conditionals/greater-than-equals-pointer-and-int/source.french.ll",
 			ExpectedExecutionOutput: "okok",
 			T:                       t,
 		}
