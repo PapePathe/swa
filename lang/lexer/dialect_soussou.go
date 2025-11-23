@@ -23,9 +23,9 @@ func (m Soussou) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`xamuara`), defaultHandler(KeywordElse, "xamuara")},
 		{regexp.MustCompile(`xa`), defaultHandler(KeywordIf, "xa")},
 		{regexp.MustCompile(`masen`), defaultHandler(Print, "masen")},
-		{regexp.MustCompile(`structure`), defaultHandler(Struct, "structure")},
-		{regexp.MustCompile(`labali`), defaultHandler(Main, "labali")},
-		{regexp.MustCompile(`fonction`), defaultHandler(Function, "fonction")},
+		{regexp.MustCompile(`fokhi`), defaultHandler(Struct, "fokhi")},
+		{regexp.MustCompile(`sodé`), defaultHandler(Main, "sodé")},
+		{regexp.MustCompile(`wali`), defaultHandler(Function, "wali")},
 		{regexp.MustCompile(`ragbilen`), defaultHandler(Return, "ragbilen")},
 		{
 			regexp.MustCompile(
@@ -74,11 +74,14 @@ func (m Soussou) Reserved() map[string]TokenKind {
 	return map[string]TokenKind{
 		"xa":        KeywordIf,
 		"xamuara":   KeywordElse,
-		"structure": Struct,
+		"fokhi":     Struct,
 		"kouicé":    Let,
 		"constante": Const,
 		"konti":     TypeInt,
 		"sèbèli":    TypeString,
+		"sodé":      Main,
+		"wali":      Function,
+		"masen":     Print,
 	}
 }
 
