@@ -34,7 +34,7 @@ func TestArrayOfStructsWithUndefined(t *testing.T) {
 	t.Run("English", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:      "./arrays/structs/undefined-struct.english.swa",
-			ExpectedOutput: "Type ({{Engineer}}) is not a valid struct\n",
+			ExpectedOutput: "Type (Engineer) is not a valid struct\n",
 			T:              t,
 		}
 
