@@ -33,25 +33,12 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 
 		ctx.Builder.CreateRet(*loadedval)
 	case SymbolExpression:
-		err, val := ctx.FindSymbol(v.Value)
+		err, val := rs.Value.CompileLLVM(ctx)
 		if err != nil {
-			return fmt.Errorf("Undefined variable %s", v.Value), nil
+			return err, nil
 		}
 
-		if val.Ref != nil {
-			ctx.Builder.CreateRet(val.Value)
-			break
-		}
-
-		switch val.Value.Type() {
-		case llvm.GlobalContext().Int32Type():
-			ctx.Builder.CreateRet(val.Value)
-		case llvm.PointerType(llvm.GlobalContext().Int32Type(), 0):
-			loadedval := ctx.Builder.CreateLoad(llvm.GlobalContext().Int32Type(), val.Value, "")
-			ctx.Builder.CreateRet(loadedval)
-		default:
-			return fmt.Errorf("ReturnStatement value %v not supported", val.Value), nil
-		}
+		ctx.Builder.CreateRet(*val.Value)
 	case StringExpression:
 		err, ptr := rs.Value.CompileLLVM(ctx)
 		if err != nil {
