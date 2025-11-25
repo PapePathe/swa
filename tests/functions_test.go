@@ -9,6 +9,16 @@ func TestFunctions(t *testing.T) {
 
 	t.Run("English", func(t *testing.T) {
 
+		t.Run("static arrays as function parameter", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./functions/array-sum.english.swa",
+				ExpectedExecutionOutput: "sum: 15, sumf: 15.00",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
 		t.Run("Function taking struct as argument", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:               "./functions/struct.source.english.swa",
