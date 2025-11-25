@@ -30,7 +30,7 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 
 	err, entry := ctx.FindArraySymbol(varName.Value)
 	if err != nil {
-		key := "ArrayAccessExpression.NotFoundInArraysSymbolTable"
+		key := "ArrayAccessExpression.NotFoundInArraySymbolTable"
 		return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
 	}
 
