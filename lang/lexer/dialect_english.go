@@ -19,8 +19,9 @@ func (m English) Patterns() []RegexpPattern {
 	return []RegexpPattern{
 		{regexp.MustCompile(`\n`), newlineHandler},
 		{regexp.MustCompile(`\s+`), skipHandler},
-		{regexp.MustCompile(`\bdialect\b`), defaultHandler(DialectDeclaration, "dialect")},
-		{regexp.MustCompile(`\bint\b`), defaultHandler(TypeInt, "int")},
+		{regexp.MustCompile(`dialect`), defaultHandler(DialectDeclaration, "dialect")},
+		{regexp.MustCompile(`int64`), defaultHandler(TypeInt64, "int64")},
+		{regexp.MustCompile(`int`), defaultHandler(TypeInt, "int")},
 		{regexp.MustCompile(`\bfloat\b`), defaultHandler(TypeFloat, "float")},
 		{regexp.MustCompile(`\bstring\b`), defaultHandler(TypeString, "string")},
 		{regexp.MustCompile(`\bwhile\b`), defaultHandler(KeywordWhile, "while")},

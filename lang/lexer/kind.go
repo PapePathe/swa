@@ -49,6 +49,7 @@ var tks = map[TokenKind]string{
 	Struct:             "STRUCT",
 	String:             "STRING",
 	Star:               "STAR",
+	TypeInt64:          "TYPE_INT_64",
 	TypeInt:            "TYPE_INT",
 	TypeFloat:          "TYPE_FLOAT",
 	TypeString:         "TYPE_STRING",
@@ -81,6 +82,7 @@ const (
 	KeywordWhile
 	// TypeInt represents the "int" type.
 	TypeInt
+	TypeInt64
 	TypeFloat
 	// TypeString represents the "string" type.
 	TypeString
