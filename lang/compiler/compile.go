@@ -25,8 +25,8 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect)
 	module := llvm.GlobalContext().NewModule("swa-main")
 	defer module.Dispose()
 
-	printArgTypes := []llvm.Type{llvm.PointerType(context.Int8Type(), 0)}
-	printfFuncType := llvm.FunctionType(context.Int32Type(), printArgTypes, true)
+	printArgTypes := []llvm.Type{llvm.PointerType(llvm.GlobalContext().Int8Type(), 0)}
+	printfFuncType := llvm.FunctionType(llvm.GlobalContext().Int32Type(), printArgTypes, true)
 	printfFunc := llvm.AddFunction(module, "printf", printfFuncType)
 	printfFunc.SetLinkage(llvm.ExternalLinkage)
 
@@ -46,8 +46,12 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect)
 		os.Exit(1)
 	}
 
-	llirFileName := fmt.Sprintf("%s.ll", target.Output)
+	if err := llvm.VerifyModule(*ctx.Module, llvm.ReturnStatusAction); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
+	llirFileName := fmt.Sprintf("%s.ll", target.Output)
 	err = os.WriteFile(llirFileName, []byte(module.String()), FilePerm)
 	if err != nil {
 		fmt.Println(err)
