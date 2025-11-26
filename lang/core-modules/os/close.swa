@@ -1,0 +1,3 @@
+dialect:english;
+
+func close(file_descriptor: int) int;
