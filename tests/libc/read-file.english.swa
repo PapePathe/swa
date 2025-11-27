@@ -1,0 +1,14 @@
+dialect:english;
+
+start() int {
+  // TODO: we should be able to initialize a variable by only
+ // setting it's zero value 
+  let buffer : string = "0000000000000000000000000000000000000";
+  let fd : int = open("./libc/fixture.txt", 0);
+  let bytesRead : int64 = read(fd, buffer, 37);
+  let res : int = close(fd);
+
+   print("close return value: %d", res);
+
+  return res;
+}
