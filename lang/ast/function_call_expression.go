@@ -45,29 +45,13 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 		if err != nil {
 			return err, nil
 		}
-
 		switch arg.(type) {
-		case SymbolExpression:
-			switch funcDef.Params()[i].Type().TypeKind() {
-			case llvm.IntegerTypeKind, llvm.FloatTypeKind, llvm.DoubleTypeKind:
-				args = append(args, *argVal.Value)
-			case llvm.PointerTypeKind:
-				// TODO: check pointers are not nil
-				if argVal.SymbolTableEntry != nil && argVal.SymbolTableEntry.Address != nil {
-					args = append(args, *argVal.SymbolTableEntry.Address)
-				} else {
-					args = append(args, *argVal.Value)
-				}
-			}
+		case StringExpression:
+			glob := llvm.AddGlobal(*ctx.Module, argVal.Value.Type(), "")
+			glob.SetInitializer(*argVal.Value)
+			args = append(args, glob)
 		default:
 			args = append(args, *argVal.Value)
-		}
-
-		currentArgType := args[i].Type()
-		currentParamType := funcDef.Params()[i].Type()
-		if currentArgType != currentParamType {
-			format := "expected argument of type %s expected but got %s"
-			return fmt.Errorf(format, currentParamType, currentArgType), nil
 		}
 	}
 
