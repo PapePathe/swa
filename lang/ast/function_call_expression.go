@@ -38,7 +38,14 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 		if err != nil {
 			return err, nil
 		}
-		args = append(args, *argVal.Value)
+		switch arg.(type) {
+		case StringExpression:
+			glob := llvm.AddGlobal(*ctx.Module, argVal.Value.Type(), "")
+			glob.SetInitializer(*argVal.Value)
+			args = append(args, glob)
+		default:
+			args = append(args, *argVal.Value)
+		}
 	}
 
 	returnValue := ctx.Builder.CreateCall(
