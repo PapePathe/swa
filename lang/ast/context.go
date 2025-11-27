@@ -170,6 +170,22 @@ func (ctx CompilerCtx) FindSymbol(name string) (error, *SymbolTableEntry) {
 	return nil, &entry
 }
 
+func (ctx CompilerCtx) ImportFromLIBC(
+	name string,
+	args []llvm.Type,
+	ret llvm.Type,
+	hasVarArgs bool,
+) error {
+	typ := llvm.FunctionType(
+		ret,
+		args,
+		hasVarArgs,
+	)
+	funcType := llvm.AddFunction(*ctx.Module, name, typ)
+	funcType.SetLinkage(llvm.ExternalLinkage)
+	return ctx.AddFuncSymbol(name, &typ)
+}
+
 func (ctx CompilerCtx) PrintVarNames() {
 	for k := range ctx.symbolTable {
 		fmt.Println("Variable name: ", k)
