@@ -19,7 +19,7 @@ var _ Expression = (*FunctionCallExpression)(nil)
 func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	name, ok := expr.Name.(SymbolExpression)
 	if !ok {
-		return fmt.Errorf("Expression %v is not a symbol expression", expr.Name), nil
+		return fmt.Errorf("FunctionCallExpression Expression %v is not a symbol expression", expr.Name), nil
 	}
 
 	funcDef := ctx.Module.NamedFunction(name.Value)
@@ -29,7 +29,7 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 
 	err, funcType := ctx.FindFuncSymbol(name.Value)
 	if err != nil {
-		return fmt.Errorf("functype not defined"), nil
+		return fmt.Errorf("functype not defined: %w", err), nil
 	}
 
 	argsCount := len(expr.Args)
