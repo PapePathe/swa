@@ -42,6 +42,17 @@ func (se NumberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 	return nil, &CompilerResult{Value: &res}
 }
 
+func (se NumberExpression) CompileLLVM64(ctx *CompilerCtx) (error, *CompilerResult) {
+	var signed bool
+
+	if se.Value < 0 {
+		signed = true
+	}
+	res := llvm.ConstInt(llvm.GlobalContext().Int64Type(), uint64(se.Value), signed)
+
+	return nil, &CompilerResult{Value: &res}
+}
+
 func (expr NumberExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
