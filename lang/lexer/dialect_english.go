@@ -57,6 +57,7 @@ func (m English) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`&&`), defaultHandler(And, "&&")},
 		{regexp.MustCompile(`\.`), defaultHandler(Dot, ".")},
 		{regexp.MustCompile(`;`), defaultHandler(SemiColon, ";")},
+		{regexp.MustCompile(`::`), defaultHandler(DoubleColon, "::")},
 		{regexp.MustCompile(`:`), defaultHandler(Colon, ":")},
 		{regexp.MustCompile(`,`), defaultHandler(Comma, ",")},
 		{regexp.MustCompile(`\+`), defaultHandler(Plus, "+")},

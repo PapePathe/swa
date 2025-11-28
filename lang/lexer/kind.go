@@ -44,6 +44,7 @@ var tks = map[TokenKind]string{
 	Print:              "PRINT",
 	QuestionMark:       "QUESTION_MARK",
 	SemiColon:          "SEMI_COLON",
+	DoubleColon:        "DOUBLE_COLON",
 	Return:             "RETURN",
 	StarEquals:         "STAR_EQUALS",
 	Struct:             "STRUCT",
@@ -96,6 +97,7 @@ const (
 	Assignment
 	// Colon represents a colon symbol.
 	Colon
+	DoubleColon
 	// Comma represents a comma symbol.
 	Comma
 	// CloseCurly represents a closing curly brace symbol.
