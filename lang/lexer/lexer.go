@@ -14,6 +14,15 @@ type Lexer struct {
 	reservedWords map[string]TokenKind // list of reserved words
 }
 
+func NewWithDialect(source string, d Dialect) (*Lexer, error) {
+	return &Lexer{
+		Tokens:        make([]Token, 0),
+		patterns:      d.Patterns(),
+		reservedWords: d.Reserved(),
+		source:        source,
+	}, nil
+}
+
 func New(source string) (*Lexer, Dialect, error) {
 	dialect, err := getDialect(source)
 	if err != nil {
@@ -50,6 +59,30 @@ func (lex *Lexer) push(token Token) {
 
 func (lex *Lexer) atEOF() bool {
 	return lex.position >= len(lex.source)
+}
+
+func (lex *Lexer) tokenizeLoop() {
+	for !lex.atEOF() {
+		matched := false
+
+		for _, pattern := range lex.patterns {
+			loc := pattern.regex.FindStringIndex(lex.remainder())
+
+			if loc != nil && loc[0] == 0 {
+				pattern.handler(lex, pattern.regex)
+
+				matched = true
+
+				break
+			}
+		}
+
+		if !matched {
+			panic(fmt.Sprintf("Lexer::Error -> unrecognized token near %s", lex.remainder()))
+		}
+	}
+
+	lex.push(NewToken(EOF, "EOF", lex.line))
 }
 
 func getDialect(source string) (Dialect, error) {
