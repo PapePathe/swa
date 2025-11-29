@@ -126,6 +126,12 @@ func (ctx CompilerCtx) AddFuncSymbol(name string, value *llvm.Type) error {
 	return nil
 }
 
+func (ctx CompilerCtx) SymbolExistsInCurrentScope(name string) bool {
+	_, exists := ctx.symbolTable[name]
+
+	return exists
+}
+
 func (ctx CompilerCtx) FindFuncSymbol(name string) (error, *llvm.Type) {
 	entry, exists := ctx.funcSymbolTable[name]
 
