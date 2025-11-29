@@ -126,6 +126,12 @@ func (ctx CompilerCtx) AddFuncSymbol(name string, value *llvm.Type) error {
 	return nil
 }
 
+func (ctx CompilerCtx) SymbolExistsInCurrentScope(name string) bool {
+	_, exists := ctx.symbolTable[name]
+
+	return exists
+}
+
 func (ctx CompilerCtx) FindFuncSymbol(name string) (error, *llvm.Type) {
 	entry, exists := ctx.funcSymbolTable[name]
 
@@ -142,7 +148,7 @@ func (ctx CompilerCtx) FindFuncSymbol(name string) (error, *llvm.Type) {
 
 func (ctx CompilerCtx) AddSymbol(name string, value *SymbolTableEntry) error {
 	if _, exists := ctx.symbolTable[name]; exists {
-		return fmt.Errorf("array named %s already exists in symbol table", name)
+		return fmt.Errorf("variable named %s already exists in symbol table", name)
 	}
 
 	ctx.symbolTable[name] = *value
@@ -155,7 +161,7 @@ func (ctx CompilerCtx) FindSymbol(name string) (error, *SymbolTableEntry) {
 
 	if !exists {
 		if ctx.parent == nil {
-			return fmt.Errorf("struct named %s does not exist in symbol table", name), nil
+			return fmt.Errorf("variable named %s does not exist in symbol table", name), nil
 		}
 
 		return ctx.parent.FindSymbol(name)

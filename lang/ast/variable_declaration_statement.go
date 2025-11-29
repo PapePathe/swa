@@ -24,6 +24,10 @@ type VarDeclarationStatement struct {
 var _ Statement = (*VarDeclarationStatement)(nil)
 
 func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
+	if ctx.SymbolExistsInCurrentScope(vd.Name) {
+		return fmt.Errorf("variable %s is aleady defined", vd.Name), nil
+	}
+
 	err, val := vd.Value.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil
@@ -60,7 +64,7 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: val.Value})
 		ctx.AddArraySymbol(vd.Name, val.ArraySymbolTableEntry)
 	default:
-		panic(fmt.Sprintf("VarDeclarationStatement: Unhandled expression type (%v)", vd.Value))
+		return fmt.Errorf("VarDeclarationStatement: Unhandled expression type (%v)", vd.Value), nil
 	}
 
 	return nil, nil
