@@ -1,0 +1,36 @@
+dialect:english;
+
+func sum(list: [5]int) int {
+  let ret : int = 0;
+  let idx: int = 0;
+  
+  while(idx < 5) {
+    ret = ret + list[idx];
+    idx = idx + 1;
+  }
+
+  return ret;
+}
+
+func sumf(list: [5]float) float {
+  let ret: float = 0.0;
+  let idx: int = 0;
+  
+  while(idx < 5) {
+    ret = ret + list[idx];
+    idx = idx + 1;
+  }
+
+  return ret;
+}
+
+start () int {
+  let list: []int = []int{ 1, 2, 3, 4 , 5};
+  let listf: []float = []float{ 1.00, 2.000, 3.000, 4.0 , 5.000000};
+  let sum_of_list: int = sum(list);
+  let sum_of_listf: float = sumf(listf);
+
+  print("sum: %d, sumf: %.2f", sum_of_list, sum_of_listf);
+
+  return 0; 
+}

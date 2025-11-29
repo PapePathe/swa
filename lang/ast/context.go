@@ -7,6 +7,16 @@ import (
 	"tinygo.org/x/go-llvm"
 )
 
+type CompilerResult struct {
+	// Some expressions return results
+	Value                  *llvm.Value
+	StuctPropertyValueType *llvm.Type
+	SymbolTableEntry       *SymbolTableEntry
+	// Some expressions return a value that will be added to the structs symbol table
+	StructSymbolTableEntry *StructSymbolTableEntry
+	// Some expressions return a value that will be added to the arrays symbol table
+	ArraySymbolTableEntry *ArraySymbolTableEntry
+}
 type StructSymbolTableEntry struct {
 	LLVMType      llvm.Type
 	PropertyTypes []llvm.Type
@@ -158,18 +168,4 @@ func (ctx CompilerCtx) PrintVarNames() {
 	for k := range ctx.symbolTable {
 		fmt.Println("Variable name: ", k)
 	}
-}
-
-type CompilerResult struct {
-	// Some expressions return results
-	Value                  *llvm.Value
-	StuctPropertyValueType *llvm.Type
-
-	SymbolTableEntry *SymbolTableEntry
-
-	// Some expressions return a value that will be added to the structs symbol table
-	StructSymbolTableEntry *StructSymbolTableEntry
-
-	// Some expressions return a value that will be added to the arrays symbol table
-	ArraySymbolTableEntry *ArraySymbolTableEntry
 }

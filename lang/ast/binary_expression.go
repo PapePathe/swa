@@ -73,13 +73,19 @@ func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 	if leftValue.Type() == ctype {
 		finalLeftValue = leftValue
 	} else {
-		finalLeftValue = expr.castToType(ctx, ctype, leftValue)
+		err, finalLeftValue = expr.castToType(ctx, ctype, leftValue)
+		if err != nil {
+			return err, nil
+		}
 	}
 
 	if rightValue.Type() == ctype {
 		finalRightValue = rightValue
 	} else {
-		finalRightValue = expr.castToType(ctx, ctype, rightValue)
+		err, finalRightValue = expr.castToType(ctx, ctype, rightValue)
+		if err != nil {
+			return err, nil
+		}
 	}
 
 	handler, ok := handlers[expr.Operator.Kind]
@@ -176,10 +182,10 @@ func commonType(l, r llvm.Value) llvm.Type {
 	panic(fmt.Errorf("Unhandled type combination: left=%s, right=%s", l.Type().TypeKind(), r.Type().TypeKind()))
 }
 
-func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Value) llvm.Value {
+func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Value) (error, llvm.Value) {
 	// If types are exactly the same, just return the value
 	if t == v.Type() {
-		return v
+		return nil, v
 	}
 
 	// Handle type kind matching but different actual types (shouldn't happen with our code)
@@ -188,7 +194,7 @@ func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Va
 
 	if vKind == tKind {
 		// Same kind, assume compatible (both int32 or both double)
-		return v
+		return nil, v
 	}
 
 	// Different kinds - need actual conversion
@@ -197,7 +203,7 @@ func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Va
 		switch tKind {
 		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
 			// Convert int to float
-			return ctx.Builder.CreateSIToFP(v, t, "")
+			return nil, ctx.Builder.CreateSIToFP(v, t, "")
 		default:
 			panic(fmt.Errorf("Cannot cast integer to %s", tKind))
 		}
@@ -205,19 +211,19 @@ func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Va
 		switch tKind {
 		case llvm.IntegerTypeKind:
 			// Convert float to int
-			return ctx.Builder.CreateFPToSI(v, t, "")
+			return nil, ctx.Builder.CreateFPToSI(v, t, "")
 		default:
-			panic(fmt.Errorf("Cannot cast float to %s", tKind))
+			return fmt.Errorf("Cannot cast %s to %s", vKind, tKind), llvm.Value{}
 		}
 	case llvm.PointerTypeKind:
 		switch tKind {
 		case llvm.IntegerTypeKind:
-			return ctx.Builder.CreatePtrToInt(v, t, "")
+			return nil, ctx.Builder.CreatePtrToInt(v, t, "")
 		default:
-			panic(fmt.Errorf("Cannot cast pointer to %s", tKind))
+			return fmt.Errorf("Cannot cast pointer to %s", tKind), llvm.Value{}
 		}
 	default:
-		panic(fmt.Errorf("Unhandled type conversion from %s to %s", vKind, tKind))
+		return fmt.Errorf("Unhandled type conversion from %s to %s", vKind, tKind), llvm.Value{}
 	}
 }
 

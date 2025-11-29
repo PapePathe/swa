@@ -35,7 +35,7 @@ func (expr ArrayInitializationExpression) extractArrayType(ctx *CompilerCtx) (*l
 
 		err, sdef := ctx.FindStructSymbol(sym.Name)
 		if err != nil {
-			return nil, nil, fmt.Errorf("Type (%s) is not a valid struct", expr.Underlying)
+			return nil, nil, fmt.Errorf("Type (%s) is not a valid struct", sym.Name)
 		}
 		return &sdef.LLVMType, sdef, nil
 	case DataTypeString:

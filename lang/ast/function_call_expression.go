@@ -38,6 +38,12 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 		if err != nil {
 			return err, nil
 		}
+
+		if argVal.SymbolTableEntry != nil && argVal.SymbolTableEntry.Address != nil {
+			args = append(args, *argVal.SymbolTableEntry.Address)
+			continue
+		}
+
 		args = append(args, *argVal.Value)
 	}
 

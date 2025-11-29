@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
@@ -67,16 +68,25 @@ func parseSymbolType(p *Parser) (ast.Type, []lexer.Token) {
 }
 
 func parseArrayType(p *Parser) (ast.Type, []lexer.Token) {
+	typ := ast.ArrayType{}
 	tokens := []lexer.Token{}
 
 	tokens = append(tokens, p.advance())
+	if p.currentToken().Kind == lexer.Number {
+		tok := p.expect(lexer.Number)
+		number, err := strconv.ParseInt(tok.Value, 10, 64)
+		if err != nil {
+			panic(err)
+		}
+
+		typ.Size = int(number)
+	}
 	tokens = append(tokens, p.expect(lexer.CloseBracket))
 
 	underlying, tokens := parseType(p, DefaultBindingPower)
+	typ.Underlying = underlying
 
-	return ast.ArrayType{
-		Underlying: underlying,
-	}, tokens
+	return typ, tokens
 }
 
 func parseType(p *Parser, bp BindingPower) (ast.Type, []lexer.Token) {
