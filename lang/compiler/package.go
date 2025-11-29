@@ -20,7 +20,7 @@ func (pack Package) Compile(ctx *ast.CompilerCtx) error {
 		}
 		sourceCode := string(bytes)
 		tokens := lexer.TokenizeWithDialect(sourceCode, ctx.Dialect)
-		tree, _, err := parser.Parse(tokens)
+		tree, _, err := parser.Parse(tokens, true)
 		if err != nil {
 			return err
 		}

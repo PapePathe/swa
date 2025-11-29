@@ -18,7 +18,7 @@ type Parser struct {
 }
 
 // Parse ...
-func Parse(tokens []lexer.Token) (ast.BlockStatement, map[string]any, error) {
+func Parse(tokens []lexer.Token, dialectParsed bool) (ast.BlockStatement, map[string]any, error) {
 	body := make([]ast.Statement, 0)
 
 	createTokenLookups()
@@ -26,7 +26,7 @@ func Parse(tokens []lexer.Token) (ast.BlockStatement, map[string]any, error) {
 
 	psr := &Parser{tokens: tokens, imports: map[string]any{}}
 
-	if psr.hasTokens() {
+	if psr.hasTokens() && !dialectParsed {
 		psr.expect(lexer.DialectDeclaration)
 		psr.expect(lexer.Colon)
 		psr.expect(lexer.Identifier)
