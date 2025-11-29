@@ -33,18 +33,28 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 	}
 
 	args := []llvm.Value{}
-	for _, arg := range expr.Args {
+	for i, arg := range expr.Args {
 		err, argVal := arg.CompileLLVM(ctx)
 		if err != nil {
 			return err, nil
 		}
 
-		if argVal.SymbolTableEntry != nil && argVal.SymbolTableEntry.Address != nil {
-			args = append(args, *argVal.SymbolTableEntry.Address)
-			continue
+		switch arg.(type) {
+		case SymbolExpression:
+			switch funcDef.Params()[i].Type().TypeKind() {
+			case llvm.IntegerTypeKind, llvm.FloatTypeKind, llvm.DoubleTypeKind:
+				args = append(args, *argVal.Value)
+			case llvm.PointerTypeKind:
+				// TODO: check pointers are not nil
+				if argVal.SymbolTableEntry != nil && argVal.SymbolTableEntry.Address != nil {
+					args = append(args, *argVal.SymbolTableEntry.Address)
+				} else {
+					args = append(args, *argVal.Value)
+				}
+			}
+		default:
+			args = append(args, *argVal.Value)
 		}
-
-		args = append(args, *argVal.Value)
 	}
 
 	returnValue := ctx.Builder.CreateCall(
