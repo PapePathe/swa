@@ -1,0 +1,5 @@
+dialect:english;
+
+func read_file(name: string) int {
+  return 0;
+}

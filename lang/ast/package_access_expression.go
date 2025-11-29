@@ -11,16 +11,10 @@ import (
 // PackageAccessExpression ...
 type PackageAccessExpression struct {
 	Namespaces []Expression
-	Arguments  []Expression
-	Value      string
 	Tokens     []lexer.Token
 }
 
 var _ Expression = (*PackageAccessExpression)(nil)
-
-func (expr PackageAccessExpression) String() string {
-	return expr.Value
-}
 
 func (expr PackageAccessExpression) Name() string {
 	var names []string
@@ -32,10 +26,9 @@ func (expr PackageAccessExpression) Name() string {
 		}
 
 		names = append(names, name.Value)
-
 	}
 
-	return strings.Join(names, ".")
+	return strings.Join(names, "/")
 }
 
 func (expr PackageAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
@@ -48,8 +41,7 @@ func (expr PackageAccessExpression) TokenStream() []lexer.Token {
 
 func (expr PackageAccessExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
-	m["Namespaces"] = expr.Value
-	m["Arguments"] = expr.Value
+	m["Namespaces"] = expr.Namespaces
 
 	res := make(map[string]any)
 	res["ast.PackageAccessExpression"] = m
