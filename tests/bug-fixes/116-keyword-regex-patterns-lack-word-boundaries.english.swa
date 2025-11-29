@@ -1,0 +1,17 @@
+dialect:english;
+
+start() int {
+  let stringer: int = 0;
+  let integer: int = 0;
+  let whilemean: int = 0;
+  let ifTodayIsMonday : int = 0;
+  let elseifTodayIsSunday: int = 0;
+  let printer : int = 0;
+  let structIsPacked : int = 0;
+  let startProgram: int = 0;
+  let returnValue : int = 0;
+  let funcType: int = 0;
+  let dialectId : int = 0;
+  
+  return 0;
+}
