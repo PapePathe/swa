@@ -9,6 +9,26 @@ import (
 func TestBugFixes(t *testing.T) {
 	t.Parallel()
 
+	t.Run("90-function-calls-with-variables-pass-pointers-instead-of-values", func(t *testing.T) {
+		t.Run("English", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/90-function-calls-with-variables-pass-pointers-instead-of-values.english.swa",
+				ExpectedExecutionOutput: "z: 30",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("French", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/90-function-calls-with-variables-pass-pointers-instead-of-values.french.swa",
+				ExpectedExecutionOutput: "z: 30",
+				T:                       t,
+			}
+			req.AssertCompileAndExecute()
+		})
+	})
 	t.Run("94-block-statements-do-not-create-new-scopes-shadowing-fails", func(t *testing.T) {
 		t.Run("English", func(t *testing.T) {
 			req := CompileRequest{
