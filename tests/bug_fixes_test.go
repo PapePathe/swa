@@ -9,6 +9,27 @@ import (
 func TestBugFixes(t *testing.T) {
 	t.Parallel()
 
+	t.Run("94-block-statements-do-not-create-new-scopes-shadowing-fails", func(t *testing.T) {
+		t.Run("English", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/94-block-statements-do-not-create-new-scopes-shadowing-fails.english.swa",
+				ExpectedExecutionOutput: "Inner x: 20, Outer x: 10",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("French", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/94-block-statements-do-not-create-new-scopes-shadowing-fails.french.swa",
+				ExpectedExecutionOutput: "Inner x: 20, Outer x: 10",
+				T:                       t,
+			}
+			req.AssertCompileAndExecute()
+		})
+	})
+
 	t.Run("114-variable-redeclaration-allowed-in-same-scope", func(t *testing.T) {
 		t.Run("English", func(t *testing.T) {
 			req := CompileRequest{
