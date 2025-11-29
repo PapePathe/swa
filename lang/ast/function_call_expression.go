@@ -3,6 +3,7 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
@@ -17,17 +18,24 @@ type FunctionCallExpression struct {
 var _ Expression = (*FunctionCallExpression)(nil)
 
 func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	name, ok := expr.Name.(SymbolExpression)
-	if !ok {
-		return fmt.Errorf("Expression %v is not a symbol expression", expr.Name), nil
+	var funcName string
+	switch expr.Name.(type) {
+	case SymbolExpression:
+		name, _ := expr.Name.(SymbolExpression)
+		funcName = name.Value
+	case PackageAccessExpression:
+		name, _ := expr.Name.(PackageAccessExpression)
+		values := strings.Split(name.Name(), "/")
+		funcName = values[1]
+	default:
+		return fmt.Errorf("Expression %v is not a symbol or package access expression", expr.Name), nil
 	}
-
-	funcDef := ctx.Module.NamedFunction(name.Value)
+	funcDef := ctx.Module.NamedFunction(funcName)
 	if funcDef.IsNil() {
-		return fmt.Errorf("function %s does not exist", name.Value), nil
+		return fmt.Errorf("function %s does not exist", funcName), nil
 	}
 
-	err, funcType := ctx.FindFuncSymbol(name.Value)
+	err, funcType := ctx.FindFuncSymbol(funcName)
 	if err != nil {
 		return fmt.Errorf("functype not defined"), nil
 	}
@@ -38,7 +46,15 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 		if err != nil {
 			return err, nil
 		}
-		args = append(args, *argVal.Value)
+
+		switch arg.(type) {
+		case StringExpression:
+			glob := llvm.AddGlobal(*ctx.Module, argVal.Value.Type(), "")
+			glob.SetInitializer(*argVal.Value)
+			args = append(args, glob)
+		default:
+			args = append(args, *argVal.Value)
+		}
 	}
 
 	returnValue := ctx.Builder.CreateCall(

@@ -61,6 +61,7 @@ func createTokenLookups() {
 	led(lexer.LessThanEquals, Relational, ParseBinaryExpression)
 	led(lexer.GreaterThan, Relational, ParseBinaryExpression)
 	led(lexer.GreaterThanEquals, Relational, ParseBinaryExpression)
+	led(lexer.DoubleColon, Relational, ParsePackageAccessExpression)
 
 	led(lexer.Plus, Additive, ParseBinaryExpression)
 	led(lexer.Minus, Additive, ParseBinaryExpression)
