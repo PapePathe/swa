@@ -1,5 +1,3 @@
-dialect:english;
-
 func lseek(file_descriptor: int, startIndex: int64, endIndex: int) int64;
 
 
