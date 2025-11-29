@@ -60,7 +60,7 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: val.Value})
 		ctx.AddArraySymbol(vd.Name, val.ArraySymbolTableEntry)
 	default:
-		panic(fmt.Sprintf("VarDeclarationStatement: Unhandled expression type (%v)", vd.Value))
+		return fmt.Errorf("VarDeclarationStatement: Unhandled expression type (%v)", vd.Value), nil
 	}
 
 	return nil, nil
