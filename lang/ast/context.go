@@ -118,7 +118,7 @@ func (ctx CompilerCtx) FindArraySymbol(name string) (error, *ArraySymbolTableEnt
 
 func (ctx CompilerCtx) AddFuncSymbol(name string, value *llvm.Type) error {
 	if _, exists := ctx.funcSymbolTable[name]; exists {
-		return fmt.Errorf("array named %s already exists in symbol table", name)
+		return fmt.Errorf("function named %s already exists in symbol table", name)
 	}
 
 	ctx.funcSymbolTable[name] = *value
@@ -137,7 +137,7 @@ func (ctx CompilerCtx) FindFuncSymbol(name string) (error, *llvm.Type) {
 
 	if !exists {
 		if ctx.parent == nil {
-			return fmt.Errorf("struct named %s does not exist in symbol table", name), nil
+			return fmt.Errorf("function named %s does not exist in symbol table", name), nil
 		}
 
 		return ctx.parent.FindFuncSymbol(name)

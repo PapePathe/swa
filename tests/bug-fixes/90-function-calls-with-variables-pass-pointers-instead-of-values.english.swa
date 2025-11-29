@@ -1,0 +1,15 @@
+dialect:english;
+
+func add(a: int, b: int) int {
+  return a + b;
+}
+
+start() int {
+  let x: int = 10;
+  let y: int = 20;
+  let z: int = add(x, y);
+
+  print("z: %d", z);
+
+  return 0;
+}
