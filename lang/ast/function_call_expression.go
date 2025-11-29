@@ -62,6 +62,13 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 		default:
 			args = append(args, *argVal.Value)
 		}
+
+		currentArgType := args[i].Type()
+		currentParamType := funcDef.Params()[i].Type()
+		if currentArgType != currentParamType {
+			format := "expected argument of type %s expected but got %s"
+			return fmt.Errorf(format, currentParamType, currentArgType), nil
+		}
 	}
 
 	returnValue := ctx.Builder.CreateCall(
