@@ -3,6 +3,7 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
@@ -24,7 +25,8 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 		funcName = name.Value
 	case PackageAccessExpression:
 		name, _ := expr.Name.(PackageAccessExpression)
-		funcName = name.Name()
+		values := strings.Split(name.Name(), "/")
+		funcName = values[1]
 	default:
 		return fmt.Errorf("Expression %v is not a symbol or package access expression", expr.Name), nil
 	}
@@ -51,7 +53,15 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 		if err != nil {
 			return err, nil
 		}
-		args = append(args, *argVal.Value)
+
+		switch arg.(type) {
+		case StringExpression:
+			glob := llvm.AddGlobal(*ctx.Module, argVal.Value.Type(), "")
+			glob.SetInitializer(*argVal.Value)
+			args = append(args, glob)
+		default:
+			args = append(args, *argVal.Value)
+		}
 	}
 
 	returnValue := ctx.Builder.CreateCall(

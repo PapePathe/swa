@@ -1,0 +1,3 @@
+dialect:english;
+
+func read(fd: int, buf: string, count: int64) int64;

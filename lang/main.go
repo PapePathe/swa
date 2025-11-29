@@ -75,7 +75,7 @@ var compileCmd = &cobra.Command{
 		}
 		sourceCode := string(bytes)
 		tokens, dialect := lexer.Tokenize(sourceCode)
-		tree, err := parser.Parse(tokens)
+		tree, imp, err := parser.Parse(tokens)
 		if err != nil {
 			os.Stdout.WriteString(err.Error())
 			os.Exit(1)
@@ -85,7 +85,7 @@ var compileCmd = &cobra.Command{
 			Architecture:    "X86-64",
 			Output:          output,
 		}
-		compiler.Compile(tree, target, dialect)
+		compiler.Compile(tree, target, dialect, imp)
 	},
 }
 
@@ -146,7 +146,7 @@ var parseCmd = &cobra.Command{
 
 		sourceCode := string(bytes)
 		tokens, _ := lexer.Tokenize(sourceCode)
-		st, err := parser.Parse(tokens)
+		st, _, err := parser.Parse(tokens)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

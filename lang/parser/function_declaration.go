@@ -40,15 +40,15 @@ func ParseFunctionDeclaration(p *Parser) (ast.Statement, error) {
 
 	if p.currentToken().Kind == lexer.SemiColon {
 		funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.SemiColon))
-	}
+	} else {
+		body, err := ParseBlockStatement(p)
+		if err != nil {
+			return nil, err
+		}
 
-	body, err := ParseBlockStatement(p)
-	if err != nil {
-		return nil, err
+		funDecl.Tokens = append(funDecl.Tokens, body.TokenStream()...)
+		funDecl.Body = body
 	}
-
-	funDecl.Tokens = append(funDecl.Tokens, body.TokenStream()...)
-	funDecl.Body = body
 
 	return funDecl, nil
 }

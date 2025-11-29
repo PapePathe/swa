@@ -39,6 +39,8 @@ func ParsePackageAccessExpression(p *Parser, left ast.Expression, bp BindingPowe
 		expr.Namespaces = append(expr.Namespaces, ast.SymbolExpression{Value: id.Value})
 	}
 
+	p.imports[expr.Name()] = nil
+
 	if p.currentToken().Kind == lexer.OpenParen {
 		return ParseFunctionCall(p, expr, DefaultBindingPower)
 	}
