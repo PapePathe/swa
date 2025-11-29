@@ -15,8 +15,7 @@ func ParseVarDeclarationStatement(p *Parser) (ast.Statement, error) {
 	p.currentStatement = &stmt
 
 	isConstant := p.advance().Kind == lexer.Const
-	errStr := "Inside variable declaration expected to find variable name"
-	tok := p.expectError(lexer.Identifier, errStr)
+	tok := p.expect(lexer.Identifier)
 	stmt.Tokens = append(stmt.Tokens, tok)
 	variableName := tok.Value
 

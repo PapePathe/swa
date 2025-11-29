@@ -1,0 +1,18 @@
+dialecte:français;
+
+demarrer() entier {
+  variable chaine_de_television : chaine = "";
+  variable entier44: entier = 0;
+  variable sismologie: entier = 0;
+  variable sinone: entier = 0;
+  variable affichera  : entier = 0;
+  variable structureId: entier = 0;
+  variable demarrerProgramme: entier = 0;
+  variable retournerUneValeur: entier = 0;
+  variable fonctionMetier: entier = 0;
+  variable dialecteNatif: entier = 0;
+  
+  retourner 0;
+}
+
+
