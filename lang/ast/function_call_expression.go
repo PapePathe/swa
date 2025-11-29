@@ -32,6 +32,13 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 		return fmt.Errorf("functype not defined"), nil
 	}
 
+	argsCount := len(expr.Args)
+	paramsCount := len(funcDef.Params())
+	if argsCount != paramsCount {
+		format := "function %s expect %d arguments but was given %d"
+		return fmt.Errorf(format, name.Value, paramsCount, argsCount), nil
+	}
+
 	args := []llvm.Value{}
 	for i, arg := range expr.Args {
 		err, argVal := arg.CompileLLVM(ctx)
