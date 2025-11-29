@@ -24,6 +24,10 @@ type VarDeclarationStatement struct {
 var _ Statement = (*VarDeclarationStatement)(nil)
 
 func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
+	if ctx.SymbolExistsInCurrentScope(vd.Name) {
+		return fmt.Errorf("variable %s is aleady defined", vd.Name), nil
+	}
+
 	err, val := vd.Value.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil
