@@ -15,35 +15,55 @@ type ArrayOfStructsAccessExpression struct {
 	Tokens   []lexer.Token
 }
 
-func (expr ArrayOfStructsAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error, *ArraySymbolTableEntry, *SymbolTableEntry, int) {
+func (expr ArrayOfStructsAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error, *ArraySymbolTableEntry, *SymbolTableEntry, []llvm.Value) {
 	varName, ok := expr.Name.(SymbolExpression)
 	if !ok {
 		key := "ArrayAccessExpression.NameNotASymbol"
-		return ctx.Dialect.Error(key, varName.Value), nil, nil, 0
+		return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
 	}
 
 	err, array := ctx.FindSymbol(varName.Value)
 	if err != nil {
 		key := "ArrayAccessExpression.NotFoundInSymbolTable"
-		return ctx.Dialect.Error(key, varName.Value), nil, nil, 0
+		return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
 	}
 
 	err, entry := ctx.FindArraySymbol(varName.Value)
 	if err != nil {
 		key := "ArrayAccessExpression.NotFoundInArraysSymbolTable"
-		return ctx.Dialect.Error(key, varName.Value), nil, nil, 0
-	}
-	itemIndex, ok := expr.Index.(NumberExpression)
-	if !ok {
-		key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
-		return ctx.Dialect.Error(key, expr.Index), nil, nil, 0
-	}
-	if int(itemIndex.Value) > entry.ElementsCount-1 {
-		key := "ArrayAccessExpression.IndexOutOfBounds"
-		return ctx.Dialect.Error(key, itemIndex, varName.Value), nil, nil, 0
+		return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
 	}
 
-	return nil, entry, array, int(itemIndex.Value)
+	var indices []llvm.Value
+	switch expr.Index.(type) {
+	case NumberExpression:
+		idx, _ := expr.Index.(NumberExpression)
+
+		if int(idx.Value) < 0 {
+			key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
+			return ctx.Dialect.Error(key, expr.Index), nil, nil, nil
+		}
+
+		if int(idx.Value) > entry.ElementsCount-1 {
+			key := "ArrayAccessExpression.IndexOutOfBounds"
+			return ctx.Dialect.Error(key, int(idx.Value), varName.Value), nil, nil, nil
+		}
+		indices = []llvm.Value{
+			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false),
+			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(idx.Value), false),
+		}
+	case SymbolExpression:
+		err, res := expr.Index.CompileLLVM(ctx)
+		if err != nil {
+			return err, nil, nil, nil
+		}
+		indices = []llvm.Value{*res.Value}
+	default:
+		key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
+		return ctx.Dialect.Error(key, expr.Index), nil, nil, nil
+	}
+
+	return nil, entry, array, indices
 }
 
 func (expr ArrayOfStructsAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
@@ -55,10 +75,7 @@ func (expr ArrayOfStructsAccessExpression) CompileLLVM(ctx *CompilerCtx) (error,
 	itemPtr := ctx.Builder.CreateInBoundsGEP(
 		entry.Type,
 		array.Value,
-		[]llvm.Value{
-			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false),
-			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(itemIndex), false),
-		},
+		itemIndex,
 		"",
 	)
 

@@ -1,0 +1,17 @@
+dialect:english;
+
+start() int {
+  struct Person {
+    Name: string,
+    Age: int,
+  }
+
+  let people: []Person = []Person{
+    Person{Name: "Alice", Age: 30},
+  };
+
+  let i: int = 0;
+  print("Name: %s", people[i].Name);
+
+  return 0;
+}

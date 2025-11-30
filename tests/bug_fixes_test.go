@@ -161,6 +161,18 @@ func TestBugFixes(t *testing.T) {
 		})
 	})
 
+	t.Run("91-array-of-structs-indexing-does-not-support-variables", func(t *testing.T) {
+		t.Run("English", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/91-array-of-structs-indexing-does-not-support-variables.english.swa",
+				ExpectedExecutionOutput: "Name: Alice",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+	})
+
 	t.Run("116-keyword-regex-patterns-lack-word-boundaries", func(t *testing.T) {
 		t.Run("English", func(t *testing.T) {
 			req := CompileRequest{
