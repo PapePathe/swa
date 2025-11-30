@@ -1,0 +1,7 @@
+dialect:english;
+
+start() int {
+   let x: string = 0.5;
+
+  return 0;
+}

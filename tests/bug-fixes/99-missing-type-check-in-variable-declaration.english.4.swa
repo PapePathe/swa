@@ -1,0 +1,7 @@
+dialect:english;
+
+start() int {
+  let x: int = []int{0};
+
+  return 0;
+}

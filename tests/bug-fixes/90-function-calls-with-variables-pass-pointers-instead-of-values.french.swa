@@ -1,0 +1,15 @@
+dialecte:français;
+
+fonction add(a: entier, b: entier) entier {
+  retourner a + b;
+}
+
+demarrer() entier {
+  variable x: entier = 10;
+  variable y: entier = 20;
+  variable z: entier = add(x, y);
+
+  afficher("z: %d", z);
+
+  retourner 0;
+}

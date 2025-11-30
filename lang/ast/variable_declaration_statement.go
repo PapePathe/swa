@@ -39,6 +39,10 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		return err, nil
 	}
 
+	if err := vd.TypeCheck(vd.ExplicitType.Value(), val.Value.Type()); err != nil {
+		return err, nil
+	}
+
 	switch vd.Value.(type) {
 	case StructInitializationExpression:
 		explicitType, ok := vd.ExplicitType.(SymbolType)
@@ -68,6 +72,57 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 	}
 
 	return nil, nil
+}
+
+func (expr VarDeclarationStatement) TypeCheck(t DataType, k llvm.Type) error {
+	switch k.TypeKind() {
+	case llvm.ArrayTypeKind:
+		switch t {
+		case DataTypeSymbol:
+		case DataTypeString, DataTypeArray:
+			// we are ok
+		default:
+			return fmt.Errorf("expected %s got %s", t, k.TypeKind())
+		}
+	case llvm.DoubleTypeKind:
+		switch t {
+		case DataTypeSymbol:
+		case DataTypeFloat:
+			// we are ok
+		default:
+			return fmt.Errorf("expected %s got %s", t, k.TypeKind())
+		}
+	case llvm.IntegerTypeKind:
+		switch t {
+		case DataTypeSymbol:
+		case DataTypeNumber:
+			// we are ok
+		default:
+			return fmt.Errorf("expected %s got %s", t, k.TypeKind())
+		}
+	case llvm.PointerTypeKind:
+		switch t {
+		case DataTypeString:
+		//		switch k.ElementType() {
+		//		case llvm.GlobalContext().LabelType():
+		//		default:
+		//			return fmt.Errorf("fff expected %s got pointer of %t", t, k.ElementType())
+		//		}
+		case DataTypeNumber:
+			switch k.ElementType().TypeKind() {
+			case llvm.IntegerTypeKind:
+				// we good
+			default:
+				return fmt.Errorf("expected %s got pointer of %v", t, k)
+			}
+		case DataTypeArray:
+		case DataTypeSymbol:
+		default:
+			panic(fmt.Sprintf("unsupported element %s", t))
+		}
+	}
+
+	return nil
 }
 
 func (expr VarDeclarationStatement) TokenStream() []lexer.Token {

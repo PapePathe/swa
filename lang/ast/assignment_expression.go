@@ -27,7 +27,7 @@ func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 		return err, nil
 	}
 
-	var val llvm.Value
+	var valueToBeAssigned llvm.Value
 
 	switch expr.Value.(type) {
 	case StringExpression:
@@ -37,21 +37,21 @@ func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 		}
 		glob := llvm.AddGlobal(*ctx.Module, value.Value.Type(), "")
 		glob.SetInitializer(*value.Value)
-		val = glob
+		valueToBeAssigned = glob
 	default:
 		err, value := expr.Value.CompileLLVM(ctx)
 		if err != nil {
 			return err, nil
 		}
-		val = *value.Value
+		valueToBeAssigned = *value.Value
 	}
 
 	if assignee.SymbolTableEntry != nil && assignee.SymbolTableEntry.Address != nil {
-		str := ctx.Builder.CreateStore(val, *assignee.SymbolTableEntry.Address)
+		str := ctx.Builder.CreateStore(valueToBeAssigned, *assignee.SymbolTableEntry.Address)
 		return nil, &CompilerResult{Value: &str}
 	}
 
-	str := ctx.Builder.CreateStore(val, *assignee.Value)
+	str := ctx.Builder.CreateStore(valueToBeAssigned, *assignee.Value)
 
 	return nil, &CompilerResult{Value: &str}
 }
