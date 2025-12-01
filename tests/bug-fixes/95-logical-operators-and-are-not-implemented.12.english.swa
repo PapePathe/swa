@@ -1,0 +1,13 @@
+dialect:english;
+
+start() int {
+  let x: float = 0.5;
+  let y: float = 1.5;
+  
+  if (x == 0.5 || y == 0.0) {
+    print("x == 0.5 || y == 0.0 evaluates to true");
+  } else {
+    print("implementation error");
+  }
+  return 0;
+}

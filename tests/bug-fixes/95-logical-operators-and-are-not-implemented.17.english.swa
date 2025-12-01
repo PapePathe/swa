@@ -1,0 +1,13 @@
+dialect:english;
+
+start() int {
+  let a: int = 1;
+  let b: int = 0;
+  
+  if ((a == 1 && b == 0) || (a == 0 && b == 1)) {
+    print("(a == 1 && b == 0) || (a == 0 && b == 1) evaluates to true");
+  } else {
+    print("implementation error");
+  }
+  return 0;
+}
