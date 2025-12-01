@@ -9,6 +9,27 @@ import (
 func TestBugFixes(t *testing.T) {
 	t.Parallel()
 
+	t.Run("106-unhandled-64-bit-integer-overflow", func(t *testing.T) {
+		t.Run("1", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/106-unhandled-64-bit-integer-overflow.max.english.swa",
+				ExpectedOutput: "9223372036854775808: value out of range while parsing number expression",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+
+		t.Run("2", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/106-unhandled-64-bit-integer-overflow.min.english.swa",
+				ExpectedOutput: "-9223372036854775809: value out of range while parsing number expression",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+	})
 	t.Run("105-silent-32-bit-integer-overflow", func(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
 			req := CompileRequest{

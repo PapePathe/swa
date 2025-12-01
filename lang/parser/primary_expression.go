@@ -19,7 +19,8 @@ func ParsePrimaryExpression(p *Parser) (ast.Expression, error) {
 
 		number, err := strconv.ParseInt(tok.Value, 10, 64)
 		if err != nil {
-			return nil, err
+			e := err.(*strconv.NumError)
+			return nil, fmt.Errorf("%s: %s while parsing number expression", e.Num, e.Err)
 		}
 		expr.Value = number
 
