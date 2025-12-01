@@ -9,6 +9,18 @@ import (
 func TestBugFixes(t *testing.T) {
 	t.Parallel()
 
+	t.Run("95-logical-operators-and-are-not-implemented", func(t *testing.T) {
+		t.Run("1", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.1.english.swa",
+				ExpectedExecutionOutput: "1 == 1 && 0 == 0 evaluates to true",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+	})
+
 	t.Run("93-integer-comparison-uses-unsigned-instructions-for-signed-integers", func(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
 			req := CompileRequest{

@@ -230,6 +230,8 @@ func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Va
 type binaryHandlerFunc func(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult)
 
 var handlers = map[lexer.TokenKind]binaryHandlerFunc{
+	lexer.And:               and,
+	lexer.Or:                or,
 	lexer.Plus:              add,
 	lexer.Minus:             substract,
 	lexer.Star:              multiply,
@@ -240,6 +242,24 @@ var handlers = map[lexer.TokenKind]binaryHandlerFunc{
 	lexer.LessThan:          lessThan,
 	lexer.LessThanEquals:    lessThanEquals,
 	lexer.Equals:            equals,
+}
+
+func and(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
+	zero := llvm.ConstInt(l.Type(), 0, false)
+	lBool := ctx.Builder.CreateICmp(llvm.IntNE, l, zero, "")
+	rBool := ctx.Builder.CreateICmp(llvm.IntNE, r, zero, "")
+	resBool := ctx.Builder.CreateAnd(lBool, rBool, "")
+
+	return nil, &CompilerResult{Value: &resBool}
+}
+
+func or(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
+	zero := llvm.ConstInt(l.Type(), 0, false)
+	lBool := ctx.Builder.CreateICmp(llvm.IntNE, l, zero, "")
+	rBool := ctx.Builder.CreateICmp(llvm.IntNE, r, zero, "")
+	resBool := ctx.Builder.CreateOr(lBool, rBool, "")
+
+	return nil, &CompilerResult{Value: &resBool}
 }
 
 func add(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
