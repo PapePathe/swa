@@ -9,6 +9,28 @@ import (
 func TestBugFixes(t *testing.T) {
 	t.Parallel()
 
+	t.Run("93-integer-comparison-uses-unsigned-instructions-for-signed-integers", func(t *testing.T) {
+		t.Run("1", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/93-integer-comparison-uses-unsigned-instructions-for-signed-integers.1.french.swa",
+				ExpectedExecutionOutput: "okok",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("2", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/93-integer-comparison-uses-unsigned-instructions-for-signed-integers.2.french.swa",
+				ExpectedExecutionOutput: "okok",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+	})
+
 	t.Run("106-unhandled-64-bit-integer-overflow", func(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
 			req := CompileRequest{
