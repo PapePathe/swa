@@ -1,0 +1,6 @@
+dialect:english;
+
+start() int {
+  let y: int = -2147483649;
+  return 0;
+}

@@ -3,6 +3,7 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 
 	"tinygo.org/x/go-llvm"
 
@@ -22,6 +23,14 @@ func (e NumberExpression) String() string {
 }
 
 func (se NumberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
+	if se.Value < math.MinInt32 {
+		return fmt.Errorf("%d is smaller than min value for int32", se.Value), nil
+	}
+
+	if se.Value > math.MaxInt32 {
+		return fmt.Errorf("%d is greater than max value for int32", se.Value), nil
+	}
+
 	var signed bool
 
 	if se.Value < 0 {

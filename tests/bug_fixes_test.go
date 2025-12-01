@@ -9,6 +9,28 @@ import (
 func TestBugFixes(t *testing.T) {
 	t.Parallel()
 
+	t.Run("105-silent-32-bit-integer-overflow", func(t *testing.T) {
+		t.Run("1", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/105-silent-32-bit-integer-overflow-max.english.swa",
+				ExpectedOutput: "2147483648 is greater than max value for int32\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+
+		t.Run("2", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/105-silent-32-bit-integer-overflow-min.english.swa",
+				ExpectedOutput: "-2147483649 is smaller than min value for int32\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+	})
+
 	t.Run("99-missing-type-check-in-variable-declaration", func(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
 			req := CompileRequest{
