@@ -90,7 +90,7 @@ func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 
 	handler, ok := handlers[expr.Operator.Kind]
 	if !ok {
-		return fmt.Errorf("unsupported operator <%s>", expr.Operator.Kind), nil
+		return fmt.Errorf("Binary expressions : unsupported operator <%s>", expr.Operator.Kind), nil
 	}
 	return handler(ctx, finalLeftValue, finalRightValue)
 }
