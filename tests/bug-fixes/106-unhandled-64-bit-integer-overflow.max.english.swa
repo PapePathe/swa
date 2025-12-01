@@ -1,0 +1,6 @@
+dialect:english;
+
+start() int {
+  let x: int64 = 9223372036854775808;
+  return 0;
+}

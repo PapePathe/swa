@@ -9,6 +9,71 @@ import (
 func TestBugFixes(t *testing.T) {
 	t.Parallel()
 
+	t.Run("93-integer-comparison-uses-unsigned-instructions-for-signed-integers", func(t *testing.T) {
+		t.Run("1", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/93-integer-comparison-uses-unsigned-instructions-for-signed-integers.1.french.swa",
+				ExpectedExecutionOutput: "okok",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("2", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/93-integer-comparison-uses-unsigned-instructions-for-signed-integers.2.french.swa",
+				ExpectedExecutionOutput: "okok",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+	})
+
+	t.Run("106-unhandled-64-bit-integer-overflow", func(t *testing.T) {
+		t.Run("1", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/106-unhandled-64-bit-integer-overflow.max.english.swa",
+				ExpectedOutput: "9223372036854775808: value out of range while parsing number expression",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+
+		t.Run("2", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/106-unhandled-64-bit-integer-overflow.min.english.swa",
+				ExpectedOutput: "-9223372036854775809: value out of range while parsing number expression",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+	})
+	t.Run("105-silent-32-bit-integer-overflow", func(t *testing.T) {
+		t.Run("1", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/105-silent-32-bit-integer-overflow-max.english.swa",
+				ExpectedOutput: "2147483648 is greater than max value for int32\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+
+		t.Run("2", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/105-silent-32-bit-integer-overflow-min.english.swa",
+				ExpectedOutput: "-2147483649 is smaller than min value for int32\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+	})
+
 	t.Run("99-missing-type-check-in-variable-declaration", func(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
 			req := CompileRequest{
@@ -158,6 +223,18 @@ func TestBugFixes(t *testing.T) {
 			}
 
 			assert.Error(t, req.Compile())
+		})
+	})
+
+	t.Run("91-array-of-structs-indexing-does-not-support-variables", func(t *testing.T) {
+		t.Run("English", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/91-array-of-structs-indexing-does-not-support-variables.english.swa",
+				ExpectedExecutionOutput: "Name: Alice",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
 		})
 	})
 

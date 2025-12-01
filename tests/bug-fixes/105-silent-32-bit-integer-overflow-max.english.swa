@@ -1,0 +1,6 @@
+dialect:english;
+
+start() int {
+  let x: int = 2147483648;
+  return 0;
+}
