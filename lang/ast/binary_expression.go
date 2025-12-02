@@ -31,16 +31,20 @@ func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 
 	// Left side
 	if leftResult.Value.Type().TypeKind() == llvm.PointerTypeKind {
-		// If it's an array access, use the array's underlying type
 		if leftResult.ArraySymbolTableEntry != nil {
 			leftValue = ctx.Builder.CreateLoad(leftResult.ArraySymbolTableEntry.UnderlyingType, *leftResult.Value, "")
 		} else {
-			if leftResult.StuctPropertyValueType != nil { // load data from a struct property
+			if leftResult.StuctPropertyValueType != nil {
 				elementType := leftResult.StuctPropertyValueType
 				leftValue = ctx.Builder.CreateLoad(*elementType, *leftResult.Value, "")
-			} else { // Generic pointer load
-				elementType := leftResult.Value.Type().ElementType()
-				leftValue = ctx.Builder.CreateLoad(elementType, *leftResult.Value, "")
+			} else {
+				if leftResult.Value.Type().ElementType().IsNil() {
+					leftValue = *leftResult.Value
+				} else {
+					elementType := leftResult.Value.Type().ElementType()
+					leftValue = ctx.Builder.CreateLoad(elementType, *leftResult.Value, "")
+				}
+
 			}
 		}
 	} else {
@@ -49,17 +53,19 @@ func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 
 	// Right side
 	if rightResult.Value.Type().TypeKind() == llvm.PointerTypeKind {
-		// If it's an array access, use the array's underlying type
 		if rightResult.ArraySymbolTableEntry != nil {
 			rightValue = ctx.Builder.CreateLoad(rightResult.ArraySymbolTableEntry.UnderlyingType, *rightResult.Value, "")
 		} else {
-			if rightResult.StuctPropertyValueType != nil { // load data from a struct property
+			if rightResult.StuctPropertyValueType != nil {
 				elementType := rightResult.StuctPropertyValueType
 				rightValue = ctx.Builder.CreateLoad(*elementType, *rightResult.Value, "")
 			} else {
-				// Generic pointer load
-				elementType := rightResult.Value.Type().ElementType()
-				rightValue = ctx.Builder.CreateLoad(elementType, *rightResult.Value, "")
+				if rightResult.Value.Type().ElementType().IsNil() {
+					rightValue = *rightResult.Value
+				} else {
+					elementType := rightResult.Value.Type().ElementType()
+					rightValue = ctx.Builder.CreateLoad(elementType, *rightResult.Value, "")
+				}
 			}
 		}
 	} else {
@@ -220,7 +226,7 @@ func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Va
 		case llvm.IntegerTypeKind:
 			return nil, ctx.Builder.CreatePtrToInt(v, t, "")
 		default:
-			return fmt.Errorf("Cannot cast pointer to %s", tKind), llvm.Value{}
+			return nil, v
 		}
 	default:
 		return fmt.Errorf("Unhandled type conversion from %s to %s", vKind, tKind), llvm.Value{}
