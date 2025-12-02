@@ -131,6 +131,14 @@ func (expr BinaryExpression) compileLeftAndRightResult(ctx *CompilerCtx) (error,
 		return fmt.Errorf("left side of expression is of type void"), nil, nil
 	}
 
+	switch expr.Left.(type) {
+	case StringExpression:
+		glob := llvm.AddGlobal(*ctx.Module, compiledLeftValue.Value.Type(), "")
+		glob.SetInitializer(*compiledLeftValue.Value)
+		compiledLeftValue.Value = &glob
+	default:
+	}
+
 	err, compiledRightValue := expr.Right.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil, nil
@@ -142,6 +150,14 @@ func (expr BinaryExpression) compileLeftAndRightResult(ctx *CompilerCtx) (error,
 
 	if compiledRightValue.Value.Type().TypeKind() == llvm.VoidTypeKind {
 		return fmt.Errorf("right side of expression is of type void"), nil, nil
+	}
+
+	switch expr.Right.(type) {
+	case StringExpression:
+		glob := llvm.AddGlobal(*ctx.Module, compiledRightValue.Value.Type(), "")
+		glob.SetInitializer(*compiledRightValue.Value)
+		compiledRightValue.Value = &glob
+	default:
 	}
 	return nil, compiledLeftValue, compiledRightValue
 }
