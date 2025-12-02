@@ -8,6 +8,15 @@ import (
 
 func TestBugFixes(t *testing.T) {
 	t.Parallel()
+	t.Run("111-string-reassignment-produces-garbage-values", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./bug-fixes/111-string-reassignment-produces-garbage-values.english.swa",
+			ExpectedExecutionOutput: "Before: initial, After: changed",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
 
 	t.Run("95-logical-operators-and-are-not-implemented", func(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
