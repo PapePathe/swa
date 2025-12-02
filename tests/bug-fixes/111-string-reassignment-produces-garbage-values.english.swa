@@ -1,0 +1,13 @@
+dialect:english;
+
+start() int {
+  let x: string = "initial";
+
+  print("Before: %s, ", x);
+
+  x = "changed";
+
+  print("After: %s", x);
+
+  return 0;
+}

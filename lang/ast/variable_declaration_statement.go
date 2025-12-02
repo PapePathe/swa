@@ -59,7 +59,9 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 	case StringExpression:
 		glob := llvm.AddGlobal(*ctx.Module, val.Value.Type(), fmt.Sprintf("global.%s", vd.Name))
 		glob.SetInitializer(*val.Value)
-		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: glob})
+		alloc := ctx.Builder.CreateAlloca(llvm.PointerType(llvm.GlobalContext().Int8Type(), 0), "")
+		ctx.Builder.CreateStore(glob, alloc)
+		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
 	case NumberExpression, FloatExpression, BinaryExpression, FunctionCallExpression:
 		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), fmt.Sprintf("alloc.%s", vd.Name))
 		ctx.Builder.CreateStore(*val.Value, alloc)
@@ -103,11 +105,13 @@ func (expr VarDeclarationStatement) TypeCheck(t DataType, k llvm.Type) error {
 	case llvm.PointerTypeKind:
 		switch t {
 		case DataTypeString:
-		//		switch k.ElementType() {
-		//		case llvm.GlobalContext().LabelType():
-		//		default:
-		//			return fmt.Errorf("fff expected %s got pointer of %t", t, k.ElementType())
-		//		}
+			switch k.ElementType() {
+			case llvm.GlobalContext().Int8Type():
+				// we good
+			default:
+				// TODO fix this
+				//				return fmt.Errorf("expected %s got pointer of unknown value %v", t, k.IsNil())
+			}
 		case DataTypeNumber:
 			switch k.ElementType().TypeKind() {
 			case llvm.IntegerTypeKind:
