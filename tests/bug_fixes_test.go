@@ -9,6 +9,178 @@ import (
 func TestBugFixes(t *testing.T) {
 	t.Parallel()
 
+	t.Run("95-logical-operators-and-are-not-implemented", func(t *testing.T) {
+		t.Run("1", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.1.english.swa",
+				ExpectedExecutionOutput: "1 == 1 && 0 == 0 evaluates to true",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("2", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.2.english.swa",
+				ExpectedExecutionOutput: "1 == 1 && 1 == 0 evaluates to false",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("3", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.3.english.swa",
+				ExpectedExecutionOutput: "1 == 0 && 1 == 1 evaluates to false",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("4", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.4.english.swa",
+				ExpectedExecutionOutput: "1 == 0 && 1 == 0 evaluates to false",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("5", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.5.english.swa",
+				ExpectedExecutionOutput: "1 == 1 || 1 == 1 evaluates to true",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("6", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.6.english.swa",
+				ExpectedExecutionOutput: "1 == 1 || 1 == 0 evaluates to true",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("7", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.7.english.swa",
+				ExpectedExecutionOutput: "1 == 0 || 1 == 1 evaluates to true",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("8", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.8.english.swa",
+				ExpectedExecutionOutput: "1 == 0 || 1 == 0 evaluates to false",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("9", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.9.english.swa",
+				ExpectedExecutionOutput: "a == 1 && b == 0 evaluates to true",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("10", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.10.english.swa",
+				ExpectedExecutionOutput: "a == 0 || b == 1 evaluates to true",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("11", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.11.english.swa",
+				ExpectedExecutionOutput: "x == 1.5 && y == 2.5 evaluates to true",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("12", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.12.english.swa",
+				ExpectedExecutionOutput: "x == 0.5 || y == 0.0 evaluates to true",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("13", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.13.english.swa",
+				ExpectedExecutionOutput: "a > 3 && x == 2.5 || 1 == 1 evaluates to true",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("14", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.14.english.swa",
+				ExpectedExecutionOutput: "(1 == 0 || 1 == 1) && 1 == 1 evaluates to true",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("15", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.15.english.swa",
+				ExpectedExecutionOutput: "1 == 1 || (1 == 0 && 1 == 0) evaluates to true",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("16", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.16.english.swa",
+				ExpectedExecutionOutput: "((1 == 1 || 1 == 0) && 1 == 1) || 1 == 0 evaluates to true",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("17", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/95-logical-operators-and-are-not-implemented.17.english.swa",
+				ExpectedExecutionOutput: "(a == 1 && b == 0) || (a == 0 && b == 1) evaluates to true",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+	})
+
 	t.Run("93-integer-comparison-uses-unsigned-instructions-for-signed-integers", func(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
 			req := CompileRequest{

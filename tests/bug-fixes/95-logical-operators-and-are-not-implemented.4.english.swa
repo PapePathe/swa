@@ -1,0 +1,10 @@
+dialect:english;
+
+start() int {
+  if (1 == 0 && 1 == 0) {
+    print("implementation error");
+  } else {
+    print("1 == 0 && 1 == 0 evaluates to false");
+  }
+  return 0;
+}

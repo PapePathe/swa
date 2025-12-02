@@ -1,0 +1,13 @@
+dialect:english;
+
+start() int {
+  let a: int = 5;
+  let x: float = 2.5;
+  
+  if (a > 3 && x == 2.5 || 1 == 1) {
+    print("a > 3 && x == 2.5 || 1 == 1 evaluates to true");
+  } else {
+    print("implementation error");
+  }
+  return 0;
+}
