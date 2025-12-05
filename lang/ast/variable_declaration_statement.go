@@ -39,11 +39,8 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		return err, nil
 	}
 
-	// For MemberExpression, we need to load the value before doing the type check
-	// because CompileLLVM returns a pointer (address) not the actual value
 	if _, ok := vd.Value.(MemberExpression); ok {
 		if val.SymbolTableEntry != nil && val.SymbolTableEntry.Ref != nil {
-			// Find the property index
 			memberExpr, _ := vd.Value.(MemberExpression)
 			propExpr, _ := memberExpr.Property.(SymbolExpression)
 			err, propIndex := val.SymbolTableEntry.Ref.Metadata.PropertyIndex(propExpr.Value)
