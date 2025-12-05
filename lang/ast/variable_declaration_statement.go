@@ -39,6 +39,25 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		return err, nil
 	}
 
+	// For MemberExpression, we need to load the value before doing the type check
+	// because CompileLLVM returns a pointer (address) not the actual value
+	if _, ok := vd.Value.(MemberExpression); ok {
+		if val.SymbolTableEntry != nil && val.SymbolTableEntry.Ref != nil {
+			// Find the property index
+			memberExpr, _ := vd.Value.(MemberExpression)
+			propExpr, _ := memberExpr.Property.(SymbolExpression)
+			err, propIndex := val.SymbolTableEntry.Ref.Metadata.PropertyIndex(propExpr.Value)
+			if err != nil {
+				return err, nil
+			}
+			// Load the value from the address so TypeCheck can work properly
+			loadedValue := ctx.Builder.CreateLoad(val.SymbolTableEntry.Ref.PropertyTypes[propIndex], *val.Value, "")
+			val.Value = &loadedValue
+		} else {
+			return fmt.Errorf("MemberExpression: unable to determine type"), nil
+		}
+	}
+
 	if err := vd.TypeCheck(vd.ExplicitType.Value(), val.Value.Type()); err != nil {
 		return err, nil
 	}
@@ -62,7 +81,8 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		alloc := ctx.Builder.CreateAlloca(llvm.PointerType(llvm.GlobalContext().Int8Type(), 0), "")
 		ctx.Builder.CreateStore(glob, alloc)
 		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
-	case NumberExpression, FloatExpression, BinaryExpression, FunctionCallExpression:
+	case MemberExpression, NumberExpression, FloatExpression, BinaryExpression, FunctionCallExpression, SymbolExpression:
+		// For MemberExpression, val.Value is already loaded above before TypeCheck
 		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), fmt.Sprintf("alloc.%s", vd.Name))
 		ctx.Builder.CreateStore(*val.Value, alloc)
 		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
