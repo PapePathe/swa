@@ -18,20 +18,21 @@ type BuildTarget struct {
 
 const FilePerm = 0600
 
-func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect) {
+func Compile(
+	tree ast.BlockStatement,
+	target BuildTarget,
+	dialect lexer.Dialect,
+	imports map[string]any,
+) {
 	context := llvm.NewContext()
 	defer context.Dispose()
 
 	module := llvm.GlobalContext().NewModule("swa-main")
 	defer module.Dispose()
 
-	printArgTypes := []llvm.Type{llvm.PointerType(llvm.GlobalContext().Int8Type(), 0)}
-	printfFuncType := llvm.FunctionType(llvm.GlobalContext().Int32Type(), printArgTypes, true)
-	printfFunc := llvm.AddFunction(module, "printf", printfFuncType)
-	printfFunc.SetLinkage(llvm.ExternalLinkage)
-
 	builder := context.NewBuilder()
 	defer builder.Dispose()
+
 	ctx := ast.NewCompilerContext(
 		&context,
 		&builder,
@@ -39,6 +40,56 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect)
 		dialect,
 		nil,
 	)
+
+	ctx.ImportFromLIBC(
+		"printf",
+		[]llvm.Type{llvm.PointerType(context.Int8Type(), 0)},
+		llvm.GlobalContext().Int32Type(),
+		true,
+	)
+
+	//	ctx.ImportFromLIBC(
+	//		"read",
+	//		[]llvm.Type{
+	//			llvm.GlobalContext().Int32Type(),
+	//			llvm.PointerType(llvm.GlobalContext().Int8Type(), 0),
+	//			llvm.GlobalContext().Int64Type(),
+	//		},
+	//		llvm.GlobalContext().Int64Type(),
+	//		false,
+	//	)
+	//
+	//	ctx.ImportFromLIBC(
+	//		"open",
+	//		[]llvm.Type{
+	//			llvm.PointerType(llvm.GlobalContext().Int8Type(), 0),
+	//			llvm.GlobalContext().Int32Type(),
+	//		},
+	//		llvm.GlobalContext().Int32Type(),
+	//		false,
+	//	)
+	//
+	//	ctx.ImportFromLIBC(
+	//		"close",
+	//		[]llvm.Type{llvm.GlobalContext().Int32Type()},
+	//		llvm.GlobalContext().Int32Type(),
+	//		false,
+	//	)
+
+	for key, _ := range imports {
+		pack := Package{
+			Name: key,
+			Files: []string{
+				fmt.Sprintf("/home/pathe/swa/lang/core-modules/%s.swa", key),
+			},
+		}
+
+		if err := pack.Compile(ctx); err != nil {
+			panic(err)
+		}
+	}
+
+	ctx.Module.Dump()
 
 	err, _ := tree.CompileLLVM(ctx)
 	if err != nil {

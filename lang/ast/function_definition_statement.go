@@ -73,12 +73,20 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 		}
 	}
 
-	block := ctx.Context.AddBasicBlock(newFunc, "body")
-	ctx.Builder.SetInsertPointAtEnd(block)
+	if len(fd.Body.Body) > 0 {
+		block := ctx.Context.AddBasicBlock(newFunc, "body")
+		ctx.Builder.SetInsertPointAtEnd(block)
 
-	if err, _ := fd.Body.CompileLLVM(newCtx); err != nil {
-		return err, nil
+		if err, _ := fd.Body.CompileLLVM(newCtx); err != nil {
+			return err, nil
+		}
+
+		return nil, nil
 	}
+
+	// If we get here it means function has no Body
+	// so it's just a declaration of an external function
+	newFunc.SetLinkage(llvm.ExternalLinkage)
 
 	return nil, nil
 }
@@ -102,6 +110,8 @@ func (fd FuncDeclStatement) MarshalJSON() ([]byte, error) {
 
 func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, extractedType) {
 	switch t.Value() {
+	case DataTypeNumber64:
+		return nil, llvm.GlobalContext().Int64Type(), nil
 	case DataTypeNumber:
 		return nil, extractedType{typ: llvm.GlobalContext().Int32Type()}
 	case DataTypeFloat:

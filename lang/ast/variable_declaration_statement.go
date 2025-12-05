@@ -75,11 +75,24 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 	case StringExpression:
 		glob := llvm.AddGlobal(*ctx.Module, val.Value.Type(), fmt.Sprintf("global.%s", vd.Name))
 		glob.SetInitializer(*val.Value)
-		alloc := ctx.Builder.CreateAlloca(llvm.PointerType(llvm.GlobalContext().Int8Type(), 0), "")
-		ctx.Builder.CreateStore(glob, alloc)
-		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
-	case MemberExpression, NumberExpression, FloatExpression, BinaryExpression, FunctionCallExpression, SymbolExpression:
-		// For MemberExpression, val.Value is already loaded above before TypeCheck
+		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: glob})
+	case NumberExpression:
+		switch vd.ExplicitType.Value() {
+		case DataTypeNumber64:
+			expr, _ := vd.Value.(NumberExpression)
+			err, exprVal := expr.CompileLLVM64(ctx)
+			if err != nil {
+				return err, nil
+			}
+			alloc := ctx.Builder.CreateAlloca(exprVal.Value.Type(), fmt.Sprintf("alloc.%s", vd.Name))
+			ctx.Builder.CreateStore(*exprVal.Value, alloc)
+			ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
+		default:
+			alloc := ctx.Builder.CreateAlloca(val.Value.Type(), fmt.Sprintf("alloc.%s", vd.Name))
+			ctx.Builder.CreateStore(*val.Value, alloc)
+			ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
+		}
+	case FloatExpression, BinaryExpression, FunctionCallExpression:
 		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), fmt.Sprintf("alloc.%s", vd.Name))
 		ctx.Builder.CreateStore(*val.Value, alloc)
 		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})

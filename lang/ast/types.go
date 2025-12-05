@@ -29,6 +29,7 @@ func (dt DataType) String() string {
 const (
 	DataTypeArray = iota
 	DataTypeNumber
+	DataTypeNumber64
 	DataTypeFloat
 	DataTypeString
 	DataTypeStruct
@@ -80,6 +81,24 @@ func (se ArrayType) MarshalJSON() ([]byte, error) {
 
 	res := make(map[string]any)
 	res["ast.ArrayType"] = m
+
+	return json.Marshal(res)
+}
+
+type Number64Type struct{}
+
+var _ Type = (*Number64Type)(nil)
+
+func (Number64Type) Value() DataType {
+	return DataTypeNumber64
+}
+
+func (se Number64Type) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["Value"] = se.Value().String()
+
+	res := make(map[string]any)
+	res["ast.Number64Type"] = m
 
 	return json.Marshal(res)
 }
