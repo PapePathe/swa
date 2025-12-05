@@ -17,42 +17,7 @@ type MemberExpression struct {
 
 var _ Expression = (*MemberExpression)(nil)
 
-func (expr MemberExpression) findBaseSymbol(obj Expression) (SymbolExpression, error) {
-	switch v := obj.(type) {
-	case SymbolExpression:
-		return v, nil
-	case MemberExpression:
-		return expr.findBaseSymbol(v.Object)
-	default:
-		return SymbolExpression{}, fmt.Errorf("cannot resolve base object")
-	}
-}
-
-func (expr MemberExpression) getProperty() (string, error) {
-	prop, ok := expr.Property.(SymbolExpression)
-	if !ok {
-		return "", fmt.Errorf("struct property should be a symbol")
-	}
-	return prop.Value, nil
-}
-
-func (expr MemberExpression) resolveStructAccess(
-	structType *StructSymbolTableEntry,
-	propName string,
-) (int, error) {
-	err, propIndex := structType.Metadata.PropertyIndex(propName)
-	if err != nil {
-		return 0, fmt.Errorf("struct %s has no field %s", structType.Metadata.Name, propName)
-	}
-	return propIndex, nil
-}
-
 func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	propName, err := expr.getProperty()
-	if err != nil {
-		return err, nil
-	}
-
 	if nestedMember, ok := expr.Object.(MemberExpression); ok {
 		err, nestedAddr := expr.getNestedMemberAddress(ctx, nestedMember)
 		if err != nil {
@@ -70,6 +35,11 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 		}
 
 		nestedStructType, err := expr.getNestedStructType(ctx, nestedMember, varDef.Ref)
+		if err != nil {
+			return err, nil
+		}
+
+		propName, err := expr.getProperty()
 		if err != nil {
 			return err, nil
 		}
@@ -96,6 +66,11 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 	err, varDef := ctx.FindSymbol(obj.Value)
 	if err != nil {
 		return fmt.Errorf("variable %s is not defined", obj.Value), nil
+	}
+
+	propName, err := expr.getProperty()
+	if err != nil {
+		return err, nil
 	}
 
 	propIndex, err := expr.resolveStructAccess(varDef.Ref, propName)
@@ -216,4 +191,34 @@ func (expr MemberExpression) MarshalJSON() ([]byte, error) {
 	res["ast.MemberExpression"] = m
 
 	return json.Marshal(res)
+}
+
+func (expr MemberExpression) findBaseSymbol(obj Expression) (SymbolExpression, error) {
+	switch v := obj.(type) {
+	case SymbolExpression:
+		return v, nil
+	case MemberExpression:
+		return expr.findBaseSymbol(v.Object)
+	default:
+		return SymbolExpression{}, fmt.Errorf("cannot resolve base object")
+	}
+}
+
+func (expr MemberExpression) getProperty() (string, error) {
+	prop, ok := expr.Property.(SymbolExpression)
+	if !ok {
+		return "", fmt.Errorf("struct property should be a symbol")
+	}
+	return prop.Value, nil
+}
+
+func (expr MemberExpression) resolveStructAccess(
+	structType *StructSymbolTableEntry,
+	propName string,
+) (int, error) {
+	err, propIndex := structType.Metadata.PropertyIndex(propName)
+	if err != nil {
+		return 0, fmt.Errorf("struct %s has no field %s", structType.Metadata.Name, propName)
+	}
+	return propIndex, nil
 }
