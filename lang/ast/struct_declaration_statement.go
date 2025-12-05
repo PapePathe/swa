@@ -39,6 +39,13 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Comp
 			attrs = append(attrs, llvm.GlobalContext().DoubleType())
 		case NumberType:
 			attrs = append(attrs, llvm.GlobalContext().Int32Type())
+		case SymbolType:
+			typ, _ := typ.(SymbolType)
+			err, sym := ctx.FindStructSymbol(typ.Name)
+			if err != nil {
+				return err, nil
+			}
+			attrs = append(attrs, sym.LLVMType)
 		default:
 			err := fmt.Errorf("struct proprerty type (%s) not supported", typ)
 			return err, nil
