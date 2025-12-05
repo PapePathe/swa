@@ -1,0 +1,32 @@
+dialect:english;
+
+struct Address {
+  City: string,
+  ZipCode: int,
+}
+
+struct Person {
+  Name: string,
+  Age: int,
+  HomeAddress: Address,
+}
+
+start() int {
+  let person: Person = Person{
+    Name: "Pathe",
+    Age: 30,
+    HomeAddress: Address{
+      City: "Dakar",
+      ZipCode: 12000,
+    },
+  };
+  
+  let name: string = person.Name;
+  let age: int = person.Age;
+  let city: string = person.HomeAddress.City;
+  let zipcode: int = person.HomeAddress.ZipCode;
+  
+  print("Name: %s, Age: %d, City: %s, ZipCode: %d", name, age, city, zipcode);
+  
+  return 0;
+}

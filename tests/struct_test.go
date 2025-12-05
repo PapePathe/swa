@@ -12,7 +12,7 @@ func TestStructWithUnknownType(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:      "./structs/unknown-property-type/source.french.swa",
-			ExpectedOutput: "struct proprerty type ({unknown_type}) not supported\n",
+			ExpectedOutput: "struct named unknown_type does not exist in symbol table\n",
 			T:              t,
 		}
 
@@ -22,7 +22,7 @@ func TestStructWithUnknownType(t *testing.T) {
 	t.Run("English", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:      "./structs/unknown-property-type/source.english.swa",
-			ExpectedOutput: "struct proprerty type ({unknown_type}) not supported\n",
+			ExpectedOutput: "struct named unknown_type does not exist in symbol table\n",
 			T:              t,
 		}
 
@@ -94,6 +94,48 @@ func TestStructPropertyInReturnExpression(t *testing.T) {
 		req := CompileRequest{
 			InputPath: "./structs/return-expression/source.french.swa",
 			T:         t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}
+
+func TestNestedStructBasic(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./structs/nested/basic/source.english.swa",
+			ExpectedExecutionOutput: "Name: Pathe, City: Dakar, ZipCode: 12000",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}
+
+func TestNestedStructInline(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./structs/nested/inline/source.english.swa",
+			ExpectedExecutionOutput: "Name: Sene, City: Thies, ZipCode: 21000",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}
+
+func TestNestedStructFieldAccess(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./structs/nested/field-access/source.english.swa",
+			ExpectedExecutionOutput: "Name: Pathe, Age: 30, City: Dakar, ZipCode: 12000",
+			T:                       t,
 		}
 
 		req.AssertCompileAndExecute()
