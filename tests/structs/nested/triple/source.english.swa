@@ -1,0 +1,37 @@
+dialect:english;
+
+struct Location {
+  X: int,
+  Y: int,
+}
+
+struct Address {
+  City: string,
+  ZipCode: int,
+  Coords: Location,
+}
+
+struct Person {
+  Name: string,
+  Age: int,
+  HomeAddress: Address,
+}
+
+func getX(p: Person) int {
+  return p.HomeAddress.Coords.X;
+}
+
+func setX(p: Person, val: int) int {
+  p.HomeAddress.Coords.X = val;
+  return p.HomeAddress.Coords.X;
+}
+
+start() int {
+  let loc: Location = Location{ X: 10, Y: 20 };
+  let addr: Address = Address{ City: "Dakar", ZipCode: 12000, Coords: loc };
+  let person: Person = Person{ Name: "Pathe", Age: 30, HomeAddress: addr };
+  
+  print("X: %d, Y: %d, getX: %d, setX: %d", person.HomeAddress.Coords.X, person.HomeAddress.Coords.Y, getX(person), setX(person, 999));
+  
+  return 0;
+}

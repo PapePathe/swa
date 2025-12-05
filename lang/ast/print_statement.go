@@ -42,6 +42,8 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 			printableValues = append(printableValues, *res.Value)
 		case SymbolExpression:
 			printableValues = append(printableValues, *res.Value)
+		case FunctionCallExpression:
+			printableValues = append(printableValues, *res.Value)
 		case StringExpression:
 			glob := llvm.AddGlobal(*ctx.Module, res.Value.Type(), "")
 			glob.SetInitializer(*res.Value)

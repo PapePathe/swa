@@ -141,3 +141,31 @@ func TestNestedStructFieldAccess(t *testing.T) {
 		req.AssertCompileAndExecute()
 	})
 }
+
+func TestNestedStructTriple(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./structs/nested/triple/source.english.swa",
+			ExpectedExecutionOutput: "X: 10, Y: 20, getX: 10, setX: 999",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}
+
+func TestNestedStructAssignment(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./structs/nested/assignment/source.english.swa",
+			ExpectedExecutionOutput: "City: Dakar, ZipCode: 99999, Code+1: 100000",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}
