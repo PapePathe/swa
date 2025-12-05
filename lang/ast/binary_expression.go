@@ -163,9 +163,12 @@ func (expr BinaryExpression) compileLeftAndRightResult(ctx *CompilerCtx) (error,
 }
 
 func commonType(l, r llvm.Value) llvm.Type {
-	// Both pointers
-	if l.Type().TypeKind() == llvm.PointerTypeKind && r.Type().TypeKind() == llvm.PointerTypeKind {
-		return l.GlobalValueType()
+	lKind := l.Type().TypeKind()
+	rKind := r.Type().TypeKind()
+
+	// Both pointers - use int type as fallback (shouldn't happen in binary ops)
+	if lKind == llvm.PointerTypeKind && rKind == llvm.PointerTypeKind {
+		return llvm.GlobalContext().Int32Type()
 	}
 
 	// Same type
@@ -173,58 +176,49 @@ func commonType(l, r llvm.Value) llvm.Type {
 		return l.Type()
 	}
 
-	// Left is pointer
-	if l.Type().TypeKind() == llvm.PointerTypeKind {
-		return l.GlobalValueType()
+	// Left is pointer, use right type
+	if lKind == llvm.PointerTypeKind {
+		return r.Type()
 	}
 
-	// Right is pointer
-	if r.Type().TypeKind() == llvm.PointerTypeKind {
-		return r.GlobalValueType()
+	// Right is pointer, use left type
+	if rKind == llvm.PointerTypeKind {
+		return l.Type()
 	}
 
 	// Both integers - return the common integer type
-	if l.Type().TypeKind() == llvm.IntegerTypeKind && r.Type().TypeKind() == llvm.IntegerTypeKind {
+	if lKind == llvm.IntegerTypeKind && rKind == llvm.IntegerTypeKind {
 		return llvm.GlobalContext().Int32Type()
 	}
 
 	// Handle int vs float: promote to float
-	if (l.Type().TypeKind() == llvm.IntegerTypeKind && (r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind)) ||
-		((l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind) && r.Type().TypeKind() == llvm.IntegerTypeKind) {
+	if (lKind == llvm.IntegerTypeKind && (rKind == llvm.FloatTypeKind || rKind == llvm.DoubleTypeKind)) ||
+		((lKind == llvm.FloatTypeKind || lKind == llvm.DoubleTypeKind) && rKind == llvm.IntegerTypeKind) {
 		// Promote to double (float type)
 		return llvm.GlobalContext().DoubleType()
 	}
 
 	// Both floats
-	if (l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind) &&
-		(r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind) {
+	if (lKind == llvm.FloatTypeKind || lKind == llvm.DoubleTypeKind) &&
+		(rKind == llvm.FloatTypeKind || rKind == llvm.DoubleTypeKind) {
 		return llvm.GlobalContext().DoubleType()
 	}
 
-	panic(fmt.Errorf("Unhandled type combination: left=%s, right=%s", l.Type().TypeKind(), r.Type().TypeKind()))
+	panic(fmt.Errorf("Unhandled type combination: left=%s, right=%s", lKind, rKind))
 }
 
 func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Value) (error, llvm.Value) {
-	// If types are exactly the same, just return the value
-	if t == v.Type() {
-		return nil, v
-	}
-
-	// Handle type kind matching but different actual types (shouldn't happen with our code)
 	vKind := v.Type().TypeKind()
 	tKind := t.TypeKind()
 
 	if vKind == tKind {
-		// Same kind, assume compatible (both int32 or both double)
 		return nil, v
 	}
 
-	// Different kinds - need actual conversion
 	switch vKind {
 	case llvm.IntegerTypeKind:
 		switch tKind {
 		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
-			// Convert int to float
 			return nil, ctx.Builder.CreateSIToFP(v, t, "")
 		default:
 			panic(fmt.Errorf("Cannot cast integer to %s", tKind))
