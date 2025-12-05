@@ -51,6 +51,8 @@ func (si StructInitializationExpression) InitValues(ctx *CompilerCtx) (error, []
 			fieldValues = append(fieldValues, StructItemValue{Position: propIndex, Value: &glob})
 		case NumberExpression, FloatExpression:
 			fieldValues = append(fieldValues, StructItemValue{Position: propIndex, Value: val.Value})
+		case StructInitializationExpression:
+			fieldValues = append(fieldValues, StructItemValue{Position: propIndex, Value: val.Value})
 		default:
 			return fmt.Errorf("StructInitializationExpression expression: %v is not a known field type", expr), nil
 		}
@@ -91,7 +93,16 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 		case NumberExpression, FloatExpression:
 			ctx.Builder.CreateStore(*val.Value, field1Ptr)
 		case SymbolExpression:
+			if val.SymbolTableEntry.Ref != nil {
+				load := ctx.Builder.CreateLoad(val.SymbolTableEntry.Ref.LLVMType, *val.Value, "")
+				ctx.Builder.CreateStore(load, field1Ptr)
+				break
+			}
 			ctx.Builder.CreateStore(*val.Value, field1Ptr)
+		case StructInitializationExpression:
+			nestedStructType := newtype.PropertyTypes[propIndex]
+			loadedNestedStruct := ctx.Builder.CreateLoad(nestedStructType, *val.Value, "")
+			ctx.Builder.CreateStore(loadedNestedStruct, field1Ptr)
 		default:
 			return fmt.Errorf("StructInitializationExpression: expression %v not implemented", expr), nil
 		}

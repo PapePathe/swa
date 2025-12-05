@@ -27,13 +27,8 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 
 		switch v.(type) {
 		case MemberExpression:
-			expr, _ := v.(MemberExpression)
-
-			err, loadedval := expr.CompileLLVMForPropertyAccess(ctx)
-			if err != nil {
-				return err, nil
-			}
-			printableValues = append(printableValues, *loadedval)
+			loadedval := ctx.Builder.CreateLoad(*res.StuctPropertyValueType, *res.Value, "")
+			printableValues = append(printableValues, loadedval)
 		case ArrayAccessExpression:
 			vv, _ := v.(ArrayAccessExpression)
 			err, res := vv.CompileLLVMForPrint(ctx)
@@ -46,6 +41,8 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 		case NumberExpression, FloatExpression:
 			printableValues = append(printableValues, *res.Value)
 		case SymbolExpression:
+			printableValues = append(printableValues, *res.Value)
+		case FunctionCallExpression:
 			printableValues = append(printableValues, *res.Value)
 		case StringExpression:
 			glob := llvm.AddGlobal(*ctx.Module, res.Value.Type(), "")

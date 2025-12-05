@@ -1,0 +1,27 @@
+dialect:english;
+
+struct Address {
+  City: string,
+  ZipCode: int,
+}
+
+struct Person {
+  Name: string,
+  Age: int,
+  HomeAddress: Address,
+}
+
+start() int {
+  let addr: Address = Address{ City: "Dakar", ZipCode: 12000 };
+  let person: Person = Person{ Name: "Pathe", Age: 30, HomeAddress: addr };
+  
+  // Test nested assignment
+  person.HomeAddress.ZipCode = 99999;
+  
+  // Test nested in expression
+  let code: int = person.HomeAddress.ZipCode + 1;
+  
+  print("City: %s, ZipCode: %d, Code+1: %d", person.HomeAddress.City, person.HomeAddress.ZipCode, code);
+  
+  return 0;
+}

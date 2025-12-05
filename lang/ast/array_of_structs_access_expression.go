@@ -19,7 +19,7 @@ func (expr ArrayOfStructsAccessExpression) findSymbolTableEntry(ctx *CompilerCtx
 	varName, ok := expr.Name.(SymbolExpression)
 	if !ok {
 		key := "ArrayAccessExpression.NameNotASymbol"
-		return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
+		return ctx.Dialect.Error(key, expr.Name), nil, nil, nil
 	}
 
 	err, array := ctx.FindSymbol(varName.Value)
@@ -94,7 +94,19 @@ func (expr ArrayOfStructsAccessExpression) CompileLLVM(ctx *CompilerCtx) (error,
 
 	load := ctx.Builder.CreateLoad(entry.UnderlyingTypeDef.PropertyTypes[index], structPtr, "")
 
-	return nil, &CompilerResult{Value: &load}
+	var ref *StructSymbolTableEntry
+	propType := entry.UnderlyingTypeDef.Metadata.Types[index]
+	if symbolType, ok := propType.(SymbolType); ok {
+		_, ref = ctx.FindStructSymbol(symbolType.Name)
+	}
+
+	return nil, &CompilerResult{
+		Value: &load,
+		SymbolTableEntry: &SymbolTableEntry{
+			Address: &structPtr,
+			Ref:     ref,
+		},
+	}
 }
 
 func (expr ArrayOfStructsAccessExpression) TokenStream() []lexer.Token {
