@@ -27,13 +27,8 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 
 		switch v.(type) {
 		case MemberExpression:
-			expr, _ := v.(MemberExpression)
-
-			err, loadedval := expr.CompileLLVMForPropertyAccess(ctx)
-			if err != nil {
-				return err, nil
-			}
-			printableValues = append(printableValues, *loadedval)
+			loadedval := ctx.Builder.CreateLoad(*res.StuctPropertyValueType, *res.Value, "")
+			printableValues = append(printableValues, loadedval)
 		case ArrayAccessExpression:
 			vv, _ := v.(ArrayAccessExpression)
 			err, res := vv.CompileLLVMForPrint(ctx)

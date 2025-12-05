@@ -167,63 +167,6 @@ func (expr MemberExpression) getNestedMemberAddress(ctx *CompilerCtx, member Mem
 	return nil, addr
 }
 
-func (expr MemberExpression) CompileLLVMForPropertyAccess(ctx *CompilerCtx) (error, *llvm.Value) {
-	propName, err := expr.getProperty()
-	if err != nil {
-		return err, nil
-	}
-
-	if nestedMember, ok := expr.Object.(MemberExpression); ok {
-		err, nestedAddr := expr.getNestedMemberAddress(ctx, nestedMember)
-		if err != nil {
-			return err, nil
-		}
-
-		baseObj, err := expr.findBaseSymbol(nestedMember.Object)
-		if err != nil {
-			return err, nil
-		}
-
-		err, varDef := ctx.FindSymbol(baseObj.Value)
-		if err != nil {
-			return err, nil
-		}
-
-		nestedStructType, err := expr.getNestedStructType(ctx, nestedMember, varDef.Ref)
-		if err != nil {
-			return err, nil
-		}
-
-		propIndex, err := expr.resolveStructAccess(nestedStructType, propName)
-		if err != nil {
-			return err, nil
-		}
-
-		addr := ctx.Builder.CreateStructGEP(nestedStructType.LLVMType, nestedAddr, propIndex, "")
-		loadedval := ctx.Builder.CreateLoad(nestedStructType.PropertyTypes[propIndex], addr, "")
-		return nil, &loadedval
-	}
-
-	obj, ok := expr.Object.(SymbolExpression)
-	if !ok {
-		return fmt.Errorf("struct object should be a symbol"), nil
-	}
-
-	err, varDef := ctx.FindSymbol(obj.Value)
-	if err != nil {
-		return fmt.Errorf("variable %s is not defined", obj.Value), nil
-	}
-
-	propIndex, err := expr.resolveStructAccess(varDef.Ref, propName)
-	if err != nil {
-		return err, nil
-	}
-
-	addr := ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, varDef.Value, propIndex, "")
-	loadedval := ctx.Builder.CreateLoad(varDef.Ref.PropertyTypes[propIndex], addr, "")
-	return nil, &loadedval
-}
-
 func (expr MemberExpression) getNestedStructType(
 	ctx *CompilerCtx,
 	member MemberExpression,

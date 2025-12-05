@@ -24,14 +24,13 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 		val := ctx.Builder.CreateLoad(llvm.GlobalContext().Int32Type(), *ptr.Value, "")
 		ctx.Builder.CreateRet(val)
 	case MemberExpression:
-		expr, _ := rs.Value.(MemberExpression)
-
-		err, loadedval := expr.CompileLLVMForPropertyAccess(ctx)
+		err, res := rs.Value.CompileLLVM(ctx)
 		if err != nil {
 			return err, nil
 		}
 
-		ctx.Builder.CreateRet(*loadedval)
+		loadedval := ctx.Builder.CreateLoad(*res.StuctPropertyValueType, *res.Value, "")
+		ctx.Builder.CreateRet(loadedval)
 	case SymbolExpression:
 		err, val := rs.Value.CompileLLVM(ctx)
 		if err != nil {
