@@ -76,6 +76,19 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 			}
 
 			ctx.Builder.CreateStore(*content.Value, itemGep)
+		case SymbolExpression:
+			err, content := value.CompileLLVM(ctx)
+			if err != nil {
+				return err, nil
+			}
+
+			if content.SymbolTableEntry != nil && content.SymbolTableEntry.Ref != nil {
+				load := ctx.Builder.CreateLoad(content.SymbolTableEntry.Ref.LLVMType, *content.Value, "")
+				ctx.Builder.CreateStore(load, itemGep)
+			} else {
+				load := ctx.Builder.CreateLoad(content.Value.Type(), *content.Value, "")
+				ctx.Builder.CreateStore(load, itemGep)
+			}
 		case StructInitializationExpression:
 			structExpr, _ := value.(StructInitializationExpression)
 			err, structFields := structExpr.InitValues(ctx)

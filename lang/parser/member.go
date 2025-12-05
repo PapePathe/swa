@@ -15,8 +15,10 @@ func ParseMemberCallExpression(p *Parser, left ast.Expression, bp BindingPower) 
 		return parseMemberExpression(p, left, bp)
 	case ast.MemberExpression:
 		return parseMemberExpression(p, left, bp)
+	case ast.ArrayOfStructsAccessExpression:
+		return parseMemberExpression(p, left, bp)
 	default:
-		return nil, fmt.Errorf("ParseMemberCallExpression expression %v not suppported", left)
+		return nil, fmt.Errorf("ParseMemberCallExpression expression %s not suppported", left)
 	}
 }
 

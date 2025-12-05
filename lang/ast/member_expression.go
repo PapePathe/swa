@@ -18,6 +18,66 @@ type MemberExpression struct {
 var _ Expression = (*MemberExpression)(nil)
 
 func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
+	if arrayAccess, ok := expr.Object.(ArrayAccessExpression); ok {
+		err, res := arrayAccess.CompileLLVM(ctx)
+		if err != nil {
+			return err, nil
+		}
+
+		if res.ArraySymbolTableEntry == nil || res.ArraySymbolTableEntry.UnderlyingTypeDef == nil {
+			return fmt.Errorf("array elements are not structs"), nil
+		}
+
+		structType := res.ArraySymbolTableEntry.UnderlyingTypeDef
+		propName, err := expr.getProperty()
+		if err != nil {
+			return err, nil
+		}
+
+		propIndex, err := expr.resolveStructAccess(structType, propName)
+		if err != nil {
+			return err, nil
+		}
+
+		addr := ctx.Builder.CreateStructGEP(structType.LLVMType, *res.Value, propIndex, "")
+		propType := structType.PropertyTypes[propIndex]
+		return nil, &CompilerResult{
+			Value:                  &addr,
+			SymbolTableEntry:       &SymbolTableEntry{Ref: structType},
+			StuctPropertyValueType: &propType,
+		}
+	}
+
+	if arrayStructAccess, ok := expr.Object.(ArrayOfStructsAccessExpression); ok {
+		err, res := arrayStructAccess.CompileLLVM(ctx)
+		if err != nil {
+			return err, nil
+		}
+
+		if res.SymbolTableEntry == nil || res.SymbolTableEntry.Address == nil || res.SymbolTableEntry.Ref == nil {
+			return fmt.Errorf("array element property is not a struct"), nil
+		}
+
+		structType := res.SymbolTableEntry.Ref
+		propName, err := expr.getProperty()
+		if err != nil {
+			return err, nil
+		}
+
+		propIndex, err := expr.resolveStructAccess(structType, propName)
+		if err != nil {
+			return err, nil
+		}
+
+		addr := ctx.Builder.CreateStructGEP(structType.LLVMType, *res.SymbolTableEntry.Address, propIndex, "")
+		propType := structType.PropertyTypes[propIndex]
+		return nil, &CompilerResult{
+			Value:                  &addr,
+			SymbolTableEntry:       &SymbolTableEntry{Ref: structType},
+			StuctPropertyValueType: &propType,
+		}
+	}
+
 	if nestedMember, ok := expr.Object.(MemberExpression); ok {
 		err, nestedAddr := expr.getNestedMemberAddress(ctx, nestedMember)
 		if err != nil {
@@ -29,12 +89,20 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 			return err, nil
 		}
 
+		var structType *StructSymbolTableEntry
 		err, varDef := ctx.FindSymbol(baseObj.Value)
 		if err != nil {
-			return err, nil
+			// Try finding array
+			errArr, arrDef := ctx.FindArraySymbol(baseObj.Value)
+			if errArr != nil {
+				return err, nil
+			}
+			structType = arrDef.UnderlyingTypeDef
+		} else {
+			structType = varDef.Ref
 		}
 
-		nestedStructType, err := expr.getNestedStructType(ctx, nestedMember, varDef.Ref)
+		nestedStructType, err := expr.getNestedStructType(ctx, nestedMember, structType)
 		if err != nil {
 			return err, nil
 		}
@@ -93,6 +161,46 @@ func (expr MemberExpression) getNestedMemberAddress(ctx *CompilerCtx, member Mem
 		return err, llvm.Value{}
 	}
 
+	if arrayAccess, ok := member.Object.(ArrayAccessExpression); ok {
+		err, res := arrayAccess.CompileLLVM(ctx)
+		if err != nil {
+			return err, llvm.Value{}
+		}
+
+		if res.ArraySymbolTableEntry == nil || res.ArraySymbolTableEntry.UnderlyingTypeDef == nil {
+			return fmt.Errorf("array elements are not structs"), llvm.Value{}
+		}
+
+		structType := res.ArraySymbolTableEntry.UnderlyingTypeDef
+		propIndex, err := expr.resolveStructAccess(structType, propName)
+		if err != nil {
+			return err, llvm.Value{}
+		}
+
+		addr := ctx.Builder.CreateStructGEP(structType.LLVMType, *res.Value, propIndex, "")
+		return nil, addr
+	}
+
+	if arrayStructAccess, ok := member.Object.(ArrayOfStructsAccessExpression); ok {
+		err, res := arrayStructAccess.CompileLLVM(ctx)
+		if err != nil {
+			return err, llvm.Value{}
+		}
+
+		if res.SymbolTableEntry == nil || res.SymbolTableEntry.Address == nil || res.SymbolTableEntry.Ref == nil {
+			return fmt.Errorf("array element property is not a struct"), llvm.Value{}
+		}
+
+		structType := res.SymbolTableEntry.Ref
+		propIndex, err := expr.resolveStructAccess(structType, propName)
+		if err != nil {
+			return err, llvm.Value{}
+		}
+
+		addr := ctx.Builder.CreateStructGEP(structType.LLVMType, *res.SymbolTableEntry.Address, propIndex, "")
+		return nil, addr
+	}
+
 	if nestedMember, ok := member.Object.(MemberExpression); ok {
 		err, nestedAddr := expr.getNestedMemberAddress(ctx, nestedMember)
 		if err != nil {
@@ -104,12 +212,20 @@ func (expr MemberExpression) getNestedMemberAddress(ctx *CompilerCtx, member Mem
 			return err, llvm.Value{}
 		}
 
+		var structType *StructSymbolTableEntry
 		err, varDef := ctx.FindSymbol(baseObj.Value)
 		if err != nil {
-			return err, llvm.Value{}
+			// Try finding array
+			errArr, arrDef := ctx.FindArraySymbol(baseObj.Value)
+			if errArr != nil {
+				return err, llvm.Value{}
+			}
+			structType = arrDef.UnderlyingTypeDef
+		} else {
+			structType = varDef.Ref
 		}
 
-		nestedStructType, err := expr.getNestedStructType(ctx, nestedMember, varDef.Ref)
+		nestedStructType, err := expr.getNestedStructType(ctx, nestedMember, structType)
 		if err != nil {
 			return err, llvm.Value{}
 		}
@@ -199,6 +315,10 @@ func (expr MemberExpression) findBaseSymbol(obj Expression) (SymbolExpression, e
 		return v, nil
 	case MemberExpression:
 		return expr.findBaseSymbol(v.Object)
+	case ArrayAccessExpression:
+		return expr.findBaseSymbol(v.Name)
+	case ArrayOfStructsAccessExpression:
+		return expr.findBaseSymbol(v.Name)
 	default:
 		return SymbolExpression{}, fmt.Errorf("cannot resolve base object")
 	}
