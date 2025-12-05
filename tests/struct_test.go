@@ -169,3 +169,17 @@ func TestNestedStructAssignment(t *testing.T) {
 		req.AssertCompileAndExecute()
 	})
 }
+
+func TestNestedStructArrays(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./structs/nested/arrays/source.english.swa",
+			ExpectedExecutionOutput: "Person 1 City: Dakar, Person 2 ZipCode: 21000",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}
