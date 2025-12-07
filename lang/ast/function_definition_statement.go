@@ -43,7 +43,8 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 
 	newfuncType := llvm.FunctionType(returnType.typ, params, false)
 	newFunc := llvm.AddFunction(*newCtx.Module, fd.Name, newfuncType)
-	if err := ctx.AddFuncSymbol(fd.Name, &newfuncType); err != nil {
+	err = ctx.AddFuncSymbol(fd.Name, &newfuncType)
+	if err != nil {
 		return err, nil
 	}
 
@@ -62,12 +63,14 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 			entry.Ref = eType.sEntry
 		}
 
-		if err := newCtx.AddSymbol(name, &entry); err != nil {
+		err = newCtx.AddSymbol(name, &entry)
+		if err != nil {
 			return fmt.Errorf("failed to add parameter %s to symbol table: %w", name, err), nil
 		}
 
 		if eType.aEntry != nil {
-			if err := newCtx.AddArraySymbol(name, eType.aEntry); err != nil {
+			err := newCtx.AddArraySymbol(name, eType.aEntry)
+			if err != nil {
 				return fmt.Errorf("failed to add parameter %s to arrays symbol table: %w", name, err), nil
 			}
 		}
@@ -76,8 +79,8 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 	if len(fd.Body.Body) > 0 {
 		block := ctx.Context.AddBasicBlock(newFunc, "body")
 		ctx.Builder.SetInsertPointAtEnd(block)
-
-		if err, _ := fd.Body.CompileLLVM(newCtx); err != nil {
+		err, _ := fd.Body.CompileLLVM(newCtx)
+		if err != nil {
 			return err, nil
 		}
 
@@ -111,7 +114,7 @@ func (fd FuncDeclStatement) MarshalJSON() ([]byte, error) {
 func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, extractedType) {
 	switch t.Value() {
 	case DataTypeNumber64:
-		return nil, llvm.GlobalContext().Int64Type(), nil
+		return nil, extractedType{typ: llvm.GlobalContext().Int64Type()}
 	case DataTypeNumber:
 		return nil, extractedType{typ: llvm.GlobalContext().Int32Type()}
 	case DataTypeFloat:
@@ -127,9 +130,13 @@ func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, extrac
 			return err, extractedType{typ: llvm.Type{}}
 		}
 		return nil, extractedType{typ: llvm.PointerType(entry.LLVMType, 0), sEntry: entry}
+	case DataTypeVoid:
+		return nil, extractedType{typ: llvm.GlobalContext().VoidType()}
 	case DataTypeArray:
 		arr, _ := t.(ArrayType)
+
 		var innerType llvm.Type
+
 		switch arr.Underlying.Value() {
 		case DataTypeNumber:
 			innerType = llvm.GlobalContext().Int32Type()

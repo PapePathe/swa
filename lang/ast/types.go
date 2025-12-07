@@ -21,6 +21,8 @@ func (dt DataType) String() string {
 		return "DataTypeArray"
 	case DataTypeSymbol:
 		return "DataTypeSymbol"
+	case DataTypeVoid:
+		return "DataTypeVoid"
 	default:
 		panic(fmt.Sprintf("Unmatched data type %d", dt))
 	}
@@ -35,6 +37,7 @@ const (
 	DataTypeStruct
 	DataTypeIntType
 	DataTypeSymbol
+	DataTypeVoid
 )
 
 // Type
@@ -155,4 +158,19 @@ func (se FloatType) MarshalJSON() ([]byte, error) {
 	res["ast.FloatType"] = m
 
 	return json.Marshal(res)
+}
+
+type VoidType struct{}
+
+var _ Type = (*VoidType)(nil)
+
+func (VoidType) Value() DataType {
+	return DataTypeVoid
+}
+
+func (se VoidType) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["ast.FloatType"] = se.Value().String()
+
+	return json.Marshal(m)
 }

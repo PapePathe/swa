@@ -37,18 +37,18 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 
 	err, funcType := ctx.FindFuncSymbol(funcName)
 	if err != nil {
-		return fmt.Errorf("functype not defined"), nil
+		return fmt.Errorf("functype %s not defined", funcName), nil
 	}
 
 	argsCount := len(expr.Args)
 	paramsCount := len(funcDef.Params())
 	if argsCount != paramsCount {
 		format := "function %s expect %d arguments but was given %d"
-		return fmt.Errorf(format, name.Value, paramsCount, argsCount), nil
+		return fmt.Errorf(format, funcName, paramsCount, argsCount), nil
 	}
 
 	args := []llvm.Value{}
-	for i, arg := range expr.Args {
+	for _, arg := range expr.Args {
 		err, argVal := arg.CompileLLVM(ctx)
 		if err != nil {
 			return err, nil
