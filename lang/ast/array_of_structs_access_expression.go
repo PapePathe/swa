@@ -71,6 +71,20 @@ func (expr ArrayOfStructsAccessExpression) CompileLLVM(ctx *CompilerCtx) (error,
 	if err != nil {
 		return err, nil
 	}
+	err, fn := ctx.FindFuncSymbol("check_array_bounds")
+	if err != nil {
+		return err, nil
+	}
+
+	ctx.Builder.CreateCall(
+		*fn,
+		ctx.Module.NamedFunction("check_array_bounds"),
+		[]llvm.Value{
+			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(entry.ElementsCount), false),
+			itemIndex[len(itemIndex)-1],
+		},
+		"",
+	)
 
 	itemPtr := ctx.Builder.CreateInBoundsGEP(
 		entry.Type,

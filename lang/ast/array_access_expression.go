@@ -15,12 +15,80 @@ type ArrayAccessExpression struct {
 
 var _ Expression = (*ArrayAccessExpression)(nil)
 
+func (expr ArrayAccessExpression) CompileLLVMForPrint(ctx *CompilerCtx) (error, *llvm.Value) {
+	err, entry, array, itemIndex := expr.findSymbolTableEntry(ctx)
+	if err != nil {
+		return err, nil
+	}
+
+	itemPtr := ctx.Builder.CreateInBoundsGEP(
+		entry.UnderlyingType,
+		array.Value,
+		itemIndex,
+		"",
+	)
+
+	if entry.UnderlyingType.TypeKind() == llvm.IntegerTypeKind {
+		load := ctx.Builder.CreateLoad(entry.UnderlyingType, itemPtr, "")
+
+		return nil, &load
+	}
+
+	return nil, &itemPtr
+}
+
+func (expr ArrayAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
+	err, entry, array, itemIndex := expr.findSymbolTableEntry(ctx)
+	if err != nil {
+		return err, nil
+	}
+
+	err, fn := ctx.FindFuncSymbol("check_array_bounds")
+	if err != nil {
+		return err, nil
+	}
+
+	ctx.Builder.CreateCall(
+		*fn,
+		ctx.Module.NamedFunction("check_array_bounds"),
+		[]llvm.Value{
+			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(entry.ElementsCount), false),
+			itemIndex[len(itemIndex)-1],
+		},
+		"",
+	)
+
+	itemPtr := ctx.Builder.CreateInBoundsGEP(
+		entry.UnderlyingType,
+		array.Value,
+		itemIndex,
+		"",
+	)
+
+	return nil, &CompilerResult{Value: &itemPtr, ArraySymbolTableEntry: entry}
+}
+
+func (expr ArrayAccessExpression) TokenStream() []lexer.Token {
+	return expr.Tokens
+}
+
+func (cs ArrayAccessExpression) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["Name"] = cs.Name
+	m["Index"] = cs.Index
+
+	res := make(map[string]any)
+	res["ast.ArrayAccessExpression"] = m
+
+	return json.Marshal(res)
+}
+
 func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error, *ArraySymbolTableEntry, *SymbolTableEntry, []llvm.Value) {
 	varName, ok := expr.Name.(SymbolExpression)
 	if !ok {
 		key := "ArrayAccessExpression.NameNotASymbol"
 
-		return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
+		return ctx.Dialect.Error(key, expr.Name), nil, nil, nil
 	}
 
 	err, array := ctx.FindSymbol(varName.Value)
@@ -70,57 +138,4 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 	}
 
 	return nil, entry, array, indices
-}
-
-func (expr ArrayAccessExpression) CompileLLVMForPrint(ctx *CompilerCtx) (error, *llvm.Value) {
-	err, entry, array, itemIndex := expr.findSymbolTableEntry(ctx)
-	if err != nil {
-		return err, nil
-	}
-
-	itemPtr := ctx.Builder.CreateInBoundsGEP(
-		entry.UnderlyingType,
-		array.Value,
-		itemIndex,
-		"",
-	)
-
-	if entry.UnderlyingType.TypeKind() == llvm.IntegerTypeKind {
-		load := ctx.Builder.CreateLoad(entry.UnderlyingType, itemPtr, "")
-
-		return nil, &load
-	}
-
-	return nil, &itemPtr
-}
-
-func (expr ArrayAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	err, entry, array, itemIndex := expr.findSymbolTableEntry(ctx)
-	if err != nil {
-		return err, nil
-	}
-
-	itemPtr := ctx.Builder.CreateInBoundsGEP(
-		entry.UnderlyingType,
-		array.Value,
-		itemIndex,
-		"",
-	)
-
-	return nil, &CompilerResult{Value: &itemPtr, ArraySymbolTableEntry: entry}
-}
-
-func (expr ArrayAccessExpression) TokenStream() []lexer.Token {
-	return expr.Tokens
-}
-
-func (cs ArrayAccessExpression) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Name"] = cs.Name
-	m["Index"] = cs.Index
-
-	res := make(map[string]any)
-	res["ast.ArrayAccessExpression"] = m
-
-	return json.Marshal(res)
 }
