@@ -1,13 +1,13 @@
 func check_array_bounds(size: int, indice: int) int {
-  if(indice < 0) {
-   print("RUNTIME ERR: negative array indexing not allowed %d", indice);
-   os::exit(11);
-  }
+  let format: string =  "Runtime Error: Index %d out of bounds (0-%d)";
 
-  if(indice >= size) {
+  if(indice < 0 || indice >= size) {
     let real_size: int = size - 1;
+    if(size == 1) {
+      real_size = 1;
+    }
 
-    print("RUNTIME ERR: index %d is %s (0-%d)", indice, "out of bounds of array", real_size);
+    print(format, indice, real_size);
     os::exit(11);
   }
 
