@@ -122,12 +122,14 @@ func (ctx CompilerCtx) AddFuncSymbol(name string, value *llvm.Type) error {
 		for scopedCtx.parent != nil {
 			scopedCtx = scopedCtx.parent
 		}
+
 		if _, exists := scopedCtx.funcSymbolTable[name]; exists {
-			return fmt.Errorf("function named %s already exists in symbol table", name)
+			format := "function named %s already exists in symbol table"
+
+			return fmt.Errorf(format, name)
 		}
 
 		scopedCtx.funcSymbolTable[name] = *value
-
 	}
 
 	if _, exists := ctx.funcSymbolTable[name]; exists {

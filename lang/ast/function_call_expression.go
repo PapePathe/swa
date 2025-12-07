@@ -19,6 +19,7 @@ var _ Expression = (*FunctionCallExpression)(nil)
 
 func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	var funcName string
+
 	switch expr.Name.(type) {
 	case SymbolExpression:
 		name, _ := expr.Name.(SymbolExpression)
@@ -42,12 +43,14 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 
 	argsCount := len(expr.Args)
 	paramsCount := len(funcDef.Params())
+
 	if argsCount != paramsCount {
 		format := "function %s expect %d arguments but was given %d"
 		return fmt.Errorf(format, funcName, paramsCount, argsCount), nil
 	}
 
 	args := []llvm.Value{}
+
 	for _, arg := range expr.Args {
 		err, argVal := arg.CompileLLVM(ctx)
 		if err != nil {
