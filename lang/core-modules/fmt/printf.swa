@@ -1,0 +1,1 @@
+func variadic printf(format: string) int;
