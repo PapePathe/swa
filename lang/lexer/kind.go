@@ -54,6 +54,7 @@ var tks = map[TokenKind]string{
 	TypeInt:            "TYPE_INT",
 	TypeFloat:          "TYPE_FLOAT",
 	TypeString:         "TYPE_STRING",
+	Variadic:           "VARIADIC",
 }
 
 // String s a string representation of the TokenKind.
@@ -164,4 +165,5 @@ const (
 	Main
 	Return
 	Modulo
+	Variadic
 )
