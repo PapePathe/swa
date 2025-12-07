@@ -19,9 +19,9 @@ func (m English) Patterns() []RegexpPattern {
 	return []RegexpPattern{
 		{regexp.MustCompile(`\n`), newlineHandler},
 		{regexp.MustCompile(`\s+`), skipHandler},
-		{regexp.MustCompile(`dialect`), defaultHandler(DialectDeclaration, "dialect")},
-		{regexp.MustCompile(`int64`), defaultHandler(TypeInt64, "int64")},
-		{regexp.MustCompile(`int`), defaultHandler(TypeInt, "int")},
+		{regexp.MustCompile(`\bdialect\b`), defaultHandler(DialectDeclaration, "dialect")},
+		{regexp.MustCompile(`\bint64\b`), defaultHandler(TypeInt64, "int64")},
+		{regexp.MustCompile(`\bint\b`), defaultHandler(TypeInt, "int")},
 		{regexp.MustCompile(`\bfloat\b`), defaultHandler(TypeFloat, "float")},
 		{regexp.MustCompile(`\bstring\b`), defaultHandler(TypeString, "string")},
 		{regexp.MustCompile(`\bwhile\b`), defaultHandler(KeywordWhile, "while")},
@@ -79,16 +79,6 @@ func (m English) Error(key string, args ...any) error {
 	return errmsg.NewAstError(formatted, args...)
 }
 
-func (m English) translations() map[string]string {
-	return map[string]string{
-		"ArrayAccessExpression.NameNotASymbol":             "The expression %v is not a correct variable name",
-		"ArrayAccessExpression.NotFoundInSymbolTable":      "The variable %s does not exist in symbol table",
-		"ArrayAccessExpression.AccessedIndexIsNotANumber":  "Only numbers are supported as array index, current: (%s)",
-		"ArrayAccessExpression.NotFoundInArraySymbolTable": "Array (%s) does not exist in symbol table",
-		"ArrayAccessExpression.IndexOutOfBounds":           "Element at index (%s) does not exist in array (%s)",
-	}
-}
-
 func (m English) Reserved() map[string]TokenKind {
 	return map[string]TokenKind{
 		"if":     KeywordIf,
@@ -100,5 +90,15 @@ func (m English) Reserved() map[string]TokenKind {
 		"int":    TypeInt,
 		"float":  TypeFloat,
 		"string": TypeString,
+	}
+}
+
+func (m English) translations() map[string]string {
+	return map[string]string{
+		"ArrayAccessExpression.NameNotASymbol":             "The expression %v is not a correct variable name",
+		"ArrayAccessExpression.NotFoundInSymbolTable":      "The variable %s does not exist in symbol table",
+		"ArrayAccessExpression.AccessedIndexIsNotANumber":  "Only numbers are supported as array index, current: (%s)",
+		"ArrayAccessExpression.NotFoundInArraySymbolTable": "Array (%s) does not exist in symbol table",
+		"ArrayAccessExpression.IndexOutOfBounds":           "Element at index (%s) does not exist in array (%s)",
 	}
 }
