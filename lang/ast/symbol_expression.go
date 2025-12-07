@@ -39,11 +39,8 @@ func (expr SymbolExpression) TokenStream() []lexer.Token {
 }
 
 func (expr SymbolExpression) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Value"] = expr.Value
-
 	res := make(map[string]any)
-	res["ast.SymbolExpression"] = m
+	res["ast.SymbolExpression"] = expr.Value
 
 	return json.Marshal(res)
 }
