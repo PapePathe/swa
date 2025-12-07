@@ -92,7 +92,7 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 			ctx.Builder.CreateStore(*val.Value, alloc)
 			ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
 		}
-	case FloatExpression, BinaryExpression, FunctionCallExpression:
+	case FloatExpression, BinaryExpression, FunctionCallExpression, MemberExpression:
 		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), fmt.Sprintf("alloc.%s", vd.Name))
 		ctx.Builder.CreateStore(*val.Value, alloc)
 		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
