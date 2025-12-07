@@ -1,5 +1,3 @@
-func exit(code: int);
-
 func check_array_bounds(size: int, indice: int) int {
   if(indice < 0) {
    print("RUNTIME ERR: negative array indexing not allowed %d", indice);

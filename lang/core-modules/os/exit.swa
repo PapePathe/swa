@@ -1,1 +1,1 @@
-func os.exit(code: int);
+func exit(code: int);
