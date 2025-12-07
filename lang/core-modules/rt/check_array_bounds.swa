@@ -1,0 +1,11 @@
+func exit(code: int);
+
+func check_array_bounds(size: int, indice: int) int {
+  if(indice >= size) {
+    let real_size: int = size - 1;
+    print("RUNTIME ERR: index %d is %s (0-%d)", indice, "out of bounds of array", real_size);
+    os::exit(11);
+  }
+
+  return 0;
+}
