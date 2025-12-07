@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"slices"
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 
@@ -41,49 +42,18 @@ func Compile(
 		nil,
 	)
 
-	ctx.ImportFromLIBC(
-		"printf",
-		[]llvm.Type{llvm.PointerType(context.Int8Type(), 0)},
-		llvm.GlobalContext().Int32Type(),
-		true,
-	)
-
-	//	ctx.ImportFromLIBC(
-	//		"read",
-	//		[]llvm.Type{
-	//			llvm.GlobalContext().Int32Type(),
-	//			llvm.PointerType(llvm.GlobalContext().Int8Type(), 0),
-	//			llvm.GlobalContext().Int64Type(),
-	//		},
-	//		llvm.GlobalContext().Int64Type(),
-	//		false,
-	//	)
-	//
-	//	ctx.ImportFromLIBC(
-	//		"open",
-	//		[]llvm.Type{
-	//			llvm.PointerType(llvm.GlobalContext().Int8Type(), 0),
-	//			llvm.GlobalContext().Int32Type(),
-	//		},
-	//		llvm.GlobalContext().Int32Type(),
-	//		false,
-	//	)
-	//
-	//	ctx.ImportFromLIBC(
-	//		"close",
-	//		[]llvm.Type{llvm.GlobalContext().Int32Type()},
-	//		llvm.GlobalContext().Int32Type(),
-	//		false,
-	//	)
-
-	for key, _ := range imports {
-		pack := Package{
-			Name: key,
+	runtimePackages := []Package{
+		{
+			Name: "",
 			Files: []string{
-				fmt.Sprintf("/home/pathe/swa/lang/core-modules/%s.swa", key),
+				"/home/pathe/swa/lang/core-modules/os/exit.swa",
+				"/home/pathe/swa/lang/core-modules/fmt/printf.swa",
+				"/home/pathe/swa/lang/core-modules/rt/check_array_bounds.swa",
 			},
-		}
+		},
+	}
 
+	for _, pack := range runtimePackages {
 		err := pack.Compile(ctx)
 		if err != nil {
 			ctx.Module.Dump()
@@ -92,7 +62,21 @@ func Compile(
 		}
 	}
 
-	ctx.Module.Dump()
+	for key := range imports {
+		filename := fmt.Sprintf("/home/pathe/swa/lang/core-modules/%s.swa", key)
+
+		if slices.Contains(runtimePackages[0].Files, filename) {
+			continue
+		}
+
+		pack := Package{Name: key, Files: []string{filename}}
+
+		err := pack.Compile(ctx)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+	}
 
 	err, _ := tree.CompileLLVM(ctx)
 	if err != nil {
@@ -100,12 +84,14 @@ func Compile(
 		os.Exit(1)
 	}
 
-	if err := llvm.VerifyModule(*ctx.Module, llvm.ReturnStatusAction); err != nil {
+	err = llvm.VerifyModule(*ctx.Module, llvm.ReturnStatusAction)
+	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	llirFileName := fmt.Sprintf("%s.ll", target.Output)
+
 	err = os.WriteFile(llirFileName, []byte(module.String()), FilePerm)
 	if err != nil {
 		fmt.Println(err)
@@ -114,13 +100,16 @@ func Compile(
 
 	asmFileName := fmt.Sprintf("%s.s", target.Output)
 
-	if err := compileToAssembler(llirFileName, asmFileName); err != nil {
+	err = compileToAssembler(llirFileName, asmFileName)
+	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	objFilename := fmt.Sprintf("%s.o", target.Output)
-	if err := compileToObject(asmFileName, objFilename); err != nil {
+
+	err = compileToObject(asmFileName, objFilename)
+	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -151,9 +140,11 @@ func compileToObject(assemblerFilename string, objectFilename string) error {
 	objectCmd.Stdout = os.Stdout
 	objectCmd.Stderr = os.Stderr
 
-	if err := objectCmd.Run(); err != nil {
+	err := objectCmd.Run()
+	if err != nil {
 		return fmt.Errorf("Error durrng object creation <%w>", err)
 	}
+
 	return nil
 }
 
@@ -163,17 +154,21 @@ func compileToExecutable(objectFileName string, executableFileName string) error
 	linkCmd.Stdout = os.Stdout
 	linkCmd.Stderr = os.Stderr
 
-	if err := linkCmd.Run(); err != nil {
+	err := linkCmd.Run()
+	if err != nil {
 		return fmt.Errorf("Error durrng linking <%w>", err)
 	}
+
 	return nil
 }
 
 func findCommand(candidates ...string) string {
 	for _, cmd := range candidates {
-		if _, err := exec.LookPath(cmd); err == nil {
+		_, err := exec.LookPath(cmd)
+		if err == nil {
 			return cmd
 		}
 	}
+
 	return candidates[0] // Return first as fallback
 }
