@@ -18,8 +18,10 @@ func (pack Package) Compile(ctx *ast.CompilerCtx) error {
 		if err != nil {
 			return err
 		}
+
 		sourceCode := string(bytes)
 		tokens := lexer.TokenizeWithDialect(sourceCode, ctx.Dialect)
+
 		tree, _, err := parser.Parse(tokens, true)
 		if err != nil {
 			return err

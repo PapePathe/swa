@@ -84,8 +84,11 @@ func Compile(
 			},
 		}
 
-		if err := pack.Compile(ctx); err != nil {
-			panic(err)
+		err := pack.Compile(ctx)
+		if err != nil {
+			ctx.Module.Dump()
+			fmt.Println(err.Error())
+			os.Exit(1)
 		}
 	}
 
