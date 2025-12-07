@@ -10,6 +10,13 @@ func ParseFunctionDeclaration(p *Parser) (ast.Statement, error) {
 	p.currentStatement = &funDecl
 
 	funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.Function))
+
+	if p.currentToken().Kind == lexer.Variadic {
+		p.expect(lexer.Variadic)
+
+		funDecl.Variadic = true
+	}
+
 	tok := p.expect(lexer.Identifier)
 	funDecl.Name = tok.Value
 	funDecl.Tokens = append(funDecl.Tokens, tok)
