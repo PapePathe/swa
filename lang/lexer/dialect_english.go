@@ -20,6 +20,7 @@ func (m English) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`\n`), newlineHandler},
 		{regexp.MustCompile(`\s+`), skipHandler},
 		{regexp.MustCompile(`\bdialect\b`), defaultHandler(DialectDeclaration, "dialect")},
+		{regexp.MustCompile(`\bint64\b`), defaultHandler(TypeInt64, "int64")},
 		{regexp.MustCompile(`\bint\b`), defaultHandler(TypeInt, "int")},
 		{regexp.MustCompile(`\bfloat\b`), defaultHandler(TypeFloat, "float")},
 		{regexp.MustCompile(`\bstring\b`), defaultHandler(TypeString, "string")},
@@ -30,6 +31,7 @@ func (m English) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`\bstruct\b`), defaultHandler(Struct, "struct")},
 		{regexp.MustCompile(`\bstart\b`), defaultHandler(Main, "start")},
 		{regexp.MustCompile(`\breturn\b`), defaultHandler(Return, "return")},
+		{regexp.MustCompile(`\bvariadic\b`), defaultHandler(Variadic, "variadic")},
 		{regexp.MustCompile(`\bfunc\b`), defaultHandler(Function, "func")},
 		{regexp.MustCompile(`[a-zA-Z_]([a-zA-Z0-9_])*`), symbolHandler},
 		{regexp.MustCompile(`\/\/.*`), commentHandler},
@@ -56,6 +58,7 @@ func (m English) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`&&`), defaultHandler(And, "&&")},
 		{regexp.MustCompile(`\.`), defaultHandler(Dot, ".")},
 		{regexp.MustCompile(`;`), defaultHandler(SemiColon, ";")},
+		{regexp.MustCompile(`::`), defaultHandler(DoubleColon, "::")},
 		{regexp.MustCompile(`:`), defaultHandler(Colon, ":")},
 		{regexp.MustCompile(`,`), defaultHandler(Comma, ",")},
 		{regexp.MustCompile(`\+`), defaultHandler(Plus, "+")},
@@ -76,16 +79,6 @@ func (m English) Error(key string, args ...any) error {
 	return errmsg.NewAstError(formatted, args...)
 }
 
-func (m English) translations() map[string]string {
-	return map[string]string{
-		"ArrayAccessExpression.NameNotASymbol":             "The expression %v is not a correct variable name",
-		"ArrayAccessExpression.NotFoundInSymbolTable":      "The variable %s does not exist in symbol table",
-		"ArrayAccessExpression.AccessedIndexIsNotANumber":  "Only numbers are supported as array index, current: (%s)",
-		"ArrayAccessExpression.NotFoundInArraySymbolTable": "Array (%s) does not exist in symbol table",
-		"ArrayAccessExpression.IndexOutOfBounds":           "Element at index (%s) does not exist in array (%s)",
-	}
-}
-
 func (m English) Reserved() map[string]TokenKind {
 	return map[string]TokenKind{
 		"if":     KeywordIf,
@@ -97,5 +90,15 @@ func (m English) Reserved() map[string]TokenKind {
 		"int":    TypeInt,
 		"float":  TypeFloat,
 		"string": TypeString,
+	}
+}
+
+func (m English) translations() map[string]string {
+	return map[string]string{
+		"ArrayAccessExpression.NameNotASymbol":             "The expression %v is not a correct variable name",
+		"ArrayAccessExpression.NotFoundInSymbolTable":      "The variable %s does not exist in symbol table",
+		"ArrayAccessExpression.AccessedIndexIsNotANumber":  "Only numbers are supported as array index, current: (%s)",
+		"ArrayAccessExpression.NotFoundInArraySymbolTable": "Array (%s) does not exist in symbol table",
+		"ArrayAccessExpression.IndexOutOfBounds":           "Element at index (%s) does not exist in array (%s)",
 	}
 }

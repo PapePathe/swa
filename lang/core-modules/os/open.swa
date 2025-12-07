@@ -1,0 +1,1 @@
+func open(file_path: string, open_mode: int) int;

@@ -1,0 +1,15 @@
+func check_array_bounds(size: int, indice: int) int {
+  let format: string =  "Runtime Error: Index %d out of bounds (0-%d)";
+
+  if(indice < 0 || indice >= size) {
+    let real_size: int = size - 1;
+    if(size == 1) {
+      real_size = 1;
+    }
+
+    print(format, indice, real_size);
+    os::exit(11);
+  }
+
+  return 0;
+}

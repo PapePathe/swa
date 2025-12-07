@@ -33,6 +33,7 @@ func typeNud(kind lexer.TokenKind, nudFn TypeNudHandlerFunc) {
 func createTokenTypeLookups() {
 	typeNud(lexer.Identifier, parseSymbolType)
 	typeNud(lexer.TypeInt, parseIntType)
+	typeNud(lexer.TypeInt64, parseInt64Type)
 	typeNud(lexer.TypeFloat, parseFloatType)
 	typeNud(lexer.TypeString, parseStringType)
 	typeNud(lexer.OpenBracket, parseArrayType)
@@ -48,6 +49,12 @@ func parseStringType(p *Parser) (ast.Type, []lexer.Token) {
 	tokens := []lexer.Token{p.advance()}
 
 	return ast.StringType{}, tokens
+}
+
+func parseInt64Type(p *Parser) (ast.Type, []lexer.Token) {
+	tokens := []lexer.Token{p.advance()}
+
+	return ast.Number64Type{}, tokens
 }
 
 func parseIntType(p *Parser) (ast.Type, []lexer.Token) {
@@ -95,7 +102,7 @@ func parseType(p *Parser, bp BindingPower) (ast.Type, []lexer.Token) {
 	tokens := []lexer.Token{}
 
 	if !exists {
-		panic(fmt.Sprintf("type nud handler expected for token kind: %s, value: %s\n", tokenKind, p.currentToken().Value))
+		panic(fmt.Sprintf("type nud handler expected for token kind: %s, value: %s, line: %d\n", tokenKind, p.currentToken().Value, p.currentToken().Line))
 	}
 
 	left, toks := nudFn(p)

@@ -42,16 +42,24 @@ func (se NumberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 	return nil, &CompilerResult{Value: &res}
 }
 
+func (se NumberExpression) CompileLLVM64(ctx *CompilerCtx) (error, *CompilerResult) {
+	var signed bool
+
+	if se.Value < 0 {
+		signed = true
+	}
+	res := llvm.ConstInt(llvm.GlobalContext().Int64Type(), uint64(se.Value), signed)
+
+	return nil, &CompilerResult{Value: &res}
+}
+
 func (expr NumberExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
 
 func (se NumberExpression) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Value"] = se.Value
-
 	res := make(map[string]any)
-	res["ast.NumberExpression"] = m
+	res["ast.NumberExpression"] = se.Value
 
 	return json.Marshal(res)
 }

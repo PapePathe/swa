@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"slices"
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 
@@ -18,20 +19,21 @@ type BuildTarget struct {
 
 const FilePerm = 0600
 
-func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect) {
+func Compile(
+	tree ast.BlockStatement,
+	target BuildTarget,
+	dialect lexer.Dialect,
+	imports map[string]any,
+) {
 	context := llvm.NewContext()
 	defer context.Dispose()
 
 	module := llvm.GlobalContext().NewModule("swa-main")
 	defer module.Dispose()
 
-	printArgTypes := []llvm.Type{llvm.PointerType(llvm.GlobalContext().Int8Type(), 0)}
-	printfFuncType := llvm.FunctionType(llvm.GlobalContext().Int32Type(), printArgTypes, true)
-	printfFunc := llvm.AddFunction(module, "printf", printfFuncType)
-	printfFunc.SetLinkage(llvm.ExternalLinkage)
-
 	builder := context.NewBuilder()
 	defer builder.Dispose()
+
 	ctx := ast.NewCompilerContext(
 		&context,
 		&builder,
@@ -40,18 +42,57 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect)
 		nil,
 	)
 
+	runtimePackages := []Package{
+		{
+			Name: "",
+			D:    lexer.English{},
+			Files: []string{
+				"/home/pathe/swa/lang/core-modules/os/exit.swa",
+				"/home/pathe/swa/lang/core-modules/fmt/printf.swa",
+				"/home/pathe/swa/lang/core-modules/rt/check_array_bounds.swa",
+			},
+		},
+	}
+
+	for _, pack := range runtimePackages {
+		err := pack.Compile(ctx)
+		if err != nil {
+			ctx.Module.Dump()
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+	}
+
+	for key := range imports {
+		filename := fmt.Sprintf("/home/pathe/swa/lang/core-modules/%s.swa", key)
+
+		if slices.Contains(runtimePackages[0].Files, filename) {
+			continue
+		}
+
+		pack := Package{Name: key, Files: []string{filename}}
+
+		err := pack.Compile(ctx)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+	}
+
 	err, _ := tree.CompileLLVM(ctx)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
-	if err := llvm.VerifyModule(*ctx.Module, llvm.ReturnStatusAction); err != nil {
+	err = llvm.VerifyModule(*ctx.Module, llvm.ReturnStatusAction)
+	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	llirFileName := fmt.Sprintf("%s.ll", target.Output)
+
 	err = os.WriteFile(llirFileName, []byte(module.String()), FilePerm)
 	if err != nil {
 		fmt.Println(err)
@@ -60,13 +101,16 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect)
 
 	asmFileName := fmt.Sprintf("%s.s", target.Output)
 
-	if err := compileToAssembler(llirFileName, asmFileName); err != nil {
+	err = compileToAssembler(llirFileName, asmFileName)
+	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	objFilename := fmt.Sprintf("%s.o", target.Output)
-	if err := compileToObject(asmFileName, objFilename); err != nil {
+
+	err = compileToObject(asmFileName, objFilename)
+	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -97,9 +141,11 @@ func compileToObject(assemblerFilename string, objectFilename string) error {
 	objectCmd.Stdout = os.Stdout
 	objectCmd.Stderr = os.Stderr
 
-	if err := objectCmd.Run(); err != nil {
+	err := objectCmd.Run()
+	if err != nil {
 		return fmt.Errorf("Error durrng object creation <%w>", err)
 	}
+
 	return nil
 }
 
@@ -109,17 +155,21 @@ func compileToExecutable(objectFileName string, executableFileName string) error
 	linkCmd.Stdout = os.Stdout
 	linkCmd.Stderr = os.Stderr
 
-	if err := linkCmd.Run(); err != nil {
+	err := linkCmd.Run()
+	if err != nil {
 		return fmt.Errorf("Error durrng linking <%w>", err)
 	}
+
 	return nil
 }
 
 func findCommand(candidates ...string) string {
 	for _, cmd := range candidates {
-		if _, err := exec.LookPath(cmd); err == nil {
+		_, err := exec.LookPath(cmd)
+		if err == nil {
 			return cmd
 		}
 	}
+
 	return candidates[0] // Return first as fallback
 }

@@ -29,11 +29,8 @@ func (expr StringExpression) TokenStream() []lexer.Token {
 }
 
 func (expr StringExpression) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Value"] = expr.Value
-
 	res := make(map[string]any)
-	res["ast.StringExpression"] = m
+	res["ast.StringExpression"] = expr.Value
 
 	return json.Marshal(res)
 }

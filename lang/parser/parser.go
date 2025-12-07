@@ -14,18 +14,19 @@ type Parser struct {
 	pos               int
 	currentStatement  ast.Statement
 	currentExpression ast.Expression
+	imports           map[string]any
 }
 
 // Parse ...
-func Parse(tokens []lexer.Token) (ast.BlockStatement, error) {
+func Parse(tokens []lexer.Token, dialectParsed bool) (ast.BlockStatement, map[string]any, error) {
 	body := make([]ast.Statement, 0)
 
 	createTokenLookups()
 	createTokenTypeLookups()
 
-	psr := &Parser{tokens: tokens}
+	psr := &Parser{tokens: tokens, imports: map[string]any{}}
 
-	if psr.hasTokens() {
+	if psr.hasTokens() && !dialectParsed {
 		psr.expect(lexer.DialectDeclaration)
 		psr.expect(lexer.Colon)
 		psr.expect(lexer.Identifier)
@@ -35,14 +36,14 @@ func Parse(tokens []lexer.Token) (ast.BlockStatement, error) {
 	for psr.hasTokens() {
 		stmt, err := ParseStatement(psr)
 		if err != nil {
-			return ast.BlockStatement{}, err
+			return ast.BlockStatement{}, nil, err
 		}
 		body = append(body, stmt)
 	}
 
 	return ast.BlockStatement{
 		Body: body,
-	}, nil
+	}, psr.imports, nil
 }
 
 func (p *Parser) currentToken() lexer.Token {
@@ -102,10 +103,11 @@ func (p *Parser) expect(kind lexer.TokenKind) lexer.Token {
 
 func (p *Parser) unexpectedTokenError(kind lexer.TokenKind) error {
 	return fmt.Errorf(
-		"expected %s, but got %s at line %d",
+		"expected %s, but got %s at line %d (%v)",
 		kind,
 		p.currentToken().Kind,
 		p.currentToken().Line,
+		p.tokens[p.pos:],
 	)
 }
 

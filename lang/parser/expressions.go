@@ -12,10 +12,11 @@ func parseExpression(p *Parser, bp BindingPower) (ast.Expression, error) {
 
 	if !exists {
 		return nil, fmt.Errorf(
-			"nud handler expected for token %s and binding power %v \n %v",
+			"nud handler expected for token %s and binding power %v \n %v, line: %d",
 			tokenKind,
 			bp,
-			p.tokens,
+			p.tokens[p.pos:],
+			p.currentToken().Line,
 		)
 	}
 

@@ -1,0 +1,10 @@
+dialect:english;
+
+start() int {
+  let arr: []int = []int{10, 20, 30};
+  let first: int = 0;
+  let last: int = 2;
+  
+  print("First: %d, Last: %d", arr[first], arr[last]);
+  return 0;
+}

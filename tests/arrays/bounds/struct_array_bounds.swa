@@ -1,0 +1,15 @@
+dialect:english;
+
+struct Point {
+  X: int,
+  Y: int,
+}
+
+start() int {
+  let p1: Point = Point{X: 1, Y: 2};
+  let arr: [1]Point = [1]Point{p1};
+  let idx: int = 5;
+  
+  print("X: %d", arr[idx].X);
+  return 0;
+}

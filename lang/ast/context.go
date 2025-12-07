@@ -117,6 +117,21 @@ func (ctx CompilerCtx) FindArraySymbol(name string) (error, *ArraySymbolTableEnt
 }
 
 func (ctx CompilerCtx) AddFuncSymbol(name string, value *llvm.Type) error {
+	if ctx.parent != nil {
+		scopedCtx := ctx.parent
+		for scopedCtx.parent != nil {
+			scopedCtx = scopedCtx.parent
+		}
+
+		if _, exists := scopedCtx.funcSymbolTable[name]; exists {
+			format := "function named %s already exists in symbol table"
+
+			return fmt.Errorf(format, name)
+		}
+
+		scopedCtx.funcSymbolTable[name] = *value
+	}
+
 	if _, exists := ctx.funcSymbolTable[name]; exists {
 		return fmt.Errorf("function named %s already exists in symbol table", name)
 	}
@@ -168,6 +183,22 @@ func (ctx CompilerCtx) FindSymbol(name string) (error, *SymbolTableEntry) {
 	}
 
 	return nil, &entry
+}
+
+func (ctx CompilerCtx) ImportFromLIBC(
+	name string,
+	args []llvm.Type,
+	ret llvm.Type,
+	hasVarArgs bool,
+) error {
+	typ := llvm.FunctionType(
+		ret,
+		args,
+		hasVarArgs,
+	)
+	funcType := llvm.AddFunction(*ctx.Module, name, typ)
+	funcType.SetLinkage(llvm.ExternalLinkage)
+	return ctx.AddFuncSymbol(name, &typ)
 }
 
 func (ctx CompilerCtx) PrintVarNames() {
