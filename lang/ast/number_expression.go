@@ -58,11 +58,8 @@ func (expr NumberExpression) TokenStream() []lexer.Token {
 }
 
 func (se NumberExpression) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Value"] = se.Value
-
 	res := make(map[string]any)
-	res["ast.NumberExpression"] = m
+	res["ast.NumberExpression"] = se.Value
 
 	return json.Marshal(res)
 }
