@@ -34,9 +34,14 @@ func ParseFunctionDeclaration(p *Parser) (ast.Statement, error) {
 
 	funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.CloseParen))
 
-	returnType, tokens := parseType(p, DefaultBindingPower)
-	funDecl.ReturnType = returnType
-	funDecl.Tokens = append(funDecl.Tokens, tokens...)
+	curentToken := p.currentToken()
+	if curentToken.Kind == lexer.SemiColon || curentToken.Kind == lexer.OpenBracket { // void return type
+		funDecl.ReturnType = ast.VoidType{}
+	} else {
+		returnType, tokens := parseType(p, DefaultBindingPower)
+		funDecl.ReturnType = returnType
+		funDecl.Tokens = append(funDecl.Tokens, tokens...)
+	}
 
 	if p.currentToken().Kind == lexer.SemiColon {
 		funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.SemiColon))
