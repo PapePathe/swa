@@ -1,0 +1,8 @@
+dialect:english;
+
+start() int {
+  let arr: []int = []int{10, 20, 30};
+  let idx: int = 100;
+  print("Val: %d", arr[idx]);
+  return 0;
+}
