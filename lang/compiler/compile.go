@@ -45,6 +45,7 @@ func Compile(
 	runtimePackages := []Package{
 		{
 			Name: "",
+			D:    lexer.English{},
 			Files: []string{
 				"/home/pathe/swa/lang/core-modules/os/exit.swa",
 				"/home/pathe/swa/lang/core-modules/fmt/printf.swa",

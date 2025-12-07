@@ -8,6 +8,7 @@ import (
 )
 
 type Package struct {
+	D     lexer.Dialect
 	Name  string
 	Files []string
 }
@@ -20,7 +21,13 @@ func (pack Package) Compile(ctx *ast.CompilerCtx) error {
 		}
 
 		sourceCode := string(bytes)
-		tokens := lexer.TokenizeWithDialect(sourceCode, ctx.Dialect)
+		dial := ctx.Dialect
+
+		if pack.D != nil {
+			dial = pack.D
+		}
+
+		tokens := lexer.TokenizeWithDialect(sourceCode, dial)
 
 		tree, _, err := parser.Parse(tokens, true)
 		if err != nil {
