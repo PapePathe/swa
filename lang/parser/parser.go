@@ -103,10 +103,11 @@ func (p *Parser) expect(kind lexer.TokenKind) lexer.Token {
 
 func (p *Parser) unexpectedTokenError(kind lexer.TokenKind) error {
 	return fmt.Errorf(
-		"expected %s, but got %s at line %d",
+		"expected %s, but got %s at line %d (%v)",
 		kind,
 		p.currentToken().Kind,
 		p.currentToken().Line,
+		p.tokens[p.pos:],
 	)
 }
 

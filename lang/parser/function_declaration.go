@@ -12,9 +12,9 @@ func ParseFunctionDeclaration(p *Parser) (ast.Statement, error) {
 	funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.Function))
 
 	if p.currentToken().Kind == lexer.Variadic {
-		p.expect(lexer.Variadic)
-
 		funDecl.Variadic = true
+
+		p.expect(lexer.Variadic)
 	}
 
 	tok := p.expect(lexer.Identifier)
