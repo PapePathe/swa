@@ -19,6 +19,7 @@ type FuncDeclStatement struct {
 	ReturnType Type
 	Args       []FuncArg
 	Tokens     []lexer.Token
+	Variadic   bool
 }
 
 var _ Statement = (*FuncDeclStatement)(nil)
@@ -41,8 +42,9 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 		return err, nil
 	}
 
-	newfuncType := llvm.FunctionType(returnType.typ, params, false)
+	newfuncType := llvm.FunctionType(returnType.typ, params, fd.Variadic)
 	newFunc := llvm.AddFunction(*newCtx.Module, fd.Name, newfuncType)
+
 	err = ctx.AddFuncSymbol(fd.Name, &newfuncType)
 	if err != nil {
 		return err, nil
