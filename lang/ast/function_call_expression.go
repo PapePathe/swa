@@ -34,12 +34,15 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 
 	argsCount := len(expr.Args)
 	paramsCount := len(funcDef.Params())
+
 	if argsCount != paramsCount {
 		format := "function %s expect %d arguments but was given %d"
+
 		return fmt.Errorf(format, name.Value, paramsCount, argsCount), nil
 	}
 
 	args := []llvm.Value{}
+
 	for i, arg := range expr.Args {
 		err, argVal := arg.CompileLLVM(ctx)
 		if err != nil {
@@ -65,8 +68,10 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 
 		currentArgType := args[i].Type()
 		currentParamType := funcDef.Params()[i].Type()
+
 		if currentArgType != currentParamType {
 			format := "expected argument of type %s expected but got %s"
+
 			return fmt.Errorf(format, currentParamType, currentArgType), nil
 		}
 	}
@@ -77,6 +82,7 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 		args,
 		"",
 	)
+
 	return nil, &CompilerResult{Value: &returnValue}
 }
 

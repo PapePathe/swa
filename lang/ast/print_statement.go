@@ -15,7 +15,6 @@ type PrintStatetement struct {
 
 var _ Statement = (*PrintStatetement)(nil)
 
-// TODO : print all the values in a single call
 func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	printableValues := []llvm.Value{}
 
@@ -31,10 +30,12 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 			printableValues = append(printableValues, loadedval)
 		case ArrayAccessExpression:
 			vv, _ := v.(ArrayAccessExpression)
+
 			err, res := vv.CompileLLVMForPrint(ctx)
 			if err != nil {
 				return err, nil
 			}
+
 			printableValues = append(printableValues, *res)
 		case ArrayOfStructsAccessExpression:
 			printableValues = append(printableValues, *res.Value)

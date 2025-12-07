@@ -26,9 +26,11 @@ func (expr ArrayInitializationExpression) extractArrayType(ctx *CompilerCtx) (*l
 	switch arrayType.Underlying.Value() {
 	case DataTypeFloat:
 		typ := llvm.GlobalContext().DoubleType()
+
 		return &typ, nil, nil
 	case DataTypeNumber:
 		typ := llvm.GlobalContext().Int32Type()
+
 		return &typ, nil, nil
 	case DataTypeSymbol:
 		sym, _ := arrayType.Underlying.(SymbolType)
@@ -37,9 +39,11 @@ func (expr ArrayInitializationExpression) extractArrayType(ctx *CompilerCtx) (*l
 		if err != nil {
 			return nil, nil, fmt.Errorf("Type (%s) is not a valid struct", sym.Name)
 		}
+
 		return &sdef.LLVMType, sdef, nil
 	case DataTypeString:
 		typ := llvm.PointerType(llvm.GlobalContext().Int32Type(), 0)
+
 		return &typ, nil, nil
 	default:
 		return nil, nil, fmt.Errorf("Type (%v) not implemented in array expression", arrayType.Underlying.Value())
@@ -56,8 +60,10 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 	if err != nil {
 		return err, nil
 	}
+
 	arrayType := llvm.ArrayType(*innerType, len(expr.Contents))
 	arrayPtr := ctx.Builder.CreateAlloca(arrayType, "")
+
 	for i, value := range expr.Contents {
 		itemGep := ctx.Builder.CreateGEP(
 			arrayType,
@@ -91,6 +97,7 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 			}
 		case StructInitializationExpression:
 			structExpr, _ := value.(StructInitializationExpression)
+
 			err, structFields := structExpr.InitValues(ctx)
 			if err != nil {
 				return err, nil
@@ -122,6 +129,7 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 			Type:              arrayType,
 		},
 	}
+
 	return nil, &res
 }
 

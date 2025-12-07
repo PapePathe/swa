@@ -59,6 +59,7 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 		}
 
 		structType := res.SymbolTableEntry.Ref
+
 		propName, err := expr.getProperty()
 		if err != nil {
 			return err, nil
@@ -90,13 +91,14 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 		}
 
 		var structType *StructSymbolTableEntry
+
 		err, varDef := ctx.FindSymbol(baseObj.Value)
 		if err != nil {
-			// Try finding array
 			errArr, arrDef := ctx.FindArraySymbol(baseObj.Value)
 			if errArr != nil {
 				return err, nil
 			}
+
 			structType = arrDef.UnderlyingTypeDef
 		} else {
 			structType = varDef.Ref
@@ -119,6 +121,7 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 
 		addr := ctx.Builder.CreateStructGEP(nestedStructType.LLVMType, nestedAddr, propIndex, "")
 		propType := nestedStructType.PropertyTypes[propIndex]
+
 		return nil, &CompilerResult{
 			Value:                  &addr,
 			SymbolTableEntry:       &SymbolTableEntry{Ref: nestedStructType},
@@ -148,6 +151,7 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 
 	addr := ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, varDef.Value, propIndex, "")
 	propType := varDef.Ref.PropertyTypes[propIndex]
+
 	return nil, &CompilerResult{
 		Value:                  &addr,
 		SymbolTableEntry:       varDef,
@@ -172,6 +176,7 @@ func (expr MemberExpression) getNestedMemberAddress(ctx *CompilerCtx, member Mem
 		}
 
 		structType := res.ArraySymbolTableEntry.UnderlyingTypeDef
+
 		propIndex, err := expr.resolveStructAccess(structType, propName)
 		if err != nil {
 			return err, llvm.Value{}
@@ -192,6 +197,7 @@ func (expr MemberExpression) getNestedMemberAddress(ctx *CompilerCtx, member Mem
 		}
 
 		structType := res.SymbolTableEntry.Ref
+
 		propIndex, err := expr.resolveStructAccess(structType, propName)
 		if err != nil {
 			return err, llvm.Value{}
@@ -213,6 +219,7 @@ func (expr MemberExpression) getNestedMemberAddress(ctx *CompilerCtx, member Mem
 		}
 
 		var structType *StructSymbolTableEntry
+
 		err, varDef := ctx.FindSymbol(baseObj.Value)
 		if err != nil {
 			// Try finding array
@@ -256,41 +263,6 @@ func (expr MemberExpression) getNestedMemberAddress(ctx *CompilerCtx, member Mem
 
 	addr := ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, varDef.Value, propIndex, "")
 	return nil, addr
-}
-
-func (expr MemberExpression) getNestedStructType(
-	ctx *CompilerCtx,
-	member MemberExpression,
-	baseStructType *StructSymbolTableEntry,
-) (*StructSymbolTableEntry, error) {
-	propName, err := member.getProperty()
-	if err != nil {
-		return nil, err
-	}
-
-	currentStructType := baseStructType
-	if nestedMember, ok := member.Object.(MemberExpression); ok {
-		currentStructType, err = expr.getNestedStructType(ctx, nestedMember, baseStructType)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	propIndex, err := expr.resolveStructAccess(currentStructType, propName)
-	if err != nil {
-		return nil, err
-	}
-
-	propType := currentStructType.Metadata.Types[propIndex]
-	if symbolType, ok := propType.(SymbolType); ok {
-		err, structDef := ctx.FindStructSymbol(symbolType.Name)
-		if err != nil {
-			return nil, fmt.Errorf("cannot find struct type %s", symbolType.Name)
-		}
-		return structDef, nil
-	}
-
-	return nil, fmt.Errorf("property %s is not a struct type", propName)
 }
 
 func (expr MemberExpression) TokenStream() []lexer.Token {
@@ -341,4 +313,39 @@ func (expr MemberExpression) resolveStructAccess(
 		return 0, fmt.Errorf("struct %s has no field %s", structType.Metadata.Name, propName)
 	}
 	return propIndex, nil
+}
+
+func (expr MemberExpression) getNestedStructType(
+	ctx *CompilerCtx,
+	member MemberExpression,
+	baseStructType *StructSymbolTableEntry,
+) (*StructSymbolTableEntry, error) {
+	propName, err := member.getProperty()
+	if err != nil {
+		return nil, err
+	}
+
+	currentStructType := baseStructType
+	if nestedMember, ok := member.Object.(MemberExpression); ok {
+		currentStructType, err = expr.getNestedStructType(ctx, nestedMember, baseStructType)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	propIndex, err := expr.resolveStructAccess(currentStructType, propName)
+	if err != nil {
+		return nil, err
+	}
+
+	propType := currentStructType.Metadata.Types[propIndex]
+	if symbolType, ok := propType.(SymbolType); ok {
+		err, structDef := ctx.FindStructSymbol(symbolType.Name)
+		if err != nil {
+			return nil, fmt.Errorf("cannot find struct type %s", symbolType.Name)
+		}
+		return structDef, nil
+	}
+
+	return nil, fmt.Errorf("property %s is not a struct type", propName)
 }
