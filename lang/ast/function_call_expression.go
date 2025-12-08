@@ -55,7 +55,6 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 			case llvm.IntegerTypeKind, llvm.FloatTypeKind, llvm.DoubleTypeKind:
 				args = append(args, *argVal.Value)
 			case llvm.PointerTypeKind:
-				// TODO: check pointers are not nil
 				if argVal.SymbolTableEntry != nil && argVal.SymbolTableEntry.Address != nil {
 					args = append(args, *argVal.SymbolTableEntry.Address)
 				} else {
