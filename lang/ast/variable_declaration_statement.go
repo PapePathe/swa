@@ -43,6 +43,7 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		if val.SymbolTableEntry != nil && val.SymbolTableEntry.Ref != nil {
 			memberExpr, _ := vd.Value.(MemberExpression)
 			propExpr, _ := memberExpr.Property.(SymbolExpression)
+
 			err, propIndex := val.SymbolTableEntry.Ref.Metadata.PropertyIndex(propExpr.Value)
 			if err != nil {
 				return err, nil
@@ -51,41 +52,30 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 			loadedValue := ctx.Builder.CreateLoad(val.SymbolTableEntry.Ref.PropertyTypes[propIndex], *val.Value, "")
 			val.Value = &loadedValue
 		} else {
-			return fmt.Errorf("MemberExpression: unable to determine type"), nil
+			return fmt.Errorf("VarDeclarationStatement/MemberExpression: unable to determine type"), nil
 		}
 	}
 
-	if err := vd.TypeCheck(vd.ExplicitType.Value(), val.Value.Type()); err != nil {
+	err = vd.TypeCheck(vd.ExplicitType.Value(), val.Value.Type())
+	if err != nil {
 		return err, nil
 	}
 
 	switch vd.Value.(type) {
 	case StructInitializationExpression:
-		explicitType, ok := vd.ExplicitType.(SymbolType)
-		if !ok {
-			return fmt.Errorf("explicit type is not a symbol %v", vd.ExplicitType), nil
-		}
-
-		err, typeDef := ctx.FindStructSymbol(explicitType.Name)
-		if err != nil {
-			return fmt.Errorf("Could not find typedef for %s in structs symbol table", explicitType.Name), nil
-		}
-
-		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Ref: typeDef})
+		return vd.compileStructInitializationExpression(ctx, val)
 	case StringExpression:
-		glob := llvm.AddGlobal(*ctx.Module, val.Value.Type(), fmt.Sprintf("global.%s", vd.Name))
-		glob.SetInitializer(*val.Value)
-		alloc := ctx.Builder.CreateAlloca(llvm.PointerType(llvm.GlobalContext().Int8Type(), 0), "")
-		ctx.Builder.CreateStore(glob, alloc)
-		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
-	case MemberExpression, NumberExpression, FloatExpression, BinaryExpression, FunctionCallExpression, SymbolExpression:
-		// For MemberExpression, val.Value is already loaded above before TypeCheck
+		return vd.compileStringExpression(ctx, val)
+	case NumberExpression, FloatExpression, BinaryExpression, FunctionCallExpression, SymbolExpression, MemberExpression:
 		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), fmt.Sprintf("alloc.%s", vd.Name))
 		ctx.Builder.CreateStore(*val.Value, alloc)
-		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
+
+		err = ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
+		if err != nil {
+			return err, nil
+		}
 	case ArrayInitializationExpression:
-		ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: val.Value})
-		ctx.AddArraySymbol(vd.Name, val.ArraySymbolTableEntry)
+		return vd.compileArrArrayInitializationExpression(ctx, val)
 	default:
 		return fmt.Errorf("VarDeclarationStatement: Unhandled expression type (%v)", vd.Value), nil
 	}
@@ -127,7 +117,7 @@ func (expr VarDeclarationStatement) TypeCheck(t DataType, k llvm.Type) error {
 				// we good
 			default:
 				// TODO fix this
-				//				return fmt.Errorf("expected %s got pointer of unknown value %v", t, k.IsNil())
+				//	return fmt.Errorf("expected %s got pointer of unknown value %v", t, k.IsNil())
 			}
 		case DataTypeNumber:
 			switch k.ElementType().TypeKind() {
@@ -161,4 +151,61 @@ func (cs VarDeclarationStatement) MarshalJSON() ([]byte, error) {
 	res["ast.VarDeclarationStatement"] = m
 
 	return json.Marshal(res)
+}
+
+func (vd VarDeclarationStatement) compileStructInitializationExpression(
+	ctx *CompilerCtx,
+	val *CompilerResult,
+) (error, *CompilerResult) {
+	explicitType, ok := vd.ExplicitType.(SymbolType)
+	if !ok {
+		return fmt.Errorf("explicit type is not a symbol %v", vd.ExplicitType), nil
+	}
+
+	err, typeDef := ctx.FindStructSymbol(explicitType.Name)
+	if err != nil {
+		return fmt.Errorf("Could not find typedef for %s in structs symbol table", explicitType.Name), nil
+	}
+
+	err = ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Ref: typeDef})
+	if err != nil {
+		return err, nil
+	}
+
+	return nil, nil
+}
+
+func (vd VarDeclarationStatement) compileStringExpression(
+	ctx *CompilerCtx,
+	val *CompilerResult,
+) (error, *CompilerResult) {
+	glob := llvm.AddGlobal(*ctx.Module, val.Value.Type(), fmt.Sprintf("global.%s", vd.Name))
+	glob.SetInitializer(*val.Value)
+
+	alloc := ctx.Builder.CreateAlloca(llvm.PointerType(llvm.GlobalContext().Int8Type(), 0), "")
+
+	ctx.Builder.CreateStore(glob, alloc)
+
+	err := ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
+	if err != nil {
+		return err, nil
+	}
+	return nil, nil
+}
+
+func (vd VarDeclarationStatement) compileArrArrayInitializationExpression(
+	ctx *CompilerCtx,
+	val *CompilerResult,
+) (error, *CompilerResult) {
+	err := ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: val.Value})
+	if err != nil {
+		return err, nil
+	}
+
+	err = ctx.AddArraySymbol(vd.Name, val.ArraySymbolTableEntry)
+	if err != nil {
+		return err, nil
+	}
+
+	return nil, nil
 }

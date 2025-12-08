@@ -31,6 +31,7 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 		ctx.Dialect,
 		ctx,
 	)
+
 	err, params := fd.funcParams(newCtx)
 	if err != nil {
 		return err, nil
@@ -43,7 +44,9 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 
 	newfuncType := llvm.FunctionType(returnType.typ, params, false)
 	newFunc := llvm.AddFunction(*newCtx.Module, fd.Name, newfuncType)
-	if err := ctx.AddFuncSymbol(fd.Name, &newfuncType); err != nil {
+
+	err = ctx.AddFuncSymbol(fd.Name, &newfuncType)
+	if err != nil {
 		return err, nil
 	}
 
@@ -53,6 +56,7 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 		p.SetName(name)
 
 		entry := SymbolTableEntry{Value: p}
+
 		err, eType := fd.extractType(newCtx, argType)
 		if err != nil {
 			return err, nil
@@ -62,12 +66,14 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 			entry.Ref = eType.sEntry
 		}
 
-		if err := newCtx.AddSymbol(name, &entry); err != nil {
+		err = newCtx.AddSymbol(name, &entry)
+		if err != nil {
 			return fmt.Errorf("failed to add parameter %s to symbol table: %w", name, err), nil
 		}
 
 		if eType.aEntry != nil {
-			if err := newCtx.AddArraySymbol(name, eType.aEntry); err != nil {
+			err := newCtx.AddArraySymbol(name, eType.aEntry)
+			if err != nil {
 				return fmt.Errorf("failed to add parameter %s to arrays symbol table: %w", name, err), nil
 			}
 		}
@@ -76,7 +82,8 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 	block := ctx.Context.AddBasicBlock(newFunc, "body")
 	ctx.Builder.SetInsertPointAtEnd(block)
 
-	if err, _ := fd.Body.CompileLLVM(newCtx); err != nil {
+	err, _ = fd.Body.CompileLLVM(newCtx)
+	if err != nil {
 		return err, nil
 	}
 
@@ -113,13 +120,16 @@ func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, extrac
 	case DataTypeSymbol:
 		sym, _ := t.(SymbolType)
 		err, entry := ctx.FindStructSymbol(sym.Name)
+
 		if err != nil {
 			return err, extractedType{typ: llvm.Type{}}
 		}
+
 		return nil, extractedType{typ: llvm.PointerType(entry.LLVMType, 0), sEntry: entry}
 	case DataTypeArray:
 		arr, _ := t.(ArrayType)
 		var innerType llvm.Type
+
 		switch arr.Underlying.Value() {
 		case DataTypeNumber:
 			innerType = llvm.GlobalContext().Int32Type()
@@ -128,6 +138,7 @@ func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, extrac
 		default:
 			return fmt.Errorf("Type %s not supported", arr.Underlying), extractedType{typ: llvm.Type{}}
 		}
+
 		etype := extractedType{
 			typ: llvm.PointerType(innerType, 0),
 			aEntry: &ArraySymbolTableEntry{
@@ -136,6 +147,7 @@ func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, extrac
 				Type:           llvm.ArrayType(innerType, arr.Size),
 			},
 		}
+
 		return nil, etype
 	default:
 		return fmt.Errorf("FuncDeclStatement argument type %v not supported", t), extractedType{}

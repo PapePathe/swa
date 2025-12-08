@@ -41,13 +41,16 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Comp
 			attrs = append(attrs, llvm.GlobalContext().Int32Type())
 		case SymbolType:
 			typ, _ := typ.(SymbolType)
+
 			err, sym := ctx.FindStructSymbol(typ.Name)
 			if err != nil {
 				return err, nil
 			}
+
 			attrs = append(attrs, sym.LLVMType)
 		default:
 			err := fmt.Errorf("struct proprerty type (%s) not supported", typ)
+
 			return err, nil
 		}
 	}
@@ -55,15 +58,14 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Comp
 	newtype := ctx.Context.StructCreateNamed(sd.Name)
 	newtype.StructSetBody(attrs, false)
 
-	ctx.AddStructSymbol(
-		sd.Name,
-		&StructSymbolTableEntry{
-			LLVMType:      newtype,
-			Metadata:      sd,
-			PropertyTypes: attrs,
-		})
+	entry := &StructSymbolTableEntry{
+		LLVMType:      newtype,
+		Metadata:      sd,
+		PropertyTypes: attrs,
+	}
+	err := ctx.AddStructSymbol(sd.Name, entry)
 
-	return nil, nil
+	return err, nil
 }
 
 func (expr StructDeclarationStatement) TokenStream() []lexer.Token {

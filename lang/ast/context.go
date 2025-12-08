@@ -36,6 +36,18 @@ type ArraySymbolTableEntry struct {
 	ElementsCount     int
 }
 
+type CompilerCtx struct {
+	parent            *CompilerCtx
+	Context           *llvm.Context
+	Builder           *llvm.Builder
+	Module            *llvm.Module
+	Dialect           lexer.Dialect
+	symbolTable       map[string]SymbolTableEntry
+	structSymbolTable map[string]StructSymbolTableEntry
+	arraysSymbolTable map[string]ArraySymbolTableEntry
+	funcSymbolTable   map[string]llvm.Type
+}
+
 func NewCompilerContext(
 	c *llvm.Context,
 	b *llvm.Builder,
@@ -54,18 +66,6 @@ func NewCompilerContext(
 		funcSymbolTable:   map[string]llvm.Type{},
 		arraysSymbolTable: map[string]ArraySymbolTableEntry{},
 	}
-}
-
-type CompilerCtx struct {
-	parent            *CompilerCtx
-	Context           *llvm.Context
-	Builder           *llvm.Builder
-	Module            *llvm.Module
-	Dialect           lexer.Dialect
-	symbolTable       map[string]SymbolTableEntry
-	structSymbolTable map[string]StructSymbolTableEntry
-	arraysSymbolTable map[string]ArraySymbolTableEntry
-	funcSymbolTable   map[string]llvm.Type
 }
 
 func (ctx CompilerCtx) AddStructSymbol(name string, value *StructSymbolTableEntry) error {

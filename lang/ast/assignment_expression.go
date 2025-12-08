@@ -35,6 +35,7 @@ func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 		if err != nil {
 			return err, nil
 		}
+
 		glob := llvm.AddGlobal(*ctx.Module, value.Value.Type(), "")
 		glob.SetInitializer(*value.Value)
 		valueToBeAssigned = glob
@@ -43,11 +44,13 @@ func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 		if err != nil {
 			return err, nil
 		}
+
 		valueToBeAssigned = *value.Value
 	}
 
 	if assignee.SymbolTableEntry != nil && assignee.SymbolTableEntry.Address != nil {
 		str := ctx.Builder.CreateStore(valueToBeAssigned, *assignee.SymbolTableEntry.Address)
+
 		return nil, &CompilerResult{Value: &str}
 	}
 

@@ -44,7 +44,6 @@ func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 					elementType := leftResult.Value.Type().ElementType()
 					leftValue = ctx.Builder.CreateLoad(elementType, *leftResult.Value, "")
 				}
-
 			}
 		}
 	} else {
@@ -98,6 +97,7 @@ func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 	if !ok {
 		return fmt.Errorf("Binary expressions : unsupported operator <%s>", expr.Operator.Kind), nil
 	}
+
 	return handler(ctx, finalLeftValue, finalRightValue)
 }
 
@@ -159,6 +159,7 @@ func (expr BinaryExpression) compileLeftAndRightResult(ctx *CompilerCtx) (error,
 		compiledRightValue.Value = &glob
 	default:
 	}
+
 	return nil, compiledLeftValue, compiledRightValue
 }
 

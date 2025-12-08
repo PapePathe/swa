@@ -19,44 +19,53 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 	varName, ok := expr.Name.(SymbolExpression)
 	if !ok {
 		key := "ArrayAccessExpression.NameNotASymbol"
+
 		return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
 	}
 
 	err, array := ctx.FindSymbol(varName.Value)
 	if err != nil {
 		key := "ArrayAccessExpression.NotFoundInSymbolTable"
+
 		return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
 	}
 
 	err, entry := ctx.FindArraySymbol(varName.Value)
 	if err != nil {
 		key := "ArrayAccessExpression.NotFoundInArraySymbolTable"
+
 		return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
 	}
 
 	var indices []llvm.Value
+
 	switch expr.Index.(type) {
 	case NumberExpression:
 		idx, _ := expr.Index.(NumberExpression)
 
 		if int(idx.Value) < 0 {
 			key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
+
 			return ctx.Dialect.Error(key, expr.Index), nil, nil, nil
 		}
 
 		if int(idx.Value) > entry.ElementsCount-1 {
 			key := "ArrayAccessExpression.IndexOutOfBounds"
+
 			return ctx.Dialect.Error(key, int(idx.Value), varName.Value), nil, nil, nil
 		}
+
 		indices = []llvm.Value{llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(idx.Value), false)}
 	case SymbolExpression:
 		err, res := expr.Index.CompileLLVM(ctx)
 		if err != nil {
 			return err, nil, nil, nil
 		}
+
 		indices = []llvm.Value{*res.Value}
 	default:
 		key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
+
 		return ctx.Dialect.Error(key, expr.Index), nil, nil, nil
 	}
 
