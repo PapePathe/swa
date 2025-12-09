@@ -25,6 +25,11 @@ type CompileRequest struct {
 	T                       *testing.T
 }
 
+func NewSuccessfulCompileRequest(t *testing.T, input string, output string) {
+	req := CompileRequest{InputPath: input, ExpectedExecutionOutput: output, T: t}
+	req.AssertCompileAndExecute()
+}
+
 func (cr *CompileRequest) Compile() error {
 	cr.T.Helper()
 
