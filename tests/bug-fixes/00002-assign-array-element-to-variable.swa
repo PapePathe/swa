@@ -1,0 +1,7 @@
+dialect:english;
+
+start() int {
+   let nums : [2]int = [2]int{15,30, 45};
+   print("last elem: %d", nums[1 + 1]);
+   return 0; 
+}
