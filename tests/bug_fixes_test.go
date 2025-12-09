@@ -29,6 +29,16 @@ func TestBugFixes(t *testing.T) {
 		req.AssertCompileAndExecute()
 	})
 
+	t.Run("00003", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./bug-fixes/00003-assign-array-element-to-variable.swa",
+			ExpectedExecutionOutput: "(first persons's age: 11)(last persons's age: 44)",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+
 	t.Run("111-string-reassignment-produces-garbage-values", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./bug-fixes/111-string-reassignment-produces-garbage-values.english.swa",

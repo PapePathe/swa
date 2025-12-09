@@ -62,6 +62,14 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 	}
 
 	switch vd.Value.(type) {
+	case ArrayOfStructsAccessExpression:
+		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), fmt.Sprintf("alloc.%s", vd.Name))
+		ctx.Builder.CreateStore(*val.Value, alloc)
+
+		err = ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
+		if err != nil {
+			return err, nil
+		}
 	case ArrayAccessExpression:
 		load := ctx.Builder.CreateLoad(val.Value.AllocatedType(), *val.Value, "load.from-array")
 		alloc := ctx.Builder.CreateAlloca(val.Value.AllocatedType(), fmt.Sprintf("alloc.%s", vd.Name))
