@@ -124,7 +124,7 @@ func (expr VarDeclarationStatement) TypeCheck(t DataType, k llvm.Type) error {
 			case llvm.IntegerTypeKind:
 				// we good
 			default:
-				return fmt.Errorf("expected %s got pointer of %v", t, k)
+				// return fmt.Errorf("expected %s got pointer of %v", t, k)
 			}
 		case DataTypeArray:
 		case DataTypeSymbol:
