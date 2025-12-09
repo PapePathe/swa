@@ -1,0 +1,11 @@
+dialect:english;
+
+start() int {
+   let nums : [2]int = [2]int{15,30};
+   let first : int = nums[0];
+   print(
+      "first elem: %d, assigned value: %d", 
+      nums[0], first
+   );
+   return 0; 
+}

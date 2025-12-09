@@ -8,6 +8,17 @@ import (
 
 func TestBugFixes(t *testing.T) {
 	t.Parallel()
+
+	t.Run("00001", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./bug-fixes/00001-assign-array-element-to-variable.swa",
+			ExpectedExecutionOutput: "first elem: 15, assigned value: 15",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+
 	t.Run("111-string-reassignment-produces-garbage-values", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./bug-fixes/111-string-reassignment-produces-garbage-values.english.swa",
