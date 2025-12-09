@@ -1,0 +1,69 @@
+dialect:english;
+
+// ------------------------------------
+// PARTITION FUNCTION (Helper for QuickSort)
+// Rearranges the array elements around a pivot.
+// Returns the index of the pivot element.
+// ------------------------------------
+func partition(list: [5]int, low: int, high: int) int {
+  let pivot: int = list[high]; // Choose the rightmost element as the pivot
+  let i: int = low - 1;        // Index of smaller element
+  let j: int = low;
+  
+  // Custom temporary variable for swapping (SWA doesn't show multiple assignment)
+  let temp: int = 0; 
+
+  while(j < high) {
+    if(list[j] < pivot) {
+      i = i + 1;
+      
+      // SWAP: list[i] and list[j]
+      temp = list[i];
+      list[i] = list[j];
+      list[j] = temp;
+    }
+    j = j + 1;
+  }
+  
+  // SWAP: list[i+1] and pivot (list[high])
+  temp = list[i + 1];
+  list[i + 1] = list[high];
+  list[high] = temp;
+
+  return i + 1; // Return the partitioning index
+}
+
+// ------------------------------------
+// QUICKSORT FUNCTION (Recursive Sorting)
+// ------------------------------------
+func quickSort(list: [5]int, low: int, high: int) int {
+  let pi: int = 0;
+
+  if(low < high) {
+    // pi is the partitioning index, list[pi] is now in the correct place
+    pi = partition(list, low, high);
+
+ //   // Recursively sort elements before and after partition
+    quickSort(list, low, pi - 1);
+    quickSort(list, pi + 1, high);
+  }
+  
+  return 0; // Return the modified array
+}
+
+
+start () int {
+  // Array to sort: 
+  let unsorted_list: [5]int = [5]int{5, 4, 3, 2, 1};
+  let idx: int = 0;
+  
+  quickSort(unsorted_list, 0, 4); 
+
+  print("Sorted List: ");
+  while(idx < 5) {
+    print("%d ", unsorted_list[idx]);
+    idx = idx + 1;
+  }
+  
+  return 0; 
+}

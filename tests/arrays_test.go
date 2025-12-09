@@ -192,6 +192,16 @@ func TestArrayAccessWithPrefixExpression(t *testing.T) {
 	})
 }
 
+func TestSortingAlgorithms(t *testing.T) {
+	t.Run("QSort", func(t *testing.T) {
+		NewSuccessfulCompileRequest(
+			t,
+			"./arrays/sorting/qsort.swa",
+			"Sorted list: 1,2,3,4,5\n",
+		)
+	})
+}
+
 func TestArrayAccessWithSymbolExpression(t *testing.T) {
 	t.Parallel()
 
