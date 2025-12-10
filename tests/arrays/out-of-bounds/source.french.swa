@@ -1,7 +1,7 @@
 dialecte:français;
 
 demarrer() entier{
-  variable tableau : []entier = []entier{1,2,3,4,5};
+  variable tableau : [5]entier = [5]entier{1,2,3,4,5};
   tableau[5] = 0;
 
   retourner 0;

@@ -1,7 +1,7 @@
 dialect:english;
 
 start() int {
-  let tableau : []Engineer = []Engineer{
+  let tableau : [1]Engineer = [1]Engineer{
     Engineer{ Age: 40, Name: "Pathe",  TechStack: "Ruby, Rust, Go" },
   };
 

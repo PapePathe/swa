@@ -1,7 +1,7 @@
 dialect:english;
 
 start() int {
-  let numbers: []int = []int{1, 2, 3, 4, 5};
+  let numbers: [5]int = [5]int{1, 2, 3, 4, 5};
 
   if(numbers[0] == 1) {
     print("%s", "ok");

@@ -6,7 +6,7 @@ start() int {
     Age: int,
   }
 
-  let people: []Person = []Person{
+  let people: [1]Person = [1]Person{
     Person{Name: "Alice", Age: 30},
   };
 

@@ -1,7 +1,7 @@
 dialect:english;
 
 start() int {
-  let array : []string= []string{"abc", "efg", "ijk"};
+  let array : [3]string= [3]string{"abc", "efg", "ijk"};
   print(
     "values in the array: (%s),(%s),(%s)",
     array[0], array[1], array[2]

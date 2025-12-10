@@ -1,7 +1,7 @@
 dialect:english;
 
 start() int{
-  let array : []int = []int{1,2,3,4,5};
+  let array : [5]int = [5]int{1,2,3,4,5};
   array[5] = 0;
 
   return 0;
