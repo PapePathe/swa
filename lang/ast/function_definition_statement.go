@@ -150,7 +150,7 @@ func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, extrac
 		case DataTypeFloat:
 			innerType = llvm.GlobalContext().DoubleType()
 		default:
-			return fmt.Errorf("Type %s not supported", arr.Underlying), extractedType{typ: llvm.Type{}}
+			return fmt.Errorf("FuncDeclStatement Type %s not supported as array element", arr.Underlying), extractedType{typ: llvm.Type{}}
 		}
 
 		etype := extractedType{
