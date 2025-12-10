@@ -65,7 +65,10 @@ func (expr ArrayOfStructsAccessExpression) findSymbolTableEntry(ctx *CompilerCtx
 			return err, nil, nil, nil
 		}
 
-		indices = []llvm.Value{*res.Value}
+		indices = []llvm.Value{
+			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false),
+			*res.Value,
+		}
 	default:
 		key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
 

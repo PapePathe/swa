@@ -197,7 +197,15 @@ func TestArrayOfStructsAsFuncParam(t *testing.T) {
 		NewSuccessfulCompileRequest(
 			t,
 			"./arrays/structs/as-function-params.swa",
-			"X=1 occurs 1 times, X=5 occurs 0 times, X=99 occurs 0 times",
+			"X=1 occurs 2 times, X=5 occurs 2 times, X=99 occurs 0 times",
+		)
+	})
+
+	t.Run("High Earners", func(t *testing.T) {
+		NewSuccessfulCompileRequest(
+			t,
+			"./arrays/structs/count-high-earners.swa",
+			"Employees with salary above 50000: 2\\n",
 		)
 	})
 }
