@@ -119,8 +119,8 @@ func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, extrac
 		return nil, extractedType{typ: llvm.PointerType(llvm.GlobalContext().Int8Type(), 0)}
 	case DataTypeSymbol:
 		sym, _ := t.(SymbolType)
-		err, entry := ctx.FindStructSymbol(sym.Name)
 
+		err, entry := ctx.FindStructSymbol(sym.Name)
 		if err != nil {
 			return err, extractedType{typ: llvm.Type{}}
 		}
