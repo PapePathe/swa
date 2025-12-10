@@ -210,6 +210,14 @@ func TestSortingAlgorithms(t *testing.T) {
 			"Sorted List: 1 2 3 4 5 ",
 		)
 	})
+
+	t.Run("Bubble", func(t *testing.T) {
+		NewSuccessfulCompileRequest(
+			t,
+			"./arrays/sorting/bubble.swa",
+			"Sorted Array: 4 8 11 12 22 25 34 64 77 90 \\n",
+		)
+	})
 }
 
 func TestArrayAccessWithSymbolExpression(t *testing.T) {
