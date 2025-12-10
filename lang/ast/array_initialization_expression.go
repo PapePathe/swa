@@ -56,6 +56,14 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 		return fmt.Errorf("Static arrays must be initialized"), nil
 	}
 
+	arrTyp, _ := expr.Underlying.(ArrayType)
+
+	if len(expr.Contents) != arrTyp.Size {
+		format := "Static arrays must be initialized with exact size: want: %d, has: %d"
+
+		return fmt.Errorf(format, arrTyp.Size, len(expr.Contents)), nil
+	}
+
 	innerType, sdef, err := expr.extractArrayType(ctx)
 	if err != nil {
 		return err, nil
