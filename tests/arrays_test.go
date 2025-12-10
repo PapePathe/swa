@@ -192,12 +192,22 @@ func TestArrayAccessWithPrefixExpression(t *testing.T) {
 	})
 }
 
+func TestArrayOfStructsAsFuncParam(t *testing.T) {
+	t.Run("Search Occurrence", func(t *testing.T) {
+		NewSuccessfulCompileRequest(
+			t,
+			"./arrays/structs/as-function-params.swa",
+			"X=1 occurs 1 times, X=5 occurs 0 times, X=99 occurs 0 times",
+		)
+	})
+}
+
 func TestSortingAlgorithms(t *testing.T) {
 	t.Run("QSort", func(t *testing.T) {
 		NewSuccessfulCompileRequest(
 			t,
 			"./arrays/sorting/qsort.swa",
-			"Sorted list: 1,2,3,4,5\n",
+			"Sorted List: 1 2 3 4 5 ",
 		)
 	})
 }

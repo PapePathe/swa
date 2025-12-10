@@ -1,0 +1,45 @@
+dialect:english;
+
+struct Point { 
+  X: int, 
+  Y: int, 
+}
+
+func count_x_occurrences(points: [4]Point, target_x: int) int {
+  let count: int = 0;
+  let idx: int = 0;
+  let array_size: int = 4;
+  
+  while (idx < array_size) {
+    if (points[idx].X == target_x) {
+      count = count + 1;
+    }
+    
+    idx = idx + 1;
+  }
+  
+  return count;
+}
+
+start() int {
+  let points_array: [4]Point = [4]Point{
+    Point{X: 1, Y: 10}, 
+    Point{X: 5, Y: 20},
+    Point{X: 1, Y: 30}, // Match
+    Point{X: 5, Y: 40}, 
+  };
+  
+  let target: int = 1;
+  let occurrences: int = count_x_occurrences(points_array, target);
+  print("X=%d occurs %d times, ", target, occurrences);
+
+  target = 5;
+  occurrences = count_x_occurrences(points_array, target);
+  print("X=%d occurs %d times, ", target, occurrences);
+
+  target = 99;
+  occurrences = count_x_occurrences(points_array, target);
+  print("X=%d occurs %d times", target, occurrences);
+  
+  return 0;
+}
