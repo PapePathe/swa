@@ -1,0 +1,53 @@
+dialect:english;
+
+func selection_sort(list: [10]int) int {
+  let N: int = 10;
+  let i: int = 0;
+  let j: int = 0;
+  let min_idx: int = 0;
+  
+  // Outer loop: move the boundary of the unsorted subarray
+  while (i < (N - 1)) {
+    min_idx = i;
+    j = i + 1;
+    
+    // Inner loop: find the minimum element in the unsorted subarray
+    while (j < N) {
+      if (list[j] < list[min_idx]) {
+        min_idx = j;
+      }
+      j = j + 1;
+    }
+    
+    // Swap the found minimum element with the first element of the unsorted subarray
+    if (min_idx != i) {
+      let temp: int = list[i];
+      list[i] = list[min_idx];
+      list[min_idx] = temp;
+    }
+    
+    i = i + 1;
+  }
+  return 0;
+}
+
+func print_array_4(list: [10]int) int {
+  let N: int = 10;
+  let i: int = 0;
+  print("Sorted Array: ");
+  while (i < N) {
+    print("%d ", list[i]);
+    i = i + 1;
+  }
+  print("\n");
+  return 0;
+}
+
+start() int {
+  let numbers: [10]int = [10]int{77, 10, 5, 22, 11, 90, 8, 64, 34, 25};
+  
+  selection_sort(numbers);
+  print_array_4(numbers);
+  
+  return 0;
+}

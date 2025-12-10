@@ -211,6 +211,14 @@ func TestSortingAlgorithms(t *testing.T) {
 		)
 	})
 
+	t.Run("Selection", func(t *testing.T) {
+		NewSuccessfulCompileRequest(
+			t,
+			"./arrays/sorting/selection.swa",
+			"Sorted Array: 5 8 10 11 22 25 34 64 77 90 \\n",
+		)
+	})
+
 	t.Run("Bubble", func(t *testing.T) {
 		NewSuccessfulCompileRequest(
 			t,
