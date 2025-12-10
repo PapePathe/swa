@@ -1,0 +1,7 @@
+dialect:english;
+
+start() int {
+  print("%d", 1 + 1);
+
+  return 0;
+}

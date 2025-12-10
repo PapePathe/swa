@@ -6,6 +6,13 @@ import (
 
 func TestPrint(t *testing.T) {
 	t.Parallel()
+	t.Run("static string", func(t *testing.T) {
+		NewSuccessfulCompileRequest(
+			t,
+			"./print/variable.string.french.swa",
+			"contenu de la variable: french",
+		)
+	})
 
 	t.Run("French", func(t *testing.T) {
 		t.Run("static string", func(t *testing.T) {
