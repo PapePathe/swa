@@ -93,11 +93,8 @@ func (NumberType) Value() DataType {
 }
 
 func (se NumberType) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Value"] = se.Value().String()
-
 	res := make(map[string]any)
-	res["ast.NumberType"] = m
+	res["ast.NumberType"] = se.Value().String()
 
 	return json.Marshal(res)
 }
@@ -111,11 +108,8 @@ func (StringType) Value() DataType {
 }
 
 func (se StringType) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Value"] = se.Value().String()
-
 	res := make(map[string]any)
-	res["ast.StringType"] = m
+	res["ast.StringType"] = se.Value().String()
 
 	return json.Marshal(res)
 }
@@ -129,11 +123,8 @@ func (FloatType) Value() DataType {
 }
 
 func (se FloatType) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Value"] = se.Value().String()
-
 	res := make(map[string]any)
-	res["ast.FloatType"] = m
+	res["ast.FloatType"] = se.Value().String()
 
 	return json.Marshal(res)
 }
