@@ -5,12 +5,28 @@ import (
 )
 
 func TestPrint(t *testing.T) {
-	t.Parallel()
 	t.Run("static string", func(t *testing.T) {
+		t.Parallel()
+
 		NewSuccessfulCompileRequest(
 			t,
-			"./print/variable.string.french.swa",
-			"contenu de la variable: french",
+			"./print/binexpr.swa",
+			"2",
+		)
+	})
+
+	t.Run("table display", func(t *testing.T) {
+		t.Parallel()
+
+		NewSuccessfulCompileRequest(
+			t,
+			"./print/table.swa",
+			`   id|                dept| salary
+   20|     human resources|1000000
+   21|          accounting|1000000
+   22|             finance|1000000
+   23|         engineering|1000000
+`,
 		)
 	})
 
