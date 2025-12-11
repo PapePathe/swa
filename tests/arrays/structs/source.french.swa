@@ -8,7 +8,7 @@ demarrer() entier {
     StackTechnique: chaine,
   }
 
-  variable tableau : []Ingenieur = []Ingenieur{
+  variable tableau : [4]Ingenieur = [4]Ingenieur{
     Ingenieur{ Age: 40, Taille: 1.80, Nom: "Pathe",  StackTechnique: "Ruby, Rust, Go" },
     Ingenieur{ Age: 24, Taille: 1.81, Nom: "Lucien", StackTechnique: "Typescript, HTML, Css" },
     Ingenieur{ Age: 25, Taille: 1.82, Nom: "Manel",  StackTechnique: "Typescript, Ruby" },

@@ -5,7 +5,7 @@ demarrer() entier {
     Age: entier,
   }
 
-  variable tableau : []Engineer = []Engineer{
+  variable tableau : [1]Engineer = [1]Engineer{
     Engineer{ Name: "test" },
   };
 }

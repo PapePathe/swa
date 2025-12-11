@@ -1,0 +1,145 @@
+dialect:english;
+
+// Define array sizes for this test case
+ let M_MAX : int = 2; // Size of nums1
+ let N_MAX : int = 4; // Size of nums2
+ let INF : int = 10000001; // Positive infinity sentinel (larger than max constraint 10^6)
+ let NEG_INF : int = -10000001; // Negative infinity sentinel
+ 
+ // Helper function to find the maximum of two integers
+ func getMaxInt(a: int, b: int) int {
+   if (a > b) {
+     return a;
+   }
+   return b;
+ }
+ 
+ // Helper function to find the minimum of two integers
+ func getMinInt(a: int, b: int) int {
+   if (a < b) {
+     return a;
+   }
+   return b;
+ }
+ 
+ // ------------------------------------
+ // Core function implementing O(log(m+n)) Binary Search
+ // ------------------------------------
+ func findMedianSortedArrays(nums1: [2]int, nums2: [4]int, m: int, n: int) float {
+   // We assume m <= n, ensuring binary search is on the smaller array (nums1).
+   // If m > n, a swap is required, but SWA does not support generics/pointer swaps easily.
+   // The caller must ensure the shorter array is passed as nums1.
+   
+   let low : int = 0;
+   let high : int = m;
+   let total_len : int = m + n;
+   let half_len : int = (total_len + 1) / 2;
+   
+   let maxLeftX : int = 0;
+   let minRightX : int = 0;
+   let maxLeftY : int = 0;
+   let minRightY : int = 0;
+   
+   let partitionX : int = 0;
+   let partitionY : int = 0;
+   
+   let result_median : float = 0.0;
+   
+   while (low <= high) {
+     // 1. Determine partition points using Binary Search
+     partitionX = (low + high) / 2;
+     partitionY = half_len - partitionX;
+     
+     // 2. Determine boundary values (maxLeftX, minRightX, maxLeftY, minRightY)
+     
+     // Get maxLeftX (element before partitionX)
+     if (partitionX == 0) {
+       maxLeftX = NEG_INF;
+     } else {
+       maxLeftX = nums1[partitionX - 1];
+     }
+     
+     // Get minRightX (element at partitionX)
+     if (partitionX == m) {
+       minRightX = INF;
+     } else {
+       minRightX = nums1[partitionX];
+     }
+ 
+     // Get maxLeftY (element before partitionY)
+     if (partitionY == 0) {
+       maxLeftY = NEG_INF;
+     } else {
+       maxLeftY = nums2[partitionY - 1];
+     }
+     
+     // Get minRightY (element at partitionY)
+     if (partitionY == n) {
+       minRightY = INF;
+     } else {
+       minRightY = nums2[partitionY];
+     }
+     
+     // 3. Check for correct partition: maxLeft <= minRight
+     if (maxLeftX <= minRightY) {
+       if (maxLeftY <= minRightX) {
+         // --- Found the correct partition! ---
+         
+         // Calculate the maximum of the left side (MaxLeft)
+         let maxLeft : int = getMaxInt(maxLeftX, maxLeftY);
+         
+         // If total length is Odd, MaxLeft is the median
+         if ((total_len % 2) == 1) {
+           result_median = maxLeft;
+           return result_median;
+         } else {
+           // If total length is Even, median is (MaxLeft + MinRight) / 2
+           
+           // Calculate the minimum of the right side (MinRight)
+           let minRight : int = getMinInt(minRightX, minRightY);
+           
+           // Must perform addition and division using float arithmetic
+           let temp_sum : float = maxLeft + minRight;
+           result_median = temp_sum / 2.0;
+           return result_median;
+         }
+       } else {
+         // maxLeftY > minRightX: PartitionX is too small (move right)
+         low = partitionX + 1;
+       }
+     } else {
+       // maxLeftX > minRightY: PartitionX is too large (move left)
+       high = partitionX - 1;
+     }
+   }
+   
+   // Fallback (should not be reached)
+   return 0.0;
+ }
+ 
+ // ------------------------------------
+ // MAIN EXECUTION
+ // ------------------------------------
+ start() int {
+   let result : float = 0.0;
+   
+   // Example 2: nums1 = [1, 2], nums2 = [3, 4, 5, 6] -> Merged: [1, 2, 3, 4, 5, 6]. Median = (3 + 4) / 2 = 3.5
+   let arr1_a: [2]int = [2]int{ 1, 2 };
+   let arr2_a: [4]int = [4]int{ 3, 4, 5, 6 };
+   
+   // Call function, ensuring shorter array is first: m=2, n=4
+   result = findMedianSortedArrays(arr1_a, arr2_a, 2, 4); 
+   print("Median for [1,2], [3,4,5,6] (m=2, n=4) = %f", result); 
+ 
+   // Example for an Odd Total Length: nums1 = [1], nums2 = [2, 3, 4, 5] -> Merged: [1, 2, 3, 4, 5]. Median = 3.0
+   // Note: We'll pad the 1-element array to fit the [2]int constraint, using INF as padding
+   let arr1_b: [2]int = [2]int{ 1, INF }; 
+   let arr2_b: [4]int = [4]int{ 2, 3, 4, 5 };
+   
+   // Call function with actual sizes: m=1, n=4. Total size=5. Half_len=3.
+   // The logic inside must handle the INF padding correctly via the size check (m=1).
+   result = findMedianSortedArrays(arr1_b, arr2_b, 1, 4); 
+   print("Median for [1], [2,3,4,5] (m=1, n=4) = %f", result); 
+ 
+   return 0; 
+ }

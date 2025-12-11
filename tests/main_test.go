@@ -25,6 +25,11 @@ type CompileRequest struct {
 	T                       *testing.T
 }
 
+func NewSuccessfulCompileRequest(t *testing.T, input string, output string) {
+	req := CompileRequest{InputPath: input, ExpectedExecutionOutput: output, T: t}
+	req.AssertCompileAndExecute()
+}
+
 func (cr *CompileRequest) Compile() error {
 	cr.T.Helper()
 
@@ -47,8 +52,8 @@ func (cr *CompileRequest) RunProgram() error {
 	if cr.ExpectedExecutionOutput != string(output) {
 		cr.T.Fatalf(
 			"Execution error want: %s, has: %s",
-			cr.ExpectedExecutionOutput,
-			string(output),
+			fmt.Sprintf("%q", cr.ExpectedExecutionOutput),
+			fmt.Sprintf("%q", string(output)),
 		)
 	}
 

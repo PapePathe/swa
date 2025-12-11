@@ -1,7 +1,7 @@
 dialect:english;
 
 start() int {
-  let tableau : []int = []int{1,2,3,4,5};
+  let tableau : [5]int = [5]int{1,2,3,4,5};
 
   print(
     "Array values are: %d %d %d %d %d",

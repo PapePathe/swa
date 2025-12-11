@@ -30,7 +30,7 @@ func ParsePrimaryExpression(p *Parser) (ast.Expression, error) {
 		p.currentExpression = &expr
 		tok := p.advance()
 		expr.Tokens = append(expr.Tokens, tok)
-		expr.Value = tok.Value[1 : len(tok.Value)-1]
+		expr.Value = tok.Value
 
 		return expr, nil
 	case lexer.Identifier:

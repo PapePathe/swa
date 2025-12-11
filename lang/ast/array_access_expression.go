@@ -56,7 +56,7 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 		}
 
 		indices = []llvm.Value{llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(idx.Value), false)}
-	case SymbolExpression:
+	case SymbolExpression, BinaryExpression:
 		err, res := expr.Index.CompileLLVM(ctx)
 		if err != nil {
 			return err, nil, nil, nil

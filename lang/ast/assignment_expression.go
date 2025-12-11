@@ -39,6 +39,17 @@ func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 		glob := llvm.AddGlobal(*ctx.Module, value.Value.Type(), "")
 		glob.SetInitializer(*value.Value)
 		valueToBeAssigned = glob
+	case ArrayAccessExpression:
+		err, value := expr.Value.CompileLLVM(ctx)
+		if err != nil {
+			return err, nil
+		}
+
+		valueToBeAssigned = ctx.Builder.CreateLoad(
+			value.Value.AllocatedType(),
+			*value.Value,
+			"load.from-array",
+		)
 	default:
 		err, value := expr.Value.CompileLLVM(ctx)
 		if err != nil {

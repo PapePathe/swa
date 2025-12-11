@@ -107,7 +107,7 @@ func (ctx CompilerCtx) FindArraySymbol(name string) (error, *ArraySymbolTableEnt
 
 	if !exists {
 		if ctx.parent == nil {
-			return fmt.Errorf("struct named %s does not exist in symbol table", name), nil
+			return fmt.Errorf("array named %s does not exist in symbol table", name), nil
 		}
 
 		return ctx.parent.FindArraySymbol(name)

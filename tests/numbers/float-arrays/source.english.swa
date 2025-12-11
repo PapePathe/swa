@@ -1,7 +1,7 @@
 dialect:english;
 
 start() int {
-  let numbers: []float = []float{1.1, 2.2, 3.3};
+  let numbers: [3]float = [3]float{1.1, 2.2, 3.3};
 
   if(numbers[0] == 1.1) {
     print("%s", "ok");

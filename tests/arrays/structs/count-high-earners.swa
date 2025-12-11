@@ -1,0 +1,42 @@
+dialect:english;
+
+struct Employee { 
+  ID: int, 
+  Salary: int, 
+}
+
+func count_high_earners(employees: [5]Employee, threshold: int) int {
+  let high_earner_count: int = 0;
+  let idx: int = 0;
+  let array_size: int = 5;
+  
+  while (idx < array_size) {
+    let current_salary: int = employees[idx].Salary;
+    
+    if (current_salary > threshold) {
+      high_earner_count = high_earner_count + 1;
+    }
+    
+    idx = idx + 1;
+  }
+  
+  return high_earner_count;
+}
+
+start() int {
+  let THRESHOLD_CONST: int = 50000;
+  
+  let employees_array: [5]Employee = [5]Employee{
+    Employee{ID: 105, Salary: 30000}, // Below
+    Employee{ID: 101, Salary: 45000}, // Below
+    Employee{ID: 102, Salary: 60000}, // Above
+    Employee{ID: 103, Salary: 50000}, // Equal, not >
+    Employee{ID: 104, Salary: 75000}, // Above
+  };
+  
+  let count: int = count_high_earners(employees_array, THRESHOLD_CONST);
+  
+  print("Employees with salary above %d: %d\n", THRESHOLD_CONST, count);
+  
+  return 0;
+}

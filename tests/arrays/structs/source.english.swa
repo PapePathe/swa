@@ -8,7 +8,7 @@ start() int {
     TechStack: string,
   }
  
-  let tableau : []Engineer = []Engineer{
+  let tableau : [4]Engineer = [4]Engineer{
     Engineer{ Age: 40, Height: 1.80, Name: "Pathe",  TechStack: "Ruby, Rust, Go" },
     Engineer{ Age: 24, Height: 1.81, Name: "Lucien", TechStack: "Typescript, HTML, Css" },
     Engineer{ Age: 25, Height: 1.82, Name: "Manel",  TechStack: "Typescript, Ruby" },

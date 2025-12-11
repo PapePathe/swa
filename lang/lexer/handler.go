@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"regexp"
+	"strconv"
 )
 
 func defaultHandler(kind TokenKind, value string) regexHandler {
@@ -30,7 +31,14 @@ func stringHandler(lex *Lexer, regex *regexp.Regexp) {
 	match := regex.FindStringIndex(lex.remainder())
 	stringLiteral := lex.remainder()[match[0]:match[1]]
 
-	lex.push(NewToken(String, stringLiteral, lex.line))
+	text, err := strconv.Unquote(stringLiteral)
+	if err != nil {
+		panic(err)
+	}
+
+	newToken := NewToken(String, text, lex.line)
+
+	lex.push(newToken)
 	lex.advanceN(len(stringLiteral))
 }
 

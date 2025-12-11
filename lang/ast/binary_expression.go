@@ -259,6 +259,7 @@ var handlers = map[lexer.TokenKind]binaryHandlerFunc{
 	lexer.LessThan:          lessThan,
 	lexer.LessThanEquals:    lessThanEquals,
 	lexer.Equals:            equals,
+	lexer.NotEquals:         notEquals,
 }
 
 func and(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
@@ -394,6 +395,20 @@ func equals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
 		res = ctx.Builder.CreateFCmp(llvm.FloatOEQ, l, r, "")
 	} else {
 		res = ctx.Builder.CreateICmp(llvm.IntEQ, l, r, "")
+	}
+
+	return nil, &CompilerResult{Value: &res}
+}
+
+func notEquals(ctx *CompilerCtx, l, r llvm.Value) (error, *CompilerResult) {
+	var res llvm.Value
+
+	// Check if either side is a float type
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
+		res = ctx.Builder.CreateFCmp(llvm.FloatONE, l, r, "")
+	} else {
+		res = ctx.Builder.CreateICmp(llvm.IntNE, l, r, "")
 	}
 
 	return nil, &CompilerResult{Value: &res}

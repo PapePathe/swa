@@ -119,32 +119,47 @@ func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, extrac
 		return nil, extractedType{typ: llvm.PointerType(llvm.GlobalContext().Int8Type(), 0)}
 	case DataTypeSymbol:
 		sym, _ := t.(SymbolType)
-		err, entry := ctx.FindStructSymbol(sym.Name)
 
+		err, entry := ctx.FindStructSymbol(sym.Name)
 		if err != nil {
 			return err, extractedType{typ: llvm.Type{}}
 		}
 
 		return nil, extractedType{typ: llvm.PointerType(entry.LLVMType, 0), sEntry: entry}
 	case DataTypeArray:
-		arr, _ := t.(ArrayType)
+		var sEntry *StructSymbolTableEntry
+
 		var innerType llvm.Type
 
+		arr, _ := t.(ArrayType)
+
 		switch arr.Underlying.Value() {
+		case DataTypeSymbol:
+			arrSym, _ := t.(ArrayType)
+			sym, _ := arrSym.Underlying.(SymbolType)
+
+			err, entry := ctx.FindStructSymbol(sym.Name)
+			if err != nil {
+				return err, extractedType{typ: llvm.Type{}}
+			}
+
+			innerType = entry.LLVMType
+			sEntry = entry
 		case DataTypeNumber:
 			innerType = llvm.GlobalContext().Int32Type()
 		case DataTypeFloat:
 			innerType = llvm.GlobalContext().DoubleType()
 		default:
-			return fmt.Errorf("Type %s not supported", arr.Underlying), extractedType{typ: llvm.Type{}}
+			return fmt.Errorf("FuncDeclStatement Type %s not supported as array element", arr.Underlying), extractedType{typ: llvm.Type{}}
 		}
 
 		etype := extractedType{
 			typ: llvm.PointerType(innerType, 0),
 			aEntry: &ArraySymbolTableEntry{
-				UnderlyingType: innerType,
-				ElementsCount:  arr.Size,
-				Type:           llvm.ArrayType(innerType, arr.Size),
+				UnderlyingType:    innerType,
+				UnderlyingTypeDef: sEntry,
+				ElementsCount:     arr.Size,
+				Type:              llvm.ArrayType(innerType, arr.Size),
 			},
 		}
 

@@ -1,0 +1,22 @@
+dialect:english;
+
+struct Person { 
+  Age: int, 
+}
+
+start() int {
+   let persons: [2]Person = [2]Person{
+     Person{Age: 11}, 
+     Person{Age: 44}, 
+   };
+
+   let first : int = persons[0 + 0].Age;
+   print("(first persons's age: %d)", first);
+
+   let x : int = 0;
+
+   let last: int = persons[1].Age;
+   print("(last persons's age: %d)", last);
+
+   return 0; 
+}

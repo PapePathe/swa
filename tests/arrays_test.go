@@ -192,6 +192,50 @@ func TestArrayAccessWithPrefixExpression(t *testing.T) {
 	})
 }
 
+func TestArrayOfStructsAsFuncParam(t *testing.T) {
+	t.Run("Search Occurrence", func(t *testing.T) {
+		NewSuccessfulCompileRequest(
+			t,
+			"./arrays/structs/as-function-params.swa",
+			"X=1 occurs 2 times, X=5 occurs 2 times, X=99 occurs 0 times",
+		)
+	})
+
+	t.Run("High Earners", func(t *testing.T) {
+		NewSuccessfulCompileRequest(
+			t,
+			"./arrays/structs/count-high-earners.swa",
+			"Employees with salary above 50000: 2\n",
+		)
+	})
+}
+
+func TestSortingAlgorithms(t *testing.T) {
+	t.Run("QSort", func(t *testing.T) {
+		NewSuccessfulCompileRequest(
+			t,
+			"./arrays/sorting/qsort.swa",
+			"Sorted List: 1 2 3 4 5 ",
+		)
+	})
+
+	t.Run("Selection", func(t *testing.T) {
+		NewSuccessfulCompileRequest(
+			t,
+			"./arrays/sorting/selection.swa",
+			"Sorted Array: 5 8 10 11 22 25 34 64 77 90 \n",
+		)
+	})
+
+	t.Run("Bubble", func(t *testing.T) {
+		NewSuccessfulCompileRequest(
+			t,
+			"./arrays/sorting/bubble.swa",
+			"Sorted Array: 4 8 11 12 22 25 34 64 77 90 \n",
+		)
+	})
+}
+
 func TestArrayAccessWithSymbolExpression(t *testing.T) {
 	t.Parallel()
 
