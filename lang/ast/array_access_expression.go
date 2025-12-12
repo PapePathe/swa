@@ -2,6 +2,7 @@ package ast
 
 import (
 	"encoding/json"
+	"fmt"
 	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
@@ -51,51 +52,56 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 			return err, nil, nil, nil
 		}
 
-		// Get the AST type from struct metadata to determine element type
 		var elementType llvm.Type
+
 		var arrayType llvm.Type
+
 		var elementsCount int = -1
+
 		var isPointerType bool = false
 
-		if val.SymbolTableEntry != nil && val.SymbolTableEntry.Ref != nil {
-			// Find which property this is
-			propExpr, ok := expr.Name.(MemberExpression)
-			if ok {
-				if propSym, ok := propExpr.Property.(SymbolExpression); ok {
-					propIndex, err := propExpr.resolveStructAccess(val.SymbolTableEntry.Ref, propSym.Value)
-					if err == nil {
-						// Get the AST type from metadata
-						astType := val.SymbolTableEntry.Ref.Metadata.Types[propIndex]
-
-						// Check if it's a pointer type
-						if ptrType, ok := astType.(PointerType); ok {
-							isPointerType = true
-							elementType = ptrType.Underlying.LLVMType()
-							arrayType = elementType
-						} else if arrType, ok := astType.(ArrayType); ok {
-							// Embedded array type
-							elementType = arrType.Underlying.LLVMType()
-							arrayType = arrType.LLVMType()
-							elementsCount = arrType.Size
-						}
-					}
-				}
-			}
+		if val.SymbolTableEntry == nil && val.SymbolTableEntry.Ref == nil {
+			return fmt.Errorf("ArrayAccessExpression Missing SymbolTableEntry"), nil, nil, nil
 		}
 
-		// Fallback if we couldn't determine from metadata
-		if elementType.C == nil {
-			elementType = llvm.GlobalContext().Int32Type()
+		propExpr, ok := expr.Name.(MemberExpression)
+		if !ok {
+			format := "ArrayAccessExpression expected expr name to be a MemberExpression"
+
+			return fmt.Errorf(format), nil, nil, nil
+		}
+
+		propSym, ok := propExpr.Property.(SymbolExpression)
+		if !ok {
+			format := "ArrayAccessExpression expected expr property to be a SymbolExpression"
+
+			return fmt.Errorf(format), nil, nil, nil
+		}
+
+		propIndex, err := propExpr.resolveStructAccess(val.SymbolTableEntry.Ref, propSym.Value)
+		if err != nil {
+			return err, nil, nil, nil
+		}
+
+		astType := val.SymbolTableEntry.Ref.Metadata.Types[propIndex]
+
+		switch coltype := astType.(type) {
+		case PointerType:
+			isPointerType = true
+			elementType = coltype.Underlying.LLVMType()
 			arrayType = elementType
+		case ArrayType:
+			elementType = coltype.Underlying.LLVMType()
+			arrayType = coltype.LLVMType()
+			elementsCount = coltype.Size
+		default:
+			panic("ArrayAccessExpression hmm not implemented")
 		}
 
-		// Handle pointer vs embedded array differently
 		if isPointerType {
-			// Load the pointer value from the struct field
 			pointerValue := ctx.Builder.CreateLoad(*val.StuctPropertyValueType, *val.Value, "")
 			array = &SymbolTableEntry{Value: pointerValue}
 		} else {
-			// Embedded array - use the field address directly
 			array = &SymbolTableEntry{Value: *val.Value}
 		}
 
