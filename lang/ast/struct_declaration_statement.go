@@ -32,26 +32,15 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Comp
 
 	for idx := range sd.Properties {
 		typ := sd.Types[idx]
-		switch typ.(type) {
-		case StringType:
-			attrs = append(attrs, llvm.PointerType(llvm.GlobalContext().Int8Type(), 0))
-		case FloatType:
-			attrs = append(attrs, llvm.GlobalContext().DoubleType())
-		case NumberType:
-			attrs = append(attrs, llvm.GlobalContext().Int32Type())
+		switch typ := typ.(type) {
 		case SymbolType:
-			typ, _ := typ.(SymbolType)
-
-			err, sym := ctx.FindStructSymbol(typ.Name)
+			err, t := typ.LLVMTypeDyn(ctx)
 			if err != nil {
 				return err, nil
 			}
-
-			attrs = append(attrs, sym.LLVMType)
+			attrs = append(attrs, t)
 		default:
-			err := fmt.Errorf("struct proprerty type (%s) not supported", typ)
-
-			return err, nil
+			attrs = append(attrs, typ.LLVMType())
 		}
 	}
 

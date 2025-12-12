@@ -16,25 +16,96 @@ type ArrayAccessExpression struct {
 var _ Expression = (*ArrayAccessExpression)(nil)
 
 func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error, *ArraySymbolTableEntry, *SymbolTableEntry, []llvm.Value) {
-	varName, ok := expr.Name.(SymbolExpression)
-	if !ok {
-		key := "ArrayAccessExpression.NameNotASymbol"
+	var name string
+	var array *SymbolTableEntry
+	var entry *ArraySymbolTableEntry
+	var err error
 
-		return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
-	}
+	switch expr.Name.(type) {
+	case SymbolExpression:
+		varName, ok := expr.Name.(SymbolExpression)
+		if !ok {
+			key := "ArrayAccessExpression.NameNotASymbol"
 
-	err, array := ctx.FindSymbol(varName.Value)
-	if err != nil {
-		key := "ArrayAccessExpression.NotFoundInSymbolTable"
+			return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
+		}
 
-		return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
-	}
+		err, array = ctx.FindSymbol(varName.Value)
+		if err != nil {
+			key := "ArrayAccessExpression.NotFoundInSymbolTable"
 
-	err, entry := ctx.FindArraySymbol(varName.Value)
-	if err != nil {
-		key := "ArrayAccessExpression.NotFoundInArraySymbolTable"
+			return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
+		}
 
-		return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
+		err, entry = ctx.FindArraySymbol(varName.Value)
+		if err != nil {
+			key := "ArrayAccessExpression.NotFoundInArraySymbolTable"
+
+			return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
+		}
+
+		name = varName.Value
+	case MemberExpression:
+		err, val := expr.Name.CompileLLVM(ctx)
+		if err != nil {
+			return err, nil, nil, nil
+		}
+
+		// Get the AST type from struct metadata to determine element type
+		var elementType llvm.Type
+		var arrayType llvm.Type
+		var elementsCount int = -1
+		var isPointerType bool = false
+
+		if val.SymbolTableEntry != nil && val.SymbolTableEntry.Ref != nil {
+			// Find which property this is
+			propExpr, ok := expr.Name.(MemberExpression)
+			if ok {
+				if propSym, ok := propExpr.Property.(SymbolExpression); ok {
+					propIndex, err := propExpr.resolveStructAccess(val.SymbolTableEntry.Ref, propSym.Value)
+					if err == nil {
+						// Get the AST type from metadata
+						astType := val.SymbolTableEntry.Ref.Metadata.Types[propIndex]
+
+						// Check if it's a pointer type
+						if ptrType, ok := astType.(PointerType); ok {
+							isPointerType = true
+							elementType = ptrType.Underlying.LLVMType()
+							arrayType = elementType
+						} else if arrType, ok := astType.(ArrayType); ok {
+							// Embedded array type
+							elementType = arrType.Underlying.LLVMType()
+							arrayType = arrType.LLVMType()
+							elementsCount = arrType.Size
+						}
+					}
+				}
+			}
+		}
+
+		// Fallback if we couldn't determine from metadata
+		if elementType.C == nil {
+			elementType = llvm.GlobalContext().Int32Type()
+			arrayType = elementType
+		}
+
+		// Handle pointer vs embedded array differently
+		if isPointerType {
+			// Load the pointer value from the struct field
+			pointerValue := ctx.Builder.CreateLoad(*val.StuctPropertyValueType, *val.Value, "")
+			array = &SymbolTableEntry{Value: pointerValue}
+		} else {
+			// Embedded array - use the field address directly
+			array = &SymbolTableEntry{Value: *val.Value}
+		}
+
+		entry = &ArraySymbolTableEntry{
+			UnderlyingType: elementType,
+			Type:           arrayType,
+			ElementsCount:  elementsCount,
+		}
+	default:
+		panic("ArrayAccessExpression not implemented")
 	}
 
 	var indices []llvm.Value
@@ -49,13 +120,16 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 			return ctx.Dialect.Error(key, expr.Index), nil, nil, nil
 		}
 
-		if int(idx.Value) > entry.ElementsCount-1 {
+		// Skip bounds checking for pointer types (ElementsCount == -1)
+		if entry.ElementsCount >= 0 && int(idx.Value) > entry.ElementsCount-1 {
 			key := "ArrayAccessExpression.IndexOutOfBounds"
 
-			return ctx.Dialect.Error(key, int(idx.Value), varName.Value), nil, nil, nil
+			return ctx.Dialect.Error(key, int(idx.Value), name), nil, nil, nil
 		}
 
-		indices = []llvm.Value{llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(idx.Value), false)}
+		indices = []llvm.Value{
+			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(idx.Value), false),
+		}
 	case SymbolExpression, BinaryExpression:
 		err, res := expr.Index.CompileLLVM(ctx)
 		if err != nil {
