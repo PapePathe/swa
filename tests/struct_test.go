@@ -211,3 +211,73 @@ func TestStructArrayPointer(t *testing.T) {
 		req.AssertCompileAndExecute()
 	})
 }
+
+func TestStructMultiArrays(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./structs/multi-arrays/source.english.swa",
+			ExpectedExecutionOutput: "arr1[0]=10 arr1[1]=20 arr2[0]=100 arr2[2]=300 value=42",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}
+
+func TestStructMultiPointers(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./structs/multi-pointers/source.english.swa",
+			ExpectedExecutionOutput: "ptr1[0]=10 ptr1[1]=20 ptr2[0]=100 ptr2[2]=300 value=99",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}
+
+func TestStructMixedArrays(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./structs/mixed-arrays/source.english.swa",
+			ExpectedExecutionOutput: "embedded[0]=10 embedded[1]=20 pointer[0]=100 pointer[2]=300",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}
+
+func TestStructFuncParamEmbedded(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./structs/func-param-embedded/source.english.swa",
+			ExpectedExecutionOutput: "Result: 65",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}
+
+func TestStructFuncParamPointer(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./structs/func-param-pointer/source.english.swa",
+			ExpectedExecutionOutput: "Result: 65",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}
