@@ -32,16 +32,12 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Comp
 
 	for idx := range sd.Properties {
 		typ := sd.Types[idx]
-		switch typ := typ.(type) {
-		case SymbolType:
-			err, t := typ.LLVMTypeDyn(ctx)
-			if err != nil {
-				return err, nil
-			}
-			attrs = append(attrs, t)
-		default:
-			attrs = append(attrs, typ.LLVMType())
+		err, llvmType := typ.LLVMType(ctx)
+		if err != nil {
+			return err, nil
 		}
+
+		attrs = append(attrs, llvmType)
 	}
 
 	newtype := ctx.Context.StructCreateNamed(sd.Name)

@@ -88,11 +88,22 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 		switch coltype := astType.(type) {
 		case PointerType:
 			isPointerType = true
-			elementType = coltype.Underlying.LLVMType()
+			err, elementType = coltype.Underlying.LLVMType(ctx)
+			if err != nil {
+				return err, nil, nil, nil
+			}
 			arrayType = elementType
 		case ArrayType:
-			elementType = coltype.Underlying.LLVMType()
-			arrayType = coltype.LLVMType()
+			err, elementType = coltype.Underlying.LLVMType(ctx)
+			if err != nil {
+				return err, nil, nil, nil
+			}
+
+			err, arrayType = coltype.LLVMType(ctx)
+			if err != nil {
+				return err, nil, nil, nil
+			}
+
 			elementsCount = coltype.Size
 		default:
 			panic("ArrayAccessExpression hmm not implemented")
