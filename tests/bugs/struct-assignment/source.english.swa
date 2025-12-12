@@ -1,0 +1,14 @@
+dialect:english;
+
+struct Data { arr: [3]int, }
+
+start() int {
+  let d1: Data = Data{ arr: [3]int{1, 2, 3} };
+  let d2: Data = d1;
+
+  d2.arr[0] = 999;
+
+  print("%d", d2.arr[0]);
+
+  return 0;
+}

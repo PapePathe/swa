@@ -83,7 +83,26 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		return vd.compileStructInitializationExpression(ctx, val)
 	case StringExpression:
 		return vd.compileStringExpression(ctx, val)
-	case NumberExpression, FloatExpression, BinaryExpression, FunctionCallExpression, SymbolExpression, MemberExpression:
+	case SymbolExpression:
+		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), fmt.Sprintf("alloc.%s", vd.Name))
+		ctx.Builder.CreateStore(*val.Value, alloc)
+
+		entry := &SymbolTableEntry{
+			Value:   *val.Value,
+			Address: &alloc,
+		}
+
+		switch vd.ExplicitType.(type) {
+		case SymbolType:
+			entry.Ref = val.SymbolTableEntry.Ref
+		default:
+		}
+
+		err = ctx.AddSymbol(vd.Name, entry)
+		if err != nil {
+			return err, nil
+		}
+	case NumberExpression, FloatExpression, BinaryExpression, FunctionCallExpression, MemberExpression:
 		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), fmt.Sprintf("alloc.%s", vd.Name))
 		ctx.Builder.CreateStore(*val.Value, alloc)
 

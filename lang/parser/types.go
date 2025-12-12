@@ -31,11 +31,21 @@ func typeNud(kind lexer.TokenKind, nudFn TypeNudHandlerFunc) {
 }
 
 func createTokenTypeLookups() {
+	typeNud(lexer.Star, parsePointerType)
 	typeNud(lexer.Identifier, parseSymbolType)
 	typeNud(lexer.TypeInt, parseIntType)
 	typeNud(lexer.TypeFloat, parseFloatType)
 	typeNud(lexer.TypeString, parseStringType)
 	typeNud(lexer.OpenBracket, parseArrayType)
+}
+
+func parsePointerType(p *Parser) (ast.Type, []lexer.Token) {
+	tokens := []lexer.Token{p.advance()}
+
+	underlying, toks := parseType(p, DefaultBindingPower)
+	tokens = append(tokens, toks...)
+
+	return ast.PointerType{Underlying: underlying}, tokens
 }
 
 func parseFloatType(p *Parser) (ast.Type, []lexer.Token) {

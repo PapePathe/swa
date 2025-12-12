@@ -1,0 +1,11 @@
+dialect:english;
+
+struct Person {
+  age: int,
+}
+
+start() int {
+  let p: Person = Person{age: 25};
+  print("%d", p.age[0]);
+  return 0;
+}

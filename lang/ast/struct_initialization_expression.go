@@ -67,6 +67,18 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 			nestedStructType := newtype.PropertyTypes[propIndex]
 			loadedNestedStruct := ctx.Builder.CreateLoad(nestedStructType, *val.Value, "")
 			ctx.Builder.CreateStore(loadedNestedStruct, field1Ptr)
+		case ArrayInitializationExpression:
+			// Check the AST type to determine if this is an embedded array or pointer
+			astType := newtype.Metadata.Types[propIndex]
+			if _, isPointer := astType.(PointerType); isPointer {
+				// Pointer type - store the pointer to the array
+				ctx.Builder.CreateStore(*val.Value, field1Ptr)
+			} else {
+				// Embedded array - load the array data and store it into the struct field
+				arrayType := newtype.PropertyTypes[propIndex]
+				loadedArray := ctx.Builder.CreateLoad(arrayType, *val.Value, "")
+				ctx.Builder.CreateStore(loadedArray, field1Ptr)
+			}
 		default:
 			return fmt.Errorf("StructInitializationExpression: expression %v not implemented", expr), nil
 		}
