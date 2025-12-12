@@ -183,3 +183,31 @@ func TestNestedStructArrays(t *testing.T) {
 		req.AssertCompileAndExecute()
 	})
 }
+
+func TestStructArrayEmbedded(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./structs/array-embedded/source.english.swa",
+			ExpectedExecutionOutput: "Hello: 100 200 300",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}
+
+func TestStructArrayPointer(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./structs/array-pointer/source.english.swa",
+			ExpectedExecutionOutput: "Hello: 100 200 300",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}

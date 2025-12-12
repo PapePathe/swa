@@ -1,0 +1,18 @@
+dialect:english;
+
+struct DynArray {
+  Size: int,
+  Capacity: int,
+  Data: [3]int,
+}
+
+start() int {
+  let a : DynArray = DynArray{
+    Size: 10,
+    Capacity: 10,
+    Data: [3]int{100,200,300},
+  };
+
+  print("Hello: %'d %'d %'d", a.Data[0], a.Data[1], a.Data[2]);
+  return 0;
+}
