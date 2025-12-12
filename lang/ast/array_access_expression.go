@@ -18,8 +18,11 @@ var _ Expression = (*ArrayAccessExpression)(nil)
 
 func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error, *ArraySymbolTableEntry, *SymbolTableEntry, []llvm.Value) {
 	var name string
+
 	var array *SymbolTableEntry
+
 	var entry *ArraySymbolTableEntry
+
 	var err error
 
 	switch expr.Name.(type) {
@@ -78,6 +81,12 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 			return fmt.Errorf(format), nil, nil, nil
 		}
 
+		if val.SymbolTableEntry.Ref == nil {
+			format := "ArrayAccessExpression property %s is not an array"
+
+			return fmt.Errorf(format, propSym.Value), nil, nil, nil
+		}
+
 		propIndex, err := propExpr.resolveStructAccess(val.SymbolTableEntry.Ref, propSym.Value)
 		if err != nil {
 			return err, nil, nil, nil
@@ -88,10 +97,12 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 		switch coltype := astType.(type) {
 		case PointerType:
 			isPointerType = true
+
 			err, elementType = coltype.Underlying.LLVMType(ctx)
 			if err != nil {
 				return err, nil, nil, nil
 			}
+
 			arrayType = elementType
 		case ArrayType:
 			err, elementType = coltype.Underlying.LLVMType(ctx)
@@ -106,7 +117,9 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 
 			elementsCount = coltype.Size
 		default:
-			panic("ArrayAccessExpression hmm not implemented")
+			err := fmt.Errorf("Property %s is not an array", propSym.Value)
+
+			return err, nil, nil, nil
 		}
 
 		if isPointerType {

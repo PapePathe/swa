@@ -40,6 +40,10 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 		return fmt.Errorf("variable %s is not defined", obj.Value), nil
 	}
 
+	if varDef.Ref == nil {
+		return fmt.Errorf("variable %s is not a struct instance", obj.Value), nil
+	}
+
 	propName, err := expr.getProperty()
 	if err != nil {
 		return err, nil
@@ -209,6 +213,10 @@ func (expr MemberExpression) resolveStructAccess(
 	structType *StructSymbolTableEntry,
 	propName string,
 ) (int, error) {
+	//	if structType == nil {
+	//		return 0, fmt.Errorf("%s cannot be called", propName)
+	//	}
+
 	err, propIndex := structType.Metadata.PropertyIndex(propName)
 	if err != nil {
 		return 0, fmt.Errorf("struct %s has no field %s", structType.Metadata.Name, propName)
@@ -253,6 +261,7 @@ func (expr MemberExpression) getNestedStructType(
 
 func (expr MemberExpression) compileArrArrayAccessExpression(ctx *CompilerCtx) (error, *CompilerResult) {
 	arrayAccess, _ := expr.Object.(ArrayAccessExpression)
+
 	err, res := arrayAccess.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil

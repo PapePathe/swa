@@ -1,0 +1,9 @@
+dialect:english;
+
+struct Point { x: int, y: int, }
+// This causes compiler panic
+struct Polygon { points: [3]Point, }
+
+start() int {
+  return 0;
+}
