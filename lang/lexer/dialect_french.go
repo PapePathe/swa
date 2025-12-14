@@ -80,20 +80,12 @@ func (m French) Error(key string, args ...any) error {
 	formatted, ok := m.translations()[key]
 
 	if !ok {
-		panic(fmt.Sprintf("key %s does not exist in dialect translations", key))
+		format := "key %s does not exist in dialect translations"
+
+		return fmt.Errorf(format, key)
 	}
 
 	return errmsg.NewAstError(formatted, args...)
-}
-
-func (m French) translations() map[string]string {
-	return map[string]string{
-		"ArrayAccessExpression.NameNotASymbol":             "L'expression (%s) n'est pas un nom de variable correct",
-		"ArrayAccessExpression.NotFoundInSymbolTable":      "La variable %s n'existe pas dans la table des symboles",
-		"ArrayAccessExpression.AccessedIndexIsNotANumber":  "Seuls les nombres positif sont permis comme indice de tableau, valeur courante: (%s)",
-		"ArrayAccessExpression.NotFoundInArraySymbolTable": "Le tableau (%s) n'existe pas dans la table des symboles",
-		"ArrayAccessExpression.IndexOutOfBounds":           "L'element a la position (%s) depasse les limites du tableau (%s)",
-	}
 }
 
 func (m French) Reserved() map[string]TokenKind {
@@ -107,5 +99,15 @@ func (m French) Reserved() map[string]TokenKind {
 		"entier":    TypeInt,
 		"decimal":   TypeFloat,
 		"chaine":    TypeString,
+	}
+}
+
+func (m French) translations() map[string]string {
+	return map[string]string{
+		"ArrayAccessExpression.NameNotASymbol":             "L'expression (%s) n'est pas un nom de variable correct",
+		"ArrayAccessExpression.NotFoundInSymbolTable":      "La variable %s n'existe pas dans la table des symboles",
+		"ArrayAccessExpression.AccessedIndexIsNotANumber":  "Seuls les nombres positif sont permis comme indice de tableau, valeur courante: (%s)",
+		"ArrayAccessExpression.NotFoundInArraySymbolTable": "Le tableau (%s) n'existe pas dans la table des symboles",
+		"ArrayAccessExpression.IndexOutOfBounds":           "L'element a la position (%s) depasse les limites du tableau (%s)",
 	}
 }

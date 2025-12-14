@@ -61,7 +61,7 @@ func (m Wolof) Error(key string, args ...any) error {
 	formatted, ok := m.translations()[key]
 
 	if !ok {
-		panic(fmt.Sprintf("key %s does not exist in dialect translations", key))
+		return fmt.Errorf("key %s does not exist in wolof dialect translations", key)
 	}
 
 	return errmsg.NewAstError(formatted, args)
