@@ -1,6 +1,5 @@
 dialect:english;
 
-// Test: Multiple pointer fields in same struct
 struct MultiPointer {
   ptr1: *int,
   ptr2: *int,

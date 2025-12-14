@@ -1,12 +1,12 @@
 dialect:english;
 
-// Test: Passing struct with embedded array to function
 struct Data {
   arr: [3]int,
   value: int,
 }
 
 // TODO: struct should be passed as a value here
+// as it's not changing a value here
 func processData(d: *Data) int {
   return d.arr[0] + d.arr[1] + d.arr[2] + d.value;
 }

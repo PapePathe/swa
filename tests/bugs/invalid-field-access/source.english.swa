@@ -2,7 +2,6 @@ dialect:english;
 
 start() int {
   let i: int = 10;
-  // This causes compiler panic
   print("%d", i.field);
   return 0;
 }

@@ -1,6 +1,5 @@
 dialect:english;
 
-// Test: Mixed embedded and pointer arrays in same struct
 struct Mixed {
   embedded: [2]int,
   pointer: *int,

@@ -1,6 +1,5 @@
 dialect:english;
 
-// Test: Multiple embedded array fields in same struct
 struct MultiArray {
   arr1: [2]int,
   arr2: [3]int,

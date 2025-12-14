@@ -1,6 +1,5 @@
 dialect:english;
 
-// Test: Passing struct with pointer to function
 struct Data {
   ptr: *int,
   value: int,
