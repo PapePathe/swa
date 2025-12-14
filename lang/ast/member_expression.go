@@ -54,7 +54,14 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 		return err, nil
 	}
 
-	addr := ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, varDef.Value, propIndex, "")
+	var baseValue llvm.Value
+	if varDef.Address != nil {
+		baseValue = *varDef.Address
+	} else {
+		baseValue = varDef.Value
+	}
+
+	addr := ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, baseValue, propIndex, "")
 	propType := varDef.Ref.PropertyTypes[propIndex]
 
 	return nil, &CompilerResult{

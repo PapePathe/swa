@@ -106,7 +106,12 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), fmt.Sprintf("alloc.%s", vd.Name))
 		ctx.Builder.CreateStore(*val.Value, alloc)
 
-		err = ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
+		entry := &SymbolTableEntry{Value: *val.Value, Address: &alloc}
+		if val.SymbolTableEntry != nil {
+			entry.Ref = val.SymbolTableEntry.Ref
+		}
+
+		err = ctx.AddSymbol(vd.Name, entry)
 		if err != nil {
 			return err, nil
 		}
