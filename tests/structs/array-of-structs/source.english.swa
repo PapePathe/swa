@@ -1,0 +1,25 @@
+dialect:english;
+
+struct Point {
+  x: int,
+  y: int,
+}
+
+struct Polygon {
+  points: [3]Point,
+}
+
+start() int {
+  let p: Polygon = Polygon{
+    points: [3]Point{
+      Point{x: 1, y: 1},
+      Point{x: 2, y: 2},
+      Point{x: 3, y: 3},
+    },
+  };
+
+  print("p[0].x=%d p[0].y=%d\n", p.points[0].x, p.points[0].y);
+  print("p[1].x=%d p[1].y=%d\n", p.points[1].x, p.points[1].y);
+  print("p[2].x=%d p[2].y=%d\n", p.points[2].x, p.points[2].y);
+  return 0;
+}

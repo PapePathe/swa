@@ -281,3 +281,17 @@ func TestStructFuncParamPointer(t *testing.T) {
 		req.AssertCompileAndExecute()
 	})
 }
+
+func TestStructWithEmbeddedArrayOfStructs(t *testing.T) {
+	t.Parallel()
+
+	t.Run("English", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./structs/array-of-structs/source.english.swa",
+			ExpectedExecutionOutput: "p[0].x=1 p[0].y=1\np[1].x=2 p[1].y=2\np[2].x=3 p[2].y=3\n",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}
