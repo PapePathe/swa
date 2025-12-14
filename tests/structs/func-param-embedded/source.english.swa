@@ -6,7 +6,8 @@ struct Data {
   value: int,
 }
 
-func processData(d: Data) int {
+// TODO: struct should be passed as a value here
+func processData(d: *Data) int {
   return d.arr[0] + d.arr[1] + d.arr[2] + d.value;
 }
 
