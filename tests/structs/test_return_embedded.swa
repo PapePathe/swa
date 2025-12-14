@@ -1,0 +1,21 @@
+dialect:english;
+
+// Test 6: Returning struct with embedded array from function
+struct Data {
+  arr: [3]int,
+  value: int,
+}
+
+func createData() Data {
+  return Data{
+    arr: [3]int{100, 200, 300},
+    value: 42,
+  };
+}
+
+start() int {
+  let d: Data = createData();
+  print("arr[0]=%d arr[1]=%d arr[2]=%d value=%d", 
+        d.arr[0], d.arr[1], d.arr[2], d.value);
+  return 0;
+}

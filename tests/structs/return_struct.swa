@@ -1,0 +1,16 @@
+dialect:english;
+
+struct Point {
+  x: int,
+  y: int,
+}
+
+func makePoint(x: int, y: int) Point {
+  return Point{x: x, y: y};
+}
+
+start() int {
+  let p: Point = makePoint(10, 20);
+  print("Point: %d, %d", p.x, p.y);
+  return 0;
+}

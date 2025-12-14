@@ -1,0 +1,20 @@
+dialect:english;
+
+// Test: Pointer lifetime (returning pointer to stack array)
+struct Data {
+  ptr: *int,
+}
+
+func createData() Data {
+  let arr: [3]int = [3]int{10, 20, 30};
+  return Data{
+    ptr: arr, // Returning pointer to stack variable 'arr'
+  };
+}
+
+start() int {
+  let d: Data = createData();
+  // Accessing d.ptr should be unsafe if 'arr' was on stack and popped
+  print("ptr[0]=%d", d.ptr[0]);
+  return 0;
+}

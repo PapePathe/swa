@@ -1,0 +1,17 @@
+dialect:english;
+
+struct Wrapper {
+  Data: *int,
+}
+
+start() int {
+  let backing: [10]int = [10]int{10, 20, 30, 0, 0, 0, 0, 0, 0, 0};
+  let w: Wrapper = Wrapper{
+    Data: backing,
+  };
+
+  print("Backing[0]: %d", backing[0]);
+  print("Wrapper.Data[0]: %d", w.Data[0]);
+  
+  return 0;
+}
