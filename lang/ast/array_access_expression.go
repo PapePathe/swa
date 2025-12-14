@@ -160,10 +160,15 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 		indices = []llvm.Value{
 			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(idx.Value), false),
 		}
-	case SymbolExpression, BinaryExpression:
+	case SymbolExpression, BinaryExpression, MemberExpression:
 		err, res := expr.Index.CompileLLVM(ctx)
 		if err != nil {
 			return err, nil, nil, nil
+		}
+
+		if res.Value.Type().TypeKind() == llvm.PointerTypeKind {
+			load := ctx.Builder.CreateLoad(res.Value.AllocatedType(), *res.Value, "")
+			indices = []llvm.Value{load}
 		}
 
 		indices = []llvm.Value{*res.Value}
