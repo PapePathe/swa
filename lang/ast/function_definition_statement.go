@@ -124,11 +124,28 @@ func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, extrac
 
 		etyp := extractedType{
 			// TODO: need to dinstinguish between passing a struct as value and as a pointer
-			typ:    llvm.PointerType(compiledType, 0),
+			typ:    compiledType,
 			sEntry: entry,
 		}
 
 		return nil, etyp
+	case PointerType:
+		var sEntry *StructSymbolTableEntry
+
+		switch undType := typ.Underlying.(type) {
+		case SymbolType:
+			err, entry := ctx.FindStructSymbol(undType.Name)
+			if err != nil {
+				return err, extractedType{}
+			}
+
+			sEntry = entry
+		default:
+		}
+
+		etype := extractedType{typ: compiledType, sEntry: sEntry}
+
+		return nil, etype
 	case ArrayType:
 		var sEntry *StructSymbolTableEntry
 
@@ -140,8 +157,6 @@ func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, extrac
 			}
 
 			sEntry = entry
-		case PointerType:
-		// TODO handle pointer type here
 		default:
 		}
 
