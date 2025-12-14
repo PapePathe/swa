@@ -171,7 +171,6 @@ type PointerType struct {
 	Underlying Type
 }
 
-// LLVMType implements Type.
 func (se PointerType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
 	err, under := se.Underlying.LLVMType(ctx)
 	if err != nil {
