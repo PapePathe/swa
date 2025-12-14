@@ -1,9 +1,14 @@
 version: 2
 
+project_name: swa
+
+metadata:
+  mod_timestamp: "{{ .CommitTimestamp }}"
+
 before:
   hooks:
-    # You may remove this if you don't use go modules.
     - go mod tidy
+    - ./test.sh
 
 builds:
   - env:
