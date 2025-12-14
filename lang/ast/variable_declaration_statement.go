@@ -170,7 +170,7 @@ func (expr VarDeclarationStatement) TypeCheck(t DataType, k llvm.Type) error {
 		case DataTypeArray:
 		case DataTypeSymbol:
 		default:
-			panic(fmt.Sprintf("unsupported element %s", t))
+			return fmt.Errorf("unsupported element %s", t)
 		}
 	}
 

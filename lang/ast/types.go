@@ -3,6 +3,7 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"tinygo.org/x/go-llvm"
 )
@@ -26,8 +27,11 @@ func (dt DataType) String() string {
 	case DataTypePointer:
 		return "DataTypePointer"
 	default:
-		panic(fmt.Sprintf("Unmatched data type %d", dt))
+		fmt.Printf("Unmatched data type %d", dt)
+		os.Exit(1)
 	}
+
+	return ""
 }
 
 const (

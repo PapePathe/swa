@@ -135,7 +135,9 @@ func (expr ArrayAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error,
 			ElementsCount:  elementsCount,
 		}
 	default:
-		panic("ArrayAccessExpression not implemented")
+		err := fmt.Errorf("ArrayAccessExpression not implemented")
+
+		return err, nil, nil, nil
 	}
 
 	var indices []llvm.Value

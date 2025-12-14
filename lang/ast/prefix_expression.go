@@ -16,7 +16,7 @@ type PrefixExpression struct {
 var _ Expression = (*PrefixExpression)(nil)
 
 func (PrefixExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	panic("PrefixExpression compilation is not implemented")
+	return fmt.Errorf("PrefixExpression compilation is not implemented"), nil
 }
 
 func (e PrefixExpression) String() string {

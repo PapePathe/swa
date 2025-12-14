@@ -20,7 +20,9 @@ func (expr ArrayInitializationExpression) extractArrayType(ctx *CompilerCtx) (*l
 	arrayType, ok := expr.Underlying.(ArrayType)
 
 	if !ok {
-		panic(fmt.Errorf("Type (%s) cannot be casted to array type", expr.Underlying))
+		format := "Type (%s) cannot be casted to array type"
+
+		return nil, nil, fmt.Errorf(format, expr.Underlying)
 	}
 
 	switch arrayType.Underlying.Value() {
@@ -124,7 +126,9 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 			}
 
 		default:
-			panic(fmt.Sprintf("ArrayInitializationExpression: Expression %s not supported", value))
+			format := "ArrayInitializationExpression: Expression %s not supported"
+
+			return fmt.Errorf(format, value), nil
 		}
 	}
 
