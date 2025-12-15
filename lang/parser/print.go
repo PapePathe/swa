@@ -9,7 +9,6 @@ import (
 
 func ParsePrintStatement(p *Parser) (ast.Statement, error) {
 	stmt := ast.PrintStatetement{}
-
 	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.Print))
 	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.OpenParen))
 

@@ -9,11 +9,13 @@ import (
 // ParseVarDeclarationStatement ...
 func ParseVarDeclarationStatement(p *Parser) (ast.Statement, error) {
 	var explicitType ast.Type
+
 	var err error
+
 	var assigedValue ast.Expression
+
 	stmt := ast.VarDeclarationStatement{}
 	p.currentStatement = &stmt
-
 	isConstant := p.advance().Kind == lexer.Const
 	tok := p.expect(lexer.Identifier)
 	stmt.Tokens = append(stmt.Tokens, tok)
@@ -26,6 +28,7 @@ func ParseVarDeclarationStatement(p *Parser) (ast.Statement, error) {
 
 	if p.currentToken().Kind != lexer.SemiColon {
 		stmt.Tokens = append(stmt.Tokens, p.expect(lexer.Assignment))
+
 		assigedValue, err = parseExpression(p, Assignment)
 		if err != nil {
 			return nil, err

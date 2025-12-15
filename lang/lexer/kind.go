@@ -88,7 +88,7 @@ const (
 	String
 	// Number represents a numeric literal.
 	Number
-	// Number represents a decimal literal.
+	// Float represents a decimal literal.
 	Float
 	// Assignment represents an assignment operator.
 	Assignment
@@ -134,7 +134,7 @@ const (
 	OpenBracket
 	// Plus represents the addition operator.
 	Plus
-	// Plus represents the plus equals operator.
+	// PlusEquals represents the plus equals operator.
 	PlusEquals
 	// Star represents the multiplication symbol (star).
 	Star
@@ -150,11 +150,11 @@ const (
 	Dot
 	// StarEquals ...
 	StarEquals
-	// Dialect ...
+	// DialectDeclaration ...
 	DialectDeclaration
 	// Print
 	Print
-	// A single ascii or utf8 character
+	// Character
 	Character
 	Function
 	Main

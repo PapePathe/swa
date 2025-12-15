@@ -32,6 +32,7 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect)
 
 	builder := context.NewBuilder()
 	defer builder.Dispose()
+
 	ctx := ast.NewCompilerContext(
 		&context,
 		&builder,
@@ -46,12 +47,14 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect)
 		os.Exit(1)
 	}
 
-	if err := llvm.VerifyModule(*ctx.Module, llvm.ReturnStatusAction); err != nil {
+	err = llvm.VerifyModule(*ctx.Module, llvm.ReturnStatusAction)
+	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	llirFileName := fmt.Sprintf("%s.ll", target.Output)
+
 	err = os.WriteFile(llirFileName, []byte(module.String()), FilePerm)
 	if err != nil {
 		fmt.Println(err)
@@ -60,19 +63,24 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect)
 
 	asmFileName := fmt.Sprintf("%s.s", target.Output)
 
-	if err := compileToAssembler(llirFileName, asmFileName); err != nil {
+	err = compileToAssembler(llirFileName, asmFileName)
+	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	objFilename := fmt.Sprintf("%s.o", target.Output)
-	if err := compileToObject(asmFileName, objFilename); err != nil {
+
+	err = compileToObject(asmFileName, objFilename)
+	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	exeFilename := fmt.Sprintf("%s.exe", target.Output)
-	if err := compileToExecutable(objFilename, exeFilename); err != nil {
+
+	err = compileToExecutable(objFilename, exeFilename)
+	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -84,7 +92,8 @@ func compileToAssembler(llirFileName string, assemblerFilename string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err != nil {
+	err := cmd.Run()
+	if err != nil {
 		return fmt.Errorf("Error compiling IR %w", err)
 	}
 
@@ -97,9 +106,11 @@ func compileToObject(assemblerFilename string, objectFilename string) error {
 	objectCmd.Stdout = os.Stdout
 	objectCmd.Stderr = os.Stderr
 
-	if err := objectCmd.Run(); err != nil {
+	err := objectCmd.Run()
+	if err != nil {
 		return fmt.Errorf("Error durrng object creation <%w>", err)
 	}
+
 	return nil
 }
 
@@ -109,17 +120,21 @@ func compileToExecutable(objectFileName string, executableFileName string) error
 	linkCmd.Stdout = os.Stdout
 	linkCmd.Stderr = os.Stderr
 
-	if err := linkCmd.Run(); err != nil {
+	err := linkCmd.Run()
+	if err != nil {
 		return fmt.Errorf("Error durrng linking <%w>", err)
 	}
+
 	return nil
 }
 
 func findCommand(candidates ...string) string {
 	for _, cmd := range candidates {
-		if _, err := exec.LookPath(cmd); err == nil {
+		_, err := exec.LookPath(cmd)
+		if err == nil {
 			return cmd
 		}
 	}
-	return candidates[0] // Return first as fallback
+
+	return candidates[0]
 }

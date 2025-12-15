@@ -67,12 +67,12 @@ func (m Wolof) Error(key string, args ...any) error {
 	return errmsg.NewAstError(formatted, args)
 }
 
-func (m Wolof) translations() map[string]string {
-	// TODO: add reserved words
-	return map[string]string{}
-}
-
 func (m Wolof) Reserved() map[string]TokenKind {
 	// TODO: add reserved for wolof
 	return map[string]TokenKind{}
+}
+
+func (m Wolof) translations() map[string]string {
+	// TODO: add reserved words
+	return map[string]string{}
 }

@@ -18,6 +18,7 @@ func ParseStatement(p *Parser) (ast.Statement, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		return val, nil
 	}
 

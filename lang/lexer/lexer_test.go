@@ -24,6 +24,7 @@ func TestNewWithWolof(t *testing.T) {
 	wf := Wolof{}
 
 	assert.Equal(t, wf, dial)
+
 	if len(wf.Patterns()) != len(lex.patterns) {
 		t.Errorf("Expected patterns count to be %d", len(wf.Patterns()))
 	}

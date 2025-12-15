@@ -46,6 +46,7 @@ func ParseArrayInitialization(p *Parser) (ast.Expression, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		arrayExpr.Tokens = append(arrayExpr.Tokens, expr.TokenStream()...)
 		arrayExpr.Contents = append(arrayExpr.Contents, expr)
 		arrayExpr.Tokens = append(arrayExpr.Tokens, expr.TokenStream()...)
