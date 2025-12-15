@@ -55,6 +55,12 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 		case NumberExpression, FloatExpression:
 			ctx.Builder.CreateStore(*val.Value, field1Ptr)
 		case SymbolExpression:
+			if val.SymbolTableEntry.Address != nil {
+				ctx.Builder.CreateStore(*val.SymbolTableEntry.Address, field1Ptr)
+
+				break
+			}
+
 			if val.SymbolTableEntry.Ref != nil {
 				load := ctx.Builder.CreateLoad(val.SymbolTableEntry.Ref.LLVMType, *val.Value, "")
 				ctx.Builder.CreateStore(load, field1Ptr)
