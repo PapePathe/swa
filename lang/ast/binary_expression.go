@@ -26,55 +26,73 @@ func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 
 	var finalLeftValue, finalRightValue llvm.Value
 
-	// Load values from pointers (e.g., from array access)
 	var leftValue, rightValue llvm.Value
 
-	// Left side
-	if leftResult.Value.Type().TypeKind() == llvm.PointerTypeKind {
+	switch leftResult.Value.Type().TypeKind() {
+	case llvm.PointerTypeKind:
 		if leftResult.ArraySymbolTableEntry != nil {
 			leftValue = ctx.Builder.CreateLoad(leftResult.ArraySymbolTableEntry.UnderlyingType, *leftResult.Value, "")
-		} else {
-			if leftResult.StuctPropertyValueType != nil {
-				elementType := leftResult.StuctPropertyValueType
-				leftValue = ctx.Builder.CreateLoad(*elementType, *leftResult.Value, "")
-			} else {
-				if leftResult.Value.Type().ElementType().IsNil() {
-					leftValue = *leftResult.Value
-				} else {
-					elementType := leftResult.Value.Type().ElementType()
-					leftValue = ctx.Builder.CreateLoad(elementType, *leftResult.Value, "")
-				}
-			}
+
+			break
 		}
-	} else {
+
+		if leftResult.StuctPropertyValueType != nil {
+			elementType := leftResult.StuctPropertyValueType
+			leftValue = ctx.Builder.CreateLoad(*elementType, *leftResult.Value, "")
+
+			break
+		}
+
+		if leftResult.Value.Type().ElementType().IsNil() {
+			leftValue = *leftResult.Value
+
+			break
+		}
+
+		elementType := leftResult.Value.Type().ElementType()
+		leftValue = ctx.Builder.CreateLoad(elementType, *leftResult.Value, "")
+	case llvm.StructTypeKind:
+		elementType := leftResult.StuctPropertyValueType
+		leftValue = ctx.Builder.CreateLoad(*elementType, *leftResult.Value, "")
+	default:
 		leftValue = *leftResult.Value
 	}
 
-	// Right side
-	if rightResult.Value.Type().TypeKind() == llvm.PointerTypeKind {
+	switch rightResult.Value.Type().TypeKind() {
+	case llvm.PointerTypeKind:
 		if rightResult.ArraySymbolTableEntry != nil {
 			rightValue = ctx.Builder.CreateLoad(rightResult.ArraySymbolTableEntry.UnderlyingType, *rightResult.Value, "")
-		} else {
-			if rightResult.StuctPropertyValueType != nil {
-				elementType := rightResult.StuctPropertyValueType
-				rightValue = ctx.Builder.CreateLoad(*elementType, *rightResult.Value, "")
-			} else {
-				if rightResult.Value.Type().ElementType().IsNil() {
-					rightValue = *rightResult.Value
-				} else {
-					elementType := rightResult.Value.Type().ElementType()
-					rightValue = ctx.Builder.CreateLoad(elementType, *rightResult.Value, "")
-				}
-			}
+
+			break
 		}
-	} else {
+
+		if rightResult.StuctPropertyValueType != nil {
+			elementType := rightResult.StuctPropertyValueType
+			rightValue = ctx.Builder.CreateLoad(*elementType, *rightResult.Value, "")
+
+			break
+		}
+
+		if rightResult.Value.Type().ElementType().IsNil() {
+			rightValue = *rightResult.Value
+
+			break
+		}
+
+		elementType := rightResult.Value.Type().ElementType()
+		rightValue = ctx.Builder.CreateLoad(elementType, *rightResult.Value, "")
+	case llvm.StructTypeKind:
+		elementType := rightResult.StuctPropertyValueType
+		rightValue = ctx.Builder.CreateLoad(*elementType, *rightResult.Value, "")
+
+	default:
 		rightValue = *rightResult.Value
 	}
 
 	// Determine the common type
 	ctype, err := commonType(leftValue, rightValue)
 	if err != nil {
-		return err, nil
+		return fmt.Errorf("%w %v", err, expr.TokenStream()), nil
 	}
 
 	// Cast only if necessary
@@ -208,7 +226,13 @@ func commonType(l, r llvm.Value) (llvm.Type, error) {
 		return llvm.GlobalContext().DoubleType(), nil
 	}
 
-	return llvm.Type{}, fmt.Errorf("Unhandled type combination: left=%s, right=%s", lKind, rKind)
+	//	if lKind == llvm.StructTypeKind && rKind == llvm.IntegerTypeKind {
+	//		return llvm.GlobalContext().Int32Type(), nil
+	//	}
+
+	format := "Unhandled type combination: left=%v, right=%s"
+
+	return llvm.Type{}, fmt.Errorf(format, l, rKind)
 }
 
 func (expr BinaryExpression) castToType(ctx *CompilerCtx, t llvm.Type, v llvm.Value) (error, llvm.Value) {
