@@ -312,4 +312,17 @@ func TestStructInitialization(t *testing.T) {
 
 		req.AssertCompileAndExecute()
 	})
+	t.Run("Init int field with a symbol", func(t *testing.T) {
+		t.Parallel()
+
+		input := "./structs/all/init-field-from-number.swa"
+		expected := "1000"
+		req := CompileRequest{
+			InputPath:               input,
+			ExpectedExecutionOutput: expected,
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
 }

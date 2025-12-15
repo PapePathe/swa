@@ -56,7 +56,13 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 			ctx.Builder.CreateStore(*val.Value, field1Ptr)
 		case SymbolExpression:
 			if val.SymbolTableEntry.Address != nil {
-				ctx.Builder.CreateStore(*val.SymbolTableEntry.Address, field1Ptr)
+				if val.Value.Type().TypeKind() == llvm.PointerTypeKind {
+					ctx.Builder.CreateStore(*val.SymbolTableEntry.Address, field1Ptr)
+
+					break
+				}
+
+				ctx.Builder.CreateStore(*val.Value, field1Ptr)
 
 				break
 			}
