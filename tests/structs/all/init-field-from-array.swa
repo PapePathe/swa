@@ -9,9 +9,15 @@ start() int {
   let w: Wrapper = Wrapper{
     Data: backing,
   };
+  let i: int = 0;
 
-  print("Backing[0]: %d", backing[0]);
-  print("Wrapper.Data[0]: %d", w.Data[0]);
+  while(i < 10) {
+    print(
+      "Backing[%d]: %d, Wrapper.Data[%d]: %d \n", 
+      i, w.Data[i], i, backing[i]
+    );
+    i = i + 1; 
+  }
   
   return 0;
 }

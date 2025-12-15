@@ -8,6 +8,7 @@ import (
 
 func TestArrayOfStructsWithUndefinedPropertyAccess(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
+		t.Parallel()
 		req := CompileRequest{
 			InputPath:      "./arrays/structs/undefined-property-access.french.swa",
 			ExpectedOutput: "ArrayOfStructsAccessExpression: property Name not found\n",
@@ -20,6 +21,7 @@ func TestArrayOfStructsWithUndefinedPropertyAccess(t *testing.T) {
 
 func TestArrayOfStructsWithUndefinedPropertyInitialization(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
+		t.Parallel()
 		req := CompileRequest{
 			InputPath:      "./arrays/structs/undefined-property-initialization.french.swa",
 			ExpectedOutput: "StructInitializationExpression: property Name not found\n",
@@ -32,6 +34,7 @@ func TestArrayOfStructsWithUndefinedPropertyInitialization(t *testing.T) {
 
 func TestArrayOfStructsWithUndefined(t *testing.T) {
 	t.Run("English", func(t *testing.T) {
+		t.Parallel()
 		req := CompileRequest{
 			InputPath:      "./arrays/structs/undefined-struct.english.swa",
 			ExpectedOutput: "Type (Engineer) is not a valid struct\n",
@@ -43,9 +46,8 @@ func TestArrayOfStructsWithUndefined(t *testing.T) {
 }
 
 func TestArrayOfStructs(t *testing.T) {
-	t.Parallel()
-
 	t.Run("French", func(t *testing.T) {
+		t.Parallel()
 		req := CompileRequest{
 			InputPath:               "./arrays/structs/source.french.swa",
 			ExpectedOutput:          "",
@@ -57,6 +59,7 @@ func TestArrayOfStructs(t *testing.T) {
 	})
 
 	t.Run("English", func(t *testing.T) {
+		t.Parallel()
 		req := CompileRequest{
 			InputPath:               "./arrays/structs/source.english.swa",
 			ExpectedOutput:          "",
@@ -69,9 +72,8 @@ func TestArrayOfStructs(t *testing.T) {
 }
 
 func TestArrayOfStrings(t *testing.T) {
-	t.Parallel()
-
 	t.Run("French", func(t *testing.T) {
+		t.Parallel()
 		req := CompileRequest{
 			InputPath:               "./arrays/strings/source.french.swa",
 			ExpectedOutput:          "",
@@ -83,6 +85,7 @@ func TestArrayOfStrings(t *testing.T) {
 	})
 
 	t.Run("English", func(t *testing.T) {
+		t.Parallel()
 		req := CompileRequest{
 			InputPath:               "./arrays/strings/source.english.swa",
 			ExpectedOutput:          "",
@@ -95,9 +98,8 @@ func TestArrayOfStrings(t *testing.T) {
 }
 
 func TestArraysInPrintStatement(t *testing.T) {
-	t.Parallel()
-
 	t.Run("French", func(t *testing.T) {
+		t.Parallel()
 		req := CompileRequest{
 			InputPath:               "./arrays/print/source.french.swa",
 			ExpectedOutput:          "",
@@ -109,6 +111,7 @@ func TestArraysInPrintStatement(t *testing.T) {
 	})
 
 	t.Run("English", func(t *testing.T) {
+		t.Parallel()
 		req := CompileRequest{
 			InputPath:               "./arrays/print/source.english.swa",
 			ExpectedOutput:          "",
@@ -121,9 +124,8 @@ func TestArraysInPrintStatement(t *testing.T) {
 }
 
 func TestArrays(t *testing.T) {
-	t.Parallel()
-
 	t.Run("French", func(t *testing.T) {
+		t.Parallel()
 		req := CompileRequest{
 			InputPath:      "./arrays/ok/source.french.swa",
 			ExpectedOutput: "",
@@ -134,6 +136,7 @@ func TestArrays(t *testing.T) {
 	})
 
 	t.Run("English", func(t *testing.T) {
+		t.Parallel()
 		req := CompileRequest{
 			InputPath:      "./arrays/ok/source.english.swa",
 			ExpectedOutput: "",
@@ -158,6 +161,7 @@ func TestArrayIndexOutOfBounds(t *testing.T) {
 	})
 
 	t.Run("English", func(t *testing.T) {
+		t.Parallel()
 		req := CompileRequest{
 			InputPath:      "./arrays/out-of-bounds/source.english.swa",
 			ExpectedOutput: "Element at index (%!s(int=5)) does not exist in array (array)\n",
@@ -169,9 +173,8 @@ func TestArrayIndexOutOfBounds(t *testing.T) {
 }
 
 func TestArrayAccessWithPrefixExpression(t *testing.T) {
-	t.Parallel()
-
 	t.Run("French", func(t *testing.T) {
+		t.Parallel()
 		req := CompileRequest{
 			InputPath:      "./arrays/prefix-expression/source.french.swa",
 			ExpectedOutput: "Seuls les nombres positif sont permis comme indice de tableau, valeur courante: (-4)\n",
@@ -182,6 +185,7 @@ func TestArrayAccessWithPrefixExpression(t *testing.T) {
 	})
 
 	t.Run("English", func(t *testing.T) {
+		t.Parallel()
 		req := CompileRequest{
 			InputPath:      "./arrays/prefix-expression/source.english.swa",
 			ExpectedOutput: "Only numbers are supported as array index, current: (-4)\n",
@@ -194,6 +198,7 @@ func TestArrayAccessWithPrefixExpression(t *testing.T) {
 
 func TestArrayOfStructsAsFuncParam(t *testing.T) {
 	t.Run("Search Occurrence", func(t *testing.T) {
+		t.Parallel()
 		NewSuccessfulCompileRequest(
 			t,
 			"./arrays/structs/as-function-params.swa",
@@ -202,6 +207,7 @@ func TestArrayOfStructsAsFuncParam(t *testing.T) {
 	})
 
 	t.Run("High Earners", func(t *testing.T) {
+		t.Parallel()
 		NewSuccessfulCompileRequest(
 			t,
 			"./arrays/structs/count-high-earners.swa",
@@ -212,6 +218,7 @@ func TestArrayOfStructsAsFuncParam(t *testing.T) {
 
 func TestSortingAlgorithms(t *testing.T) {
 	t.Run("QSort", func(t *testing.T) {
+		t.Parallel()
 		NewSuccessfulCompileRequest(
 			t,
 			"./arrays/sorting/qsort.swa",
@@ -220,6 +227,8 @@ func TestSortingAlgorithms(t *testing.T) {
 	})
 
 	t.Run("Selection", func(t *testing.T) {
+		t.Parallel()
+
 		NewSuccessfulCompileRequest(
 			t,
 			"./arrays/sorting/selection.swa",
@@ -228,6 +237,8 @@ func TestSortingAlgorithms(t *testing.T) {
 	})
 
 	t.Run("Bubble", func(t *testing.T) {
+		t.Parallel()
+
 		NewSuccessfulCompileRequest(
 			t,
 			"./arrays/sorting/bubble.swa",
@@ -237,9 +248,9 @@ func TestSortingAlgorithms(t *testing.T) {
 }
 
 func TestArrayAccessWithSymbolExpression(t *testing.T) {
-	t.Parallel()
-
 	t.Run("French", func(t *testing.T) {
+		t.Parallel()
+
 		req := CompileRequest{
 			InputPath:      "./arrays/symbol-expression/source.french.swa",
 			ExpectedOutput: "Variable x does not exist\n",
@@ -250,6 +261,8 @@ func TestArrayAccessWithSymbolExpression(t *testing.T) {
 	})
 
 	t.Run("English", func(t *testing.T) {
+		t.Parallel()
+
 		req := CompileRequest{
 			InputPath:      "./arrays/symbol-expression/source.english.swa",
 			ExpectedOutput: "Variable x does not exist\n",
