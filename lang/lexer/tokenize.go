@@ -2,15 +2,13 @@ package lexer
 
 import (
 	"fmt"
-	"os"
 )
 
 // Tokenize ...
-func Tokenize(source string) ([]Token, Dialect) {
+func Tokenize(source string) ([]Token, Dialect, []error) {
 	lex, dialect, err := New(source)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return nil, nil, []error{err}
 	}
 
 	for !lex.atEOF() {
@@ -29,11 +27,12 @@ func Tokenize(source string) ([]Token, Dialect) {
 		}
 
 		if !matched {
-			panic(fmt.Sprintf("Lexer::Error -> unrecognized token near %s", lex.remainder()))
+			lex.Errors = append(lex.Errors, fmt.Errorf("Lexer::Error -> unrecognized token near %s", lex.remainder()))
+			lex.advanceN(1)
 		}
 	}
 
 	lex.push(NewToken(EOF, "EOF", lex.line))
 
-	return lex.Tokens, dialect
+	return lex.Tokens, dialect, lex.Errors
 }

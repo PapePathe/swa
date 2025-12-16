@@ -33,7 +33,8 @@ func stringHandler(lex *Lexer, regex *regexp.Regexp) {
 
 	text, err := strconv.Unquote(stringLiteral)
 	if err != nil {
-		panic(err)
+		lex.Errors = append(lex.Errors, err)
+		text = stringLiteral
 	}
 
 	newToken := NewToken(String, text, lex.line)
