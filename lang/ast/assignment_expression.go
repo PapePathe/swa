@@ -59,6 +59,12 @@ func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 		valueToBeAssigned = *value.Value
 	}
 
+	if assignee.SymbolTableEntry != nil && assignee.SymbolTableEntry.Ref != nil {
+		str := ctx.Builder.CreateStore(valueToBeAssigned, *assignee.Value)
+
+		return nil, &CompilerResult{Value: &str}
+	}
+
 	if assignee.SymbolTableEntry != nil && assignee.SymbolTableEntry.Address != nil {
 		str := ctx.Builder.CreateStore(valueToBeAssigned, *assignee.SymbolTableEntry.Address)
 

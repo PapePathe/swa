@@ -1,0 +1,11 @@
+dialect:english;
+
+start() int {
+  let idx : float;
+  print("zero value: %f ", idx);
+
+  idx = 100.0;
+  print("assigned value: %f", idx);
+
+  return 0;
+}

@@ -24,9 +24,10 @@ type StructSymbolTableEntry struct {
 }
 
 type SymbolTableEntry struct {
-	Value   llvm.Value
-	Address *llvm.Value
-	Ref     *StructSymbolTableEntry
+	Value        llvm.Value
+	Address      *llvm.Value
+	Ref          *StructSymbolTableEntry
+	DeclaredType Type
 }
 
 type ArraySymbolTableEntry struct {

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"swahili/lang/lexer"
+
+	"tinygo.org/x/go-llvm"
 )
 
 // SymbolExpression ...
@@ -25,8 +27,20 @@ func (expr SymbolExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 	}
 
 	if val.Address != nil {
-		// the value may have changed so we load it.
-		load := ctx.Builder.CreateLoad(val.Value.Type(), *val.Address, "")
+		var load llvm.Value
+
+		switch val.DeclaredType.(type) {
+		case StringType:
+			load = ctx.Builder.CreateLoad(val.Address.Type(), *val.Address, "")
+		case PointerType:
+			load = ctx.Builder.CreateLoad(val.Address.AllocatedType(), *val.Address, "")
+		case ArrayType:
+			load = ctx.Builder.CreateLoad(val.Address.Type(), *val.Address, "")
+		case NumberType, FloatType:
+			load = ctx.Builder.CreateLoad(val.Address.AllocatedType(), *val.Address, "")
+		default:
+			load = ctx.Builder.CreateLoad(val.Address.AllocatedType(), *val.Address, "")
+		}
 
 		return nil, &CompilerResult{Value: &load, SymbolTableEntry: val}
 	}
