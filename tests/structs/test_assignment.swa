@@ -1,0 +1,25 @@
+dialect:english;
+
+// Test: Struct assignment (copy vs reference)
+struct Data {
+  embedded: [3]int,
+  ptr: *int,
+}
+
+start() int {
+  let d1: Data = Data{
+    embedded: [3]int{10, 20, 30},
+    ptr: [3]int{100, 200, 300},
+  };
+
+  // Assign d1 to d2
+  let d2: Data = d1;
+
+  // Modify d2
+  d2.embedded[0] = 999;
+  d2.ptr[0] = 888;
+
+  // Check d1 (embedded should be unchanged if copy, ptr should be changed)
+  print("d1.embedded[0]=%d d1.ptr[0]=%d", d1.embedded[0], d1.ptr[0]);
+  return 0;
+}

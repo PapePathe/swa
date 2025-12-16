@@ -37,6 +37,7 @@ func Parse(tokens []lexer.Token) (ast.BlockStatement, error) {
 		if err != nil {
 			return ast.BlockStatement{}, err
 		}
+
 		body = append(body, stmt)
 	}
 
@@ -47,16 +48,6 @@ func Parse(tokens []lexer.Token) (ast.BlockStatement, error) {
 
 func (p *Parser) currentToken() lexer.Token {
 	return p.tokens[p.pos]
-}
-
-func (p *Parser) nextToken() (error, *lexer.Token) {
-	if len(p.tokens) <= p.pos {
-		return fmt.Errorf("No next token at position %d", p.pos), nil
-	}
-
-	tok := p.tokens[p.pos+1]
-
-	return nil, &tok
 }
 
 func (p *Parser) advance() lexer.Token {
@@ -125,14 +116,15 @@ func (p *Parser) sourceError(kind lexer.TokenKind, token lexer.Token, stream []l
 	if len(stream) > 0 {
 		line = stream[0].Line
 	}
+
 	sb := strings.Builder{}
 
 	sb.WriteString(ColorYellow)
 	sb.WriteString(p.unexpectedTokenError(kind).Error())
 	sb.WriteString(ColorReset)
 	sb.WriteString("\n")
-
 	sb.WriteString(fmt.Sprintf("\n%s%d%s ", ColorBlue, line, ColorReset))
+
 	for _, tok := range stream {
 		if tok.Line > line {
 			line = tok.Line

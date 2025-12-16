@@ -49,7 +49,7 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 			return err, nil
 		}
 
-		switch arg.(type) {
+		switch typ := arg.(type) {
 		case SymbolExpression:
 			switch funcDef.Params()[i].Type().TypeKind() {
 			case llvm.IntegerTypeKind, llvm.FloatTypeKind, llvm.DoubleTypeKind:
@@ -60,9 +60,17 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 				} else {
 					args = append(args, *argVal.Value)
 				}
+			case llvm.StructTypeKind:
+				panic("FunctionCallExpression llvm.StructTypeKind not implemented")
+			default:
+				return fmt.Errorf("Type of%s not supported a func call arg", typ), nil
 			}
 		default:
 			args = append(args, *argVal.Value)
+		}
+
+		if i >= len(args) {
+			return fmt.Errorf("Arg at position %d does not exist for function %s (%v)", i, name.Value, expr.TokenStream()), nil
 		}
 
 		currentArgType := args[i].Type()

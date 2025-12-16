@@ -9,6 +9,7 @@ func ParsePrefixExpression(p *Parser) (ast.Expression, error) {
 	tokens := []lexer.Token{}
 	operatorToken := p.advance()
 	tokens = append(tokens, operatorToken)
+
 	rightHandSide, err := parseExpression(p, DefaultBindingPower)
 	if err != nil {
 		return nil, err

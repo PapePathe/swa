@@ -44,8 +44,10 @@ func main() {
 	compileCmd.Flags().
 		StringP("output", "o", "start", "location of the compiled executable")
 
-	if err := compileCmd.MarkFlagRequired("source"); err != nil {
-		panic(err)
+	err := compileCmd.MarkFlagRequired("source")
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 
 	rootCmd.AddCommand(compileCmd, parseCmd, tokenizeCmd, serverCmd)
@@ -106,8 +108,11 @@ var serverCmd = &cobra.Command{
 			DisableGeneralOptionsHandler: false,
 			WriteTimeout:                 TIMEOUT * time.Second,
 		}
-		if err := server.ListenAndServe(); err != nil {
-			panic(err)
+
+		err := server.ListenAndServe()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
 		}
 	},
 }

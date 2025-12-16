@@ -28,15 +28,67 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		return fmt.Errorf("variable %s is aleady defined", vd.Name), nil
 	}
 
-	err, val := vd.Value.CompileLLVM(ctx)
-	if err != nil {
-		return err, nil
+	var val *CompilerResult
+
+	var err error
+
+	if vd.Value != nil {
+		err, val = vd.Value.CompileLLVM(ctx)
+		if err != nil {
+			return err, nil
+		}
 	}
 
 	if val == nil {
-		err := fmt.Errorf("VarDeclarationStatement: return value is nil <%s> <%s>", vd.Name, vd.Value)
+		if vd.ExplicitType == nil {
+			return fmt.Errorf("VarDeclarationStatement: return value is nil and no explicit type <%s>", vd.Name), nil
+		}
 
-		return err, nil
+		err, llvmType := vd.ExplicitType.LLVMType(ctx)
+		if err != nil {
+			return err, nil
+		}
+
+		alloc := ctx.Builder.CreateAlloca(llvmType, fmt.Sprintf("alloc.%s", vd.Name))
+		ctx.Builder.CreateStore(llvm.ConstNull(llvmType), alloc)
+
+		entry := &SymbolTableEntry{
+			Value:        alloc,
+			Address:      &alloc,
+			DeclaredType: vd.ExplicitType,
+		}
+
+		if arrayType, ok := vd.ExplicitType.(ArrayType); ok {
+			err, underlyingLLVMType := arrayType.Underlying.LLVMType(ctx)
+			if err != nil {
+				return err, nil
+			}
+
+			arrayEntry := &ArraySymbolTableEntry{
+				UnderlyingType: underlyingLLVMType,
+				Type:           llvmType,
+				ElementsCount:  arrayType.Size,
+			}
+
+			err = ctx.AddArraySymbol(vd.Name, arrayEntry)
+			if err != nil {
+				return err, nil
+			}
+		} else if symType, ok := vd.ExplicitType.(SymbolType); ok {
+			err, typeDef := ctx.FindStructSymbol(symType.Name)
+			if err != nil {
+				return err, nil
+			}
+
+			entry.Ref = typeDef
+		}
+
+		err = ctx.AddSymbol(vd.Name, entry)
+		if err != nil {
+			return err, nil
+		}
+
+		return nil, nil
 	}
 
 	if _, ok := vd.Value.(MemberExpression); ok {
@@ -66,7 +118,7 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), fmt.Sprintf("alloc.%s", vd.Name))
 		ctx.Builder.CreateStore(*val.Value, alloc)
 
-		err = ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
+		err = ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc, DeclaredType: vd.ExplicitType})
 		if err != nil {
 			return err, nil
 		}
@@ -75,7 +127,7 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		alloc := ctx.Builder.CreateAlloca(val.Value.AllocatedType(), fmt.Sprintf("alloc.%s", vd.Name))
 		ctx.Builder.CreateStore(load, alloc)
 
-		err = ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: load, Address: &alloc})
+		err = ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: load, Address: &alloc, DeclaredType: vd.ExplicitType})
 		if err != nil {
 			return err, nil
 		}
@@ -83,11 +135,40 @@ func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 		return vd.compileStructInitializationExpression(ctx, val)
 	case StringExpression:
 		return vd.compileStringExpression(ctx, val)
-	case NumberExpression, FloatExpression, BinaryExpression, FunctionCallExpression, SymbolExpression, MemberExpression:
+	case SymbolExpression:
 		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), fmt.Sprintf("alloc.%s", vd.Name))
 		ctx.Builder.CreateStore(*val.Value, alloc)
 
-		err = ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
+		entry := &SymbolTableEntry{
+			Value:        *val.Value,
+			Address:      &alloc,
+			DeclaredType: vd.ExplicitType,
+		}
+
+		switch vd.ExplicitType.(type) {
+		case SymbolType:
+			entry.Ref = val.SymbolTableEntry.Ref
+		default:
+		}
+
+		err = ctx.AddSymbol(vd.Name, entry)
+		if err != nil {
+			return err, nil
+		}
+	case NumberExpression, FloatExpression, BinaryExpression, FunctionCallExpression, MemberExpression:
+		alloc := ctx.Builder.CreateAlloca(val.Value.Type(), fmt.Sprintf("alloc.%s", vd.Name))
+		ctx.Builder.CreateStore(*val.Value, alloc)
+
+		entry := &SymbolTableEntry{
+			Value:        *val.Value,
+			Address:      &alloc,
+			DeclaredType: vd.ExplicitType,
+		}
+		if val.SymbolTableEntry != nil {
+			entry.Ref = val.SymbolTableEntry.Ref
+		}
+
+		err = ctx.AddSymbol(vd.Name, entry)
 		if err != nil {
 			return err, nil
 		}
@@ -146,7 +227,7 @@ func (expr VarDeclarationStatement) TypeCheck(t DataType, k llvm.Type) error {
 		case DataTypeArray:
 		case DataTypeSymbol:
 		default:
-			panic(fmt.Sprintf("unsupported element %s", t))
+			return fmt.Errorf("unsupported element %s", t)
 		}
 	}
 
@@ -184,7 +265,13 @@ func (vd VarDeclarationStatement) compileStructInitializationExpression(
 		return fmt.Errorf("Could not find typedef for %s in structs symbol table", explicitType.Name), nil
 	}
 
-	err = ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Ref: typeDef})
+	entry := &SymbolTableEntry{
+		Value:        *val.Value,
+		Ref:          typeDef,
+		DeclaredType: vd.ExplicitType,
+	}
+
+	err = ctx.AddSymbol(vd.Name, entry)
 	if err != nil {
 		return err, nil
 	}
@@ -203,7 +290,13 @@ func (vd VarDeclarationStatement) compileStringExpression(
 
 	ctx.Builder.CreateStore(glob, alloc)
 
-	err := ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: &alloc})
+	entry := &SymbolTableEntry{
+		Value:        *val.Value,
+		Address:      &alloc,
+		DeclaredType: vd.ExplicitType,
+	}
+
+	err := ctx.AddSymbol(vd.Name, entry)
 	if err != nil {
 		return err, nil
 	}
@@ -214,7 +307,13 @@ func (vd VarDeclarationStatement) compileArrArrayInitializationExpression(
 	ctx *CompilerCtx,
 	val *CompilerResult,
 ) (error, *CompilerResult) {
-	err := ctx.AddSymbol(vd.Name, &SymbolTableEntry{Value: *val.Value, Address: val.Value})
+	entry := &SymbolTableEntry{
+		Value:        *val.Value,
+		Address:      val.Value,
+		DeclaredType: vd.ExplicitType,
+	}
+
+	err := ctx.AddSymbol(vd.Name, entry)
 	if err != nil {
 		return err, nil
 	}

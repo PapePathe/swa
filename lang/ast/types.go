@@ -3,6 +3,9 @@ package ast
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+
+	"tinygo.org/x/go-llvm"
 )
 
 type DataType int
@@ -21,9 +24,14 @@ func (dt DataType) String() string {
 		return "DataTypeArray"
 	case DataTypeSymbol:
 		return "DataTypeSymbol"
+	case DataTypePointer:
+		return "DataTypePointer"
 	default:
-		panic(fmt.Sprintf("Unmatched data type %d", dt))
+		fmt.Printf("Unmatched data type %d", dt)
+		os.Exit(1)
 	}
+
+	return ""
 }
 
 const (
@@ -34,11 +42,13 @@ const (
 	DataTypeStruct
 	DataTypeIntType
 	DataTypeSymbol
+	DataTypePointer
 )
 
 // Type
 type Type interface {
 	Value() DataType
+	LLVMType(ctx *CompilerCtx) (error, llvm.Type)
 }
 
 type SymbolType struct {
@@ -49,6 +59,15 @@ var _ Type = (*SymbolType)(nil)
 
 func (SymbolType) Value() DataType {
 	return DataTypeSymbol
+}
+
+func (typ SymbolType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
+	err, sym := ctx.FindStructSymbol(typ.Name)
+	if err != nil {
+		return err, llvm.Type{}
+	}
+
+	return nil, sym.LLVMType
 }
 
 func (se SymbolType) MarshalJSON() ([]byte, error) {
@@ -73,6 +92,15 @@ func (ArrayType) Value() DataType {
 	return DataTypeArray
 }
 
+func (a ArrayType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
+	err, under := a.Underlying.LLVMType(ctx)
+	if err != nil {
+		return err, llvm.Type{}
+	}
+
+	return nil, llvm.ArrayType(under, a.Size)
+}
+
 func (se ArrayType) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Value"] = se.Value().String()
@@ -90,6 +118,10 @@ var _ Type = (*NumberType)(nil)
 
 func (NumberType) Value() DataType {
 	return DataTypeNumber
+}
+
+func (NumberType) LLVMType(*CompilerCtx) (error, llvm.Type) {
+	return nil, llvm.GlobalContext().Int32Type()
 }
 
 func (se NumberType) MarshalJSON() ([]byte, error) {
@@ -113,6 +145,12 @@ func (se StringType) MarshalJSON() ([]byte, error) {
 
 	return json.Marshal(res)
 }
+func (StringType) LLVMType(*CompilerCtx) (error, llvm.Type) {
+	return nil, llvm.PointerType(
+		llvm.GlobalContext().Int8Type(),
+		0,
+	)
+}
 
 type FloatType struct{}
 
@@ -122,9 +160,39 @@ func (FloatType) Value() DataType {
 	return DataTypeFloat
 }
 
+func (FloatType) LLVMType(*CompilerCtx) (error, llvm.Type) {
+	return nil, llvm.GlobalContext().DoubleType()
+}
+
 func (se FloatType) MarshalJSON() ([]byte, error) {
 	res := make(map[string]any)
 	res["ast.FloatType"] = se.Value().String()
+
+	return json.Marshal(res)
+}
+
+type PointerType struct {
+	Underlying Type
+}
+
+func (se PointerType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
+	err, under := se.Underlying.LLVMType(ctx)
+	if err != nil {
+		return err, llvm.Type{}
+	}
+
+	return nil, llvm.PointerType(under, 0)
+}
+
+var _ Type = (*PointerType)(nil)
+
+func (PointerType) Value() DataType {
+	return DataTypePointer
+}
+
+func (se PointerType) MarshalJSON() ([]byte, error) {
+	res := make(map[string]any)
+	res["ast.PointerType"] = se.Value().String()
 
 	return json.Marshal(res)
 }

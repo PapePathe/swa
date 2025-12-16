@@ -1,0 +1,19 @@
+dialect:english;
+
+struct MultiPointer {
+  ptr1: *int,
+  ptr2: *int,
+  value: int,
+}
+
+start() int {
+  let m : MultiPointer = MultiPointer{
+    ptr1: [2]int{10, 20},
+    ptr2: [3]int{100, 200, 300},
+    value: 99,
+  };
+
+  print("ptr1[0]=%d ptr1[1]=%d ptr2[0]=%d ptr2[2]=%d value=%d", 
+        m.ptr1[0], m.ptr1[1], m.ptr2[0], m.ptr2[2], m.value);
+  return 0;
+}

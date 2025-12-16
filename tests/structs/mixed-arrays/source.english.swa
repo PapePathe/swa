@@ -1,0 +1,17 @@
+dialect:english;
+
+struct Mixed {
+  embedded: [2]int,
+  pointer: *int,
+}
+
+start() int {
+  let m : Mixed = Mixed{
+    embedded: [2]int{10, 20},
+    pointer: [3]int{100, 200, 300},
+  };
+
+  print("embedded[0]=%d embedded[1]=%d pointer[0]=%d pointer[2]=%d", 
+        m.embedded[0], m.embedded[1], m.pointer[0], m.pointer[2]);
+  return 0;
+}

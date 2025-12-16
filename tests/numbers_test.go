@@ -6,6 +6,8 @@ import (
 
 func TestMixedNumbers(t *testing.T) {
 	t.Run("Mixed", func(t *testing.T) {
+		t.Parallel()
+
 		req := CompileRequest{
 			InputPath:               "./numbers/mixed.english.swa",
 			ExpectedExecutionOutput: "(x + y = 7.50, y + x = 7.50)(x * y = 12.50, y * x = 12.50)(x / y = 2.00, y / x = 0.50)(x - y = 2.50, y - x = -2.50)",
@@ -15,12 +17,37 @@ func TestMixedNumbers(t *testing.T) {
 	})
 }
 
-func TestSignedNumbers(t *testing.T) {
-	t.Parallel()
+func TestNumberZeroValues(t *testing.T) {
+	t.Run("Float", func(t *testing.T) {
+		t.Parallel()
 
+		req := CompileRequest{
+			InputPath:               "./numbers/zero-values/float.swa",
+			ExpectedExecutionOutput: "zero value: 0.000000 assigned value: 100.000000",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+	t.Run("Int", func(t *testing.T) {
+		t.Parallel()
+
+		req := CompileRequest{
+			InputPath:               "./numbers/zero-values/int.swa",
+			ExpectedExecutionOutput: "zero value: 0 assigned value: 100",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}
+
+func TestSignedNumbers(t *testing.T) {
 	t.Run("English", func(t *testing.T) {
 
 		t.Run("Signed", func(t *testing.T) {
+			t.Parallel()
+
 			req := CompileRequest{
 				InputPath:               "./numbers/signed.english.swa",
 				ExpectedExecutionOutput: "x+y: 0, x*y: -4, x-y: -4, x/y: -1, x%y: 0",
@@ -31,6 +58,8 @@ func TestSignedNumbers(t *testing.T) {
 		})
 
 		t.Run("integer arithmetic", func(t *testing.T) {
+			t.Parallel()
+
 			req := CompileRequest{
 				InputPath:               "./numbers/integer-arithmetic/source.english.swa",
 				ExpectedExecutionOutput: "okokokokokok",
@@ -41,6 +70,8 @@ func TestSignedNumbers(t *testing.T) {
 		})
 
 		t.Run("float-arithmetic", func(t *testing.T) {
+			t.Parallel()
+
 			req := CompileRequest{
 				InputPath:               "./numbers/float-arithmetic/source.english.swa",
 				ExpectedExecutionOutput: "okokokokokok",
@@ -51,6 +82,8 @@ func TestSignedNumbers(t *testing.T) {
 		})
 
 		t.Run("integer-arrays", func(t *testing.T) {
+			t.Parallel()
+
 			req := CompileRequest{
 				InputPath:               "./numbers/integer-arrays/source.english.swa",
 				ExpectedExecutionOutput: "okokok",
@@ -61,6 +94,8 @@ func TestSignedNumbers(t *testing.T) {
 		})
 
 		t.Run("float-arrays", func(t *testing.T) {
+			t.Parallel()
+
 			req := CompileRequest{
 				InputPath:               "./numbers/float-arrays/source.english.swa",
 				ExpectedExecutionOutput: "okokok",
@@ -71,6 +106,8 @@ func TestSignedNumbers(t *testing.T) {
 		})
 
 		t.Run("integer-float-separation", func(t *testing.T) {
+			t.Parallel()
+
 			req := CompileRequest{
 				InputPath:               "./numbers/integer-float-separation/source.english.swa",
 				ExpectedExecutionOutput: "",
@@ -82,6 +119,8 @@ func TestSignedNumbers(t *testing.T) {
 	})
 
 	t.Run("French", func(t *testing.T) {
+		t.Parallel()
+
 		req := CompileRequest{
 			InputPath:               "./numbers/signed.french.swa",
 			ExpectedExecutionOutput: "x+y: 0, x*y: -4, x-y: -4, x/y: -1, x%y: 0",

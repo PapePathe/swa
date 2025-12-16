@@ -55,6 +55,18 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 		case NumberExpression, FloatExpression:
 			ctx.Builder.CreateStore(*val.Value, field1Ptr)
 		case SymbolExpression:
+			if val.SymbolTableEntry.Address != nil {
+				if val.Value.Type().TypeKind() == llvm.PointerTypeKind {
+					ctx.Builder.CreateStore(*val.SymbolTableEntry.Address, field1Ptr)
+
+					break
+				}
+
+				ctx.Builder.CreateStore(*val.Value, field1Ptr)
+
+				break
+			}
+
 			if val.SymbolTableEntry.Ref != nil {
 				load := ctx.Builder.CreateLoad(val.SymbolTableEntry.Ref.LLVMType, *val.Value, "")
 				ctx.Builder.CreateStore(load, field1Ptr)
@@ -67,6 +79,15 @@ func (si StructInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, *
 			nestedStructType := newtype.PropertyTypes[propIndex]
 			loadedNestedStruct := ctx.Builder.CreateLoad(nestedStructType, *val.Value, "")
 			ctx.Builder.CreateStore(loadedNestedStruct, field1Ptr)
+		case ArrayInitializationExpression:
+			astType := newtype.Metadata.Types[propIndex]
+			if _, isPointer := astType.(PointerType); isPointer {
+				ctx.Builder.CreateStore(*val.Value, field1Ptr)
+			} else {
+				arrayType := newtype.PropertyTypes[propIndex]
+				loadedArray := ctx.Builder.CreateLoad(arrayType, *val.Value, "")
+				ctx.Builder.CreateStore(loadedArray, field1Ptr)
+			}
 		default:
 			return fmt.Errorf("StructInitializationExpression: expression %v not implemented", expr), nil
 		}

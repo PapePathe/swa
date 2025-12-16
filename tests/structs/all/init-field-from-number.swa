@@ -1,0 +1,16 @@
+dialect:english;
+
+struct Wrapper {
+  index: int,
+}
+
+start() int {
+  let idx : int = 1000;
+  let w: Wrapper = Wrapper{
+    index: idx,
+  };
+
+  print("%d", w.index);
+  
+  return 0;
+}

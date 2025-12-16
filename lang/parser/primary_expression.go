@@ -20,8 +20,10 @@ func ParsePrimaryExpression(p *Parser) (ast.Expression, error) {
 		number, err := strconv.ParseInt(tok.Value, 10, 64)
 		if err != nil {
 			e := err.(*strconv.NumError)
-			return nil, fmt.Errorf("%s: %s while parsing number expression", e.Num, e.Err)
+
+			return nil, fmt.Errorf("%s: %w while parsing number expression", e.Num, e.Err)
 		}
+
 		expr.Value = number
 
 		return expr, nil
@@ -39,6 +41,7 @@ func ParsePrimaryExpression(p *Parser) (ast.Expression, error) {
 		tok := p.advance()
 		expr.Value = tok.Value
 		expr.Tokens = append(expr.Tokens, tok)
+
 		return expr, nil
 	case lexer.Float:
 		expr := ast.FloatExpression{}
@@ -50,6 +53,7 @@ func ParsePrimaryExpression(p *Parser) (ast.Expression, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		expr.Value = number
 
 		return expr, nil

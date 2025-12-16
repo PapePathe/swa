@@ -8,16 +8,16 @@ import (
 	"swahili/lang/lexer"
 )
 
-// NudHandlerFunc ...
+// TypeNudHandlerFunc...
 type TypeNudHandlerFunc func(p *Parser) (ast.Type, []lexer.Token)
 
-// LedHandlerFunc ...
+// TypeLedHandlerFunc...
 type TypeLedHandlerFunc func(p *Parser, left ast.Type, bp BindingPower) (ast.Type, []lexer.Token)
 
-// NudLookup ...
+// TypeNudLookup...
 type TypeNudLookup map[lexer.TokenKind]TypeNudHandlerFunc
 
-// LedLookup ...
+// TypeLedLookup...
 type TypeLedLookup map[lexer.TokenKind]TypeLedHandlerFunc
 
 var (
@@ -31,11 +31,21 @@ func typeNud(kind lexer.TokenKind, nudFn TypeNudHandlerFunc) {
 }
 
 func createTokenTypeLookups() {
+	typeNud(lexer.Star, parsePointerType)
 	typeNud(lexer.Identifier, parseSymbolType)
 	typeNud(lexer.TypeInt, parseIntType)
 	typeNud(lexer.TypeFloat, parseFloatType)
 	typeNud(lexer.TypeString, parseStringType)
 	typeNud(lexer.OpenBracket, parseArrayType)
+}
+
+func parsePointerType(p *Parser) (ast.Type, []lexer.Token) {
+	tokens := []lexer.Token{p.advance()}
+
+	underlying, toks := parseType(p, DefaultBindingPower)
+	tokens = append(tokens, toks...)
+
+	return ast.PointerType{Underlying: underlying}, tokens
 }
 
 func parseFloatType(p *Parser) (ast.Type, []lexer.Token) {
@@ -70,10 +80,11 @@ func parseSymbolType(p *Parser) (ast.Type, []lexer.Token) {
 func parseArrayType(p *Parser) (ast.Type, []lexer.Token) {
 	typ := ast.ArrayType{}
 	tokens := []lexer.Token{}
-
 	tokens = append(tokens, p.advance())
+
 	if p.currentToken().Kind == lexer.Number {
 		tok := p.expect(lexer.Number)
+
 		number, err := strconv.ParseInt(tok.Value, 10, 64)
 		if err != nil {
 			panic(err)
@@ -81,6 +92,7 @@ func parseArrayType(p *Parser) (ast.Type, []lexer.Token) {
 
 		typ.Size = int(number)
 	}
+
 	tokens = append(tokens, p.expect(lexer.CloseBracket))
 
 	underlying, tokens := parseType(p, DefaultBindingPower)

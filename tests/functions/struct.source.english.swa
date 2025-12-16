@@ -6,7 +6,7 @@ struct Person {
   Name:    string,
 }
 
-func changeAge(person: Person) int {
+func changeAge(person: *Person) int {
   person.Age = person.Age + 20;
   person.Age = 20 + person.Age;
  
@@ -14,13 +14,13 @@ func changeAge(person: Person) int {
   return person.Age;
 }
 
-func changeName(person: Person) string {
+func changeName(person: *Person) string {
   person.Name = "Pathe SENE";
 
   return person.Name;
 }
 
-func changHeight(person: Person) float {
+func changHeight(person: *Person) float {
   person.Height= 1.80;
 
   return person.Height;

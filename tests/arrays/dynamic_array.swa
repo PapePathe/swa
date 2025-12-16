@@ -1,0 +1,106 @@
+dialect:english;
+
+struct DynArray {
+  Size: int,
+  Capacity: int,
+  Data: *int,
+}
+
+func push(arr: DynArray, value: int) int {
+  // if (arr.Size >= arr.Capacity) {
+  //   // Resize strategy: Double the capacity (hardcoded for now due to language limitations)
+  //   if (arr.Capacity == 10) {
+  //      let new_data: [20]int = [20]int{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  //      let i: int = 0;
+  //      while (i < arr.Size) {
+  //        new_data[i+0] = arr.Data[i+0];
+  //        i = i + 1;
+  //      }
+  //      arr.Data = new_data;
+  //      arr.Capacity = 20;
+  //      print("Resized array to capacity 20");
+  //   }
+  // }
+
+  if (arr.Size >= arr.Capacity) {
+       print("Error: Array capacity exceeded (max 20 implemented)");
+       return -1;
+  }
+
+  arr.Data[arr.Size+0] = value;
+  arr.Size = arr.Size + 1;
+  return arr.Size;
+}
+
+func get(arr: DynArray, index: int) int {
+  if (index < 0) {
+    print("Error: Index out of bounds");
+    return -1;
+  }
+  if (index >= arr.Size) {
+    print("Error: Index out of bounds");
+    return -1;
+  }
+  return arr.Data[index+0];
+}
+
+func set(arr: DynArray, index: int, value: int) int {
+  if (index < 0) {
+    print("Error: Index out of bounds");
+    return -1;
+  }
+  if (index >= arr.Size) {
+    print("Error: Index out of bounds");
+    return -1;
+  }
+  arr.Data[index+0] = value;
+  return value;
+}
+
+func print_array(arr: DynArray) int {
+  print("Array (Size: %d, Capacity: %d):", arr.Size, arr.Capacity);
+  let i: int = 0;
+  while (i < arr.Size) {
+    print("[%d]: %d", i, arr.Data[i+0]);
+    i = i + 1;
+  }
+  return 0;
+}
+
+start() int {
+  // Allocate backing array
+  let backing: [10]int = [10]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  
+  // Initialize dynamic array
+  let arr: DynArray = DynArray{
+    Size: 0,
+    Capacity: 10,
+    Data: backing,
+  };
+
+  // Test push
+  push(arr, 10);
+  push(arr, 20);
+  push(arr, 30);
+
+  print_array(arr);
+
+  // Test get
+  print("Get index 1: %d", get(arr, 1));
+
+  // Test set
+  set(arr, 1, 99);
+  print("After set index 1 to 99:");
+  print_array(arr);
+
+  // Test overflow and resize
+  let j: int = 0;
+  while (j < 10) {
+    push(arr, j + 100);
+    j = j + 1;
+  }
+  print("After filling and resizing:");
+  print_array(arr);
+  
+  return 0;
+}

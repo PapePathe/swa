@@ -1,0 +1,22 @@
+dialect:english;
+
+struct Data {
+  ptr: *int,
+  value: int,
+}
+
+// TODO: struct should be passed as a value here
+func processData(d: *Data) int {
+  return d.ptr[0] + d.ptr[1] + d.ptr[2] + d.value;
+}
+
+start() int {
+  let d : Data = Data{
+    ptr: [3]int{10, 20, 30},
+    value: 5,
+  };
+
+  let result: int = processData(d);
+  print("Result: %d", result);
+  return 0;
+}

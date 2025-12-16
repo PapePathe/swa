@@ -1,0 +1,16 @@
+dialect:english;
+
+struct Data {
+  arr: [3]int,
+}
+
+func createData() Data {
+  return Data{
+    arr: [3]int{1, 2, 3},
+  };
+}
+
+start() int {
+  let d: Data = createData();
+  return 0;
+}

@@ -1,0 +1,19 @@
+dialect:english;
+
+struct MultiArray {
+  arr1: [2]int,
+  arr2: [3]int,
+  value: int,
+}
+
+start() int {
+  let m : MultiArray = MultiArray{
+    arr1: [2]int{10, 20},
+    arr2: [3]int{100, 200, 300},
+    value: 42,
+  };
+
+  print("arr1[0]=%d arr1[1]=%d arr2[0]=%d arr2[2]=%d value=%d", 
+        m.arr1[0], m.arr1[1], m.arr2[0], m.arr2[2], m.value);
+  return 0;
+}

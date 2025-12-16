@@ -1,0 +1,7 @@
+dialect:english;
+
+start() int {
+  let i: int = 10;
+  print("%d", i.field);
+  return 0;
+}

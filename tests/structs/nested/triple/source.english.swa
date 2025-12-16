@@ -17,11 +17,11 @@ struct Person {
   HomeAddress: Address,
 }
 
-func getX(p: Person) int {
+func getX(p: *Person) int {
   return p.HomeAddress.Coords.X;
 }
 
-func setX(p: Person, val: int) int {
+func setX(p: *Person, val: int) int {
   p.HomeAddress.Coords.X = val;
   return p.HomeAddress.Coords.X;
 }

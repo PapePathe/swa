@@ -1,0 +1,8 @@
+dialect:english;
+
+struct Point { x: int, y: int, }
+struct Polygon { points: [3]Point, }
+
+start() int {
+  return 0;
+}

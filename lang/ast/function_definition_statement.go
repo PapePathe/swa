@@ -108,58 +108,65 @@ func (fd FuncDeclStatement) MarshalJSON() ([]byte, error) {
 }
 
 func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, extractedType) {
-	switch t.Value() {
-	case DataTypeNumber:
-		return nil, extractedType{typ: llvm.GlobalContext().Int32Type()}
-	case DataTypeFloat:
-		return nil, extractedType{typ: llvm.GlobalContext().DoubleType()}
-	case DataTypeIntType:
-		return nil, extractedType{typ: llvm.GlobalContext().Int32Type()}
-	case DataTypeString:
-		return nil, extractedType{typ: llvm.PointerType(llvm.GlobalContext().Int8Type(), 0)}
-	case DataTypeSymbol:
-		sym, _ := t.(SymbolType)
+	err, compiledType := t.LLVMType(ctx)
+	if err != nil {
+		return err, extractedType{}
+	}
 
-		err, entry := ctx.FindStructSymbol(sym.Name)
+	switch typ := t.(type) {
+	case NumberType, FloatType, StringType:
+		return nil, extractedType{typ: compiledType}
+	case SymbolType:
+		err, entry := ctx.FindStructSymbol(typ.Name)
 		if err != nil {
 			return err, extractedType{typ: llvm.Type{}}
 		}
 
-		return nil, extractedType{typ: llvm.PointerType(entry.LLVMType, 0), sEntry: entry}
-	case DataTypeArray:
+		etyp := extractedType{
+			// TODO: need to dinstinguish between passing a struct as value and as a pointer
+			typ:    compiledType,
+			sEntry: entry,
+		}
+
+		return nil, etyp
+	case PointerType:
 		var sEntry *StructSymbolTableEntry
 
-		var innerType llvm.Type
-
-		arr, _ := t.(ArrayType)
-
-		switch arr.Underlying.Value() {
-		case DataTypeSymbol:
-			arrSym, _ := t.(ArrayType)
-			sym, _ := arrSym.Underlying.(SymbolType)
-
-			err, entry := ctx.FindStructSymbol(sym.Name)
+		switch undType := typ.Underlying.(type) {
+		case SymbolType:
+			err, entry := ctx.FindStructSymbol(undType.Name)
 			if err != nil {
-				return err, extractedType{typ: llvm.Type{}}
+				return err, extractedType{}
 			}
 
-			innerType = entry.LLVMType
 			sEntry = entry
-		case DataTypeNumber:
-			innerType = llvm.GlobalContext().Int32Type()
-		case DataTypeFloat:
-			innerType = llvm.GlobalContext().DoubleType()
 		default:
-			return fmt.Errorf("FuncDeclStatement Type %s not supported as array element", arr.Underlying), extractedType{typ: llvm.Type{}}
+		}
+
+		etype := extractedType{typ: compiledType, sEntry: sEntry}
+
+		return nil, etype
+	case ArrayType:
+		var sEntry *StructSymbolTableEntry
+
+		switch undType := typ.Underlying.(type) {
+		case SymbolType:
+			err, entry := ctx.FindStructSymbol(undType.Name)
+			if err != nil {
+				return err, extractedType{}
+			}
+
+			sEntry = entry
+		default:
 		}
 
 		etype := extractedType{
-			typ: llvm.PointerType(innerType, 0),
+			typ: llvm.PointerType(compiledType.ElementType(), 0),
 			aEntry: &ArraySymbolTableEntry{
-				UnderlyingType:    innerType,
+				UnderlyingType:    compiledType.ElementType(),
 				UnderlyingTypeDef: sEntry,
-				ElementsCount:     arr.Size,
-				Type:              llvm.ArrayType(innerType, arr.Size),
+				ElementsCount:     compiledType.ArrayLength(),
+				Type:              llvm.ArrayType(compiledType.ElementType(), typ.Size),
 			},
 		}
 

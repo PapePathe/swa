@@ -2,6 +2,7 @@ package ast
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"swahili/lang/lexer"
 )
@@ -16,7 +17,7 @@ type CallExpression struct {
 var _ Expression = (*CallExpression)(nil)
 
 func (CallExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	panic("CallExpression compilation is not implemented")
+	return fmt.Errorf("CallExpression compilation is not implemented"), nil
 }
 
 func (expr CallExpression) TokenStream() []lexer.Token {

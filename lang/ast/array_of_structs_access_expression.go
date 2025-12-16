@@ -16,25 +16,110 @@ type ArrayOfStructsAccessExpression struct {
 }
 
 func (expr ArrayOfStructsAccessExpression) findSymbolTableEntry(ctx *CompilerCtx) (error, *ArraySymbolTableEntry, *SymbolTableEntry, []llvm.Value) {
-	varName, ok := expr.Name.(SymbolExpression)
-	if !ok {
-		key := "ArrayAccessExpression.NameNotASymbol"
+	var array *SymbolTableEntry
 
-		return ctx.Dialect.Error(key, expr.Name), nil, nil, nil
-	}
+	var entry *ArraySymbolTableEntry
 
-	err, array := ctx.FindSymbol(varName.Value)
-	if err != nil {
-		key := "ArrayAccessExpression.NotFoundInSymbolTable"
+	var err error
 
-		return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
-	}
+	var name string
 
-	err, entry := ctx.FindArraySymbol(varName.Value)
-	if err != nil {
-		key := "ArrayAccessExpression.NotFoundInArraysSymbolTable"
+	switch typedExpr := expr.Name.(type) {
+	case SymbolExpression:
+		err, array = ctx.FindSymbol(typedExpr.Value)
+		if err != nil {
+			key := "ArrayAccessExpression.NotFoundInSymbolTable"
 
-		return ctx.Dialect.Error(key, varName.Value), nil, nil, nil
+			return ctx.Dialect.Error(key, typedExpr.Value), nil, nil, nil
+		}
+
+		err, entry = ctx.FindArraySymbol(typedExpr.Value)
+		if err != nil {
+			key := "ArrayAccessExpression.NotFoundInArraysSymbolTable"
+
+			return ctx.Dialect.Error(key, typedExpr.Value), nil, nil, nil
+		}
+
+		name = typedExpr.Value
+	case MemberExpression:
+		err, val := expr.Name.CompileLLVM(ctx)
+		if err != nil {
+			return err, nil, nil, nil
+		}
+
+		var elementType llvm.Type
+
+		var arrayType llvm.Type
+
+		var typedef *StructSymbolTableEntry
+
+		if val.SymbolTableEntry == nil || val.SymbolTableEntry.Ref == nil {
+			return fmt.Errorf("ArrayOfStructsAccessExpression: Missing SymbolTableEntry"), nil, nil, nil
+		}
+
+		propExpr, ok := expr.Name.(MemberExpression)
+		if !ok {
+			format := "ArrayAccessExpression expected expr name to be a MemberExpression"
+
+			return fmt.Errorf(format), nil, nil, nil
+		}
+
+		propSym, ok := propExpr.Property.(SymbolExpression)
+		if !ok {
+			format := "ArrayAccessExpression expected expr property to be a SymbolExpression"
+
+			return fmt.Errorf(format), nil, nil, nil
+		}
+
+		if val.SymbolTableEntry.Ref == nil {
+			format := "ArrayAccessExpression property %s is not an array"
+
+			return fmt.Errorf(format, propSym.Value), nil, nil, nil
+		}
+
+		propIndex, err := propExpr.resolveStructAccess(val.SymbolTableEntry.Ref, propSym.Value)
+		if err != nil {
+			return err, nil, nil, nil
+		}
+
+		astType := val.SymbolTableEntry.Ref.Metadata.Types[propIndex]
+
+		coltype, ok := astType.(ArrayType)
+		if !ok {
+			err := fmt.Errorf("ArrayOfStructsAccessExpression type is not an array")
+
+			return err, nil, nil, nil
+		}
+
+		err, elementType = coltype.Underlying.LLVMType(ctx)
+		if err != nil {
+			return err, nil, nil, nil
+		}
+
+		err, arrayType = coltype.LLVMType(ctx)
+		if err != nil {
+			return err, nil, nil, nil
+		}
+
+		underlying, _ := coltype.Underlying.(SymbolType)
+
+		err, typedef = ctx.FindStructSymbol(underlying.Name)
+		if err != nil {
+			return err, nil, nil, nil
+		}
+
+		array = &SymbolTableEntry{Value: *val.Value}
+
+		entry = &ArraySymbolTableEntry{
+			UnderlyingTypeDef: typedef,
+			UnderlyingType:    elementType,
+			Type:              arrayType,
+			ElementsCount:     coltype.Size,
+		}
+	default:
+		format := "Expression %s not supported in ArrayOfStructsAccessExpression"
+
+		return fmt.Errorf(format, typedExpr), nil, nil, nil
 	}
 
 	var indices []llvm.Value
@@ -52,7 +137,7 @@ func (expr ArrayOfStructsAccessExpression) findSymbolTableEntry(ctx *CompilerCtx
 		if int(idx.Value) > entry.ElementsCount-1 {
 			key := "ArrayAccessExpression.IndexOutOfBounds"
 
-			return ctx.Dialect.Error(key, int(idx.Value), varName.Value), nil, nil, nil
+			return ctx.Dialect.Error(key, int(idx.Value), name), nil, nil, nil
 		}
 
 		indices = []llvm.Value{
@@ -111,7 +196,10 @@ func (expr ArrayOfStructsAccessExpression) CompileLLVM(ctx *CompilerCtx) (error,
 
 	propType := entry.UnderlyingTypeDef.Metadata.Types[index]
 	if symbolType, ok := propType.(SymbolType); ok {
-		_, ref = ctx.FindStructSymbol(symbolType.Name)
+		err, ref = ctx.FindStructSymbol(symbolType.Name)
+		if err != nil {
+			return err, nil
+		}
 	}
 
 	return nil, &CompilerResult{

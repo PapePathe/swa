@@ -40,6 +40,10 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 		return fmt.Errorf("variable %s is not defined", obj.Value), nil
 	}
 
+	if varDef.Ref == nil {
+		return fmt.Errorf("variable %s is not a struct instance", obj.Value), nil
+	}
+
 	propName, err := expr.getProperty()
 	if err != nil {
 		return err, nil
@@ -50,7 +54,14 @@ func (expr MemberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 		return err, nil
 	}
 
-	addr := ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, varDef.Value, propIndex, "")
+	var baseValue llvm.Value
+	if varDef.Address != nil {
+		baseValue = *varDef.Address
+	} else {
+		baseValue = varDef.Value
+	}
+
+	addr := ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, baseValue, propIndex, "")
 	propType := varDef.Ref.PropertyTypes[propIndex]
 
 	return nil, &CompilerResult{
@@ -209,6 +220,10 @@ func (expr MemberExpression) resolveStructAccess(
 	structType *StructSymbolTableEntry,
 	propName string,
 ) (int, error) {
+	//	if structType == nil {
+	//		return 0, fmt.Errorf("%s cannot be called", propName)
+	//	}
+
 	err, propIndex := structType.Metadata.PropertyIndex(propName)
 	if err != nil {
 		return 0, fmt.Errorf("struct %s has no field %s", structType.Metadata.Name, propName)
@@ -253,6 +268,7 @@ func (expr MemberExpression) getNestedStructType(
 
 func (expr MemberExpression) compileArrArrayAccessExpression(ctx *CompilerCtx) (error, *CompilerResult) {
 	arrayAccess, _ := expr.Object.(ArrayAccessExpression)
+
 	err, res := arrayAccess.CompileLLVM(ctx)
 	if err != nil {
 		return err, nil

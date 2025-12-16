@@ -1,0 +1,21 @@
+dialect:english;
+
+// Test 7: Returning struct with pointer from function
+struct Data {
+  ptr: *int,
+  value: int,
+}
+
+func createData() Data {
+  return Data{
+    ptr: [3]int{100, 200, 300},
+    value: 42,
+  };
+}
+
+start() int {
+  let d: Data = createData();
+  print("ptr[0]=%d ptr[1]=%d ptr[2]=%d value=%d", 
+        d.ptr[0], d.ptr[1], d.ptr[2], d.value);
+  return 0;
+}

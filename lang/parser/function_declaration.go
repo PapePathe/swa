@@ -60,7 +60,9 @@ func ParseFunctionCall(p *Parser, left ast.Expression, bp BindingPower) (ast.Exp
 		if err != nil {
 			return nil, err
 		}
+
 		expr.Args = append(expr.Args, arg)
+
 		expr.Tokens = append(expr.Tokens, arg.TokenStream()...)
 		if p.currentToken().Kind == lexer.Comma {
 			expr.Tokens = append(expr.Tokens, p.expect(lexer.Comma))

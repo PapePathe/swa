@@ -16,6 +16,7 @@ func ParseWhileStatement(p *Parser) (ast.Statement, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		stmt.Condition = expr
 		stmt.Tokens = append(stmt.Tokens, expr.TokenStream()...)
 	}

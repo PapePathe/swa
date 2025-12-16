@@ -51,7 +51,9 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 
 			printableValues = append(printableValues, glob)
 		default:
-			panic(fmt.Sprintf("Expression %v not supported in print statement", v))
+			err := fmt.Errorf("Expression %v not supported in print statement", v)
+
+			return err, nil
 		}
 	}
 

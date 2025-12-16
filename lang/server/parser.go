@@ -40,7 +40,8 @@ func (ps WebParser) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = w.Write(jsonData); err != nil {
+	_, err = w.Write(jsonData)
+	if err != nil {
 		panic(err)
 	}
 }
@@ -68,6 +69,7 @@ func (WebParser) expectPayload(r *http.Request) (*WebParserRequest, error) {
 
 func (WebParser) expectResponse(data *WebParserRequest) ([]byte, error) {
 	tokens, _ := lexer.Tokenize(data.Src)
+
 	absTree, err := parser.Parse(tokens)
 	if err != nil {
 		return nil, err
