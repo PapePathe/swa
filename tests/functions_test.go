@@ -19,10 +19,20 @@ func TestFunctions(t *testing.T) {
 			req.AssertCompileAndExecute()
 		})
 
-		t.Run("Function taking struct as argument", func(t *testing.T) {
+		t.Run("Function taking struct as argument by reference", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:               "./functions/struct.source.english.swa",
 				ExpectedExecutionOutput: "age: 40, height: 1.80, name: Pathe SENE",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("Function taking struct as argument by value", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./functions/struct-as-value.source.english.swa",
+				ExpectedExecutionOutput: "age: 0, age of copy: 40\nheight: 0.00, height of copy: 1.80\nname: Pathe, name of copy: Pathe SENE\n",
 				T:                       t,
 			}
 

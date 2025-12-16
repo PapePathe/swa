@@ -55,13 +55,20 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 			case llvm.IntegerTypeKind, llvm.FloatTypeKind, llvm.DoubleTypeKind:
 				args = append(args, *argVal.Value)
 			case llvm.PointerTypeKind:
+				if argVal.SymbolTableEntry.Ref != nil {
+					load := ctx.Builder.CreateLoad(argVal.Value.AllocatedType(), *argVal.Value, "")
+					alloca := ctx.Builder.CreateAlloca(argVal.Value.AllocatedType(), "")
+					ctx.Builder.CreateStore(load, alloca)
+					args = append(args, alloca)
+
+					break
+				}
+
 				if argVal.SymbolTableEntry != nil && argVal.SymbolTableEntry.Address != nil {
 					args = append(args, *argVal.SymbolTableEntry.Address)
 				} else {
 					args = append(args, *argVal.Value)
 				}
-			case llvm.StructTypeKind:
-				panic("FunctionCallExpression llvm.StructTypeKind not implemented")
 			default:
 				return fmt.Errorf("Type of%s not supported a func call arg", typ), nil
 			}
@@ -77,7 +84,7 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 		currentParamType := funcDef.Params()[i].Type()
 
 		if currentArgType != currentParamType {
-			format := "expected argument of type %s expected but got %s"
+			format := "expected argument of type %v expected but got %v"
 
 			return fmt.Errorf(format, currentParamType, currentArgType), nil
 		}
