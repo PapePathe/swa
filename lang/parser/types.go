@@ -87,7 +87,7 @@ func parseArrayType(p *Parser) (ast.Type, []lexer.Token) {
 
 		number, err := strconv.ParseInt(tok.Value, 10, 64)
 		if err != nil {
-			panic(err)
+			p.Errors = append(p.Errors, err)
 		}
 
 		typ.Size = int(number)
@@ -107,7 +107,11 @@ func parseType(p *Parser, bp BindingPower) (ast.Type, []lexer.Token) {
 	tokens := []lexer.Token{}
 
 	if !exists {
-		panic(fmt.Sprintf("type nud handler expected for token kind: %s, value: %s\n", tokenKind, p.currentToken().Value))
+		format := "token kind: %s with value: (%s) is not a valid start token for a type at line %d"
+		err := fmt.Errorf(format, tokenKind, p.currentToken().Value, p.currentToken().Line)
+		p.Errors = append(p.Errors, err)
+
+		return nil, tokens
 	}
 
 	left, toks := nudFn(p)
@@ -117,13 +121,11 @@ func parseType(p *Parser, bp BindingPower) (ast.Type, []lexer.Token) {
 		ledFn, exists := typeLedLookup[p.currentToken().Kind]
 
 		if !exists {
-			panic(
-				fmt.Sprintf(
-					"type led handler expected for token (%s: value(%s))\n",
-					tokenKind,
-					p.currentToken().Value,
-				),
-			)
+			format := "token kind: %s with value: (%s) is not a valid start token for a led type at line %d"
+			err := fmt.Errorf(format, tokenKind, p.currentToken().Value, p.currentToken().Line)
+			p.Errors = append(p.Errors, err)
+
+			return left, tokens
 		}
 
 		left, toks = ledFn(p, left, typeBindingPowerLookup[p.currentToken().Kind])

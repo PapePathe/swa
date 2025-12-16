@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
@@ -14,16 +13,20 @@ type Parser struct {
 	pos               int
 	currentStatement  ast.Statement
 	currentExpression ast.Expression
+	Errors            []error
 }
 
 // Parse ...
-func Parse(tokens []lexer.Token) (ast.BlockStatement, error) {
+func Parse(tokens []lexer.Token) (ast.BlockStatement, []error) {
 	body := make([]ast.Statement, 0)
 
 	createTokenLookups()
 	createTokenTypeLookups()
 
-	psr := &Parser{tokens: tokens}
+	psr := &Parser{
+		tokens: tokens,
+		Errors: make([]error, 0),
+	}
 
 	if psr.hasTokens() {
 		psr.expect(lexer.DialectDeclaration)
@@ -35,7 +38,9 @@ func Parse(tokens []lexer.Token) (ast.BlockStatement, error) {
 	for psr.hasTokens() {
 		stmt, err := ParseStatement(psr)
 		if err != nil {
-			return ast.BlockStatement{}, err
+			psr.Errors = append(psr.Errors, err)
+			psr.synchronize()
+			continue
 		}
 
 		body = append(body, stmt)
@@ -43,7 +48,7 @@ func Parse(tokens []lexer.Token) (ast.BlockStatement, error) {
 
 	return ast.BlockStatement{
 		Body: body,
-	}, nil
+	}, psr.Errors
 }
 
 func (p *Parser) currentToken() lexer.Token {
@@ -64,17 +69,33 @@ func (p *Parser) hasTokens() bool {
 func (p *Parser) expectError(kind lexer.TokenKind, err any) lexer.Token {
 	token := p.currentToken()
 
-	if kind != token.Kind {
-		if err == nil {
-			fmt.Println(p.unexpectedTokenError(kind))
-			os.Exit(1)
-		}
-
-		fmt.Println(err)
-		os.Exit(1)
+	if kind == token.Kind {
+		return p.advance()
 	}
 
-	return p.advance()
+	if err == nil {
+		p.Errors = append(p.Errors, p.unexpectedTokenError(kind))
+	} else {
+		p.Errors = append(p.Errors, err.(error))
+	}
+
+	return p.currentToken() // Return current token to avoid panic, synchronize will handle skipping
+}
+
+func (p *Parser) synchronize() {
+	p.advance()
+
+	for p.hasTokens() {
+		if p.currentToken().Kind == lexer.SemiColon {
+			p.advance()
+
+			return
+		}
+
+		// Add other synchronization points if needed, e.g., checking for start of new statement keywords
+
+		p.advance()
+	}
 }
 
 func (p *Parser) expect(kind lexer.TokenKind) lexer.Token {
@@ -112,33 +133,32 @@ const (
 )
 
 func (p *Parser) sourceError(kind lexer.TokenKind, token lexer.Token, stream []lexer.Token) error {
-	line := 0
-	if len(stream) > 0 {
-		line = stream[0].Line
-	}
-
+	//	line := 0
+	//	if len(stream) > 0 {
+	//		line = stream[0].Line
+	//	}
 	sb := strings.Builder{}
 
 	sb.WriteString(ColorYellow)
 	sb.WriteString(p.unexpectedTokenError(kind).Error())
 	sb.WriteString(ColorReset)
-	sb.WriteString("\n")
-	sb.WriteString(fmt.Sprintf("\n%s%d%s ", ColorBlue, line, ColorReset))
-
-	for _, tok := range stream {
-		if tok.Line > line {
-			line = tok.Line
-			sb.WriteString(fmt.Sprintf("\n%s%d%s ", ColorBlue, tok.Line, ColorReset))
-		}
-
-		sb.WriteString(fmt.Sprintf("%s%s%s ", ColorGreen, tok.Value, ColorReset))
-	}
-
-	if token.Line > line {
-		sb.WriteString(fmt.Sprintf("\n%s%d%s ", ColorBlue, token.Line, ColorReset))
-	}
-
-	sb.WriteString(fmt.Sprintf("%s%s%s ", ColorRed, token.Value, ColorReset))
+	//	sb.WriteString("\n")
+	//	sb.WriteString(fmt.Sprintf("\n%s%d%s ", ColorBlue, line, ColorReset))
+	//
+	//	for _, tok := range stream {
+	//		if tok.Line > line {
+	//			line = tok.Line
+	//			sb.WriteString(fmt.Sprintf("\n%s%d%s ", ColorBlue, tok.Line, ColorReset))
+	//		}
+	//
+	//		sb.WriteString(fmt.Sprintf("%s%s%s ", ColorGreen, tok.Value, ColorReset))
+	//	}
+	//
+	//	if token.Line > line {
+	//		sb.WriteString(fmt.Sprintf("\n%s%d%s ", ColorBlue, token.Line, ColorReset))
+	//	}
+	//
+	//	sb.WriteString(fmt.Sprintf("%s%s%s ", ColorRed, token.Value, ColorReset))
 
 	return fmt.Errorf(sb.String())
 }

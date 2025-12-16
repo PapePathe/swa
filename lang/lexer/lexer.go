@@ -12,6 +12,7 @@ type Lexer struct {
 	line          int
 	patterns      []RegexpPattern      // the list of patterns of the language
 	reservedWords map[string]TokenKind // list of reserved words
+	Errors        []error              // list of errors encountered during lexing
 }
 
 func New(source string) (*Lexer, Dialect, error) {
@@ -25,6 +26,7 @@ func New(source string) (*Lexer, Dialect, error) {
 		patterns:      dialect.Patterns(),
 		reservedWords: dialect.Reserved(),
 		source:        source,
+		Errors:        make([]error, 0),
 	}, dialect, nil
 }
 
