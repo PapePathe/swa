@@ -9,6 +9,11 @@ permissions:
 
 jobs:
   goreleaser:
+    container:
+      image: ghcr.io/papepathe/swa-base-container-builder:master
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
     steps:
       -
