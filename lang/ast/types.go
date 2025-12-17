@@ -18,6 +18,8 @@ func (dt DataType) String() string {
 		return "DataTypeIntType"
 	case DataTypeNumber:
 		return "DataTypeNumber"
+	case DataTypeNumber64:
+		return "DataTypeNumber64 bits"
 	case DataTypeFloat:
 		return "DataTypeFloat"
 	case DataTypeArray:
@@ -26,6 +28,8 @@ func (dt DataType) String() string {
 		return "DataTypeSymbol"
 	case DataTypePointer:
 		return "DataTypePointer"
+	case DataTypeVoid:
+		return "DataTypeVoid"
 	default:
 		fmt.Printf("Unmatched data type %d", dt)
 		os.Exit(1)
@@ -37,12 +41,14 @@ func (dt DataType) String() string {
 const (
 	DataTypeArray = iota
 	DataTypeNumber
+	DataTypeNumber64
 	DataTypeFloat
 	DataTypeString
 	DataTypeStruct
 	DataTypeIntType
 	DataTypeSymbol
 	DataTypePointer
+	DataTypeVoid
 )
 
 // Type
@@ -195,4 +201,45 @@ func (se PointerType) MarshalJSON() ([]byte, error) {
 	res["ast.PointerType"] = se.Value().String()
 
 	return json.Marshal(res)
+}
+
+type VoidType struct{}
+
+var _ Type = (*VoidType)(nil)
+
+func (VoidType) Value() DataType {
+	return DataTypeVoid
+}
+
+func (se VoidType) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["ast.FloatType"] = se.Value().String()
+
+	return json.Marshal(m)
+}
+
+func (VoidType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
+	return nil, llvm.GlobalContext().VoidType()
+}
+
+type Number64Type struct{}
+
+var _ Type = (*Number64Type)(nil)
+
+func (Number64Type) Value() DataType {
+	return DataTypeNumber64
+}
+
+func (se Number64Type) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["Value"] = se.Value().String()
+
+	res := make(map[string]any)
+	res["ast.Number64Type"] = m
+
+	return json.Marshal(res)
+}
+
+func (Number64Type) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
+	return nil, llvm.GlobalContext().Int64Type()
 }
