@@ -50,8 +50,10 @@ var tks = map[TokenKind]string{
 	String:             "STRING",
 	Star:               "STAR",
 	TypeInt:            "TYPE_INT",
+	TypeInt64:          "TYPE_INT_64",
 	TypeFloat:          "TYPE_FLOAT",
 	TypeString:         "TYPE_STRING",
+	Variadic:           "VARIADIC",
 }
 
 // String s a string representation of the TokenKind.
@@ -81,6 +83,7 @@ const (
 	KeywordWhile
 	// TypeInt represents the "int" type.
 	TypeInt
+	TypeInt64
 	TypeFloat
 	// TypeString represents the "string" type.
 	TypeString
@@ -160,4 +163,6 @@ const (
 	Main
 	Return
 	Modulo
+
+	Variadic
 )
