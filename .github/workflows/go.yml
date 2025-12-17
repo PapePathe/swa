@@ -13,6 +13,8 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      - name: Fix dubious ownership
+        run: git config --global --add safe.directory /__w/swa/swa
       - uses: actions/checkout@v4
       - name: Build
         working-directory: lang
