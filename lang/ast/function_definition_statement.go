@@ -124,7 +124,7 @@ func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, extrac
 
 		etyp := extractedType{
 			// TODO: need to dinstinguish between passing a struct as value and as a pointer
-			typ:    compiledType,
+			typ:    llvm.PointerType(compiledType, 0),
 			sEntry: entry,
 		}
 

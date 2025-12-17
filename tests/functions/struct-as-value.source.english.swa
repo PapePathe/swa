@@ -1,0 +1,40 @@
+dialect:english;
+
+struct Person {
+  Age:     int,
+  Height:  float,
+  Name:    string,
+}
+
+func changeAgeOfCopy(person: Person) int {
+  person.Age = person.Age + 20;
+  person.Age = 20 + person.Age;
+ 
+
+  return person.Age;
+}
+
+func changeNameOfCopy(person: Person) string {
+  person.Name = "Pathe SENE";
+
+  return person.Name;
+}
+
+func changHeightOfCopy(person: Person) float {
+  person.Height= 1.80;
+
+  return person.Height;
+}
+
+start() int {
+  let p : Person = Person{ Age: 0, Height: 0.0, Name: "Pathe", };
+  let myAge : int = changeAgeOfCopy(p);
+  let myHeight : float = changHeightOfCopy(p);
+  let myName: string = changeNameOfCopy(p);
+ 
+  print("age: %d, age of copy: %d\n", p.Age, myAge);
+  print("height: %.2f, height of copy: %.2f\n", p.Height, myHeight);
+  print("name: %s, name of copy: %s\n", p.Name, myName);
+
+  return 0; 
+}
