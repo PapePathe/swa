@@ -20,6 +20,8 @@ func (m French) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`\n`), newlineHandler},
 		{regexp.MustCompile(`\s+`), skipHandler},
 		{regexp.MustCompile(`\bdialecte\b`), defaultHandler(DialectDeclaration, "dialecte")},
+		{regexp.MustCompile(`\bvariadique\b`), defaultHandler(Variadic, "variadique")},
+		{regexp.MustCompile(`\bentier64\b`), defaultHandler(TypeInt64, "entier64")},
 		{regexp.MustCompile(`\bentier\b`), defaultHandler(TypeInt, "entier")},
 		{regexp.MustCompile(`\bdecimal\b`), defaultHandler(TypeFloat, "decimal")},
 		{regexp.MustCompile(`\bchaine\b`), defaultHandler(TypeString, "chaine")},
@@ -90,15 +92,19 @@ func (m French) Error(key string, args ...any) error {
 
 func (m French) Reserved() map[string]TokenKind {
 	return map[string]TokenKind{
-		"si":        KeywordIf,
-		"sinon":     KeywordElse,
-		"structure": Struct,
-		"fonction":  Function,
-		"variable":  Let,
-		"constante": Const,
-		"entier":    TypeInt,
-		"decimal":   TypeFloat,
-		"chaine":    TypeString,
+		"afficher":   Print,
+		"chaine":     TypeString,
+		"constante":  Const,
+		"decimal":    TypeFloat,
+		"demarrer":   Main,
+		"dialecte":   DialectDeclaration,
+		"entier":     TypeInt,
+		"fonction":   Function,
+		"si":         KeywordIf,
+		"sinon":      KeywordElse,
+		"structure":  Struct,
+		"variable":   Let,
+		"variadique": Variadic,
 	}
 }
 
