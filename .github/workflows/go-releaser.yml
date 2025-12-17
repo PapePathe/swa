@@ -31,6 +31,6 @@ jobs:
           workdir: ./lang
           distribution: goreleaser
           version: '~> v2'
-          args: release --clean --snapshot
+          args: release --clean --snapshot -buildvcs=false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
