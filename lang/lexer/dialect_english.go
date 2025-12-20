@@ -22,6 +22,7 @@ func (m English) Patterns() []RegexpPattern {
 		{regexp.MustCompile(`\bdialect\b`), defaultHandler(DialectDeclaration, "dialect")},
 		{regexp.MustCompile(`\bvariadic\b`), defaultHandler(Variadic, "variadic")},
 		{regexp.MustCompile(`\bint\b`), defaultHandler(TypeInt, "int")},
+		{regexp.MustCompile(`\bint8\b`), defaultHandler(TypeInt8, "int8")},
 		{regexp.MustCompile(`\bint64\b`), defaultHandler(TypeInt64, "int64")},
 		{regexp.MustCompile(`\bfloat\b`), defaultHandler(TypeFloat, "float")},
 		{regexp.MustCompile(`\bstring\b`), defaultHandler(TypeString, "string")},

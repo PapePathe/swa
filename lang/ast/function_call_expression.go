@@ -64,7 +64,11 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 					break
 				}
 
-				if argVal.SymbolTableEntry != nil && argVal.SymbolTableEntry.Address != nil {
+				// If the value type matches the expected type, use the value directly.
+				// This handles strings (i8*) and other pointer types passed by value.
+				if argVal.Value.Type() == funcDef.Params()[i].Type() {
+					args = append(args, *argVal.Value)
+				} else if argVal.SymbolTableEntry != nil && argVal.SymbolTableEntry.Address != nil {
 					args = append(args, *argVal.SymbolTableEntry.Address)
 				} else {
 					args = append(args, *argVal.Value)

@@ -18,8 +18,10 @@ func (dt DataType) String() string {
 		return "DataTypeIntType"
 	case DataTypeNumber:
 		return "DataTypeNumber"
+	case DataTypeNumber8:
+		return "DataTypeNumber 8 bits"
 	case DataTypeNumber64:
-		return "DataTypeNumber64 bits"
+		return "DataTypeNumber 64 bits"
 	case DataTypeFloat:
 		return "DataTypeFloat"
 	case DataTypeArray:
@@ -42,6 +44,7 @@ const (
 	DataTypeArray = iota
 	DataTypeNumber
 	DataTypeNumber64
+	DataTypeNumber8
 	DataTypeFloat
 	DataTypeString
 	DataTypeStruct
@@ -242,4 +245,26 @@ func (se Number64Type) MarshalJSON() ([]byte, error) {
 
 func (Number64Type) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
 	return nil, llvm.GlobalContext().Int64Type()
+}
+
+type Number8Type struct{}
+
+var _ Type = (*Number8Type)(nil)
+
+func (Number8Type) Value() DataType {
+	return DataTypeNumber8
+}
+
+func (se Number8Type) MarshalJSON() ([]byte, error) {
+	m := make(map[string]any)
+	m["Value"] = se.Value().String()
+
+	res := make(map[string]any)
+	res["ast.Number8Type"] = m
+
+	return json.Marshal(res)
+}
+
+func (Number8Type) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
+	return nil, llvm.GlobalContext().Int8Type()
 }

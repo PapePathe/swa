@@ -34,6 +34,7 @@ func createTokenTypeLookups() {
 	typeNud(lexer.Star, parsePointerType)
 	typeNud(lexer.Identifier, parseSymbolType)
 	typeNud(lexer.TypeInt, parseIntType)
+	typeNud(lexer.TypeInt8, parseInt8Type)
 	typeNud(lexer.TypeInt64, parseInt64Type)
 	typeNud(lexer.TypeFloat, parseFloatType)
 	typeNud(lexer.TypeString, parseStringType)
@@ -71,6 +72,12 @@ func parseIntType(p *Parser) (ast.Type, []lexer.Token) {
 	tokens := []lexer.Token{p.advance()}
 
 	return ast.NumberType{}, tokens
+}
+
+func parseInt8Type(p *Parser) (ast.Type, []lexer.Token) {
+	tokens := []lexer.Token{p.advance()}
+
+	return ast.Number8Type{}, tokens
 }
 
 func parseSymbolType(p *Parser) (ast.Type, []lexer.Token) {
