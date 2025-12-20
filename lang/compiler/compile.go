@@ -19,19 +19,30 @@ type BuildTarget struct {
 const FilePerm = 0600
 
 func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect, experimental bool) {
-	context := llvm.NewContext()
-	defer context.Dispose()
+	var context llvm.Context
+	var module llvm.Module
+	var builder llvm.Builder
 
-	module := context.NewModule("swa-main")
+	if experimental {
+		context = llvm.NewContext()
+		module = context.NewModule("swa-main")
+		builder = context.NewBuilder()
+	} else {
+		context = llvm.GlobalContext()
+		module = context.NewModule("swa-main")
+		builder = context.NewBuilder()
+	}
+
+	if experimental {
+		defer context.Dispose()
+	}
 	defer module.Dispose()
+	defer builder.Dispose()
 
 	printArgTypes := []llvm.Type{llvm.PointerType(context.Int8Type(), 0)}
 	printfFuncType := llvm.FunctionType(context.Int32Type(), printArgTypes, true)
 	printfFunc := llvm.AddFunction(module, "printf", printfFuncType)
 	printfFunc.SetLinkage(llvm.ExternalLinkage)
-
-	builder := context.NewBuilder()
-	defer builder.Dispose()
 
 	ctx := ast.NewCompilerContext(
 		&context,
