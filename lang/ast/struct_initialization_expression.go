@@ -135,6 +135,10 @@ func (si StructInitializationExpression) InitValues(ctx *CompilerCtx) (error, []
 	return nil, fieldValues
 }
 
+func (expr StructInitializationExpression) Accept(g CodeGenerator) error {
+	return g.VisitStructInitializationExpression(&expr)
+}
+
 func (expr StructInitializationExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

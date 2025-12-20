@@ -53,6 +53,10 @@ func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *Comp
 	return err, nil
 }
 
+func (sd StructDeclarationStatement) Accept(g CodeGenerator) error {
+	return g.VisitStructDeclaration(&sd)
+}
+
 func (expr StructDeclarationStatement) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

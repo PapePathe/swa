@@ -42,6 +42,10 @@ func (se NumberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 	return nil, &CompilerResult{Value: &res}
 }
 
+func (expr NumberExpression) Accept(g CodeGenerator) error {
+	return g.VisitNumberExpression(&expr)
+}
+
 func (expr NumberExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

@@ -23,6 +23,10 @@ func (e PrefixExpression) String() string {
 	return fmt.Sprintf("%s %s", e.Operator.Value, e.RightExpression)
 }
 
+func (expr PrefixExpression) Accept(g CodeGenerator) error {
+	return g.VisitPrefixExpression(&expr)
+}
+
 func (expr PrefixExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

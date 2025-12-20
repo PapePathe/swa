@@ -211,6 +211,10 @@ func (expr ArrayOfStructsAccessExpression) CompileLLVM(ctx *CompilerCtx) (error,
 	}
 }
 
+func (expr ArrayOfStructsAccessExpression) Accept(g CodeGenerator) error {
+	return g.VisitArrayOfStructsAccessExpression(&expr)
+}
+
 func (expr ArrayOfStructsAccessExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

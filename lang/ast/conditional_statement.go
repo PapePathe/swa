@@ -70,6 +70,10 @@ func (cs ConditionalStatetement) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 	return nil, &CompilerResult{Value: &phi}
 }
 
+func (cs ConditionalStatetement) Accept(g CodeGenerator) error {
+	return g.VisitConditionalStatement(&cs)
+}
+
 func (expr ConditionalStatetement) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
