@@ -1,0 +1,12 @@
+dialecte:français;
+
+fonction variadique printf2(format: chaine) entier; 
+fonction open(name: chaine, mode: entier) entier64; 
+fonction close(fd: entier64); 
+fonction getpid() entier;
+fonction getenv(name: chaine) chaine;
+
+demarrer() entier {
+  retourner 0;
+}
+

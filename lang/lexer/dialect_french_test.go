@@ -8,15 +8,19 @@ import (
 
 func TestReservedFrench(t *testing.T) {
 	expected := map[string]TokenKind{
-		"si":        KeywordIf,
-		"sinon":     KeywordElse,
-		"structure": Struct,
-		"fonction":  Function,
-		"variable":  Let,
-		"constante": Const,
-		"entier":    TypeInt,
-		"decimal":   TypeFloat,
-		"chaine":    TypeString,
+		"afficher":   Print,
+		"chaine":     TypeString,
+		"constante":  Const,
+		"decimal":    TypeFloat,
+		"demarrer":   Main,
+		"dialecte":   DialectDeclaration,
+		"entier":     TypeInt,
+		"fonction":   Function,
+		"si":         KeywordIf,
+		"sinon":      KeywordElse,
+		"structure":  Struct,
+		"variable":   Let,
+		"variadique": Variadic,
 	}
 
 	French := French{}
@@ -28,5 +32,5 @@ func TestReservedFrench(t *testing.T) {
 func TestPatternsFrench(t *testing.T) {
 	french := French{}
 
-	assert.Equal(t, 46, len(french.Patterns()))
+	assert.Equal(t, 48, len(french.Patterns()))
 }

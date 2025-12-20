@@ -10,6 +10,12 @@ func ParseFunctionDeclaration(p *Parser) (ast.Statement, error) {
 	p.currentStatement = &funDecl
 
 	funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.Function))
+	if p.currentToken().Kind == lexer.Variadic {
+		funDecl.ArgsVariadic = true
+
+		p.expect(lexer.Variadic)
+	}
+
 	tok := p.expect(lexer.Identifier)
 	funDecl.Name = tok.Value
 	funDecl.Tokens = append(funDecl.Tokens, tok)
@@ -34,17 +40,26 @@ func ParseFunctionDeclaration(p *Parser) (ast.Statement, error) {
 
 	funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.CloseParen))
 
-	returnType, tokens := parseType(p, DefaultBindingPower)
-	funDecl.ReturnType = returnType
-	funDecl.Tokens = append(funDecl.Tokens, tokens...)
-
-	body, err := ParseBlockStatement(p)
-	if err != nil {
-		return nil, err
+	curentToken := p.currentToken()
+	if curentToken.Kind == lexer.SemiColon || curentToken.Kind == lexer.OpenBracket { // void return type
+		funDecl.ReturnType = ast.VoidType{}
+	} else {
+		returnType, tokens := parseType(p, DefaultBindingPower)
+		funDecl.ReturnType = returnType
+		funDecl.Tokens = append(funDecl.Tokens, tokens...)
 	}
 
-	funDecl.Tokens = append(funDecl.Tokens, body.TokenStream()...)
-	funDecl.Body = body
+	if p.currentToken().Kind == lexer.SemiColon {
+		funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.SemiColon))
+	} else {
+		body, err := ParseBlockStatement(p)
+		if err != nil {
+			return nil, err
+		}
+
+		funDecl.Tokens = append(funDecl.Tokens, body.TokenStream()...)
+		funDecl.Body = body
+	}
 
 	return funDecl, nil
 }

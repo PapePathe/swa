@@ -1,0 +1,11 @@
+dialect:english;
+
+func variadic printf2(format: string) int; 
+func open(name: string, mode: int) int64; 
+func close(fd: int64); 
+func getpid() int;
+func getenv(name: string) string;
+
+start() int {
+  return 0; 
+}

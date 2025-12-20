@@ -14,11 +14,12 @@ type FuncArg struct {
 }
 
 type FuncDeclStatement struct {
-	Body       BlockStatement
-	Name       string
-	ReturnType Type
-	Args       []FuncArg
-	Tokens     []lexer.Token
+	Body         BlockStatement
+	Name         string
+	ReturnType   Type
+	Args         []FuncArg
+	Tokens       []lexer.Token
+	ArgsVariadic bool
 }
 
 var _ Statement = (*FuncDeclStatement)(nil)
@@ -42,7 +43,7 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 		return err, nil
 	}
 
-	newfuncType := llvm.FunctionType(returnType.typ, params, false)
+	newfuncType := llvm.FunctionType(returnType.typ, params, fd.ArgsVariadic)
 	newFunc := llvm.AddFunction(*newCtx.Module, fd.Name, newfuncType)
 
 	err = ctx.AddFuncSymbol(fd.Name, &newfuncType)
@@ -79,13 +80,21 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 		}
 	}
 
-	block := ctx.Context.AddBasicBlock(newFunc, "body")
-	ctx.Builder.SetInsertPointAtEnd(block)
+	if len(fd.Body.Body) > 0 {
+		block := ctx.Context.AddBasicBlock(newFunc, "body")
+		ctx.Builder.SetInsertPointAtEnd(block)
 
-	err, _ = fd.Body.CompileLLVM(newCtx)
-	if err != nil {
-		return err, nil
+		err, _ = fd.Body.CompileLLVM(newCtx)
+		if err != nil {
+			return err, nil
+		}
+
+		return nil, nil
 	}
+
+	// If we get here it means function has no Body
+	// so it's just a declaration of an external function
+	newFunc.SetLinkage(llvm.ExternalLinkage)
 
 	return nil, nil
 }
@@ -114,7 +123,7 @@ func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, extrac
 	}
 
 	switch typ := t.(type) {
-	case NumberType, FloatType, StringType:
+	case NumberType, Number64Type, FloatType, StringType, VoidType:
 		return nil, extractedType{typ: compiledType}
 	case SymbolType:
 		err, entry := ctx.FindStructSymbol(typ.Name)
@@ -172,7 +181,7 @@ func (fd FuncDeclStatement) extractType(ctx *CompilerCtx, t Type) (error, extrac
 
 		return nil, etype
 	default:
-		return fmt.Errorf("FuncDeclStatement argument type %v not supported", t), extractedType{}
+		return fmt.Errorf("FuncDeclStatement argument type %t not supported", t), extractedType{}
 	}
 }
 
