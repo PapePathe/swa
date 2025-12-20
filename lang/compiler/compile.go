@@ -18,15 +18,15 @@ type BuildTarget struct {
 
 const FilePerm = 0600
 
-func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect) {
+func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect, experimental bool) {
 	context := llvm.NewContext()
 	defer context.Dispose()
 
-	module := llvm.GlobalContext().NewModule("swa-main")
+	module := context.NewModule("swa-main")
 	defer module.Dispose()
 
-	printArgTypes := []llvm.Type{llvm.PointerType(llvm.GlobalContext().Int8Type(), 0)}
-	printfFuncType := llvm.FunctionType(llvm.GlobalContext().Int32Type(), printArgTypes, true)
+	printArgTypes := []llvm.Type{llvm.PointerType(context.Int8Type(), 0)}
+	printfFuncType := llvm.FunctionType(context.Int32Type(), printArgTypes, true)
 	printfFunc := llvm.AddFunction(module, "printf", printfFuncType)
 	printfFunc.SetLinkage(llvm.ExternalLinkage)
 
@@ -41,7 +41,14 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect)
 		nil,
 	)
 
-	err, _ := tree.CompileLLVM(ctx)
+	var err error
+	if experimental {
+		generator := NewLLVMGenerator(ctx)
+		err = tree.Accept(generator)
+	} else {
+		err, _ = tree.CompileLLVM(ctx)
+	}
+
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
@@ -116,7 +123,7 @@ func compileToObject(assemblerFilename string, objectFilename string) error {
 
 func compileToExecutable(objectFileName string, executableFileName string) error {
 	clang := findCommand("clang-19", "clang")
-	linkCmd := exec.Command(clang, objectFileName, "-o", executableFileName)
+	linkCmd := exec.Command(clang, objectFileName, "-o", executableFileName, "-no-pie")
 	linkCmd.Stdout = os.Stdout
 	linkCmd.Stderr = os.Stderr
 
