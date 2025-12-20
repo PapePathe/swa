@@ -202,7 +202,7 @@ func (expr VarDeclarationStatement) TypeCheck(t DataType, k llvm.Type) error {
 	case llvm.IntegerTypeKind:
 		switch t {
 		case DataTypeSymbol:
-		case DataTypeNumber:
+		case DataTypeNumber, DataTypeNumber64:
 			// we are ok
 		default:
 			return fmt.Errorf("expected %s got %s", t, k.TypeKind())
