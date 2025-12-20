@@ -29,6 +29,10 @@ func (ms MainStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	return ms.Body.CompileLLVM(ctx)
 }
 
+func (ms MainStatement) Accept(g CodeGenerator) error {
+	return g.VisitMainStatement(&ms)
+}
+
 func (expr MainStatement) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

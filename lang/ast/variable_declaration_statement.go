@@ -234,6 +234,10 @@ func (expr VarDeclarationStatement) TypeCheck(t DataType, k llvm.Type) error {
 	return nil
 }
 
+func (expr VarDeclarationStatement) Accept(g CodeGenerator) error {
+	return g.VisitVarDeclaration(&expr)
+}
+
 func (expr VarDeclarationStatement) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

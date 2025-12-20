@@ -76,6 +76,10 @@ func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 	return nil, &CompilerResult{Value: &str}
 }
 
+func (expr AssignmentExpression) Accept(g CodeGenerator) error {
+	return g.VisitAssignmentExpression(&expr)
+}
+
 func (expr AssignmentExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

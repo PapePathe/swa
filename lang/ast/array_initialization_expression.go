@@ -145,6 +145,10 @@ func (expr ArrayInitializationExpression) CompileLLVM(ctx *CompilerCtx) (error, 
 	return nil, &res
 }
 
+func (expr ArrayInitializationExpression) Accept(g CodeGenerator) error {
+	return g.VisitArrayInitializationExpression(&expr)
+}
+
 func (expr ArrayInitializationExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

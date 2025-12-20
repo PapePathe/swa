@@ -177,6 +177,10 @@ func (expr MemberExpression) getNestedMemberAddress(ctx *CompilerCtx, member Mem
 	return nil, addr
 }
 
+func (expr MemberExpression) Accept(g CodeGenerator) error {
+	return g.VisitMemberExpression(&expr)
+}
+
 func (expr MemberExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

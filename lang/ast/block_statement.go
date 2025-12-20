@@ -33,6 +33,10 @@ func (bs BlockStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) 
 	return nil, nil
 }
 
+func (bs BlockStatement) Accept(g CodeGenerator) error {
+	return g.VisitBlockStatement(&bs)
+}
+
 func (expr BlockStatement) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
