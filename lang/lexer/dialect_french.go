@@ -55,5 +55,8 @@ func (m French) translations() map[string]string {
 		"ArrayAccessExpression.AccessedIndexIsNotANumber":  "Seuls les nombres positif sont permis comme indice de tableau, valeur courante: (%s)",
 		"ArrayAccessExpression.NotFoundInArraySymbolTable": "Le tableau (%s) n'existe pas dans la table des symboles",
 		"ArrayAccessExpression.IndexOutOfBounds":           "L'element a la position (%s) depasse les limites du tableau (%s)",
+
+		"NumberExpression.LessThanMinInt32":    "%d est plus petit que la valeur minimale pour un entier de 32 bits",
+		"NumberExpression.GreaterThanMaxInt32": "%d est plus grand que la valeur maximale pour un entier de 32 bits",
 	}
 }

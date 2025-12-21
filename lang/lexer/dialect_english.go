@@ -53,5 +53,8 @@ func (m English) translations() map[string]string {
 		"ArrayAccessExpression.AccessedIndexIsNotANumber":  "Only numbers are supported as array index, current: (%s)",
 		"ArrayAccessExpression.NotFoundInArraySymbolTable": "Array (%s) does not exist in symbol table",
 		"ArrayAccessExpression.IndexOutOfBounds":           "Element at index (%s) does not exist in array (%s)",
+
+		"NumberExpression.LessThanMinInt32":    "%d is smaller than min value for int32",
+		"NumberExpression.GreaterThanMaxInt32": "%d is greater than max value for int32",
 	}
 }
