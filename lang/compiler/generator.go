@@ -163,6 +163,8 @@ func (g *LLVMGenerator) VisitPrintStatement(node *ast.PrintStatetement) error {
 			printableValues = append(printableValues, global)
 		case ast.NumberExpression, ast.FloatExpression:
 			printableValues = append(printableValues, *lastResult.Value)
+		case ast.SymbolExpression:
+			printableValues = append(printableValues, *lastResult.Value)
 		default:
 			format := "VisitPrintStatement unimplemented for %T"
 			g.NotImplemented(fmt.Sprintf(format, v))
@@ -219,12 +221,106 @@ func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInit
 
 // VisitSymbolExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error {
-	panic("unimplemented")
+	err, entry := g.Ctx.FindSymbol(node.Value)
+	if err != nil {
+		return err
+	}
+	var loadedValue llvm.Value
+
+	switch entry.DeclaredType.(type) {
+	case ast.StringType:
+		loadedValue = g.Ctx.Builder.CreateLoad(entry.Address.Type(), *entry.Address, "")
+	case ast.NumberType, ast.FloatType:
+		loadedValue = g.Ctx.Builder.CreateLoad(entry.Address.AllocatedType(), *entry.Address, "")
+	default:
+		g.NotImplemented(fmt.Sprintf("VisitSymbolExpression unimplemented for %T", entry.DeclaredType))
+	}
+
+	g.setLastResult(
+		&ast.CompilerResult{
+			Value:            &loadedValue,
+			SymbolTableEntry: entry,
+		},
+	)
+
+	return nil
 }
 
 // VisitVarDeclaration implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) error {
-	panic("unimplemented")
+	switch node.Value {
+	case nil:
+		return g.declareVarWithZeroValue(node)
+	default:
+		return g.declareVarWithInitializer(node)
+	}
+}
+
+func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatement) error {
+	err := node.Value.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	compiledVal := g.getLastResult()
+	name := fmt.Sprintf("alloc.%s", node.Name)
+
+	switch node.Value.(type) {
+	case ast.StringExpression:
+		glob := llvm.AddGlobal(*g.Ctx.Module, compiledVal.Value.Type(), fmt.Sprintf("global.%s", node.Name))
+		glob.SetInitializer(*compiledVal.Value)
+		alloc := g.Ctx.Builder.CreateAlloca(compiledVal.Value.Type(), name)
+		g.Ctx.Builder.CreateStore(glob, alloc)
+
+		entry := &ast.SymbolTableEntry{
+			Address:      &alloc,
+			DeclaredType: node.ExplicitType,
+		}
+
+		return g.Ctx.AddSymbol(node.Name, entry)
+	case ast.NumberExpression, ast.FloatExpression:
+		alloc := g.Ctx.Builder.CreateAlloca(compiledVal.Value.Type(), name)
+		g.Ctx.Builder.CreateStore(*compiledVal.Value, alloc)
+
+		entry := &ast.SymbolTableEntry{
+			Address:      &alloc,
+			DeclaredType: node.ExplicitType,
+		}
+		if compiledVal.SymbolTableEntry != nil {
+			entry.Ref = compiledVal.SymbolTableEntry.Ref
+		}
+
+		return g.Ctx.AddSymbol(node.Name, entry)
+	default:
+		format := fmt.Sprintf("declareVarWithInitializer unimplemented for %T", node.Value)
+		g.NotImplemented(format)
+	}
+
+	return nil
+
+}
+
+func (g *LLVMGenerator) declareVarWithZeroValue(node *ast.VarDeclarationStatement) error {
+	err, llvmType := node.ExplicitType.LLVMType(g.Ctx)
+	if err != nil {
+		return err
+	}
+
+	alloc := g.Ctx.Builder.CreateAlloca(llvmType, fmt.Sprintf("alloc.%s", node.Name))
+	g.Ctx.Builder.CreateStore(llvm.ConstNull(llvmType), alloc)
+
+	entry := &ast.SymbolTableEntry{
+		Value:        alloc,
+		Address:      &alloc,
+		DeclaredType: node.ExplicitType,
+	}
+
+	err = g.Ctx.AddSymbol(node.Name, entry)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // VisitWhileStatement implements [ast.CodeGenerator].
