@@ -47,6 +47,7 @@ type CompilerCtx struct {
 	structSymbolTable map[string]StructSymbolTableEntry
 	arraysSymbolTable map[string]ArraySymbolTableEntry
 	funcSymbolTable   map[string]llvm.Type
+	Debugging         bool
 }
 
 func NewCompilerContext(
@@ -62,6 +63,7 @@ func NewCompilerContext(
 		Builder:           b,
 		Module:            m,
 		Dialect:           d,
+		Debugging:         true,
 		symbolTable:       map[string]SymbolTableEntry{},
 		structSymbolTable: map[string]StructSymbolTableEntry{},
 		funcSymbolTable:   map[string]llvm.Type{},
