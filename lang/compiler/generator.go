@@ -2,6 +2,7 @@ package compiler
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"swahili/lang/ast"
 
@@ -69,7 +70,13 @@ func (g *LLVMGenerator) VisitExpressionStatement(node *ast.ExpressionStatement) 
 
 // VisitFloatExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitFloatExpression(node *ast.FloatExpression) error {
-	panic("unimplemented")
+	res := llvm.ConstFloat(
+		g.Ctx.Context.DoubleType(),
+		node.Value,
+	)
+	g.setLastResult(&ast.CompilerResult{Value: &res})
+
+	return nil
 }
 
 // VisitFunctionCall implements [ast.CodeGenerator].
@@ -103,7 +110,30 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 
 // VisitNumberExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitNumberExpression(node *ast.NumberExpression) error {
-	panic("unimplemented")
+	if node.Value < math.MinInt32 {
+		format := "%d is smaller than min value for int32"
+		return fmt.Errorf(format, node.Value)
+	}
+
+	if node.Value > math.MaxInt32 {
+		format := "%d is greater than max value for int32"
+		return fmt.Errorf(format, node.Value)
+	}
+
+	var signed bool
+
+	if node.Value < 0 {
+		signed = true
+	}
+
+	res := llvm.ConstInt(
+		llvm.GlobalContext().Int32Type(),
+		uint64(node.Value),
+		signed,
+	)
+	g.setLastResult(&ast.CompilerResult{Value: &res})
+
+	return nil
 }
 
 // VisitPrefixExpression implements [ast.CodeGenerator].
@@ -133,8 +163,11 @@ func (g *LLVMGenerator) VisitPrintStatement(node *ast.PrintStatetement) error {
 			global := llvm.AddGlobal(*g.Ctx.Module, lastResult.Value.Type(), "print.static-string")
 			global.SetInitializer(*lastResult.Value)
 			printableValues = append(printableValues, global)
+		case ast.NumberExpression, ast.FloatExpression:
+			printableValues = append(printableValues, *lastResult.Value)
 		default:
-			g.NotImplemented("VisitPrintStatement unimplemented")
+			format := "VisitPrintStatement unimplemented for %T"
+			g.NotImplemented(fmt.Sprintf(format, v))
 		}
 
 	}
@@ -143,7 +176,7 @@ func (g *LLVMGenerator) VisitPrintStatement(node *ast.PrintStatetement) error {
 		llvm.FunctionType(
 			g.Ctx.Context.Int32Type(),
 			[]llvm.Type{llvm.PointerType(g.Ctx.Context.Int8Type(), 0)},
-			false,
+			true,
 		),
 		g.Ctx.Module.NamedFunction("printf"),
 		printableValues,
