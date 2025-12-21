@@ -111,13 +111,11 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 // VisitNumberExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitNumberExpression(node *ast.NumberExpression) error {
 	if node.Value < math.MinInt32 {
-		format := "%d is smaller than min value for int32"
-		return fmt.Errorf(format, node.Value)
+		return g.Ctx.Dialect.Error("NumberExpression.LessThanMinInt32", node.Value)
 	}
 
 	if node.Value > math.MaxInt32 {
-		format := "%d is greater than max value for int32"
-		return fmt.Errorf(format, node.Value)
+		return g.Ctx.Dialect.Error("NumberExpression.GreaterThanMaxInt32", node.Value)
 	}
 
 	var signed bool
