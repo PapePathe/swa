@@ -1,6 +1,8 @@
 package compiler
 
 import (
+	"fmt"
+	"os"
 	"swahili/lang/ast"
 
 	"tinygo.org/x/go-llvm"
@@ -9,6 +11,16 @@ import (
 type LLVMGenerator struct {
 	Ctx        *ast.CompilerCtx
 	lastResult *ast.CompilerResult
+}
+
+func (g *LLVMGenerator) setLastResult(res *ast.CompilerResult) {
+	g.lastResult = res
+}
+
+func (g *LLVMGenerator) getLastResult() *ast.CompilerResult {
+	res := g.lastResult
+	g.lastResult = nil
+	return res
 }
 
 // VisitArrayInitializationExpression implements [ast.CodeGenerator].
@@ -99,9 +111,46 @@ func (g *LLVMGenerator) VisitPrefixExpression(node *ast.PrefixExpression) error 
 	panic("unimplemented")
 }
 
+func (g *LLVMGenerator) NotImplemented(msg string) {
+	fmt.Println(msg)
+	os.Exit(1)
+}
+
 // VisitPrintStatement implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitPrintStatement(node *ast.PrintStatetement) error {
-	panic("unimplemented")
+	printableValues := []llvm.Value{}
+
+	for _, v := range node.Values {
+		err := v.Accept(g)
+		if err != nil {
+			return err
+		}
+
+		lastResult := g.getLastResult()
+
+		switch v.(type) {
+		case ast.StringExpression:
+			global := llvm.AddGlobal(*g.Ctx.Module, lastResult.Value.Type(), "print.static-string")
+			global.SetInitializer(*lastResult.Value)
+			printableValues = append(printableValues, global)
+		default:
+			g.NotImplemented("VisitPrintStatement unimplemented")
+		}
+
+	}
+
+	g.Ctx.Builder.CreateCall(
+		llvm.FunctionType(
+			g.Ctx.Context.Int32Type(),
+			[]llvm.Type{llvm.PointerType(g.Ctx.Context.Int8Type(), 0)},
+			false,
+		),
+		g.Ctx.Module.NamedFunction("printf"),
+		printableValues,
+		"call.printf",
+	)
+
+	return nil
 }
 
 // VisitReturnStatement implements [ast.CodeGenerator].
@@ -111,7 +160,7 @@ func (g *LLVMGenerator) VisitReturnStatement(node *ast.ReturnStatement) error {
 		ret := llvm.ConstInt(g.Ctx.Context.Int32Type(), uint64(node.Value.(ast.NumberExpression).Value), false)
 		g.Ctx.Builder.CreateRet(ret)
 	default:
-		panic("unimplemented")
+		panic("VisitReturnStatement unimplemented")
 	}
 
 	return nil
@@ -119,7 +168,12 @@ func (g *LLVMGenerator) VisitReturnStatement(node *ast.ReturnStatement) error {
 
 // VisitStringExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitStringExpression(node *ast.StringExpression) error {
-	panic("unimplemented")
+	value := llvm.ConstString(node.Value, true)
+	res := ast.CompilerResult{Value: &value}
+
+	g.setLastResult(&res)
+
+	return nil
 }
 
 // VisitStructDeclaration implements [ast.CodeGenerator].
