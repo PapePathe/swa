@@ -26,7 +26,54 @@ func (g *LLVMGenerator) getLastResult() *ast.CompilerResult {
 
 // VisitArrayInitializationExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitializationExpression) error {
-	panic("unimplemented")
+	err, llvmtyp := node.Underlying.LLVMType(g.Ctx)
+	if err != nil {
+		return err
+	}
+
+	arrayPointer := g.Ctx.Builder.CreateAlloca(llvmtyp, "")
+	for i, v := range node.Contents {
+		itemGep := g.Ctx.Builder.CreateGEP(
+			llvmtyp,
+			arrayPointer,
+			[]llvm.Value{
+				llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false),
+				llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(i), false),
+			},
+			"",
+		)
+		switch v.(type) {
+		case ast.StringExpression:
+			err := v.Accept(g)
+			if err != nil {
+				return err
+			}
+			compiledVal := g.getLastResult()
+			g.Ctx.Builder.CreateStore(*compiledVal.Value, itemGep)
+		case ast.NumberExpression, ast.FloatExpression:
+			err := v.Accept(g)
+			if err != nil {
+				return err
+			}
+			compiledVal := g.getLastResult()
+			g.Ctx.Builder.CreateStore(*compiledVal.Value, itemGep)
+		default:
+			g.NotImplemented(fmt.Sprintf("VisitArrayInitializationExpression: Expression %s not supported", v))
+		}
+	}
+
+	result := &ast.CompilerResult{
+		Value: &arrayPointer,
+		ArraySymbolTableEntry: &ast.ArraySymbolTableEntry{
+			ElementsCount:  llvmtyp.ArrayLength(),
+			UnderlyingType: llvmtyp.ElementType(),
+			Type:           llvmtyp,
+		},
+	}
+
+	g.setLastResult(result)
+
+	return nil
 }
 
 // VisitArrayOfStructsAccessExpression implements [ast.CodeGenerator].
@@ -158,9 +205,7 @@ func (g *LLVMGenerator) VisitPrintStatement(node *ast.PrintStatetement) error {
 
 		switch v.(type) {
 		case ast.StringExpression:
-			global := llvm.AddGlobal(*g.Ctx.Module, lastResult.Value.Type(), "print.static-string")
-			global.SetInitializer(*lastResult.Value)
-			printableValues = append(printableValues, global)
+			printableValues = append(printableValues, *lastResult.Value)
 		case ast.NumberExpression, ast.FloatExpression:
 			printableValues = append(printableValues, *lastResult.Value)
 		case ast.SymbolExpression:
@@ -201,8 +246,8 @@ func (g *LLVMGenerator) VisitReturnStatement(node *ast.ReturnStatement) error {
 
 // VisitStringExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitStringExpression(node *ast.StringExpression) error {
-	value := llvm.ConstString(node.Value, true)
-	res := ast.CompilerResult{Value: &value}
+	valuePtr := g.Ctx.Builder.CreateGlobalStringPtr(node.Value, "")
+	res := ast.CompilerResult{Value: &valuePtr}
 
 	g.setLastResult(&res)
 
@@ -267,10 +312,8 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 
 	switch node.Value.(type) {
 	case ast.StringExpression:
-		glob := llvm.AddGlobal(*g.Ctx.Module, compiledVal.Value.Type(), fmt.Sprintf("global.%s", node.Name))
-		glob.SetInitializer(*compiledVal.Value)
 		alloc := g.Ctx.Builder.CreateAlloca(compiledVal.Value.Type(), name)
-		g.Ctx.Builder.CreateStore(glob, alloc)
+		g.Ctx.Builder.CreateStore(*compiledVal.Value, alloc)
 
 		entry := &ast.SymbolTableEntry{
 			Address:      &alloc,
@@ -291,6 +334,18 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 		}
 
 		return g.Ctx.AddSymbol(node.Name, entry)
+	case ast.ArrayInitializationExpression:
+		entry := &ast.SymbolTableEntry{
+			Address:      compiledVal.Value,
+			DeclaredType: node.ExplicitType,
+		}
+
+		err := g.Ctx.AddSymbol(node.Name, entry)
+		if err != nil {
+			return err
+		}
+
+		return g.Ctx.AddArraySymbol(node.Name, compiledVal.ArraySymbolTableEntry)
 	default:
 		format := fmt.Sprintf("declareVarWithInitializer unimplemented for %T", node.Value)
 		g.NotImplemented(format)
