@@ -12,7 +12,7 @@ elif [ "$1" == "tokenize" ]; then
     ./tmp/swa tokenize -s test.swa
 elif [ "$1" == "compile" ]; then
     echo "🛑 Compiling..."
-    ./tmp/swa compile -s test.swa && cat start.ll && ./start.exe
+    ./tmp/swa compile -e -s test.swa && ./start.exe
 else
     echo "❓ Unknown command: $1. Use 'compile' or 'parse'."
     exit 1
