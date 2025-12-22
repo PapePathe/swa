@@ -5,6 +5,7 @@ import (
 	"math"
 	"os"
 	"swahili/lang/ast"
+	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
 )
@@ -22,6 +23,101 @@ func (g *LLVMGenerator) getLastResult() *ast.CompilerResult {
 	res := g.lastResult
 	g.lastResult = nil
 	return res
+}
+
+func (g *LLVMGenerator) VisitConditionalStatement(node *ast.ConditionalStatetement) error {
+	if err := node.Condition.Accept(g); err != nil {
+		return err
+	}
+	condition := g.getLastResult()
+	bodyBlock := g.Ctx.Builder.GetInsertBlock()
+	parentFunc := bodyBlock.Parent()
+	mergeBlock := g.Ctx.Context.AddBasicBlock(parentFunc, "merge")
+	thenBlock := g.Ctx.Context.AddBasicBlock(parentFunc, "if")
+	elseBlock := g.Ctx.Context.AddBasicBlock(parentFunc, "else")
+
+	g.Ctx.Builder.CreateCondBr(*condition.Value, thenBlock, elseBlock)
+
+	g.Ctx.Builder.SetInsertPointAtEnd(thenBlock)
+
+	if err := node.Success.Accept(g); err != nil {
+		return err
+	}
+	successVal := g.getLastResult()
+
+	if thenBlock.LastInstruction().InstructionOpcode() != llvm.Ret {
+		g.Ctx.Builder.CreateBr(mergeBlock)
+	}
+
+	g.Ctx.Builder.SetInsertPointAtEnd(elseBlock)
+
+	if err := node.Failure.Accept(g); err != nil {
+		return err
+	}
+	failureVal := g.getLastResult()
+
+	if elseBlock.LastInstruction().InstructionOpcode() != llvm.Ret {
+		g.Ctx.Builder.CreateBr(mergeBlock)
+	}
+
+	g.Ctx.Builder.SetInsertPointAtEnd(mergeBlock)
+
+	var phi llvm.Value
+	if successVal != nil {
+		phi = g.Ctx.Builder.CreatePHI(successVal.Value.Type(), "")
+		phi.AddIncoming([]llvm.Value{*successVal.Value}, []llvm.BasicBlock{thenBlock})
+	}
+
+	if failureVal != nil {
+		phi = g.Ctx.Builder.CreatePHI(successVal.Value.Type(), "")
+		phi.AddIncoming([]llvm.Value{*successVal.Value}, []llvm.BasicBlock{thenBlock})
+	}
+
+	thenBlock.MoveAfter(bodyBlock)
+	elseBlock.MoveAfter(thenBlock)
+	mergeBlock.MoveAfter(thenBlock)
+
+	if successVal != nil {
+		g.setLastResult(&ast.CompilerResult{Value: &phi})
+	}
+
+	return nil
+}
+
+func (g *LLVMGenerator) VisitWhileStatement(node *ast.WhileStatement) error {
+	bodyBlock := g.Ctx.Builder.GetInsertBlock()
+	parentFunc := bodyBlock.Parent()
+
+	whileConditionBlock := g.Ctx.Context.AddBasicBlock(parentFunc, "while.cond")
+	whileBodyBlock := g.Ctx.Context.AddBasicBlock(parentFunc, "while.body")
+	whileMergeBlock := g.Ctx.Context.AddBasicBlock(parentFunc, "while.merge")
+
+	g.Ctx.Builder.CreateBr(whileConditionBlock)
+
+	g.Ctx.Builder.SetInsertPointAtEnd(whileConditionBlock)
+
+	if err := node.Condition.Accept(g); err != nil {
+		return err
+	}
+	condition := g.getLastResult()
+
+	g.Ctx.Builder.CreateCondBr(*condition.Value, whileBodyBlock, whileMergeBlock)
+
+	g.Ctx.Builder.SetInsertPointAtEnd(whileBodyBlock)
+
+	if err := node.Body.Accept(g); err != nil {
+		return err
+	}
+
+	lastBodyBlock := g.Ctx.Builder.GetInsertBlock()
+	opcode := lastBodyBlock.LastInstruction().InstructionOpcode()
+	if lastBodyBlock.LastInstruction().IsNil() || (opcode != llvm.Ret && opcode != llvm.Br) {
+		g.Ctx.Builder.CreateBr(whileConditionBlock)
+	}
+
+	g.Ctx.Builder.SetInsertPointAtEnd(whileMergeBlock)
+
+	return nil
 }
 
 // VisitArrayInitializationExpression implements [ast.CodeGenerator].
@@ -43,14 +139,28 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 			"",
 		)
 		switch v.(type) {
-		case ast.StringExpression:
+		case ast.SymbolExpression:
+			err := v.Accept(g)
+			if err != nil {
+				return err
+			}
+			compiledVal := g.getLastResult()
+
+			if compiledVal.SymbolTableEntry != nil && compiledVal.SymbolTableEntry.Ref != nil {
+				load := g.Ctx.Builder.CreateLoad(compiledVal.SymbolTableEntry.Ref.LLVMType, *compiledVal.Value, "")
+				g.Ctx.Builder.CreateStore(load, itemGep)
+			} else {
+				load := g.Ctx.Builder.CreateLoad(compiledVal.Value.Type(), *compiledVal.Value, "")
+				g.Ctx.Builder.CreateStore(load, itemGep)
+			}
+		case ast.NumberExpression, ast.FloatExpression, *ast.StringExpression:
 			err := v.Accept(g)
 			if err != nil {
 				return err
 			}
 			compiledVal := g.getLastResult()
 			g.Ctx.Builder.CreateStore(*compiledVal.Value, itemGep)
-		case ast.NumberExpression, ast.FloatExpression:
+		case ast.StructInitializationExpression:
 			err := v.Accept(g)
 			if err != nil {
 				return err
@@ -83,12 +193,30 @@ func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStr
 
 // VisitAssignmentExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitAssignmentExpression(node *ast.AssignmentExpression) error {
-	panic("unimplemented")
-}
+	err := node.Assignee.Accept(g)
+	if err != nil {
+		return err
+	}
+	compiledAssignee := g.getLastResult()
 
-// VisitBinaryExpression implements [ast.CodeGenerator].
-func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error {
-	panic("unimplemented")
+	err = node.Value.Accept(g)
+	if err != nil {
+		return err
+	}
+	compiledValue := g.getLastResult()
+
+	var valueToBeAssigned llvm.Value
+
+	switch node.Value.(type) {
+	case ast.ArrayAccessExpression:
+		valueToBeAssigned = g.Ctx.Builder.CreateLoad(compiledValue.Value.AllocatedType(), *compiledValue.Value, "")
+	default:
+		valueToBeAssigned = *compiledValue.Value
+	}
+
+	g.Ctx.Builder.CreateStore(valueToBeAssigned, *compiledAssignee.SymbolTableEntry.Address)
+
+	return nil
 }
 
 // VisitBlockStatement implements [ast.CodeGenerator].
@@ -105,14 +233,14 @@ func (g *LLVMGenerator) VisitCallExpression(node *ast.CallExpression) error {
 	panic("unimplemented")
 }
 
-// VisitConditionalStatement implements [ast.CodeGenerator].
-func (g *LLVMGenerator) VisitConditionalStatement(node *ast.ConditionalStatetement) error {
-	panic("unimplemented")
-}
-
 // VisitExpressionStatement implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitExpressionStatement(node *ast.ExpressionStatement) error {
-	panic("unimplemented")
+	err := node.Exp.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // VisitFloatExpression implements [ast.CodeGenerator].
@@ -126,14 +254,36 @@ func (g *LLVMGenerator) VisitFloatExpression(node *ast.FloatExpression) error {
 	return nil
 }
 
-// VisitFunctionCall implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) error {
-	panic("unimplemented")
-}
+	name, ok := node.Name.(ast.SymbolExpression)
+	if !ok {
+		return fmt.Errorf("FunctionCallExpression: name is not a symbol")
+	}
+	err, funcType := g.Ctx.FindFuncSymbol(name.Value)
+	if err != nil {
+		return err
+	}
 
-// VisitFunctionDefinition implements [ast.CodeGenerator].
-func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) error {
-	panic("unimplemented")
+	funcVal := g.Ctx.Module.NamedFunction(name.Value)
+	if funcVal.IsNil() {
+		return fmt.Errorf("function %s does not exist", name.Value)
+	}
+
+	args := []llvm.Value{}
+
+	for _, arg := range node.Args {
+		if err := arg.Accept(g); err != nil {
+			return err
+		}
+		val := g.getLastResult()
+
+		args = append(args, *val.Value)
+	}
+
+	val := g.Ctx.Builder.CreateCall(*funcType, funcVal, args, "")
+
+	g.setLastResult(&ast.CompilerResult{Value: &val})
+	return nil
 }
 
 // VisitMainStatement implements [ast.CodeGenerator].
@@ -179,11 +329,6 @@ func (g *LLVMGenerator) VisitNumberExpression(node *ast.NumberExpression) error 
 	g.setLastResult(&ast.CompilerResult{Value: &res})
 
 	return nil
-}
-
-// VisitPrefixExpression implements [ast.CodeGenerator].
-func (g *LLVMGenerator) VisitPrefixExpression(node *ast.PrefixExpression) error {
-	panic("unimplemented")
 }
 
 func (g *LLVMGenerator) NotImplemented(msg string) {
@@ -238,17 +383,36 @@ func (g *LLVMGenerator) VisitPrintStatement(node *ast.PrintStatetement) error {
 	return nil
 }
 
-// VisitReturnStatement implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitReturnStatement(node *ast.ReturnStatement) error {
-	switch node.Value.(type) {
-	case ast.NumberExpression:
-		ret := llvm.ConstInt(g.Ctx.Context.Int32Type(), uint64(node.Value.(ast.NumberExpression).Value), false)
-		g.Ctx.Builder.CreateRet(ret)
-	default:
-		panic("VisitReturnStatement unimplemented")
+	if err := node.Value.Accept(g); err != nil {
+		return err
+	}
+	res := g.getLastResult()
+
+	retVal, err := g.prepareReturnValue(node.Value, res)
+	if err != nil {
+		return err
 	}
 
+	g.Ctx.Builder.CreateRet(retVal)
 	return nil
+}
+
+func (g *LLVMGenerator) prepareReturnValue(expr ast.Expression, res *ast.CompilerResult) (llvm.Value, error) {
+	switch expr.(type) {
+	case ast.ArrayAccessExpression:
+		return g.Ctx.Builder.CreateLoad((*g.Ctx.Context).Int32Type(), *res.Value, ""), nil
+	case ast.MemberExpression:
+		return g.Ctx.Builder.CreateLoad(*res.StuctPropertyValueType, *res.Value, ""), nil
+	case ast.StringExpression:
+		alloc := g.Ctx.Builder.CreateAlloca(res.Value.Type(), "")
+		g.Ctx.Builder.CreateStore(*res.Value, alloc)
+		return alloc, nil
+	case ast.SymbolExpression, ast.BinaryExpression, ast.FunctionCallExpression, ast.NumberExpression, ast.FloatExpression:
+		return *res.Value, nil
+	default:
+		return llvm.Value{}, fmt.Errorf("ReturnStatement unknown expression <%s>", expr)
+	}
 }
 
 // VisitStringExpression implements [ast.CodeGenerator].
@@ -339,15 +503,24 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 	if err != nil {
 		return err
 	}
+
+	if entry.Address == nil {
+		g.setLastResult(
+			&ast.CompilerResult{
+				Value:            &entry.Value,
+				SymbolTableEntry: entry,
+			},
+		)
+		return nil
+	}
+
 	var loadedValue llvm.Value
 
 	switch entry.DeclaredType.(type) {
-	case ast.StringType:
+	case ast.StringType, ast.ArrayType:
 		loadedValue = g.Ctx.Builder.CreateLoad(entry.Address.Type(), *entry.Address, "")
-	case ast.NumberType, ast.FloatType:
-		loadedValue = g.Ctx.Builder.CreateLoad(entry.Address.AllocatedType(), *entry.Address, "")
 	default:
-		g.NotImplemented(fmt.Sprintf("VisitSymbolExpression unimplemented for %T", entry.DeclaredType))
+		loadedValue = g.Ctx.Builder.CreateLoad(entry.Address.AllocatedType(), *entry.Address, "")
 	}
 
 	g.setLastResult(
@@ -390,7 +563,7 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 		}
 
 		return g.Ctx.AddSymbol(node.Name, entry)
-	case ast.NumberExpression, ast.FloatExpression, ast.StructInitializationExpression:
+	case ast.NumberExpression, ast.FloatExpression, ast.BinaryExpression, ast.StructInitializationExpression:
 		alloc := g.Ctx.Builder.CreateAlloca(compiledVal.Value.Type(), name)
 		g.Ctx.Builder.CreateStore(*compiledVal.Value, alloc)
 
@@ -445,11 +618,6 @@ func (g *LLVMGenerator) declareVarWithZeroValue(node *ast.VarDeclarationStatemen
 	}
 
 	return nil
-}
-
-// VisitWhileStatement implements [ast.CodeGenerator].
-func (g *LLVMGenerator) VisitWhileStatement(node *ast.WhileStatement) error {
-	panic("unimplemented")
 }
 
 var _ ast.CodeGenerator = (*LLVMGenerator)(nil)
@@ -623,4 +791,558 @@ func (g *LLVMGenerator) resolveStructAccess(
 		return 0, fmt.Errorf("struct %s has no field %s", structType.Metadata.Name, propName)
 	}
 	return propIndex, nil
+}
+
+func (g *LLVMGenerator) VisitPrefixExpression(node *ast.PrefixExpression) error {
+	if err := node.RightExpression.Accept(g); err != nil {
+		return err
+	}
+
+	res := g.getLastResult()
+
+	handler, ok := prefixOpHandlers[node.Operator.Kind]
+	if !ok {
+		return fmt.Errorf("PrefixExpression: operator %s not supported", node.Operator.Kind)
+	}
+
+	val := handler(g, *res.Value)
+	g.setLastResult(&ast.CompilerResult{Value: &val})
+	return nil
+}
+
+func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error {
+	err, leftResult, rightResult := g.compileLeftAndRightResult(node)
+	if err != nil {
+		return err
+	}
+
+	var finalLeftValue, finalRightValue llvm.Value
+
+	var leftValue, rightValue llvm.Value
+
+	switch leftResult.Value.Type().TypeKind() {
+	case llvm.PointerTypeKind:
+		if leftResult.ArraySymbolTableEntry != nil {
+			leftValue = g.Ctx.Builder.CreateLoad(leftResult.ArraySymbolTableEntry.UnderlyingType, *leftResult.Value, "")
+
+			break
+		}
+
+		if leftResult.StuctPropertyValueType != nil {
+			elementType := leftResult.StuctPropertyValueType
+			leftValue = g.Ctx.Builder.CreateLoad(*elementType, *leftResult.Value, "")
+
+			break
+		}
+
+		if leftResult.Value.Type().ElementType().IsNil() {
+			leftValue = *leftResult.Value
+
+			break
+		}
+
+		elementType := leftResult.Value.Type().ElementType()
+		leftValue = g.Ctx.Builder.CreateLoad(elementType, *leftResult.Value, "")
+	case llvm.StructTypeKind:
+		elementType := leftResult.StuctPropertyValueType
+		leftValue = g.Ctx.Builder.CreateLoad(*elementType, *leftResult.Value, "")
+	default:
+		leftValue = *leftResult.Value
+	}
+
+	switch rightResult.Value.Type().TypeKind() {
+	case llvm.PointerTypeKind:
+		if rightResult.ArraySymbolTableEntry != nil {
+			rightValue = g.Ctx.Builder.CreateLoad(rightResult.ArraySymbolTableEntry.UnderlyingType, *rightResult.Value, "")
+
+			break
+		}
+
+		if rightResult.StuctPropertyValueType != nil {
+			elementType := rightResult.StuctPropertyValueType
+			rightValue = g.Ctx.Builder.CreateLoad(*elementType, *rightResult.Value, "")
+
+			break
+		}
+
+		if rightResult.Value.Type().ElementType().IsNil() {
+			rightValue = *rightResult.Value
+
+			break
+		}
+
+		elementType := rightResult.Value.Type().ElementType()
+		rightValue = g.Ctx.Builder.CreateLoad(elementType, *rightResult.Value, "")
+	case llvm.StructTypeKind:
+		elementType := rightResult.StuctPropertyValueType
+		rightValue = g.Ctx.Builder.CreateLoad(*elementType, *rightResult.Value, "")
+
+	default:
+		rightValue = *rightResult.Value
+	}
+
+	// Determine the common type
+	ctype, err := g.commonType(leftValue, rightValue)
+	if err != nil {
+		return fmt.Errorf("%w %v", err, node.TokenStream())
+	}
+
+	// Cast only if necessary
+	if leftValue.Type() == ctype {
+		finalLeftValue = leftValue
+	} else {
+		err, finalLeftValue = g.castToType(ctype, leftValue)
+		if err != nil {
+			return err
+		}
+	}
+
+	if rightValue.Type() == ctype {
+		finalRightValue = rightValue
+	} else {
+		err, finalRightValue = g.castToType(ctype, rightValue)
+		if err != nil {
+			return err
+		}
+	}
+
+	err, res := g.handleBinaryOp(node.Operator.Kind, finalLeftValue, finalRightValue)
+	if err != nil {
+		return err
+	}
+
+	g.setLastResult(res)
+	return nil
+}
+
+func (g *LLVMGenerator) compileLeftAndRightResult(node *ast.BinaryExpression) (error, *ast.CompilerResult, *ast.CompilerResult) {
+	if err := node.Left.Accept(g); err != nil {
+		return err, nil, nil
+	}
+	compiledLeftValue := g.getLastResult()
+
+	if compiledLeftValue == nil {
+		return fmt.Errorf("left side of expression is nil"), nil, nil
+	}
+
+	if compiledLeftValue.Value.Type().TypeKind() == llvm.VoidTypeKind {
+		return fmt.Errorf("left side of expression is of type void"), nil, nil
+	}
+
+	switch node.Left.(type) {
+	case ast.StringExpression:
+		glob := llvm.AddGlobal(*g.Ctx.Module, compiledLeftValue.Value.Type(), "")
+		glob.SetInitializer(*compiledLeftValue.Value)
+		compiledLeftValue.Value = &glob
+	default:
+	}
+
+	if err := node.Right.Accept(g); err != nil {
+		return err, nil, nil
+	}
+	compiledRightValue := g.getLastResult()
+
+	if compiledRightValue == nil {
+		return fmt.Errorf("right side of expression is nil"), nil, nil
+	}
+
+	if compiledRightValue.Value.Type().TypeKind() == llvm.VoidTypeKind {
+		return fmt.Errorf("right side of expression is of type void"), nil, nil
+	}
+
+	switch node.Right.(type) {
+	case ast.StringExpression:
+		glob := llvm.AddGlobal(*g.Ctx.Module, compiledRightValue.Value.Type(), "")
+		glob.SetInitializer(*compiledRightValue.Value)
+		compiledRightValue.Value = &glob
+	default:
+	}
+
+	return nil, compiledLeftValue, compiledRightValue
+}
+
+func (g *LLVMGenerator) commonType(l, r llvm.Value) (llvm.Type, error) {
+	lKind := l.Type().TypeKind()
+	rKind := r.Type().TypeKind()
+
+	// Both pointers - use int type as fallback (shouldn't happen in binary ops)
+	if lKind == llvm.PointerTypeKind && rKind == llvm.PointerTypeKind {
+		return (*g.Ctx.Context).Int32Type(), nil
+	}
+
+	// Same type
+	if l.Type() == r.Type() {
+		return l.Type(), nil
+	}
+
+	// Left is pointer, use right type
+	if lKind == llvm.PointerTypeKind {
+		return r.Type(), nil
+	}
+
+	// Right is pointer, use left type
+	if rKind == llvm.PointerTypeKind {
+		return l.Type(), nil
+	}
+
+	// Both integers - return the common integer type
+	if lKind == llvm.IntegerTypeKind && rKind == llvm.IntegerTypeKind {
+		return (*g.Ctx.Context).Int32Type(), nil
+	}
+
+	// Handle int vs float: promote to float
+	if (lKind == llvm.IntegerTypeKind && (rKind == llvm.FloatTypeKind || rKind == llvm.DoubleTypeKind)) ||
+		((lKind == llvm.FloatTypeKind || lKind == llvm.DoubleTypeKind) && rKind == llvm.IntegerTypeKind) {
+		// Promote to double (float type)
+		return (*g.Ctx.Context).DoubleType(), nil
+	}
+
+	// Both floats
+	if (lKind == llvm.FloatTypeKind || lKind == llvm.DoubleTypeKind) &&
+		(rKind == llvm.FloatTypeKind || rKind == llvm.DoubleTypeKind) {
+		return (*g.Ctx.Context).DoubleType(), nil
+	}
+
+	format := "Unhandled type combination: left=%v, right=%s"
+
+	return llvm.Type{}, fmt.Errorf(format, l, rKind)
+}
+
+func (g *LLVMGenerator) castToType(t llvm.Type, v llvm.Value) (error, llvm.Value) {
+	vKind := v.Type().TypeKind()
+	tKind := t.TypeKind()
+
+	if vKind == tKind {
+		return nil, v
+	}
+
+	switch vKind {
+	case llvm.IntegerTypeKind:
+		switch tKind {
+		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
+			return nil, g.Ctx.Builder.CreateSIToFP(v, t, "")
+		default:
+			return fmt.Errorf("Cannot cast integer to %s", tKind), llvm.Value{}
+		}
+	case llvm.DoubleTypeKind, llvm.FloatTypeKind:
+		switch tKind {
+		case llvm.IntegerTypeKind:
+			// Convert float to int
+			return nil, g.Ctx.Builder.CreateFPToSI(v, t, "")
+		default:
+			return fmt.Errorf("Cannot cast %s to %s", vKind, tKind), llvm.Value{}
+		}
+	case llvm.PointerTypeKind:
+		switch tKind {
+		case llvm.IntegerTypeKind:
+			return nil, g.Ctx.Builder.CreatePtrToInt(v, t, "")
+		default:
+			return nil, v
+		}
+	default:
+		return fmt.Errorf("Unhandled type conversion from %s to %s", vKind, tKind), llvm.Value{}
+	}
+}
+
+func (g *LLVMGenerator) handleBinaryOp(kind lexer.TokenKind, l, r llvm.Value) (error, *ast.CompilerResult) {
+	handler, ok := binaryOpHandlers[kind]
+	if !ok {
+		return fmt.Errorf("Binary expressions : unsupported operator <%s>", kind), nil
+	}
+	res := handler(g, l, r)
+	return nil, &ast.CompilerResult{Value: &res}
+}
+
+func (g *LLVMGenerator) handleAnd(l, r llvm.Value) llvm.Value {
+	zero := llvm.ConstInt(l.Type(), 0, false)
+	lBool := g.Ctx.Builder.CreateICmp(llvm.IntNE, l, zero, "")
+	rBool := g.Ctx.Builder.CreateICmp(llvm.IntNE, r, zero, "")
+	return g.Ctx.Builder.CreateAnd(lBool, rBool, "")
+}
+
+func (g *LLVMGenerator) handleOr(l, r llvm.Value) llvm.Value {
+	zero := llvm.ConstInt(l.Type(), 0, false)
+	lBool := g.Ctx.Builder.CreateICmp(llvm.IntNE, l, zero, "")
+	rBool := g.Ctx.Builder.CreateICmp(llvm.IntNE, r, zero, "")
+	return g.Ctx.Builder.CreateOr(lBool, rBool, "")
+}
+
+func (g *LLVMGenerator) handlePlus(l, r llvm.Value) llvm.Value {
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		return g.Ctx.Builder.CreateFAdd(l, r, "")
+	}
+	return g.Ctx.Builder.CreateAdd(l, r, "")
+}
+
+func (g *LLVMGenerator) handleMinus(l, r llvm.Value) llvm.Value {
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		return g.Ctx.Builder.CreateFSub(l, r, "")
+	}
+	return g.Ctx.Builder.CreateSub(l, r, "")
+}
+
+func (g *LLVMGenerator) handleStar(l, r llvm.Value) llvm.Value {
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		return g.Ctx.Builder.CreateFMul(l, r, "")
+	}
+	return g.Ctx.Builder.CreateMul(l, r, "")
+}
+
+func (g *LLVMGenerator) handleModulo(l, r llvm.Value) llvm.Value {
+	return g.Ctx.Builder.CreateSRem(l, r, "")
+}
+
+func (g *LLVMGenerator) handleDivide(l, r llvm.Value) llvm.Value {
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind {
+		return g.Ctx.Builder.CreateFDiv(l, r, "")
+	}
+	return g.Ctx.Builder.CreateSDiv(l, r, "")
+}
+
+func (g *LLVMGenerator) handleGreaterThan(l, r llvm.Value) llvm.Value {
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
+		return g.Ctx.Builder.CreateFCmp(llvm.FloatOGT, l, r, "")
+	}
+	return g.Ctx.Builder.CreateICmp(llvm.IntSGT, l, r, "")
+}
+
+func (g *LLVMGenerator) handleGreaterThanEquals(l, r llvm.Value) llvm.Value {
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
+		return g.Ctx.Builder.CreateFCmp(llvm.FloatOGE, l, r, "")
+	}
+	return g.Ctx.Builder.CreateICmp(llvm.IntSGE, l, r, "")
+}
+
+func (g *LLVMGenerator) handleLessThan(l, r llvm.Value) llvm.Value {
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
+		return g.Ctx.Builder.CreateFCmp(llvm.FloatOLT, l, r, "")
+	}
+	return g.Ctx.Builder.CreateICmp(llvm.IntSLT, l, r, "")
+}
+
+func (g *LLVMGenerator) handleLessThanEquals(l, r llvm.Value) llvm.Value {
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
+		return g.Ctx.Builder.CreateFCmp(llvm.FloatOLE, l, r, "")
+	}
+	return g.Ctx.Builder.CreateICmp(llvm.IntSLE, l, r, "")
+}
+
+func (g *LLVMGenerator) handleEquals(l, r llvm.Value) llvm.Value {
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
+		return g.Ctx.Builder.CreateFCmp(llvm.FloatOEQ, l, r, "")
+	}
+	return g.Ctx.Builder.CreateICmp(llvm.IntEQ, l, r, "")
+}
+
+func (g *LLVMGenerator) handleNotEquals(l, r llvm.Value) llvm.Value {
+	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
+		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
+		return g.Ctx.Builder.CreateFCmp(llvm.FloatONE, l, r, "")
+	}
+	return g.Ctx.Builder.CreateICmp(llvm.IntNE, l, r, "")
+}
+
+func (g *LLVMGenerator) handlePrefixMinus(val llvm.Value) llvm.Value {
+	if val.Type().TypeKind() == llvm.FloatTypeKind || val.Type().TypeKind() == llvm.DoubleTypeKind {
+		return g.Ctx.Builder.CreateFNeg(val, "")
+	}
+	return g.Ctx.Builder.CreateNeg(val, "")
+}
+
+func (g *LLVMGenerator) handlePrefixNot(val llvm.Value) llvm.Value {
+	zero := llvm.ConstInt(val.Type(), 0, false)
+	boolVal := g.Ctx.Builder.CreateICmp(llvm.IntEQ, val, zero, "")
+	return g.Ctx.Builder.CreateZExt(boolVal, val.Type(), "")
+}
+
+var binaryOpHandlers = map[lexer.TokenKind]func(g *LLVMGenerator, l, r llvm.Value) llvm.Value{
+	lexer.And:               (*LLVMGenerator).handleAnd,
+	lexer.Or:                (*LLVMGenerator).handleOr,
+	lexer.Plus:              (*LLVMGenerator).handlePlus,
+	lexer.Minus:             (*LLVMGenerator).handleMinus,
+	lexer.Star:              (*LLVMGenerator).handleStar,
+	lexer.Modulo:            (*LLVMGenerator).handleModulo,
+	lexer.Divide:            (*LLVMGenerator).handleDivide,
+	lexer.GreaterThan:       (*LLVMGenerator).handleGreaterThan,
+	lexer.GreaterThanEquals: (*LLVMGenerator).handleGreaterThanEquals,
+	lexer.LessThan:          (*LLVMGenerator).handleLessThan,
+	lexer.LessThanEquals:    (*LLVMGenerator).handleLessThanEquals,
+	lexer.Equals:            (*LLVMGenerator).handleEquals,
+	lexer.NotEquals:         (*LLVMGenerator).handleNotEquals,
+}
+
+var prefixOpHandlers = map[lexer.TokenKind]func(g *LLVMGenerator, val llvm.Value) llvm.Value{
+	lexer.Minus: (*LLVMGenerator).handlePrefixMinus,
+	lexer.Not:   (*LLVMGenerator).handlePrefixNot,
+}
+
+func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) error {
+	newCtx := ast.NewCompilerContext(
+		g.Ctx.Context,
+		g.Ctx.Builder,
+		g.Ctx.Module,
+		g.Ctx.Dialect,
+		g.Ctx,
+	)
+
+	err, params := g.funcParams(newCtx, node)
+	if err != nil {
+		return err
+	}
+
+	err, returnType := g.extractType(newCtx, node.ReturnType)
+	if err != nil {
+		return err
+	}
+
+	newfuncType := llvm.FunctionType(returnType.typ, params, node.ArgsVariadic)
+	newFunc := llvm.AddFunction(*newCtx.Module, node.Name, newfuncType)
+
+	err = g.Ctx.AddFuncSymbol(node.Name, &newfuncType)
+	if err != nil {
+		return err
+	}
+
+	for i, p := range newFunc.Params() {
+		argType := node.Args[i].ArgType
+		name := node.Args[i].Name
+		p.SetName(name)
+
+		entry := ast.SymbolTableEntry{Value: p, DeclaredType: argType}
+
+		err, eType := g.extractType(newCtx, argType)
+		if err != nil {
+			return err
+		}
+
+		if eType.sEntry != nil {
+			entry.Ref = eType.sEntry
+		}
+
+		err = newCtx.AddSymbol(name, &entry)
+		if err != nil {
+			return fmt.Errorf("failed to add parameter %s to symbol table: %w", name, err)
+		}
+
+		if eType.aEntry != nil {
+			err := newCtx.AddArraySymbol(name, eType.aEntry)
+			if err != nil {
+				return fmt.Errorf("failed to add parameter %s to arrays symbol table: %w", name, err)
+			}
+		}
+	}
+
+	if len(node.Body.Body) > 0 {
+		block := g.Ctx.Context.AddBasicBlock(newFunc, "body")
+		g.Ctx.Builder.SetInsertPointAtEnd(block)
+
+		newGenerator := &LLVMGenerator{Ctx: newCtx}
+		if err := node.Body.Accept(newGenerator); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	// If we get here it means function has no Body
+	// so it's just a declaration of an external function
+	newFunc.SetLinkage(llvm.ExternalLinkage)
+
+	return nil
+}
+
+type extractedType struct {
+	typ    llvm.Type
+	entry  *ast.SymbolTableEntry
+	sEntry *ast.StructSymbolTableEntry
+	aEntry *ast.ArraySymbolTableEntry
+}
+
+func (g *LLVMGenerator) extractType(ctx *ast.CompilerCtx, t ast.Type) (error, extractedType) {
+	err, compiledType := t.LLVMType(ctx)
+	if err != nil {
+		return err, extractedType{}
+	}
+
+	switch typ := t.(type) {
+	case ast.NumberType, ast.Number64Type, ast.FloatType, ast.StringType, ast.VoidType:
+		return nil, extractedType{typ: compiledType}
+	case ast.SymbolType:
+		err, entry := ctx.FindStructSymbol(typ.Name)
+		if err != nil {
+			return err, extractedType{typ: llvm.Type{}}
+		}
+
+		etyp := extractedType{
+			// TODO: need to dinstinguish between passing a struct as value and as a pointer
+			typ:    llvm.PointerType(compiledType, 0),
+			sEntry: entry,
+		}
+
+		return nil, etyp
+	case ast.PointerType:
+		var sEntry *ast.StructSymbolTableEntry
+
+		switch undType := typ.Underlying.(type) {
+		case ast.SymbolType:
+			err, entry := ctx.FindStructSymbol(undType.Name)
+			if err != nil {
+				return err, extractedType{}
+			}
+
+			sEntry = entry
+		default:
+		}
+
+		etype := extractedType{typ: compiledType, sEntry: sEntry}
+
+		return nil, etype
+	case ast.ArrayType:
+		var sEntry *ast.StructSymbolTableEntry
+
+		switch undType := typ.Underlying.(type) {
+		case ast.SymbolType:
+			err, entry := ctx.FindStructSymbol(undType.Name)
+			if err != nil {
+				return err, extractedType{}
+			}
+
+			sEntry = entry
+		default:
+		}
+
+		etype := extractedType{
+			typ: llvm.PointerType(compiledType.ElementType(), 0),
+			aEntry: &ast.ArraySymbolTableEntry{
+				UnderlyingType:    compiledType.ElementType(),
+				UnderlyingTypeDef: sEntry,
+				ElementsCount:     compiledType.ArrayLength(),
+				Type:              llvm.ArrayType(compiledType.ElementType(), typ.Size),
+			},
+		}
+
+		return nil, etype
+	default:
+		return fmt.Errorf("FuncDeclStatement argument type %v not supported", t), extractedType{}
+	}
+}
+
+func (g *LLVMGenerator) funcParams(ctx *ast.CompilerCtx, node *ast.FuncDeclStatement) (error, []llvm.Type) {
+	params := []llvm.Type{}
+
+	for _, arg := range node.Args {
+		err, typ := g.extractType(ctx, arg.ArgType)
+		if err != nil {
+			return err, nil
+		}
+
+		params = append(params, typ.typ)
+	}
+
+	return nil, params
 }
