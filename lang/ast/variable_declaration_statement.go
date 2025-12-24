@@ -25,7 +25,7 @@ var _ Statement = (*VarDeclarationStatement)(nil)
 
 func (vd VarDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
 	if ctx.SymbolExistsInCurrentScope(vd.Name) {
-		return fmt.Errorf("variable %s is aleady defined", vd.Name), nil
+		return fmt.Errorf("variable %s is already defined", vd.Name), nil
 	}
 
 	var val *CompilerResult
