@@ -34,7 +34,14 @@ func (cr *CompileRequest) Compile() error {
 	cr.T.Helper()
 
 	cr.OutputPath = uuid.New().String()
-	cmd := exec.Command("./swa", "compile", "-s", cr.InputPath, "-o", cr.OutputPath)
+
+	var experimental string
+	exp := os.Getenv("SWA_EXPERIMENTAL")
+	if exp != "" {
+		experimental = "--experimental"
+	}
+
+	cmd := exec.Command("./swa", "compile", "-s", cr.InputPath, "-o", cr.OutputPath, experimental)
 
 	output, err := cmd.CombinedOutput()
 
