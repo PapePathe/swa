@@ -22,13 +22,16 @@ func (g *LLVMGenerator) setLastResult(res *ast.CompilerResult) {
 func (g *LLVMGenerator) getLastResult() *ast.CompilerResult {
 	res := g.lastResult
 	g.lastResult = nil
+
 	return res
 }
 
 func (g *LLVMGenerator) VisitConditionalStatement(node *ast.ConditionalStatetement) error {
-	if err := node.Condition.Accept(g); err != nil {
+	err := node.Condition.Accept(g)
+	if err != nil {
 		return err
 	}
+
 	condition := g.getLastResult()
 	bodyBlock := g.Ctx.Builder.GetInsertBlock()
 	parentFunc := bodyBlock.Parent()
@@ -37,25 +40,25 @@ func (g *LLVMGenerator) VisitConditionalStatement(node *ast.ConditionalStateteme
 	elseBlock := g.Ctx.Context.AddBasicBlock(parentFunc, "else")
 
 	g.Ctx.Builder.CreateCondBr(*condition.Value, thenBlock, elseBlock)
-
 	g.Ctx.Builder.SetInsertPointAtEnd(thenBlock)
 
 	if err := node.Success.Accept(g); err != nil {
 		return err
 	}
-	successVal := g.getLastResult()
 
+	successVal := g.getLastResult()
 	if thenBlock.LastInstruction().InstructionOpcode() != llvm.Ret {
 		g.Ctx.Builder.CreateBr(mergeBlock)
 	}
 
 	g.Ctx.Builder.SetInsertPointAtEnd(elseBlock)
 
-	if err := node.Failure.Accept(g); err != nil {
+	err = node.Failure.Accept(g)
+	if err != nil {
 		return err
 	}
-	failureVal := g.getLastResult()
 
+	failureVal := g.getLastResult()
 	if elseBlock.LastInstruction().InstructionOpcode() != llvm.Ret {
 		g.Ctx.Builder.CreateBr(mergeBlock)
 	}
@@ -96,20 +99,23 @@ func (g *LLVMGenerator) VisitWhileStatement(node *ast.WhileStatement) error {
 
 	g.Ctx.Builder.SetInsertPointAtEnd(whileConditionBlock)
 
-	if err := node.Condition.Accept(g); err != nil {
+	err := node.Condition.Accept(g)
+	if err != nil {
 		return err
 	}
+
 	condition := g.getLastResult()
 
 	g.Ctx.Builder.CreateCondBr(*condition.Value, whileBodyBlock, whileMergeBlock)
-
 	g.Ctx.Builder.SetInsertPointAtEnd(whileBodyBlock)
 
-	if err := node.Body.Accept(g); err != nil {
+	err = node.Body.Accept(g)
+	if err != nil {
 		return err
 	}
 
 	lastBodyBlock := g.Ctx.Builder.GetInsertBlock()
+
 	opcode := lastBodyBlock.LastInstruction().InstructionOpcode()
 	if lastBodyBlock.LastInstruction().IsNil() || (opcode != llvm.Ret && opcode != llvm.Br) {
 		g.Ctx.Builder.CreateBr(whileConditionBlock)
@@ -138,12 +144,14 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 			},
 			"",
 		)
+
 		switch v.(type) {
 		case ast.SymbolExpression:
 			err := v.Accept(g)
 			if err != nil {
 				return err
 			}
+
 			compiledVal := g.getLastResult()
 
 			if compiledVal.SymbolTableEntry != nil && compiledVal.SymbolTableEntry.Ref != nil {
@@ -165,6 +173,7 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 			if err != nil {
 				return err
 			}
+
 			compiledVal := g.getLastResult()
 			g.Ctx.Builder.CreateStore(*compiledVal.Value, itemGep)
 		default:
@@ -174,6 +183,7 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 
 	result := &ast.CompilerResult{
 		Value: &arrayPointer,
+
 		ArraySymbolTableEntry: &ast.ArraySymbolTableEntry{
 			ElementsCount:  llvmtyp.ArrayLength(),
 			UnderlyingType: llvmtyp.ElementType(),
@@ -188,7 +198,9 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 
 // VisitArrayOfStructsAccessExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStructsAccessExpression) error {
-	panic("unimplemented")
+	g.NotImplemented("VisitArrayOfStructsAccessExpression not implemented")
+
+	return nil
 }
 
 // VisitAssignmentExpression implements [ast.CodeGenerator].
@@ -197,12 +209,14 @@ func (g *LLVMGenerator) VisitAssignmentExpression(node *ast.AssignmentExpression
 	if err != nil {
 		return err
 	}
+
 	compiledAssignee := g.getLastResult()
 
 	err = node.Value.Accept(g)
 	if err != nil {
 		return err
 	}
+
 	compiledValue := g.getLastResult()
 
 	var valueToBeAssigned llvm.Value
@@ -214,23 +228,45 @@ func (g *LLVMGenerator) VisitAssignmentExpression(node *ast.AssignmentExpression
 		valueToBeAssigned = *compiledValue.Value
 	}
 
-	g.Ctx.Builder.CreateStore(valueToBeAssigned, *compiledAssignee.SymbolTableEntry.Address)
+	address := compiledAssignee.Value
+	if compiledAssignee.SymbolTableEntry.Address != nil {
+		address = compiledAssignee.SymbolTableEntry.Address
+	}
+
+	g.Ctx.Builder.CreateStore(valueToBeAssigned, *address)
 
 	return nil
 }
 
 // VisitBlockStatement implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitBlockStatement(node *ast.BlockStatement) error {
+	oldCtx := g.Ctx
+	newCtx := ast.NewCompilerContext(
+		oldCtx.Context,
+		oldCtx.Builder,
+		oldCtx.Module,
+		oldCtx.Dialect,
+		oldCtx,
+	)
+	g.Ctx = newCtx
+
 	for _, v := range node.Body {
-		v.Accept(g)
+		err := v.Accept(g)
+		if err != nil {
+			return err
+		}
 	}
+
+	g.Ctx = oldCtx
 
 	return nil
 }
 
 // VisitCallExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitCallExpression(node *ast.CallExpression) error {
-	panic("unimplemented")
+	g.NotImplemented("VisitCallExpression not implemented")
+
+	return nil
 }
 
 // VisitExpressionStatement implements [ast.CodeGenerator].
@@ -277,12 +313,32 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		}
 		val := g.getLastResult()
 
-		args = append(args, *val.Value)
+		switch arg.(type) {
+		case ast.SymbolExpression:
+			if val.SymbolTableEntry.Ref != nil {
+				alloca := g.Ctx.Builder.CreateAlloca(val.SymbolTableEntry.Ref.LLVMType, "")
+				g.Ctx.Builder.CreateStore(*val.Value, alloca)
+				args = append(args, alloca)
+
+				break
+			}
+
+			if val.SymbolTableEntry != nil && val.SymbolTableEntry.Address != nil {
+				args = append(args, *val.SymbolTableEntry.Address)
+			} else {
+				args = append(args, *val.Value)
+			}
+
+		default:
+			args = append(args, *val.Value)
+		}
+
 	}
 
 	val := g.Ctx.Builder.CreateCall(*funcType, funcVal, args, "")
 
 	g.setLastResult(&ast.CompilerResult{Value: &val})
+
 	return nil
 }
 
@@ -302,7 +358,56 @@ func (g *LLVMGenerator) VisitMainStatement(node *ast.MainStatement) error {
 
 // VisitMemberExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error {
-	panic("unimplemented")
+	obj, ok := node.Object.(ast.SymbolExpression)
+	if !ok {
+		return fmt.Errorf("struct object should be a symbol")
+	}
+
+	err, varDef := g.Ctx.FindSymbol(obj.Value)
+	if err != nil {
+		return fmt.Errorf("variable %s is not defined", obj.Value)
+	}
+
+	if varDef.Ref == nil {
+		return fmt.Errorf("variable %s is not a struct instance", obj.Value)
+	}
+
+	propName, err := g.getProperty(node)
+	if err != nil {
+		return err
+	}
+
+	propIndex, err := g.resolveStructAccess(varDef.Ref, propName)
+	if err != nil {
+		return err
+	}
+
+	var baseValue llvm.Value
+	if varDef.Address != nil {
+		baseValue = *varDef.Address
+	} else {
+		baseValue = varDef.Value
+	}
+
+	addr := g.Ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, baseValue, propIndex, "")
+	propType := varDef.Ref.PropertyTypes[propIndex]
+
+	g.setLastResult(&ast.CompilerResult{
+		Value:                  &addr,
+		SymbolTableEntry:       varDef,
+		StuctPropertyValueType: &propType,
+	})
+
+	return nil
+}
+
+func (g *LLVMGenerator) getProperty(expr *ast.MemberExpression) (string, error) {
+	prop, ok := expr.Property.(ast.SymbolExpression)
+	if !ok {
+		return "", fmt.Errorf("struct property should be a symbol")
+	}
+
+	return prop.Value, nil
 }
 
 // VisitNumberExpression implements [ast.CodeGenerator].
@@ -349,6 +454,13 @@ func (g *LLVMGenerator) VisitPrintStatement(node *ast.PrintStatetement) error {
 		lastResult := g.getLastResult()
 
 		switch v.(type) {
+		case ast.MemberExpression:
+			loadedval := g.Ctx.Builder.CreateLoad(
+				*lastResult.StuctPropertyValueType,
+				*lastResult.Value,
+				"",
+			)
+			printableValues = append(printableValues, loadedval)
 		case ast.ArrayAccessExpression:
 			load := g.Ctx.Builder.CreateLoad(
 				lastResult.ArraySymbolTableEntry.UnderlyingType,
@@ -366,7 +478,6 @@ func (g *LLVMGenerator) VisitPrintStatement(node *ast.PrintStatetement) error {
 			format := "VisitPrintStatement unimplemented for %T"
 			g.NotImplemented(fmt.Sprintf(format, v))
 		}
-
 	}
 
 	g.Ctx.Builder.CreateCall(
@@ -535,6 +646,10 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 
 // VisitVarDeclaration implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) error {
+	if g.Ctx.SymbolExistsInCurrentScope(node.Name) {
+		return fmt.Errorf("variable %s is already defined", node.Name)
+	}
+
 	switch node.Value {
 	case nil:
 		return g.declareVarWithZeroValue(node)
@@ -563,7 +678,19 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 		}
 
 		return g.Ctx.AddSymbol(node.Name, entry)
-	case ast.NumberExpression, ast.FloatExpression, ast.BinaryExpression, ast.StructInitializationExpression:
+	case ast.StructInitializationExpression:
+
+		entry := &ast.SymbolTableEntry{
+			Address:      compiledVal.Value,
+			DeclaredType: node.ExplicitType,
+		}
+		if compiledVal.StructSymbolTableEntry != nil {
+			entry.Ref = compiledVal.StructSymbolTableEntry
+		}
+
+		return g.Ctx.AddSymbol(node.Name, entry)
+	case ast.NumberExpression, ast.FunctionCallExpression, ast.FloatExpression,
+		ast.BinaryExpression:
 		alloc := g.Ctx.Builder.CreateAlloca(compiledVal.Value.Type(), name)
 		g.Ctx.Builder.CreateStore(*compiledVal.Value, alloc)
 
