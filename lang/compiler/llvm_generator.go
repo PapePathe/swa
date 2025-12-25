@@ -53,6 +53,8 @@ func (g *LLVMGenerator) VisitConditionalStatement(node *ast.ConditionalStateteme
 
 	failureVal := g.getLastResult()
 
+	var phi llvm.Value
+
 	// When there is no else block, the last instruction is nil
 	// so we need to account for that and branch it to the merge block
 	if elseBlock.LastInstruction().IsNil() {
@@ -65,23 +67,22 @@ func (g *LLVMGenerator) VisitConditionalStatement(node *ast.ConditionalStateteme
 
 	g.Ctx.Builder.SetInsertPointAtEnd(mergeBlock)
 
-	var phi llvm.Value
-	if successVal != nil {
+	if successVal != nil && failureVal != nil {
 		phi = g.Ctx.Builder.CreatePHI(successVal.Value.Type(), "")
-		phi.AddIncoming([]llvm.Value{*successVal.Value}, []llvm.BasicBlock{thenBlock})
-	}
-
-	if failureVal != nil {
-		phi = g.Ctx.Builder.CreatePHI(successVal.Value.Type(), "")
-		phi.AddIncoming([]llvm.Value{*successVal.Value}, []llvm.BasicBlock{thenBlock})
+		phi.AddIncoming(
+			[]llvm.Value{*successVal.Value, *failureVal.Value},
+			[]llvm.BasicBlock{thenBlock, elseBlock},
+		)
 	}
 
 	thenBlock.MoveAfter(bodyBlock)
 	elseBlock.MoveAfter(thenBlock)
-	mergeBlock.MoveAfter(thenBlock)
+	mergeBlock.MoveAfter(elseBlock)
 
-	if successVal != nil {
+	if successVal != nil && failureVal != nil {
 		g.setLastResult(&ast.CompilerResult{Value: &phi})
+	} else {
+		g.setLastResult(nil)
 	}
 
 	return nil
@@ -467,7 +468,7 @@ func (g *LLVMGenerator) VisitPrintStatement(node *ast.PrintStatetement) error {
 			printableValues = append(printableValues, load)
 		case ast.StringExpression:
 			printableValues = append(printableValues, *lastResult.Value)
-		case ast.NumberExpression, ast.FloatExpression:
+		case ast.NumberExpression, ast.FloatExpression, ast.BinaryExpression:
 			printableValues = append(printableValues, *lastResult.Value)
 		case ast.SymbolExpression:
 			printableValues = append(printableValues, *lastResult.Value)
@@ -1427,6 +1428,17 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 	name := node.Name
 
 	switch node.Value.(type) {
+	case ast.SymbolExpression:
+		alloc := g.Ctx.Builder.CreateAlloca(compiledVal.Value.Type(), name)
+		g.Ctx.Builder.CreateStore(*compiledVal.Value, alloc)
+
+		entry := &ast.SymbolTableEntry{
+			Address:      &alloc,
+			DeclaredType: node.ExplicitType,
+		}
+
+		return g.Ctx.AddSymbol(node.Name, entry)
+
 	case ast.StringExpression:
 		alloc := g.Ctx.Builder.CreateAlloca(compiledVal.Value.Type(), name)
 		g.Ctx.Builder.CreateStore(*compiledVal.Value, alloc)
