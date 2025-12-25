@@ -253,7 +253,7 @@ func TestArrayAccessWithSymbolExpression(t *testing.T) {
 
 		req := CompileRequest{
 			InputPath:      "./arrays/symbol-expression/source.french.swa",
-			ExpectedOutput: "Variable x does not exist\n",
+			ExpectedOutput: "variable named x does not exist in symbol table\n",
 			T:              t,
 		}
 
@@ -265,7 +265,7 @@ func TestArrayAccessWithSymbolExpression(t *testing.T) {
 
 		req := CompileRequest{
 			InputPath:      "./arrays/symbol-expression/source.english.swa",
-			ExpectedOutput: "Variable x does not exist\n",
+			ExpectedOutput: "variable named x does not exist in symbol table\n",
 			T:              t,
 		}
 
