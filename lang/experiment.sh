@@ -9,7 +9,11 @@ if [ "$1" == "parse" ]; then
     ./tmp/swa parse -s test.swa
 elif [ "$1" == "compile" ]; then
     echo "🛑 Compiling..."
+    ./tmp/swa compile -s test.swa && ./start.exe
+elif [ "$1" == "compile-exp" ]; then
+    echo "🛑 Compiling Experimental version..."
     ./tmp/swa compile -e -s test.swa && ./start.exe
+
 else
     echo "❓ Unknown command: $1. Use 'compile' or 'parse'."
     exit 1
