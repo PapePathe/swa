@@ -174,105 +174,137 @@ func (g *LLVMGenerator) VisitWhileStatement(node *ast.WhileStatement) error {
 	return nil
 }
 
-// VisitArrayInitializationExpression implements [ast.CodeGenerator].
+type ElementInjector func(
+	g *LLVMGenerator,
+	expr ast.Expression,
+	targetAddr llvm.Value,
+) (error, *ast.StructSymbolTableEntry)
+
+var ArrayInitializationExpressionInjectors = map[reflect.Type]ElementInjector{
+	reflect.TypeFor[ast.SymbolExpression]():               injectSymbol,
+	reflect.TypeFor[ast.NumberExpression]():               injectLiteral,
+	reflect.TypeFor[ast.FloatExpression]():                injectLiteral,
+	reflect.TypeFor[ast.StringExpression]():               injectLiteral,
+	reflect.TypeFor[ast.StructInitializationExpression](): injectStruct,
+}
+
+func injectLiteral(g *LLVMGenerator, expr ast.Expression, targetAddr llvm.Value) (error, *ast.StructSymbolTableEntry) {
+	err := expr.Accept(g)
+	if err != nil {
+		return err, nil
+	}
+
+	res := g.getLastResult()
+	g.Ctx.Builder.CreateStore(*res.Value, targetAddr)
+
+	return nil, nil // Literals don't define a struct subtype
+}
+
+func injectSymbol(g *LLVMGenerator, expr ast.Expression, targetAddr llvm.Value) (error, *ast.StructSymbolTableEntry) {
+	err := expr.Accept(g)
+	if err != nil {
+		return err, nil
+	}
+
+	res := g.getLastResult()
+
+	// If it's a struct/complex type, we use the Ref (SymbolTableEntry) to find the type
+	var loadType llvm.Type
+
+	var structEntry *ast.StructSymbolTableEntry
+
+	if res.SymbolTableEntry != nil && res.SymbolTableEntry.Ref != nil {
+		loadType = res.SymbolTableEntry.Ref.LLVMType
+		structEntry = res.SymbolTableEntry.Ref
+	} else {
+		loadType = res.Value.Type()
+	}
+
+	val := g.Ctx.Builder.CreateLoad(loadType, *res.Value, "arr.load.sym")
+	g.Ctx.Builder.CreateStore(val, targetAddr)
+
+	return nil, structEntry
+}
+
+func injectStruct(g *LLVMGenerator, expr ast.Expression, targetAddr llvm.Value) (error, *ast.StructSymbolTableEntry) {
+	node, _ := expr.(ast.StructInitializationExpression)
+
+	err, tblEntry := g.Ctx.FindStructSymbol(node.Name)
+	if err != nil {
+		return err, nil
+	}
+
+	for _, fieldName := range node.Properties {
+		err, idx := tblEntry.Metadata.PropertyIndex(fieldName)
+		if err != nil {
+			return err, nil
+		}
+
+		fieldNode := node.Values[idx]
+
+		err = fieldNode.Accept(g)
+		if err != nil {
+			return err, nil
+		}
+
+		fieldRes := g.getLastResult()
+
+		fieldGep := g.Ctx.Builder.CreateGEP(
+			tblEntry.LLVMType,
+			targetAddr,
+			[]llvm.Value{
+				llvm.ConstInt(llvm.GlobalContext().Int32Type(), 0, false),
+				llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(idx), false),
+			},
+			fmt.Sprintf("field.%s", fieldName),
+		)
+
+		g.Ctx.Builder.CreateStore(*fieldRes.Value, fieldGep)
+	}
+
+	return nil, tblEntry
+}
+
 func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitializationExpression) error {
 	err, llvmtyp := node.Underlying.LLVMType(g.Ctx)
 	if err != nil {
 		return err
 	}
 
-	var sEntry *ast.StructSymbolTableEntry
+	var discoveredEntry *ast.StructSymbolTableEntry
 
-	arrayPointer := g.Ctx.Builder.CreateAlloca(llvmtyp, "")
-	for i, v := range node.Contents {
-		itemGep := g.Ctx.Builder.CreateGEP(
-			llvmtyp,
-			arrayPointer,
-			[]llvm.Value{
-				llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false),
-				llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(i), false),
-			},
-			"",
-		)
+	arrayPointer := g.Ctx.Builder.CreateAlloca(llvmtyp, "array_alloc")
 
-		switch v.(type) {
-		case ast.SymbolExpression:
-			err := v.Accept(g)
-			if err != nil {
-				return err
-			}
+	for i, expr := range node.Contents {
+		itemGep := g.Ctx.Builder.CreateGEP(llvmtyp, arrayPointer, []llvm.Value{
+			llvm.ConstInt(llvm.GlobalContext().Int32Type(), 0, false),
+			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(i), false),
+		}, "")
 
-			compiledVal := g.getLastResult()
+		injector, ok := ArrayInitializationExpressionInjectors[reflect.TypeOf(expr)]
+		if !ok {
+			return fmt.Errorf("unsupported array initialization element: %T", expr)
+		}
 
-			if compiledVal.SymbolTableEntry != nil && compiledVal.SymbolTableEntry.Ref != nil {
-				load := g.Ctx.Builder.CreateLoad(compiledVal.SymbolTableEntry.Ref.LLVMType, *compiledVal.Value, "")
-				g.Ctx.Builder.CreateStore(load, itemGep)
-			} else {
-				load := g.Ctx.Builder.CreateLoad(compiledVal.Value.Type(), *compiledVal.Value, "")
-				g.Ctx.Builder.CreateStore(load, itemGep)
-			}
-		case ast.NumberExpression, ast.FloatExpression, ast.StringExpression:
-			err := v.Accept(g)
-			if err != nil {
-				return err
-			}
+		err, sEntry := injector(g, expr, itemGep)
+		if err != nil {
+			return err
+		}
 
-			compiledVal := g.getLastResult()
-			g.Ctx.Builder.CreateStore(*compiledVal.Value, itemGep)
-		case ast.StructInitializationExpression:
-			n, _ := v.(ast.StructInitializationExpression)
-
-			err, tblEntry := g.Ctx.FindStructSymbol(n.Name)
-			if err != nil {
-				return err
-			}
-
-			sEntry = tblEntry
-
-			for _, fieldName := range n.Properties {
-				err, fieldPosition := tblEntry.Metadata.PropertyIndex(fieldName)
-				if err != nil {
-					return err
-				}
-
-				fieldNode := n.Values[fieldPosition]
-
-				err = fieldNode.Accept(g)
-				if err != nil {
-					return err
-				}
-
-				fieldNodeResult := g.getLastResult()
-
-				gep := g.Ctx.Builder.CreateGEP(
-					llvmtyp.ElementType(),
-					itemGep,
-					[]llvm.Value{
-						llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false),
-						llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(fieldPosition), false),
-					},
-					"",
-				)
-
-				g.Ctx.Builder.CreateStore(*fieldNodeResult.Value, gep)
-			}
-
-		default:
-			g.NotImplemented(fmt.Sprintf("VisitArrayInitializationExpression: Expression %s not supported", v))
+		if discoveredEntry == nil && sEntry != nil {
+			discoveredEntry = sEntry
 		}
 	}
 
-	result := &ast.CompilerResult{
+	g.setLastResult(&ast.CompilerResult{
 		Value: &arrayPointer,
 		ArraySymbolTableEntry: &ast.ArraySymbolTableEntry{
 			ElementsCount:     llvmtyp.ArrayLength(),
-			UnderlyingTypeDef: sEntry,
+			UnderlyingTypeDef: discoveredEntry, // Correctly passed up!
 			UnderlyingType:    llvmtyp.ElementType(),
 			Type:              llvmtyp,
 		},
-	}
-
-	g.setLastResult(result)
+	})
 
 	return nil
 }
