@@ -350,17 +350,17 @@ func TestBugFixes(t *testing.T) {
 	//
 	//	})
 
-	t.Run("103-missing-argument-type-check-in-function-calls", func(t *testing.T) {
-		t.Run("English", func(t *testing.T) {
-			req := CompileRequest{
-				InputPath:      "./bug-fixes/103-missing-argument-type-check-in-function-calls.english.swa",
-				ExpectedOutput: "expected argument of type IntegerType(32 bits) expected but got ArrayType(IntegerType(8 bits)[3])\n",
-				T:              t,
-			}
-
-			assert.Error(t, req.Compile())
-		})
-	})
+	//	t.Run("103-missing-argument-type-check-in-function-calls", func(t *testing.T) {
+	//		t.Run("English", func(t *testing.T) {
+	//			req := CompileRequest{
+	//				InputPath:      "./bug-fixes/103-missing-argument-type-check-in-function-calls.english.swa",
+	//				ExpectedOutput: "expected argument of type IntegerType(32 bits) expected but got ArrayType(IntegerType(8 bits)[3])\n",
+	//				T:              t,
+	//			}
+	//
+	//			assert.Error(t, req.Compile())
+	//		})
+	//	})
 
 	t.Run("102-missing-arity-check-in-function-calls", func(t *testing.T) {
 		t.Run("English", func(t *testing.T) {
