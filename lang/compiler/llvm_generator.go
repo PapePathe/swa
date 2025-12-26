@@ -846,7 +846,26 @@ func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) e
 
 	switch node.Value {
 	case nil:
-		return g.declareVarWithZeroValue(node)
+		err, llvmType := node.ExplicitType.LLVMType(g.Ctx)
+		if err != nil {
+			return err
+		}
+
+		alloc := g.Ctx.Builder.CreateAlloca(llvmType, fmt.Sprintf("alloc.%s", node.Name))
+		g.Ctx.Builder.CreateStore(llvm.ConstNull(llvmType), alloc)
+
+		entry := &ast.SymbolTableEntry{
+			Value:        alloc,
+			Address:      &alloc,
+			DeclaredType: node.ExplicitType,
+		}
+
+		err = g.Ctx.AddSymbol(node.Name, entry)
+		if err != nil {
+			return err
+		}
+
+		return nil
 	default:
 		return g.declareVarWithInitializer(node)
 	}
@@ -1776,29 +1795,6 @@ func (g *LLVMGenerator) finalizeSymbol(
 	if _, ok := node.Value.(ast.ArrayInitializationExpression); ok {
 		return g.Ctx.AddArraySymbol(node.Name, res.ArraySymbolTableEntry)
 	}
-	return nil
-}
-
-func (g *LLVMGenerator) declareVarWithZeroValue(node *ast.VarDeclarationStatement) error {
-	err, llvmType := node.ExplicitType.LLVMType(g.Ctx)
-	if err != nil {
-		return err
-	}
-
-	alloc := g.Ctx.Builder.CreateAlloca(llvmType, fmt.Sprintf("alloc.%s", node.Name))
-	g.Ctx.Builder.CreateStore(llvm.ConstNull(llvmType), alloc)
-
-	entry := &ast.SymbolTableEntry{
-		Value:        alloc,
-		Address:      &alloc,
-		DeclaredType: node.ExplicitType,
-	}
-
-	err = g.Ctx.AddSymbol(node.Name, entry)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
