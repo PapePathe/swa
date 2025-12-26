@@ -17,6 +17,46 @@ type LLVMGenerator struct {
 
 var _ ast.CodeGenerator = (*LLVMGenerator)(nil)
 
+func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStructsAccessExpression) error {
+	err, array, arrayEntry, itemIndex := g.findArrayOfStructsSymbolTableEntry(node)
+	if err != nil {
+		return err
+	}
+
+	itemPtr := g.Ctx.Builder.CreateInBoundsGEP(
+		arrayEntry.Type,
+		*array.Address,
+		itemIndex,
+		"",
+	)
+
+	propName, ok := node.Property.(ast.SymbolExpression)
+	if !ok {
+		g.NotImplemented(fmt.Sprintf("Type %s not supported in ArrayOfStructsAccessExpression", node.Property))
+	}
+
+	err, propIndex := array.Ref.Metadata.PropertyIndex(propName.Value)
+	if err != nil {
+		return fmt.Errorf("ArrayOfStructsAccessExpression: property %s not found", propName.Value)
+	}
+
+	structPtr := g.Ctx.Builder.CreateStructGEP(
+		array.Ref.LLVMType,
+		itemPtr,
+		propIndex,
+		"",
+	)
+
+	res := &ast.CompilerResult{
+		Value:                  &structPtr,
+		SymbolTableEntry:       array,
+		StuctPropertyValueType: &array.Ref.PropertyTypes[propIndex],
+	}
+
+	g.setLastResult(res)
+
+	return nil
+}
 func (g *LLVMGenerator) VisitConditionalStatement(node *ast.ConditionalStatetement) error {
 	err := node.Condition.Accept(g)
 	if err != nil {
@@ -134,6 +174,8 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 		return err
 	}
 
+	var sEntry *ast.StructSymbolTableEntry
+
 	arrayPointer := g.Ctx.Builder.CreateAlloca(llvmtyp, "")
 	for i, v := range node.Contents {
 		itemGep := g.Ctx.Builder.CreateGEP(
@@ -171,13 +213,43 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 			compiledVal := g.getLastResult()
 			g.Ctx.Builder.CreateStore(*compiledVal.Value, itemGep)
 		case ast.StructInitializationExpression:
-			err := v.Accept(g)
+			n, _ := v.(ast.StructInitializationExpression)
+
+			err, tblEntry := g.Ctx.FindStructSymbol(n.Name)
 			if err != nil {
 				return err
 			}
 
-			compiledVal := g.getLastResult()
-			g.Ctx.Builder.CreateStore(*compiledVal.Value, itemGep)
+			sEntry = tblEntry
+
+			for _, fieldName := range n.Properties {
+				err, fieldPosition := tblEntry.Metadata.PropertyIndex(fieldName)
+				if err != nil {
+					return err
+				}
+
+				fieldNode := n.Values[fieldPosition]
+
+				err = fieldNode.Accept(g)
+				if err != nil {
+					return err
+				}
+
+				fieldNodeResult := g.getLastResult()
+
+				gep := g.Ctx.Builder.CreateGEP(
+					llvmtyp.ElementType(),
+					itemGep,
+					[]llvm.Value{
+						llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false),
+						llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(fieldPosition), false),
+					},
+					"",
+				)
+
+				g.Ctx.Builder.CreateStore(*fieldNodeResult.Value, gep)
+			}
+
 		default:
 			g.NotImplemented(fmt.Sprintf("VisitArrayInitializationExpression: Expression %s not supported", v))
 		}
@@ -186,20 +258,14 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 	result := &ast.CompilerResult{
 		Value: &arrayPointer,
 		ArraySymbolTableEntry: &ast.ArraySymbolTableEntry{
-			ElementsCount:  llvmtyp.ArrayLength(),
-			UnderlyingType: llvmtyp.ElementType(),
-			Type:           llvmtyp,
+			ElementsCount:     llvmtyp.ArrayLength(),
+			UnderlyingTypeDef: sEntry,
+			UnderlyingType:    llvmtyp.ElementType(),
+			Type:              llvmtyp,
 		},
 	}
 
 	g.setLastResult(result)
-
-	return nil
-}
-
-// VisitArrayOfStructsAccessExpression implements [ast.CodeGenerator].
-func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStructsAccessExpression) error {
-	g.NotImplemented("VisitArrayOfStructsAccessExpression not implemented")
 
 	return nil
 }
@@ -459,6 +525,13 @@ func (g *LLVMGenerator) VisitPrintStatement(node *ast.PrintStatetement) error {
 				"",
 			)
 			printableValues = append(printableValues, loadedval)
+		case ast.ArrayOfStructsAccessExpression:
+			load := g.Ctx.Builder.CreateLoad(
+				*lastResult.StuctPropertyValueType,
+				*lastResult.Value,
+				"",
+			)
+			printableValues = append(printableValues, load)
 		case ast.ArrayAccessExpression:
 			load := g.Ctx.Builder.CreateLoad(
 				lastResult.ArraySymbolTableEntry.UnderlyingType,
@@ -1490,6 +1563,14 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 			DeclaredType: node.ExplicitType,
 		}
 
+		if compiledVal.StructSymbolTableEntry != nil {
+			entry.Ref = compiledVal.StructSymbolTableEntry
+		}
+
+		if compiledVal.ArraySymbolTableEntry != nil && compiledVal.ArraySymbolTableEntry.UnderlyingTypeDef != nil {
+			entry.Ref = compiledVal.ArraySymbolTableEntry.UnderlyingTypeDef
+		}
+
 		err := g.Ctx.AddSymbol(node.Name, entry)
 		if err != nil {
 			return err
@@ -1525,4 +1606,70 @@ func (g *LLVMGenerator) declareVarWithZeroValue(node *ast.VarDeclarationStatemen
 	}
 
 	return nil
+}
+
+func (g *LLVMGenerator) findArrayOfStructsSymbolTableEntry(
+	expr *ast.ArrayOfStructsAccessExpression,
+) (error, *ast.SymbolTableEntry, *ast.ArraySymbolTableEntry, []llvm.Value) {
+	var array *ast.SymbolTableEntry
+
+	var entry *ast.ArraySymbolTableEntry
+
+	switch expr.Name.(type) {
+	case ast.SymbolExpression:
+		varName, _ := expr.Name.(ast.SymbolExpression)
+
+		err, arrayEntry := g.Ctx.FindSymbol(varName.Value)
+		if err != nil {
+			key := "ArrayOfStructsAccessExpression.NotFoundInSymbolTable"
+			return g.Ctx.Dialect.Error(key, varName.Value), nil, nil, nil
+		}
+
+		array = arrayEntry
+
+		err, ent := g.Ctx.FindArraySymbol(varName.Value)
+		if err != nil {
+			return err, nil, nil, nil
+		}
+
+		entry = ent
+
+	default:
+		return fmt.Errorf("ArrayOfStructsAccessExpression not implemented"), nil, nil, nil
+	}
+
+	var indices []llvm.Value
+
+	switch expr.Index.(type) {
+	case ast.NumberExpression:
+		idx, _ := expr.Index.(ast.NumberExpression)
+
+		indices = []llvm.Value{
+			llvm.ConstInt((*g.Ctx.Context).Int32Type(), uint64(0), false),
+			llvm.ConstInt((*g.Ctx.Context).Int32Type(), uint64(idx.Value), false),
+		}
+	case ast.SymbolExpression, ast.BinaryExpression, ast.MemberExpression:
+		if err := expr.Index.Accept(g); err != nil {
+			return err, nil, nil, nil
+		}
+		res := g.getLastResult()
+
+		if res.Value.Type().TypeKind() == llvm.PointerTypeKind {
+			load := g.Ctx.Builder.CreateLoad(res.Value.AllocatedType(), *res.Value, "")
+			indices = []llvm.Value{
+				llvm.ConstInt((*g.Ctx.Context).Int32Type(), uint64(0), false),
+				load,
+			}
+		} else {
+			indices = []llvm.Value{
+				llvm.ConstInt((*g.Ctx.Context).Int32Type(), uint64(0), false),
+				*res.Value,
+			}
+		}
+	default:
+		key := "ArrayOfStructsAccessExpression.AccessedIndexIsNotANumber"
+		return g.Ctx.Dialect.Error(key, expr.Index), nil, nil, nil
+	}
+
+	return nil, array, entry, indices
 }
