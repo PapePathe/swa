@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"reflect"
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 
@@ -1695,109 +1696,86 @@ func (g *LLVMGenerator) prepareReturnValue(expr ast.Expression, res *ast.Compile
 	}
 }
 
+type InitializationStyle int
+
+const (
+	StyleDefault   InitializationStyle = iota // Alloca + Store
+	StyleDirect                               // Use compiled value as address (Literals)
+	StyleLoadStore                            // Load from pointer, then Alloca + Store (Accessors)
+)
+
+var nodeVariableDeclarationStyles = map[reflect.Type]InitializationStyle{
+	reflect.TypeFor[ast.ArrayAccessExpression]():          StyleLoadStore,
+	reflect.TypeFor[ast.ArrayOfStructsAccessExpression](): StyleLoadStore,
+	reflect.TypeFor[ast.StringExpression]():               StyleDefault,
+	reflect.TypeFor[ast.NumberExpression]():               StyleDefault,
+	reflect.TypeFor[ast.FloatExpression]():                StyleDefault,
+	reflect.TypeFor[ast.FunctionCallExpression]():         StyleDefault,
+	reflect.TypeFor[ast.SymbolExpression]():               StyleDefault,
+	reflect.TypeFor[ast.BinaryExpression]():               StyleDefault,
+	reflect.TypeFor[ast.StructInitializationExpression](): StyleDirect,
+	reflect.TypeFor[ast.ArrayInitializationExpression]():  StyleDirect,
+}
+
 func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatement) error {
-	err := node.Value.Accept(g)
-	if err != nil {
+	if err := node.Value.Accept(g); err != nil {
 		return err
 	}
 
-	compiledVal := g.getLastResult()
-	name := node.Name
+	res := g.getLastResult()
+	style := nodeVariableDeclarationStyles[reflect.TypeOf(node.Value)]
 
-	switch node.Value.(type) {
-	case ast.SymbolExpression:
-		alloc := g.Ctx.Builder.CreateAlloca(compiledVal.Value.Type(), name)
-		g.Ctx.Builder.CreateStore(*compiledVal.Value, alloc)
+	var finalAddr *llvm.Value
 
-		entry := &ast.SymbolTableEntry{
-			Address:      &alloc,
-			DeclaredType: node.ExplicitType,
+	switch style {
+	case StyleDirect:
+		finalAddr = res.Value
+
+	case StyleLoadStore:
+		// Logic for extracting value from an accessor
+		typ := res.Value.AllocatedType()
+		if _, ok := node.Value.(ast.ArrayOfStructsAccessExpression); ok {
+			typ = *res.StuctPropertyValueType
 		}
+		loadedVal := g.Ctx.Builder.CreateLoad(typ, *res.Value, "tmp.load")
 
-		return g.Ctx.AddSymbol(node.Name, entry)
+		alloc := g.Ctx.Builder.CreateAlloca(typ, node.Name)
+		g.Ctx.Builder.CreateStore(loadedVal, alloc)
+		finalAddr = &alloc
 
-	case ast.StringExpression:
-		alloc := g.Ctx.Builder.CreateAlloca(compiledVal.Value.Type(), name)
-		g.Ctx.Builder.CreateStore(*compiledVal.Value, alloc)
-
-		entry := &ast.SymbolTableEntry{
-			Address:      &alloc,
-			DeclaredType: node.ExplicitType,
-		}
-
-		return g.Ctx.AddSymbol(node.Name, entry)
-	case ast.ArrayAccessExpression:
-		load := g.Ctx.Builder.CreateLoad(compiledVal.Value.AllocatedType(), *compiledVal.Value, "")
-		alloc := g.Ctx.Builder.CreateAlloca(compiledVal.Value.AllocatedType(), name)
-		g.Ctx.Builder.CreateStore(load, alloc)
-
-		entry := &ast.SymbolTableEntry{
-			Address:      &alloc,
-			DeclaredType: node.ExplicitType,
-		}
-
-		return g.Ctx.AddSymbol(node.Name, entry)
-	case ast.ArrayOfStructsAccessExpression:
-		// Load the value from the struct field pointer
-		load := g.Ctx.Builder.CreateLoad(*compiledVal.StuctPropertyValueType, *compiledVal.Value, "")
-		alloc := g.Ctx.Builder.CreateAlloca(load.Type(), name)
-		g.Ctx.Builder.CreateStore(load, alloc)
-
-		entry := &ast.SymbolTableEntry{
-			Address:      &alloc,
-			DeclaredType: node.ExplicitType,
-		}
-
-		return g.Ctx.AddSymbol(node.Name, entry)
-	case ast.StructInitializationExpression:
-		entry := &ast.SymbolTableEntry{
-			Address:      compiledVal.Value,
-			DeclaredType: node.ExplicitType,
-		}
-		if compiledVal.StructSymbolTableEntry != nil {
-			entry.Ref = compiledVal.StructSymbolTableEntry
-		}
-
-		return g.Ctx.AddSymbol(node.Name, entry)
-	case ast.NumberExpression, ast.FunctionCallExpression, ast.FloatExpression,
-		ast.BinaryExpression:
-		alloc := g.Ctx.Builder.CreateAlloca(compiledVal.Value.Type(), name)
-		g.Ctx.Builder.CreateStore(*compiledVal.Value, alloc)
-
-		entry := &ast.SymbolTableEntry{
-			Address:      &alloc,
-			DeclaredType: node.ExplicitType,
-		}
-		if compiledVal.StructSymbolTableEntry != nil {
-			entry.Ref = compiledVal.StructSymbolTableEntry
-		}
-
-		return g.Ctx.AddSymbol(node.Name, entry)
-	case ast.ArrayInitializationExpression:
-		entry := &ast.SymbolTableEntry{
-			Address:      compiledVal.Value,
-			DeclaredType: node.ExplicitType,
-		}
-
-		if compiledVal.StructSymbolTableEntry != nil {
-			entry.Ref = compiledVal.StructSymbolTableEntry
-		}
-
-		if compiledVal.ArraySymbolTableEntry != nil && compiledVal.ArraySymbolTableEntry.UnderlyingTypeDef != nil {
-			entry.Ref = compiledVal.ArraySymbolTableEntry.UnderlyingTypeDef
-		}
-
-		err := g.Ctx.AddSymbol(node.Name, entry)
-		if err != nil {
-			return err
-		}
-
-		return g.Ctx.AddArraySymbol(node.Name, compiledVal.ArraySymbolTableEntry)
-	default:
-		format := fmt.Sprintf("declareVarWithInitializer unimplemented for %T", node.Value)
-		g.NotImplemented(format)
+	default: // StyleDefault
+		alloc := g.Ctx.Builder.CreateAlloca(res.Value.Type(), node.Name)
+		g.Ctx.Builder.CreateStore(*res.Value, alloc)
+		finalAddr = &alloc
 	}
 
+	// Unified Metadata Management
+	return g.finalizeSymbol(node, finalAddr, res)
+}
+
+// Helper to keep metadata logic separate from IR generation logic
+func (g *LLVMGenerator) finalizeSymbol(
+	node *ast.VarDeclarationStatement,
+	addr *llvm.Value,
+	res *ast.CompilerResult,
+) error {
+	entry := &ast.SymbolTableEntry{
+		Address:      addr,
+		DeclaredType: node.ExplicitType,
+		Ref:          res.StructSymbolTableEntry,
+	}
+
+	if res.ArraySymbolTableEntry != nil && res.ArraySymbolTableEntry.UnderlyingTypeDef != nil {
+		entry.Ref = res.ArraySymbolTableEntry.UnderlyingTypeDef
+	}
+
+	if err := g.Ctx.AddSymbol(node.Name, entry); err != nil {
+		return err
+	}
+
+	if _, ok := node.Value.(ast.ArrayInitializationExpression); ok {
+		return g.Ctx.AddArraySymbol(node.Name, res.ArraySymbolTableEntry)
+	}
 	return nil
 }
 
