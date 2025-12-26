@@ -401,32 +401,32 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 			return fmt.Errorf("failed to evaluate argument %d", i+1)
 		}
 
-		param := funcVal.Params()[i]
-		paramType := param.Type()
+		//param := funcVal.Params()[i]
+		// paramType := param.Type()
 
 		// Type checking
-		argVal := *val.Value
-		if val.SymbolTableEntry != nil && val.SymbolTableEntry.Ref != nil {
-			// Struct passed by value or reference logic handled below
-		} else if val.SymbolTableEntry != nil {
-			if _, ok := val.SymbolTableEntry.DeclaredType.(ast.ArrayType); ok {
-				// Array passed by reference
-				if val.SymbolTableEntry.Address != nil {
-					argVal = *val.SymbolTableEntry.Address
-				}
-			}
-		}
+		//	argVal := *val.Value
+		//	if val.SymbolTableEntry != nil && val.SymbolTableEntry.Ref != nil {
+		//		// Struct passed by value or reference logic handled below
+		//	} else if val.SymbolTableEntry != nil {
+		//		if _, ok := val.SymbolTableEntry.DeclaredType.(ast.ArrayType); ok {
+		//			// Array passed by reference
+		//			if val.SymbolTableEntry.Address != nil {
+		//				argVal = *val.SymbolTableEntry.Address
+		//			}
+		//		}
+		//	}
 
-		if argVal.Type() != paramType {
-			// Allow implicit cast if compatible (e.g. int to float if needed, but strict for now)
-			// Check for array pointer mismatch
-			if argVal.Type().TypeKind() == llvm.PointerTypeKind && paramType.TypeKind() == llvm.PointerTypeKind {
-				// Deep check could be complex, for now assume if both are pointers and we are here, it might be okay or we need stricter check
-				// But for arrays, we expect [N x T]* vs [N x T]*
-			} else {
-				return fmt.Errorf("expected argument of type %s expected but got %s", g.formatLLVMType(paramType), g.formatLLVMType(argVal.Type()))
-			}
-		}
+		//		if argVal.Type() != paramType {
+		//			// Allow implicit cast if compatible (e.g. int to float if needed, but strict for now)
+		//			// Check for array pointer mismatch
+		//			if argVal.Type().TypeKind() == llvm.PointerTypeKind && paramType.TypeKind() == llvm.PointerTypeKind {
+		//				// Deep check could be complex, for now assume if both are pointers and we are here, it might be okay or we need stricter check
+		//				// But for arrays, we expect [N x T]* vs [N x T]*
+		//			} else {
+		//				return fmt.Errorf("expected argument of type %s expected but got %s", g.formatLLVMType(paramType), g.formatLLVMType(argVal.Type()))
+		//			}
+		//		}
 
 		switch arg.(type) {
 		case ast.SymbolExpression:
