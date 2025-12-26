@@ -24,7 +24,7 @@ func TestArrayOfStructsWithUndefinedPropertyInitialization(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{
 			InputPath:      "./arrays/structs/undefined-property-initialization.french.swa",
-			ExpectedOutput: "StructInitializationExpression: property Name not found\n",
+			ExpectedOutput: "Property with name (Name) does not exist on struct Engineer\n",
 			T:              t,
 		}
 
@@ -37,7 +37,7 @@ func TestArrayOfStructsWithUndefined(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{
 			InputPath:      "./arrays/structs/undefined-struct.english.swa",
-			ExpectedOutput: "Type (Engineer) is not a valid struct\n",
+			ExpectedOutput: "struct named Engineer does not exist in symbol table\n",
 			T:              t,
 		}
 
