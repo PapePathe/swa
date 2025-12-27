@@ -743,14 +743,62 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 	return g.Ctx.AddStructSymbol(node.Name, entry)
 }
 
-// VisitStructInitializationExpression implements [ast.CodeGenerator].
+type StructInitializationExpressionPropertyInjector func(
+	g *LLVMGenerator,
+	res *ast.CompilerResult,
+	fieldAddr llvm.Value,
+	targetType llvm.Type,
+)
+
+var structInjectors = map[reflect.Type]StructInitializationExpressionPropertyInjector{
+	reflect.TypeFor[ast.NumberExpression]():              injectDirectly,
+	reflect.TypeFor[ast.FloatExpression]():               injectDirectly,
+	reflect.TypeFor[ast.StringExpression]():              injectDirectly,
+	reflect.TypeFor[ast.SymbolExpression]():              injectWithArrayDecay,
+	reflect.TypeFor[ast.BinaryExpression]():              injectWithArrayDecay,
+	reflect.TypeFor[ast.ArrayInitializationExpression](): injectArrayLiteral,
+	reflect.TypeFor[ast.ArrayAccessExpression]():         injectArrayAccess,
+}
+
+func injectDirectly(g *LLVMGenerator, res *ast.CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+	g.Ctx.Builder.CreateStore(*res.Value, fieldAddr)
+}
+
+func injectWithArrayDecay(g *LLVMGenerator, res *ast.CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+	_, isArray := res.SymbolTableEntry.DeclaredType.(ast.ArrayType)
+
+	if isArray && targetType.TypeKind() == llvm.PointerTypeKind {
+		ptr := g.Ctx.Builder.CreateBitCast(*res.SymbolTableEntry.Address, targetType, "decay")
+		g.Ctx.Builder.CreateStore(ptr, fieldAddr)
+
+		return
+	}
+
+	g.Ctx.Builder.CreateStore(*res.Value, fieldAddr)
+}
+
+func injectArrayLiteral(g *LLVMGenerator, res *ast.CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+	if targetType.TypeKind() == llvm.PointerTypeKind {
+		ptr := g.Ctx.Builder.CreateBitCast(*res.Value, targetType, "array.ptr.cast")
+		g.Ctx.Builder.CreateStore(ptr, fieldAddr)
+	} else {
+		load := g.Ctx.Builder.CreateLoad(res.ArraySymbolTableEntry.Type, *res.Value, "array.load")
+		g.Ctx.Builder.CreateStore(load, fieldAddr)
+	}
+}
+
+func injectArrayAccess(g *LLVMGenerator, res *ast.CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+	load := g.Ctx.Builder.CreateLoad(res.ArraySymbolTableEntry.UnderlyingType, *res.Value, "access.load")
+	g.Ctx.Builder.CreateStore(load, fieldAddr)
+}
+
 func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInitializationExpression) error {
 	err, structType := g.Ctx.FindStructSymbol(node.Name)
 	if err != nil {
 		return err
 	}
 
-	structInstance := g.Ctx.Builder.CreateAlloca(structType.LLVMType, fmt.Sprintf("%s.instance", node.Name))
+	instance := g.Ctx.Builder.CreateAlloca(structType.LLVMType, node.Name+".instance")
 
 	for _, name := range node.Properties {
 		err, propIndex := structType.Metadata.PropertyIndex(name)
@@ -765,72 +813,27 @@ func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInit
 			return err
 		}
 
-		lastResult := g.getLastResult()
-		pointerToField := g.Ctx.Builder.CreateStructGEP(
+		res := g.getLastResult()
+		fieldAddr := g.Ctx.Builder.CreateStructGEP(
 			structType.LLVMType,
-			structInstance,
+			instance,
 			propIndex,
-			fmt.Sprintf("%s.instance.%s", node.Name, name),
+			fmt.Sprintf("%s.%s", node.Name, name),
 		)
 
-		switch expr.(type) {
-		case ast.NumberExpression, ast.FloatExpression, ast.StringExpression:
-			g.Ctx.Builder.CreateStore(*lastResult.Value, pointerToField)
-		case ast.SymbolExpression, ast.BinaryExpression:
-			// Check for array-to-pointer decay
-			_, isArray := lastResult.SymbolTableEntry.DeclaredType.(ast.ArrayType)
-			if isArray &&
-				lastResult.SymbolTableEntry != nil &&
-				lastResult.SymbolTableEntry.Address != nil &&
-				lastResult.SymbolTableEntry.Address.Type().TypeKind() == llvm.PointerTypeKind {
-
-				targetType := structType.PropertyTypes[propIndex]
-				if targetType.TypeKind() == llvm.PointerTypeKind {
-					ptr := g.Ctx.Builder.CreateBitCast(
-						*lastResult.SymbolTableEntry.Address,
-						targetType,
-						"",
-					)
-					g.Ctx.Builder.CreateStore(ptr, pointerToField)
-					break
-				}
-			}
-			g.Ctx.Builder.CreateStore(*lastResult.Value, pointerToField)
-		case ast.ArrayInitializationExpression:
-			targetType := structType.PropertyTypes[propIndex]
-			if targetType.TypeKind() == llvm.PointerTypeKind {
-				ptr := g.Ctx.Builder.CreateBitCast(
-					*lastResult.Value,
-					targetType,
-					"",
-				)
-				g.Ctx.Builder.CreateStore(ptr, pointerToField)
-			} else {
-				load := g.Ctx.Builder.CreateLoad(
-					lastResult.ArraySymbolTableEntry.Type,
-					*lastResult.Value,
-					"",
-				)
-				g.Ctx.Builder.CreateStore(load, pointerToField)
-			}
-		case ast.ArrayAccessExpression:
-			load := g.Ctx.Builder.CreateLoad(
-				lastResult.ArraySymbolTableEntry.UnderlyingType,
-				*lastResult.Value,
-				"",
-			)
-			g.Ctx.Builder.CreateStore(load, pointerToField)
-		default:
-			return fmt.Errorf("StructInitializationExpression expression: %v is not a known field type", expr)
+		injector, ok := structInjectors[reflect.TypeOf(expr)]
+		if !ok {
+			return fmt.Errorf("struct field initialization unimplemented for %T", expr)
 		}
+
+		targetType := structType.PropertyTypes[propIndex]
+		injector(g, res, fieldAddr, targetType)
 	}
 
-	result := ast.CompilerResult{
-		Value:                  &structInstance,
+	g.setLastResult(&ast.CompilerResult{
+		Value:                  &instance,
 		StructSymbolTableEntry: structType,
-	}
-
-	g.setLastResult(&result)
+	})
 
 	return nil
 }
@@ -865,6 +868,7 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 				SymbolTableEntry: entry,
 			},
 		)
+
 		return nil
 	}
 
@@ -1119,281 +1123,99 @@ func (g *LLVMGenerator) VisitPrefixExpression(node *ast.PrefixExpression) error 
 }
 
 func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error {
-	err, leftResult, rightResult := g.compileLeftAndRightResult(node)
-	if err != nil {
+	if err := node.Left.Accept(g); err != nil {
 		return err
 	}
 
-	var finalLeftValue, finalRightValue llvm.Value
+	leftRes := g.getLastResult()
 
-	var leftValue, rightValue llvm.Value
-
-	switch leftResult.Value.Type().TypeKind() {
-	case llvm.PointerTypeKind:
-		if leftResult.ArraySymbolTableEntry != nil {
-			leftValue = g.Ctx.Builder.CreateLoad(leftResult.ArraySymbolTableEntry.UnderlyingType, *leftResult.Value, "")
-
-			break
-		}
-
-		if leftResult.StuctPropertyValueType != nil {
-			elementType := leftResult.StuctPropertyValueType
-			leftValue = g.Ctx.Builder.CreateLoad(*elementType, *leftResult.Value, "")
-
-			break
-		}
-
-		if leftResult.Value.Type().ElementType().IsNil() {
-			leftValue = *leftResult.Value
-
-			break
-		}
-
-		elementType := leftResult.Value.Type().ElementType()
-		leftValue = g.Ctx.Builder.CreateLoad(elementType, *leftResult.Value, "")
-	case llvm.StructTypeKind:
-		elementType := leftResult.StuctPropertyValueType
-		leftValue = g.Ctx.Builder.CreateLoad(*elementType, *leftResult.Value, "")
-	default:
-		leftValue = *leftResult.Value
+	if err := node.Right.Accept(g); err != nil {
+		return err
 	}
+	rightRes := g.getLastResult()
 
-	switch rightResult.Value.Type().TypeKind() {
-	case llvm.PointerTypeKind:
-		if rightResult.ArraySymbolTableEntry != nil {
-			rightValue = g.Ctx.Builder.CreateLoad(rightResult.ArraySymbolTableEntry.UnderlyingType, *rightResult.Value, "")
+	leftVal := g.extractRValue(leftRes)
+	rightVal := g.extractRValue(rightRes)
 
-			break
-		}
-
-		if rightResult.StuctPropertyValueType != nil {
-			elementType := rightResult.StuctPropertyValueType
-			rightValue = g.Ctx.Builder.CreateLoad(*elementType, *rightResult.Value, "")
-
-			break
-		}
-
-		if rightResult.Value.Type().ElementType().IsNil() {
-			rightValue = *rightResult.Value
-
-			break
-		}
-
-		elementType := rightResult.Value.Type().ElementType()
-		rightValue = g.Ctx.Builder.CreateLoad(elementType, *rightResult.Value, "")
-	case llvm.StructTypeKind:
-		elementType := rightResult.StuctPropertyValueType
-		rightValue = g.Ctx.Builder.CreateLoad(*elementType, *rightResult.Value, "")
-
-	default:
-		rightValue = *rightResult.Value
-	}
-
-	// Determine the common type
-	ctype, err := g.commonType(leftValue, rightValue)
+	finalLeft, finalRight, err := g.coerceOperands(leftVal, rightVal)
 	if err != nil {
-		return fmt.Errorf("%w %v", err, node.TokenStream())
+		return fmt.Errorf("type mismatch at %v: %w", node.TokenStream(), err)
 	}
 
-	// Cast only if necessary
-	if leftValue.Type() == ctype {
-		finalLeftValue = leftValue
-	} else {
-		err, finalLeftValue = g.castToType(ctype, leftValue)
-		if err != nil {
-			return err
-		}
-	}
-
-	if rightValue.Type() == ctype {
-		finalRightValue = rightValue
-	} else {
-		err, finalRightValue = g.castToType(ctype, rightValue)
-		if err != nil {
-			return err
-		}
-	}
-
-	err, res := g.handleBinaryOp(node.Operator.Kind, finalLeftValue, finalRightValue)
+	err, res := g.handleBinaryOp(node.Operator.Kind, finalLeft, finalRight)
 	if err != nil {
 		return err
 	}
 
 	g.setLastResult(res)
+
 	return nil
 }
 
-func (g *LLVMGenerator) compileLeftAndRightResult(node *ast.BinaryExpression) (error, *ast.CompilerResult, *ast.CompilerResult) {
-	if err := node.Left.Accept(g); err != nil {
-		return err, nil, nil
+// extractRValue ensures we are working with the actual value, not its memory address.
+func (g *LLVMGenerator) extractRValue(res *ast.CompilerResult) llvm.Value {
+	val := *res.Value
+
+	if val.Type().TypeKind() != llvm.PointerTypeKind {
+		return val
 	}
 
-	compiledLeftValue := g.getLastResult()
-	if compiledLeftValue == nil {
-		return fmt.Errorf("left side of expression is nil"), nil, nil
-	}
-
-	if compiledLeftValue.Value.Type().TypeKind() == llvm.VoidTypeKind {
-		return fmt.Errorf("left side of expression is of type void"), nil, nil
-	}
-
-	switch node.Left.(type) {
-	case ast.StringExpression:
-		glob := llvm.AddGlobal(*g.Ctx.Module, compiledLeftValue.Value.Type(), "")
-		glob.SetInitializer(*compiledLeftValue.Value)
-		compiledLeftValue.Value = &glob
-	case ast.NumberExpression, ast.FloatExpression:
-		// we good
-	case ast.SymbolExpression:
-		// we good
-	case ast.BinaryExpression:
-		// Nested binary expressions (e.g., 1 == 1 && 0 == 0)
-		// Already processed, value is ready
-	case ast.MemberExpression:
-		load := g.Ctx.Builder.CreateLoad(
-			*compiledLeftValue.StuctPropertyValueType,
-			*compiledLeftValue.Value, "")
-		compiledLeftValue.Value = &load
-	case ast.ArrayAccessExpression:
-		// Array access already returns a pointer to the element
-		// No additional processing needed
-	case ast.ArrayOfStructsAccessExpression:
-		load := g.Ctx.Builder.CreateLoad(
-			*compiledLeftValue.StuctPropertyValueType,
-			*compiledLeftValue.Value, "")
-		compiledLeftValue.Value = &load
+	var loadType llvm.Type
+	switch {
+	case res.ArraySymbolTableEntry != nil:
+		loadType = res.ArraySymbolTableEntry.UnderlyingType
+	case res.StuctPropertyValueType != nil:
+		loadType = *res.StuctPropertyValueType
+	case !val.Type().ElementType().IsNil():
+		loadType = val.Type().ElementType()
 	default:
-		g.NotImplemented(fmt.Sprintf("BinaryExpression NotImplemented %+v", node.Left))
+		// If it's a pointer to a pointer or a raw pointer we can't dereference, return as is
+		return val
 	}
 
-	if err := node.Right.Accept(g); err != nil {
-		return err, nil, nil
-	}
-
-	compiledRightValue := g.getLastResult()
-
-	if compiledRightValue == nil {
-		return fmt.Errorf("right side of expression is nil"), nil, nil
-	}
-
-	if compiledRightValue.Value.Type().TypeKind() == llvm.VoidTypeKind {
-		return fmt.Errorf("right side of expression is of type void"), nil, nil
-	}
-
-	switch node.Right.(type) {
-	case ast.StringExpression:
-		glob := llvm.AddGlobal(*g.Ctx.Module, compiledRightValue.Value.Type(), "")
-		glob.SetInitializer(*compiledRightValue.Value)
-		compiledRightValue.Value = &glob
-	case ast.SymbolExpression:
-		// SymbolExpressions are already loaded by VisitSymbolExpression
-		// No additional processing needed
-	case ast.NumberExpression, ast.FloatExpression:
-		// we good
-	case ast.BinaryExpression:
-		// Nested binary expressions (e.g., 1 == 1 && 0 == 0)
-		// Already processed, value is ready
-	case ast.MemberExpression:
-		load := g.Ctx.Builder.CreateLoad(
-			*compiledRightValue.StuctPropertyValueType,
-			*compiledRightValue.Value, "")
-		compiledRightValue.Value = &load
-	case ast.ArrayAccessExpression:
-		// Array access already returns a pointer to the element
-		// No additional processing needed
-	case ast.ArrayOfStructsAccessExpression:
-		load := g.Ctx.Builder.CreateLoad(
-			*compiledRightValue.StuctPropertyValueType,
-			*compiledRightValue.Value, "")
-		compiledRightValue.Value = &load
-	default:
-		g.NotImplemented(fmt.Sprintf("BinaryExpression NotImplemented %+v", node.Right))
-	}
-
-	return nil, compiledLeftValue, compiledRightValue
+	return g.Ctx.Builder.CreateLoad(loadType, val, "load.tmp")
 }
 
-func (g *LLVMGenerator) commonType(l, r llvm.Value) (llvm.Type, error) {
-	lKind := l.Type().TypeKind()
-	rKind := r.Type().TypeKind()
+// coerceOperands ensures both sides of the binary op have the same LLVM type.
+func (g *LLVMGenerator) coerceOperands(left, right llvm.Value) (llvm.Value, llvm.Value, error) {
+	lt := left.Type()
+	rt := right.Type()
 
-	// Both pointers - use int type as fallback (shouldn't happen in binary ops)
-	if lKind == llvm.PointerTypeKind && rKind == llvm.PointerTypeKind {
-		return (*g.Ctx.Context).Int32Type(), nil
+	if lt == rt {
+		return left, right, nil
 	}
 
-	// Same type
-	if l.Type() == r.Type() {
-		return l.Type(), nil
+	lk := lt.TypeKind()
+	rk := rt.TypeKind()
+
+	// Logic: Promote Integer to Float/Double if one side is a float
+	if g.isFloat(lk) || g.isFloat(rk) {
+		targetType := g.Ctx.Context.DoubleType()
+		lCasted := g.castToFloat(left, targetType)
+		rCasted := g.castToFloat(right, targetType)
+		return lCasted, rCasted, nil
 	}
 
-	// Left is pointer, use right type
-	if lKind == llvm.PointerTypeKind {
-		return r.Type(), nil
+	// Logic: Promote smaller integers to 32-bit (or your language's default int)
+	if lk == llvm.IntegerTypeKind && rk == llvm.IntegerTypeKind {
+		targetType := g.Ctx.Context.Int32Type()
+		return g.Ctx.Builder.CreateIntCast(left, targetType, "l.ext"),
+			g.Ctx.Builder.CreateIntCast(right, targetType, "r.ext"), nil
 	}
 
-	// Right is pointer, use left type
-	if rKind == llvm.PointerTypeKind {
-		return l.Type(), nil
-	}
-
-	// Both integers - return the common integer type
-	if lKind == llvm.IntegerTypeKind && rKind == llvm.IntegerTypeKind {
-		return (*g.Ctx.Context).Int32Type(), nil
-	}
-
-	// Handle int vs float: promote to float
-	if (lKind == llvm.IntegerTypeKind && (rKind == llvm.FloatTypeKind || rKind == llvm.DoubleTypeKind)) ||
-		((lKind == llvm.FloatTypeKind || lKind == llvm.DoubleTypeKind) && rKind == llvm.IntegerTypeKind) {
-		// Promote to double (float type)
-		return (*g.Ctx.Context).DoubleType(), nil
-	}
-
-	// Both floats
-	if (lKind == llvm.FloatTypeKind || lKind == llvm.DoubleTypeKind) &&
-		(rKind == llvm.FloatTypeKind || rKind == llvm.DoubleTypeKind) {
-		return (*g.Ctx.Context).DoubleType(), nil
-	}
-
-	format := "Unhandled type combination: left=%v, right=%s"
-
-	return llvm.Type{}, fmt.Errorf(format, l, rKind)
+	return left, right, fmt.Errorf("cannot coerce %s and %s", lk, rk)
 }
 
-func (g *LLVMGenerator) castToType(t llvm.Type, v llvm.Value) (error, llvm.Value) {
-	vKind := v.Type().TypeKind()
-	tKind := t.TypeKind()
+func (g *LLVMGenerator) isFloat(k llvm.TypeKind) bool {
+	return k == llvm.FloatTypeKind || k == llvm.DoubleTypeKind
+}
 
-	if vKind == tKind {
-		return nil, v
+func (g *LLVMGenerator) castToFloat(v llvm.Value, target llvm.Type) llvm.Value {
+	if g.isFloat(v.Type().TypeKind()) {
+		return g.Ctx.Builder.CreateFPCast(v, target, "fp.ext")
 	}
-
-	switch vKind {
-	case llvm.IntegerTypeKind:
-		switch tKind {
-		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
-			return nil, g.Ctx.Builder.CreateSIToFP(v, t, "")
-		default:
-			return fmt.Errorf("Cannot cast integer to %s", tKind), llvm.Value{}
-		}
-	case llvm.DoubleTypeKind, llvm.FloatTypeKind:
-		switch tKind {
-		case llvm.IntegerTypeKind:
-			// Convert float to int
-			return nil, g.Ctx.Builder.CreateFPToSI(v, t, "")
-		default:
-			return fmt.Errorf("Cannot cast %s to %s", vKind, tKind), llvm.Value{}
-		}
-	case llvm.PointerTypeKind:
-		switch tKind {
-		case llvm.IntegerTypeKind:
-			return nil, g.Ctx.Builder.CreatePtrToInt(v, t, "")
-		default:
-			return nil, v
-		}
-	default:
-		return fmt.Errorf("Unhandled type conversion from %s to %s", vKind, tKind), llvm.Value{}
-	}
+	// Signed Integer to Float
+	return g.Ctx.Builder.CreateSIToFP(v, target, "int.to.fp")
 }
 
 var binaryOpHandlers = map[lexer.TokenKind]func(g *LLVMGenerator, l, r llvm.Value) llvm.Value{
@@ -1649,7 +1471,9 @@ func (g *LLVMGenerator) handleBinaryOp(kind lexer.TokenKind, l, r llvm.Value) (e
 	if !ok {
 		return fmt.Errorf("Binary expressions : unsupported operator <%s>", kind), nil
 	}
+
 	res := handler(g, l, r)
+
 	return nil, &ast.CompilerResult{Value: &res}
 }
 
