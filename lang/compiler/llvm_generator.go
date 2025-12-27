@@ -1132,6 +1132,7 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 	if err := node.Right.Accept(g); err != nil {
 		return err
 	}
+
 	rightRes := g.getLastResult()
 
 	leftVal := g.extractRValue(leftRes)
@@ -1161,6 +1162,7 @@ func (g *LLVMGenerator) extractRValue(res *ast.CompilerResult) llvm.Value {
 	}
 
 	var loadType llvm.Type
+
 	switch {
 	case res.ArraySymbolTableEntry != nil:
 		loadType = res.ArraySymbolTableEntry.UnderlyingType
