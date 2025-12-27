@@ -611,64 +611,81 @@ func (g *LLVMGenerator) NotImplemented(msg string) {
 	os.Exit(1)
 }
 
-// VisitPrintStatement implements [ast.CodeGenerator].
+type PrintableValueExtractor func(g *LLVMGenerator, res *ast.CompilerResult) llvm.Value
+
+var printableValueExtractors = map[reflect.Type]PrintableValueExtractor{
+	// Accessors: These return pointers/addresses and MUST be loaded
+	reflect.TypeFor[ast.MemberExpression]():               extractWithStructType,
+	reflect.TypeFor[ast.ArrayOfStructsAccessExpression](): extractWithStructType,
+	reflect.TypeFor[ast.ArrayAccessExpression]():          extractWithArrayType,
+
+	// Directs: These already hold the value in the result
+	reflect.TypeFor[ast.StringExpression](): extractDirect,
+	reflect.TypeFor[ast.NumberExpression](): extractDirect,
+	reflect.TypeFor[ast.FloatExpression]():  extractDirect,
+	reflect.TypeFor[ast.BinaryExpression](): extractDirect,
+	reflect.TypeFor[ast.SymbolExpression](): extractDirect,
+}
+
+func extractDirect(g *LLVMGenerator, res *ast.CompilerResult) llvm.Value {
+	return *res.Value
+}
+
+func extractWithArrayType(g *LLVMGenerator, res *ast.CompilerResult) llvm.Value {
+	return g.Ctx.Builder.CreateLoad(
+		res.ArraySymbolTableEntry.UnderlyingType,
+		*res.Value,
+		"print.array.load",
+	)
+}
+func extractWithStructType(g *LLVMGenerator, res *ast.CompilerResult) llvm.Value {
+	return g.Ctx.Builder.CreateLoad(
+		*res.StuctPropertyValueType,
+		*res.Value,
+		"print.struct.load",
+	)
+}
+
 func (g *LLVMGenerator) VisitPrintStatement(node *ast.PrintStatetement) error {
 	printableValues := []llvm.Value{}
 
-	for _, v := range node.Values {
-		err := v.Accept(g)
+	for _, expr := range node.Values {
+		err := expr.Accept(g)
 		if err != nil {
 			return err
 		}
 
-		lastResult := g.getLastResult()
+		res := g.getLastResult()
 
-		switch v.(type) {
-		case ast.MemberExpression:
-			loadedval := g.Ctx.Builder.CreateLoad(
-				*lastResult.StuctPropertyValueType,
-				*lastResult.Value,
-				"",
-			)
-			printableValues = append(printableValues, loadedval)
-		case ast.ArrayOfStructsAccessExpression:
-			load := g.Ctx.Builder.CreateLoad(
-				*lastResult.StuctPropertyValueType,
-				*lastResult.Value,
-				"",
-			)
-			printableValues = append(printableValues, load)
-		case ast.ArrayAccessExpression:
-			load := g.Ctx.Builder.CreateLoad(
-				lastResult.ArraySymbolTableEntry.UnderlyingType,
-				*lastResult.Value,
-				"",
-			)
-			printableValues = append(printableValues, load)
-		case ast.StringExpression:
-			printableValues = append(printableValues, *lastResult.Value)
-		case ast.NumberExpression, ast.FloatExpression, ast.BinaryExpression:
-			printableValues = append(printableValues, *lastResult.Value)
-		case ast.SymbolExpression:
-			printableValues = append(printableValues, *lastResult.Value)
-		default:
-			format := "VisitPrintStatement unimplemented for %T"
-			g.NotImplemented(fmt.Sprintf(format, v))
+		// Look up the strategy based on the node type
+		extractor, ok := printableValueExtractors[reflect.TypeOf(expr)]
+		if !ok {
+			g.NotImplemented(fmt.Sprintf("VisitPrintStatement unimplemented for %T", expr))
+
+			continue
 		}
+
+		printableValues = append(printableValues, extractor(g, res))
 	}
 
+	// TODO: You must ensure your first argument to printf is the format string!
+	// If it's missing from printableValues, printf will likely segfault.
 	g.Ctx.Builder.CreateCall(
-		llvm.FunctionType(
-			g.Ctx.Context.Int32Type(),
-			[]llvm.Type{llvm.PointerType(g.Ctx.Context.Int8Type(), 0)},
-			true,
-		),
+		g.printfFunctionType(), // Helper method for readability
 		g.Ctx.Module.NamedFunction("printf"),
 		printableValues,
 		"call.printf",
 	)
 
 	return nil
+}
+
+func (g *LLVMGenerator) printfFunctionType() llvm.Type {
+	return llvm.FunctionType(
+		llvm.GlobalContext().Int32Type(),
+		[]llvm.Type{llvm.PointerType(llvm.GlobalContext().Int8Type(), 0)},
+		true, // IsVariadic = true
+	)
 }
 
 func (g *LLVMGenerator) VisitReturnStatement(node *ast.ReturnStatement) error {
