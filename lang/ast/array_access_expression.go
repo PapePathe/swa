@@ -221,6 +221,10 @@ func (expr ArrayAccessExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compile
 	return nil, &CompilerResult{Value: &itemPtr, ArraySymbolTableEntry: entry}
 }
 
+func (expr ArrayAccessExpression) Accept(g CodeGenerator) error {
+	return g.VisitArrayAccessExpression(&expr)
+}
+
 func (expr ArrayAccessExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

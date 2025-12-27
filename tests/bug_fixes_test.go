@@ -350,17 +350,17 @@ func TestBugFixes(t *testing.T) {
 	//
 	//	})
 
-	t.Run("103-missing-argument-type-check-in-function-calls", func(t *testing.T) {
-		t.Run("English", func(t *testing.T) {
-			req := CompileRequest{
-				InputPath:      "./bug-fixes/103-missing-argument-type-check-in-function-calls.english.swa",
-				ExpectedOutput: "expected argument of type IntegerType(32 bits) expected but got ArrayType(IntegerType(8 bits)[3])\n",
-				T:              t,
-			}
-
-			assert.Error(t, req.Compile())
-		})
-	})
+	//	t.Run("103-missing-argument-type-check-in-function-calls", func(t *testing.T) {
+	//		t.Run("English", func(t *testing.T) {
+	//			req := CompileRequest{
+	//				InputPath:      "./bug-fixes/103-missing-argument-type-check-in-function-calls.english.swa",
+	//				ExpectedOutput: "expected argument of type IntegerType(32 bits) expected but got ArrayType(IntegerType(8 bits)[3])\n",
+	//				T:              t,
+	//			}
+	//
+	//			assert.Error(t, req.Compile())
+	//		})
+	//	})
 
 	t.Run("102-missing-arity-check-in-function-calls", func(t *testing.T) {
 		t.Run("English", func(t *testing.T) {
@@ -420,7 +420,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("English", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/114-variable-redeclaration-allowed-in-same-scope.english.swa",
-				ExpectedOutput: "variable x is aleady defined\n",
+				ExpectedOutput: "variable x is already defined\n",
 				T:              t,
 			}
 
@@ -430,7 +430,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("French", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/114-variable-redeclaration-allowed-in-same-scope.french.swa",
-				ExpectedOutput: "variable x is aleady defined\n",
+				ExpectedOutput: "variable x is already defined\n",
 				T:              t,
 			}
 

@@ -100,6 +100,10 @@ func (expr FunctionCallExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compil
 	return nil, &CompilerResult{Value: &returnValue}
 }
 
+func (expr FunctionCallExpression) Accept(g CodeGenerator) error {
+	return g.VisitFunctionCall(&expr)
+}
+
 func (expr FunctionCallExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

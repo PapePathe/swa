@@ -67,6 +67,10 @@ func (ps PrintStatetement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 	return nil, nil
 }
 
+func (ps PrintStatetement) Accept(g CodeGenerator) error {
+	return g.VisitPrintStatement(&ps)
+}
+
 func (expr PrintStatetement) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

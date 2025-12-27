@@ -40,6 +40,10 @@ func (rs ReturnStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 	return nil, nil
 }
 
+func (rs ReturnStatement) Accept(g CodeGenerator) error {
+	return g.VisitReturnStatement(&rs)
+}
+
 func (expr ReturnStatement) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

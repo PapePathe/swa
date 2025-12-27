@@ -43,6 +43,8 @@ func main() {
 		StringP("source", "s", "", "location of the file containing the source code")
 	compileCmd.Flags().
 		StringP("output", "o", "start", "location of the compiled executable")
+	compileCmd.Flags().
+		BoolP("experimental", "e", false, "enable experimental features")
 
 	err := compileCmd.MarkFlagRequired("source")
 	if err != nil {
@@ -87,7 +89,8 @@ var compileCmd = &cobra.Command{
 			Architecture:    "X86-64",
 			Output:          output,
 		}
-		compiler.Compile(tree, target, dialect)
+		experimental, _ := cmd.Flags().GetBool("experimental")
+		compiler.Compile(tree, target, dialect, experimental)
 	},
 }
 

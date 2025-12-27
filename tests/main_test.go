@@ -34,7 +34,14 @@ func (cr *CompileRequest) Compile() error {
 	cr.T.Helper()
 
 	cr.OutputPath = uuid.New().String()
-	cmd := exec.Command("./swa", "compile", "-s", cr.InputPath, "-o", cr.OutputPath)
+
+	var experimental string
+	exp := os.Getenv("SWA_EXPERIMENTAL")
+	if exp != "" {
+		experimental = "--experimental"
+	}
+
+	cmd := exec.Command("./swa", "compile", "-s", cr.InputPath, "-o", cr.OutputPath, experimental)
 
 	output, err := cmd.CombinedOutput()
 
@@ -51,9 +58,10 @@ func (cr *CompileRequest) RunProgram() error {
 	output, err := cmd.CombinedOutput()
 	if cr.ExpectedExecutionOutput != string(output) {
 		cr.T.Fatalf(
-			"Execution error want: %s, has: %s",
+			"Execution error want: %s, has: %s \n Source file %s",
 			fmt.Sprintf("%q", cr.ExpectedExecutionOutput),
 			fmt.Sprintf("%q", string(output)),
+			cr.InputPath,
 		)
 	}
 
@@ -63,7 +71,7 @@ func (cr *CompileRequest) RunProgram() error {
 func (cr *CompileRequest) AssertCompileAndExecute() {
 	if err := cr.Compile(); err != nil {
 		sb := strings.Builder{}
-		sb.WriteString(fmt.Sprintf("Compiler error (%s)", err))
+		sb.WriteString(fmt.Sprintf("Compiler error (%s)\n Source file %s", err, cr.InputPath))
 
 		data, err := os.ReadFile(fmt.Sprintf("%s.ll", cr.OutputPath))
 		if err == nil {

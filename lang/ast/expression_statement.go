@@ -24,6 +24,10 @@ func (exp ExpressionStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerRe
 	return nil, nil
 }
 
+func (es ExpressionStatement) Accept(g CodeGenerator) error {
+	return g.VisitExpressionStatement(&es)
+}
+
 func (expr ExpressionStatement) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

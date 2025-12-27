@@ -48,6 +48,10 @@ func (expr SymbolExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 	return nil, &CompilerResult{Value: &val.Value, SymbolTableEntry: val}
 }
 
+func (expr SymbolExpression) Accept(g CodeGenerator) error {
+	return g.VisitSymbolExpression(&expr)
+}
+
 func (expr SymbolExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
