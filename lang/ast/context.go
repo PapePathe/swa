@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+	"os"
 	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
@@ -58,13 +59,19 @@ func NewCompilerContext(
 	d lexer.Dialect,
 	p *CompilerCtx,
 ) *CompilerCtx {
+	var debugging bool
+	dbg := os.Getenv("SWA_DEBUG")
+	if dbg == "yes" {
+		debugging = true
+	}
+
 	return &CompilerCtx{
 		parent:            p,
 		Context:           c,
 		Builder:           b,
 		Module:            m,
 		Dialect:           d,
-		Debugging:         true,
+		Debugging:         debugging,
 		symbolTable:       map[string]SymbolTableEntry{},
 		structSymbolTable: map[string]StructSymbolTableEntry{},
 		funcSymbolTable:   map[string]llvm.Type{},
