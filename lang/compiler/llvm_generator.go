@@ -18,6 +18,10 @@ type LLVMGenerator struct {
 var _ ast.CodeGenerator = (*LLVMGenerator)(nil)
 
 func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStructsAccessExpression) error {
+	if g.Ctx.Debugging {
+		fmt.Printf("VisitArrayOfStructsAccessExpression %s[%s].%s\n", node.Name, node.Index, node.Property)
+	}
+
 	err, array, arrayEntry, itemIndex := g.findArrayOfStructsSymbolTableEntry(node)
 	if err != nil {
 		return err
@@ -53,10 +57,18 @@ func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStr
 		"",
 	)
 
+	proptype := array.Ref.PropertyTypes[propIndex]
+
+	if proptype.TypeKind() == llvm.StructTypeKind {
+		nestedstruct, _ := array.Ref.Embeds[propName.Value]
+		array.Ref = &nestedstruct
+	}
+
 	res := &ast.CompilerResult{
 		Value:                  &structPtr,
 		SymbolTableEntry:       array,
-		StuctPropertyValueType: &array.Ref.PropertyTypes[propIndex],
+		StuctPropertyValueType: &proptype,
+		ArraySymbolTableEntry:  arrayEntry,
 	}
 
 	g.setLastResult(res)
@@ -292,45 +304,120 @@ func (g *LLVMGenerator) VisitMainStatement(node *ast.MainStatement) error {
 
 // VisitMemberExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error {
-	obj, ok := node.Object.(ast.SymbolExpression)
-	if !ok {
-		return fmt.Errorf("struct object should be a symbol")
+	if g.Ctx.Debugging {
+		fmt.Printf("VisitMemberExpression %s.%s\n", node.Object, node.Property)
 	}
 
-	err, varDef := g.Ctx.FindSymbol(obj.Value)
-	if err != nil {
-		return fmt.Errorf("variable %s is not defined", obj.Value)
+	switch objectType := node.Object.(type) {
+	case ast.SymbolExpression:
+		err, varDef := g.Ctx.FindSymbol(objectType.Value)
+		if err != nil {
+			return fmt.Errorf("variable %s is not defined", objectType.Value)
+		}
+
+		if varDef.Ref == nil {
+			return fmt.Errorf("variable %s is not a struct instance", objectType.Value)
+		}
+
+		propName, err := g.getProperty(node)
+		if err != nil {
+			return err
+		}
+
+		propIndex, err := g.resolveStructAccess(varDef.Ref, propName)
+		if err != nil {
+			return err
+		}
+
+		var baseValue llvm.Value = varDef.Value
+		if varDef.Address != nil {
+			baseValue = *varDef.Address
+		}
+
+		addr := g.Ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, baseValue, propIndex, "")
+		propType := varDef.Ref.PropertyTypes[propIndex]
+		result := &ast.CompilerResult{
+			Value:                  &addr,
+			SymbolTableEntry:       varDef,
+			StuctPropertyValueType: &propType,
+		}
+
+		if propType.TypeKind() == llvm.StructTypeKind {
+			prop, _ := varDef.Ref.Embeds[propName]
+			result.SymbolTableEntry.Ref = &prop
+		}
+
+		g.setLastResult(result)
+
+		return nil
+	case ast.ArrayOfStructsAccessExpression:
+		err := node.Object.Accept(g)
+		if err != nil {
+			return err
+		}
+
+		lastresult := g.getLastResult()
+
+		propName, err := g.getProperty(node)
+		if err != nil {
+			return err
+		}
+
+		propIndex, err := g.resolveStructAccess(lastresult.SymbolTableEntry.Ref, propName)
+		if err != nil {
+			return err
+		}
+		propType := lastresult.SymbolTableEntry.Ref.PropertyTypes[propIndex]
+		result := &ast.CompilerResult{
+			Value:                  lastresult.Value,
+			SymbolTableEntry:       lastresult.SymbolTableEntry,
+			StuctPropertyValueType: &propType,
+		}
+
+		if propType.TypeKind() == llvm.StructTypeKind {
+			prop, _ := lastresult.SymbolTableEntry.Ref.Embeds[propName]
+			result.SymbolTableEntry.Ref = &prop
+		}
+
+		g.setLastResult(result)
+
+		return nil
+	case ast.MemberExpression:
+		err := node.Object.Accept(g)
+		if err != nil {
+			return err
+		}
+
+		prop, _ := node.Property.(ast.SymbolExpression)
+		result := g.getLastResult()
+
+		propIndex, err := g.resolveStructAccess(result.SymbolTableEntry.Ref, prop.Value)
+		if err != nil {
+			return err
+		}
+
+		addr := g.Ctx.Builder.CreateStructGEP(*result.StuctPropertyValueType, *result.Value, propIndex, "")
+		propType := result.SymbolTableEntry.Ref.PropertyTypes[propIndex]
+		finalresult := &ast.CompilerResult{
+			Value:                  &addr,
+			SymbolTableEntry:       result.SymbolTableEntry,
+			StuctPropertyValueType: &propType,
+		}
+
+		if propType.TypeKind() == llvm.StructTypeKind {
+			sEntry, ok := result.SymbolTableEntry.Ref.Embeds[prop.Value]
+			if ok {
+				result.SymbolTableEntry.Ref = &sEntry
+			}
+		}
+
+		g.setLastResult(finalresult)
+
+		return nil
+
+	default:
+		g.NotImplemented(fmt.Sprintf("VisitMemberExpression not implemented for %T", objectType))
 	}
-
-	if varDef.Ref == nil {
-		return fmt.Errorf("variable %s is not a struct instance", obj.Value)
-	}
-
-	propName, err := g.getProperty(node)
-	if err != nil {
-		return err
-	}
-
-	propIndex, err := g.resolveStructAccess(varDef.Ref, propName)
-	if err != nil {
-		return err
-	}
-
-	var baseValue llvm.Value
-	if varDef.Address != nil {
-		baseValue = *varDef.Address
-	} else {
-		baseValue = varDef.Value
-	}
-
-	addr := g.Ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, baseValue, propIndex, "")
-	propType := varDef.Ref.PropertyTypes[propIndex]
-
-	g.setLastResult(&ast.CompilerResult{
-		Value:                  &addr,
-		SymbolTableEntry:       varDef,
-		StuctPropertyValueType: &propType,
-	})
 
 	return nil
 }
@@ -375,11 +462,12 @@ var printableValueExtractors = map[reflect.Type]PrintableValueExtractor{
 	reflect.TypeFor[ast.ArrayAccessExpression]():          extractWithArrayType,
 
 	// Directs: These already hold the value in the result
-	reflect.TypeFor[ast.StringExpression](): extractDirect,
-	reflect.TypeFor[ast.NumberExpression](): extractDirect,
-	reflect.TypeFor[ast.FloatExpression]():  extractDirect,
-	reflect.TypeFor[ast.BinaryExpression](): extractDirect,
-	reflect.TypeFor[ast.SymbolExpression](): extractDirect,
+	reflect.TypeFor[ast.FunctionCallExpression](): extractDirect,
+	reflect.TypeFor[ast.StringExpression]():       extractDirect,
+	reflect.TypeFor[ast.NumberExpression]():       extractDirect,
+	reflect.TypeFor[ast.FloatExpression]():        extractDirect,
+	reflect.TypeFor[ast.BinaryExpression]():       extractDirect,
+	reflect.TypeFor[ast.SymbolExpression]():       extractDirect,
 }
 
 func extractDirect(g *LLVMGenerator, res *ast.CompilerResult) llvm.Value {
@@ -472,9 +560,12 @@ func (g *LLVMGenerator) VisitStringExpression(node *ast.StringExpression) error 
 
 // VisitStructDeclaration implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatement) error {
-	properties := []llvm.Type{}
+	entry := &ast.StructSymbolTableEntry{
+		Metadata: *node,
+		Embeds:   map[string]ast.StructSymbolTableEntry{},
+	}
 
-	for i := range node.Properties {
+	for i, propertyName := range node.Properties {
 		propertyType := node.Types[i]
 
 		err, llvmType := propertyType.LLVMType(g.Ctx)
@@ -482,17 +573,22 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 			return err
 		}
 
-		properties = append(properties, llvmType)
+		if llvmType.TypeKind() == llvm.StructTypeKind {
+			structType, _ := propertyType.(ast.SymbolType)
+			err, sEntry := g.Ctx.FindStructSymbol(structType.Name)
+			if err != nil {
+				return err
+			}
+
+			entry.Embeds[propertyName] = *sEntry
+		}
+
+		entry.PropertyTypes = append(entry.PropertyTypes, llvmType)
 	}
 
 	newtype := g.Ctx.Context.StructCreateNamed(node.Name)
-	newtype.StructSetBody(properties, false)
-
-	entry := &ast.StructSymbolTableEntry{
-		LLVMType:      newtype,
-		Metadata:      *node,
-		PropertyTypes: properties,
-	}
+	entry.LLVMType = newtype
+	newtype.StructSetBody(entry.PropertyTypes, false)
 
 	return g.Ctx.AddStructSymbol(node.Name, entry)
 }
@@ -1023,6 +1119,7 @@ const (
 var nodeVariableDeclarationStyles = map[reflect.Type]InitializationStyle{
 	reflect.TypeFor[ast.ArrayAccessExpression]():          StyleLoadStore,
 	reflect.TypeFor[ast.ArrayOfStructsAccessExpression](): StyleLoadStore,
+	reflect.TypeFor[ast.MemberExpression]():               StyleLoadStore,
 	reflect.TypeFor[ast.StringExpression]():               StyleDefault,
 	reflect.TypeFor[ast.NumberExpression]():               StyleDefault,
 	reflect.TypeFor[ast.FloatExpression]():                StyleDefault,
@@ -1039,7 +1136,10 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 	}
 
 	res := g.getLastResult()
-	style := nodeVariableDeclarationStyles[reflect.TypeOf(node.Value)]
+	style, ok := nodeVariableDeclarationStyles[reflect.TypeOf(node.Value)]
+	if !ok {
+		return fmt.Errorf("var decl with %s not supported", node.Value)
+	}
 
 	var finalAddr *llvm.Value
 
@@ -1111,26 +1211,68 @@ func (g *LLVMGenerator) findArrayOfStructsSymbolTableEntry(
 	return nil, baseSym, arrayMeta, indices
 }
 
-// resolveArrayOfStructsBase handles the lookup of the variable in both symbol tables.
 func (g *LLVMGenerator) resolveArrayOfStructsBase(nameNode ast.Node) (error, *ast.SymbolTableEntry, *ast.ArraySymbolTableEntry) {
-	symExpr, ok := nameNode.(ast.SymbolExpression)
-	if !ok {
-		return fmt.Errorf("ArrayOfStructsAccessExpression not implemented for %T", nameNode), nil, nil
+	switch typednode := nameNode.(type) {
+	case ast.MemberExpression:
+		err := typednode.Object.Accept(g)
+		if err != nil {
+			return err, nil, nil
+		}
+
+		lastres := g.getLastResult()
+
+		propName, err := g.getProperty(&typednode)
+		if err != nil {
+			return err, nil, nil
+		}
+
+		propIndex, err := g.resolveStructAccess(lastres.SymbolTableEntry.Ref, propName)
+		if err != nil {
+			return err, nil, nil
+		}
+
+		propType := lastres.SymbolTableEntry.Ref.PropertyTypes[propIndex]
+		underlyingTypeDef := lastres.SymbolTableEntry.Ref
+
+		if propType.TypeKind() == llvm.ArrayTypeKind {
+			if propType.ElementType().TypeKind() == llvm.StructTypeKind {
+				proptype := lastres.SymbolTableEntry.Ref.Metadata.Types[propIndex]
+				arrtype, _ := proptype.(ast.ArrayType)
+				stype, _ := arrtype.Underlying.(ast.SymbolType)
+
+				err, sym := g.Ctx.FindStructSymbol(stype.Name)
+				if err != nil {
+					return err, nil, nil
+				}
+
+				underlyingTypeDef = sym
+				lastres.SymbolTableEntry.Ref = sym
+			}
+		}
+
+		return nil, lastres.SymbolTableEntry, &ast.ArraySymbolTableEntry{
+			ElementsCount:     propType.ArrayLength(),
+			UnderlyingType:    propType.ElementType(),
+			Type:              propType,
+			UnderlyingTypeDef: underlyingTypeDef,
+		}
+	case ast.SymbolExpression:
+		name := typednode.Value
+
+		err, symEntry := g.Ctx.FindSymbol(name)
+		if err != nil {
+			return g.Ctx.Dialect.Error("ArrayOfStructsAccessExpression.NotFoundInSymbolTable", name), nil, nil
+		}
+
+		err, arrEntry := g.Ctx.FindArraySymbol(name)
+		if err != nil {
+			return err, nil, nil
+		}
+
+		return nil, symEntry, arrEntry
+	default:
+		return fmt.Errorf("ArrayOfStructsAccessExpression not implemented for %T", typednode), nil, nil
 	}
-
-	name := symExpr.Value
-
-	err, symEntry := g.Ctx.FindSymbol(name)
-	if err != nil {
-		return g.Ctx.Dialect.Error("ArrayOfStructsAccessExpression.NotFoundInSymbolTable", name), nil, nil
-	}
-
-	err, arrEntry := g.Ctx.FindArraySymbol(name)
-	if err != nil {
-		return err, nil, nil
-	}
-
-	return nil, symEntry, arrEntry
 }
 
 // resolveGepIndices prepares the indices for a CreateGEP call.

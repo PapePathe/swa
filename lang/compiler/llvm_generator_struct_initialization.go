@@ -62,13 +62,20 @@ type StructInitializationExpressionPropertyInjector func(
 )
 
 var structInjectors = map[reflect.Type]StructInitializationExpressionPropertyInjector{
-	reflect.TypeFor[ast.NumberExpression]():              injectDirectly,
-	reflect.TypeFor[ast.FloatExpression]():               injectDirectly,
-	reflect.TypeFor[ast.StringExpression]():              injectDirectly,
-	reflect.TypeFor[ast.SymbolExpression]():              injectWithArrayDecay,
-	reflect.TypeFor[ast.BinaryExpression]():              injectWithArrayDecay,
-	reflect.TypeFor[ast.ArrayInitializationExpression](): injectArrayLiteral,
-	reflect.TypeFor[ast.ArrayAccessExpression]():         injectArrayAccess,
+	reflect.TypeFor[ast.NumberExpression]():               injectDirectly,
+	reflect.TypeFor[ast.FloatExpression]():                injectDirectly,
+	reflect.TypeFor[ast.StringExpression]():               injectDirectly,
+	reflect.TypeFor[ast.SymbolExpression]():               injectWithArrayDecay,
+	reflect.TypeFor[ast.BinaryExpression]():               injectWithArrayDecay,
+	reflect.TypeFor[ast.ArrayInitializationExpression]():  injectArrayLiteral,
+	reflect.TypeFor[ast.ArrayAccessExpression]():          injectArrayAccess,
+	reflect.TypeFor[ast.StructInitializationExpression](): injectNestedStruct,
+}
+
+func injectNestedStruct(g *LLVMGenerator, res *ast.CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+
+	load := g.Ctx.Builder.CreateLoad(res.Value.AllocatedType(), *res.Value, "nested-struct.load")
+	g.Ctx.Builder.CreateStore(load, fieldAddr)
 }
 
 func injectDirectly(g *LLVMGenerator, res *ast.CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {

@@ -98,7 +98,13 @@ func injectSymbol(g *LLVMGenerator, expr ast.Expression, targetAddr llvm.Value) 
 		loadType = res.Value.Type()
 	}
 
-	val := g.Ctx.Builder.CreateLoad(loadType, *res.Value, "arr.load.sym")
+	var val llvm.Value
+	if res.SymbolTableEntry.Address != nil {
+		val = g.Ctx.Builder.CreateLoad(loadType, *res.SymbolTableEntry.Address, "arr.load.sym.from-address")
+	} else {
+		val = g.Ctx.Builder.CreateLoad(loadType, *res.Value, "arr.load.sym")
+	}
+
 	g.Ctx.Builder.CreateStore(val, targetAddr)
 
 	return nil, structEntry
