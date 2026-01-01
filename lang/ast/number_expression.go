@@ -19,7 +19,7 @@ type NumberExpression struct {
 var _ Expression = (*NumberExpression)(nil)
 
 func (e NumberExpression) String() string {
-	return fmt.Sprintf("%d", int(e.Value))
+	return fmt.Sprintf("%d", e.Value)
 }
 
 func (se NumberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {

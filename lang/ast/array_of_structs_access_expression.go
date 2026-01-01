@@ -219,6 +219,10 @@ func (expr ArrayOfStructsAccessExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
 
+func (expr ArrayOfStructsAccessExpression) String() string {
+	return fmt.Sprintf("%s[%s].%s", expr.Name, expr.Index, expr.Property)
+}
+
 func (cs ArrayOfStructsAccessExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Name"] = cs.Name
