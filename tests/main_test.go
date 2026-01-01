@@ -45,8 +45,14 @@ func (cr *CompileRequest) Compile() error {
 
 	output, err := cmd.CombinedOutput()
 
-	assert.Equal(cr.T, cr.ExpectedOutput, string(output))
-
+	if cr.ExpectedOutput != string(output) {
+		cr.T.Fatalf(
+			"Compilation error want: %s, has: %s \n Source file %s",
+			fmt.Sprintf("%q", cr.ExpectedExecutionOutput),
+			fmt.Sprintf("%q", string(output)),
+			cr.InputPath,
+		)
+	}
 	return err
 }
 
