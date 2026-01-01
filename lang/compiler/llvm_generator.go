@@ -109,9 +109,18 @@ func (g *LLVMGenerator) VisitAssignmentExpression(node *ast.AssignmentExpression
 		valueToBeAssigned = *compiledValue.Value
 	}
 
-	address := compiledAssignee.Value
-	if compiledAssignee.SymbolTableEntry != nil && compiledAssignee.SymbolTableEntry.Address != nil {
-		address = compiledAssignee.SymbolTableEntry.Address
+	var address *llvm.Value
+	if compiledAssignee.SymbolTableEntry != nil &&
+		compiledAssignee.SymbolTableEntry.Address != nil {
+		// TODO: figure out why we are doing this
+		if compiledAssignee.SymbolTableEntry.Ref != nil {
+			address = compiledAssignee.Value
+		} else {
+			address = compiledAssignee.SymbolTableEntry.Address
+		}
+
+	} else {
+		address = compiledAssignee.Value
 	}
 
 	g.Ctx.Builder.CreateStore(valueToBeAssigned, *address)
@@ -1192,6 +1201,10 @@ func (g *LLVMGenerator) finalizeSymbol(
 
 	if res.ArraySymbolTableEntry != nil && res.ArraySymbolTableEntry.UnderlyingTypeDef != nil {
 		entry.Ref = res.ArraySymbolTableEntry.UnderlyingTypeDef
+	}
+
+	if res.SymbolTableEntry != nil && res.SymbolTableEntry.Ref != nil {
+		entry.Ref = res.SymbolTableEntry.Ref
 	}
 
 	if err := g.Ctx.AddSymbol(node.Name, entry); err != nil {
