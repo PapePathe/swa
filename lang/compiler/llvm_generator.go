@@ -78,6 +78,10 @@ func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStr
 
 // VisitAssignmentExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitAssignmentExpression(node *ast.AssignmentExpression) error {
+	if g.Ctx.Debugging {
+		fmt.Printf("VisitAssignmentExpression %s\n", node)
+	}
+
 	err := node.Assignee.Accept(g)
 	if err != nil {
 		return err
@@ -111,6 +115,11 @@ func (g *LLVMGenerator) VisitAssignmentExpression(node *ast.AssignmentExpression
 	}
 
 	g.Ctx.Builder.CreateStore(valueToBeAssigned, *address)
+
+	if g.Ctx.Debugging {
+		fmt.Printf("VisitAssignmentExpression assignee: %s\n", compiledAssignee.Value.String())
+		fmt.Printf("VisitAssignmentExpression value: %s\n", valueToBeAssigned.String())
+	}
 
 	return nil
 }
