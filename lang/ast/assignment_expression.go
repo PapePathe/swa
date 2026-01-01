@@ -2,6 +2,7 @@ package ast
 
 import (
 	"encoding/json"
+	"fmt"
 	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
@@ -74,6 +75,10 @@ func (expr AssignmentExpression) CompileLLVM(ctx *CompilerCtx) (error, *Compiler
 	str := ctx.Builder.CreateStore(valueToBeAssigned, *assignee.Value)
 
 	return nil, &CompilerResult{Value: &str}
+}
+
+func (expr AssignmentExpression) String() string {
+	return fmt.Sprintf("%s %s %s", expr.Assignee, expr.Operator.Value, expr.Value)
 }
 
 func (expr AssignmentExpression) Accept(g CodeGenerator) error {

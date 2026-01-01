@@ -185,6 +185,10 @@ func (expr MemberExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
 
+func (expr MemberExpression) String() string {
+	return fmt.Sprintf("%s.%s", expr.Object, expr.Property)
+}
+
 func (expr MemberExpression) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
 	m["Object"] = expr.Object
