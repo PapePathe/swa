@@ -21,6 +21,7 @@ type StructSymbolTableEntry struct {
 	LLVMType      llvm.Type
 	PropertyTypes []llvm.Type
 	Metadata      StructDeclarationStatement
+	Embeds        map[string]StructSymbolTableEntry
 }
 
 type SymbolTableEntry struct {
