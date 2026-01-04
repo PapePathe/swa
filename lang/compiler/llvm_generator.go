@@ -385,14 +385,21 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 		if err != nil {
 			return err
 		}
+
 		propType := lastresult.SymbolTableEntry.Ref.PropertyTypes[propIndex]
+		addr := g.Ctx.Builder.CreateStructGEP(
+			lastresult.SymbolTableEntry.Ref.LLVMType,
+			*lastresult.Value,
+			propIndex,
+			"")
 		result := &ast.CompilerResult{
-			Value:                  lastresult.Value,
+			Value:                  &addr,
 			SymbolTableEntry:       lastresult.SymbolTableEntry,
 			StuctPropertyValueType: &propType,
 		}
 
 		if propType.TypeKind() == llvm.StructTypeKind {
+			// TODO handle the case where propName is not in embeds
 			prop, _ := lastresult.SymbolTableEntry.Ref.Embeds[propName]
 			result.SymbolTableEntry.Ref = &prop
 		}
@@ -935,15 +942,34 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 			// Create alloca for the parameter to support address taking and array indexing
 			var entry ast.SymbolTableEntry
 
-			if _, ok := argType.(ast.ArrayType); ok {
-				// Array passed by reference, p is the pointer
+			switch argType.(type) {
+			case ast.ArrayType:
 				param := p
 				entry = ast.SymbolTableEntry{
 					Value:        param,
 					DeclaredType: argType,
 					Address:      &param,
 				}
-			} else {
+			case ast.PointerType:
+				param := p
+				entry = ast.SymbolTableEntry{
+					Value:        param,
+					DeclaredType: argType,
+					Address:      &param,
+				}
+			case ast.SymbolType:
+				entry = ast.SymbolTableEntry{
+					Value:        p,
+					DeclaredType: argType,
+					Address:      &p,
+				}
+			case ast.FloatType, ast.NumberType, ast.Number64Type:
+				entry = ast.SymbolTableEntry{
+					Value:        p,
+					DeclaredType: argType,
+					Address:      &p,
+				}
+			default:
 				alloca := newCtx.Builder.CreateAlloca(p.Type(), name)
 				newCtx.Builder.CreateStore(p, alloca)
 

@@ -20,7 +20,6 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 	}
 
 	rightRes := g.getLastResult()
-
 	leftVal := g.extractRValue(leftRes)
 	rightVal := g.extractRValue(rightRes)
 
@@ -51,7 +50,11 @@ func (g *LLVMGenerator) extractRValue(res *ast.CompilerResult) llvm.Value {
 
 	switch {
 	case res.ArraySymbolTableEntry != nil:
-		loadType = res.ArraySymbolTableEntry.UnderlyingType
+		if res.ArraySymbolTableEntry.UnderlyingType.TypeKind() == llvm.StructTypeKind {
+			loadType = *res.StuctPropertyValueType
+		} else {
+			loadType = res.ArraySymbolTableEntry.UnderlyingType
+		}
 	case res.StuctPropertyValueType != nil:
 		loadType = *res.StuctPropertyValueType
 	case !val.Type().ElementType().IsNil():
