@@ -903,7 +903,8 @@ func (g *LLVMGenerator) VisitPrefixExpression(node *ast.PrefixExpression) error 
 }
 
 func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) error {
-	newCtx := ast.NewCompilerContext(
+	oldCtx := g.Ctx
+	g.Ctx = ast.NewCompilerContext(
 		g.Ctx.Context,
 		g.Ctx.Builder,
 		g.Ctx.Module,
@@ -911,20 +912,20 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 		g.Ctx,
 	)
 
-	err, params := g.funcParams(newCtx, node)
+	err, params := g.funcParams(g.Ctx, node)
 	if err != nil {
 		return err
 	}
 
-	err, returnType := g.extractType(newCtx, node.ReturnType)
+	err, returnType := g.extractType(g.Ctx, node.ReturnType)
 	if err != nil {
 		return err
 	}
 
 	newfuncType := llvm.FunctionType(returnType.typ, params, node.ArgsVariadic)
-	newFunc := llvm.AddFunction(*newCtx.Module, node.Name, newfuncType)
+	newFunc := llvm.AddFunction(*g.Ctx.Module, node.Name, newfuncType)
 
-	err = g.Ctx.AddFuncSymbol(node.Name, &newfuncType)
+	err = oldCtx.AddFuncSymbol(node.Name, &newfuncType)
 	if err != nil {
 		return err
 	}
@@ -970,8 +971,8 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 					Address:      &p,
 				}
 			default:
-				alloca := newCtx.Builder.CreateAlloca(p.Type(), name)
-				newCtx.Builder.CreateStore(p, alloca)
+				alloca := g.Ctx.Builder.CreateAlloca(p.Type(), name)
+				g.Ctx.Builder.CreateStore(p, alloca)
 
 				entry = ast.SymbolTableEntry{
 					Value:        alloca,
@@ -980,7 +981,7 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 				}
 			}
 
-			err, eType := g.extractType(newCtx, argType)
+			err, eType := g.extractType(g.Ctx, argType)
 			if err != nil {
 				return err
 			}
@@ -991,29 +992,29 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 
 			if eType.aEntry != nil {
 				entry.Ref = eType.aEntry.UnderlyingTypeDef
-			}
 
-			err = newCtx.AddSymbol(name, &entry)
-			if err != nil {
-				return fmt.Errorf("failed to add parameter %s to symbol table: %w", name, err)
-			}
-
-			if eType.aEntry != nil {
-				err := newCtx.AddArraySymbol(name, eType.aEntry)
+				err := g.Ctx.AddArraySymbol(name, eType.aEntry)
 				if err != nil {
 					return fmt.Errorf("failed to add parameter %s to arrays symbol table: %w", name, err)
 				}
 			}
+
+			err = g.Ctx.AddSymbol(name, &entry)
+			if err != nil {
+				return fmt.Errorf("failed to add parameter %s to symbol table: %w", name, err)
+			}
+
 		}
 
-		newGenerator := &LLVMGenerator{Ctx: newCtx}
-		err := node.Body.Accept(newGenerator)
+		err := node.Body.Accept(g)
 		if err != nil {
 			return err
 		}
 	} else {
 		newFunc.SetLinkage(llvm.ExternalLinkage)
 	}
+
+	g.Ctx = oldCtx
 
 	return nil
 }
