@@ -357,83 +357,6 @@ func (g *LLVMGenerator) NotImplemented(msg string) {
 	os.Exit(1)
 }
 
-type PrintableValueExtractor func(g *LLVMGenerator, res *ast.CompilerResult) llvm.Value
-
-var printableValueExtractors = map[reflect.Type]PrintableValueExtractor{
-	// Accessors: These return pointers/addresses and MUST be loaded
-	reflect.TypeFor[ast.MemberExpression]():               extractWithStructType,
-	reflect.TypeFor[ast.ArrayOfStructsAccessExpression](): extractWithStructType,
-	reflect.TypeFor[ast.ArrayAccessExpression]():          extractWithArrayType,
-
-	// Directs: These already hold the value in the result
-	reflect.TypeFor[ast.FunctionCallExpression](): extractDirect,
-	reflect.TypeFor[ast.StringExpression]():       extractDirect,
-	reflect.TypeFor[ast.NumberExpression]():       extractDirect,
-	reflect.TypeFor[ast.FloatExpression]():        extractDirect,
-	reflect.TypeFor[ast.BinaryExpression]():       extractDirect,
-	reflect.TypeFor[ast.SymbolExpression]():       extractDirect,
-}
-
-func extractDirect(g *LLVMGenerator, res *ast.CompilerResult) llvm.Value {
-	return *res.Value
-}
-
-func extractWithArrayType(g *LLVMGenerator, res *ast.CompilerResult) llvm.Value {
-	return g.Ctx.Builder.CreateLoad(
-		res.ArraySymbolTableEntry.UnderlyingType,
-		*res.Value,
-		"print.array.load",
-	)
-}
-func extractWithStructType(g *LLVMGenerator, res *ast.CompilerResult) llvm.Value {
-	return g.Ctx.Builder.CreateLoad(
-		*res.StuctPropertyValueType,
-		*res.Value,
-		"print.struct.load",
-	)
-}
-
-func (g *LLVMGenerator) VisitPrintStatement(node *ast.PrintStatetement) error {
-	printableValues := []llvm.Value{}
-
-	for _, expr := range node.Values {
-		err := expr.Accept(g)
-		if err != nil {
-			return err
-		}
-
-		res := g.getLastResult()
-
-		extractor, ok := printableValueExtractors[reflect.TypeOf(expr)]
-		if !ok {
-			g.NotImplemented(fmt.Sprintf("VisitPrintStatement unimplemented for %T", expr))
-
-			continue
-		}
-
-		printableValues = append(printableValues, extractor(g, res))
-	}
-
-	// TODO: You must ensure your first argument to printf is the format string!
-	// If it's missing from printableValues, printf will likely segfault.
-	g.Ctx.Builder.CreateCall(
-		g.printfFunctionType(), // Helper method for readability
-		g.Ctx.Module.NamedFunction("printf"),
-		printableValues,
-		"call.printf",
-	)
-
-	return nil
-}
-
-func (g *LLVMGenerator) printfFunctionType() llvm.Type {
-	return llvm.FunctionType(
-		llvm.GlobalContext().Int32Type(),
-		[]llvm.Type{llvm.PointerType(llvm.GlobalContext().Int8Type(), 0)},
-		true, // IsVariadic = true
-	)
-}
-
 func (g *LLVMGenerator) VisitReturnStatement(node *ast.ReturnStatement) error {
 	err := node.Value.Accept(g)
 	if err != nil {
@@ -613,155 +536,6 @@ func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpressi
 	})
 
 	return nil
-}
-
-func (g *LLVMGenerator) findArraySymbolTableEntry(
-	expr *ast.ArrayAccessExpression,
-) (error, *ast.ArraySymbolTableEntry, *ast.SymbolTableEntry, []llvm.Value) {
-	var name string
-
-	var array *ast.SymbolTableEntry
-
-	var entry *ast.ArraySymbolTableEntry
-
-	switch expr.Name.(type) {
-	case ast.SymbolExpression:
-		varName, _ := expr.Name.(ast.SymbolExpression)
-
-		err, arrayEntry := g.Ctx.FindSymbol(varName.Value)
-		if err != nil {
-			key := "ArrayAccessExpression.NotFoundInSymbolTable"
-			return g.Ctx.Dialect.Error(key, varName.Value), nil, nil, nil
-		}
-
-		array = arrayEntry
-
-		err, arraySymEntry := g.Ctx.FindArraySymbol(varName.Value)
-		if err != nil {
-			key := "ArrayAccessExpression.NotFoundInArraySymbolTable"
-			return g.Ctx.Dialect.Error(key, varName.Value), nil, nil, nil
-		}
-		entry = arraySymEntry
-
-		name = varName.Value
-	case ast.MemberExpression:
-		if err := expr.Name.Accept(g); err != nil {
-			return err, nil, nil, nil
-		}
-		val := g.getLastResult()
-
-		var elementType llvm.Type
-		var arrayType llvm.Type
-		var elementsCount int = -1
-		var isPointerType bool = false
-
-		if val.SymbolTableEntry == nil && val.SymbolTableEntry.Ref == nil {
-			return fmt.Errorf("ArrayAccessExpression Missing SymbolTableEntry"), nil, nil, nil
-		}
-
-		propExpr, _ := expr.Name.(ast.MemberExpression)
-		propSym, _ := propExpr.Property.(ast.SymbolExpression)
-
-		if val.SymbolTableEntry.Ref == nil {
-			format := "ArrayAccessExpression property %s is not an array"
-			return fmt.Errorf(format, propSym.Value), nil, nil, nil
-		}
-
-		propIndex, err := g.resolveStructAccess(val.SymbolTableEntry.Ref, propSym.Value)
-		if err != nil {
-			return err, nil, nil, nil
-		}
-
-		astType := val.SymbolTableEntry.Ref.Metadata.Types[propIndex]
-
-		switch coltype := astType.(type) {
-		case ast.PointerType:
-			isPointerType = true
-			err, elementType = coltype.Underlying.LLVMType(g.Ctx)
-			if err != nil {
-				return err, nil, nil, nil
-			}
-			arrayType = elementType
-		case ast.ArrayType:
-			err, elementType = coltype.Underlying.LLVMType(g.Ctx)
-			if err != nil {
-				return err, nil, nil, nil
-			}
-			err, arrayType = coltype.LLVMType(g.Ctx)
-			if err != nil {
-				return err, nil, nil, nil
-			}
-			elementsCount = coltype.Size
-		default:
-			err := fmt.Errorf("Property %s is not an array", propSym.Value)
-			return err, nil, nil, nil
-		}
-
-		if isPointerType {
-			pointerValue := g.Ctx.Builder.CreateLoad(*val.StuctPropertyValueType, *val.Value, "")
-			array = &ast.SymbolTableEntry{Value: pointerValue}
-		} else {
-			array = &ast.SymbolTableEntry{Value: *val.Value}
-		}
-
-		entry = &ast.ArraySymbolTableEntry{
-			UnderlyingType: elementType,
-			Type:           arrayType,
-			ElementsCount:  elementsCount,
-		}
-	default:
-		err := fmt.Errorf("ArrayAccessExpression not implemented")
-		return err, nil, nil, nil
-	}
-
-	var indices []llvm.Value
-
-	switch expr.Index.(type) {
-	case ast.NumberExpression:
-		idx, _ := expr.Index.(ast.NumberExpression)
-
-		if int(idx.Value) < 0 {
-			key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
-			return g.Ctx.Dialect.Error(key, expr.Index), nil, nil, nil
-		}
-
-		if entry.ElementsCount >= 0 && int(idx.Value) > entry.ElementsCount-1 {
-			key := "ArrayAccessExpression.IndexOutOfBounds"
-			return g.Ctx.Dialect.Error(key, int(idx.Value), name), nil, nil, nil
-		}
-
-		indices = []llvm.Value{
-			llvm.ConstInt((*g.Ctx.Context).Int32Type(), uint64(idx.Value), false),
-		}
-	case ast.SymbolExpression, ast.BinaryExpression, ast.MemberExpression:
-		if err := expr.Index.Accept(g); err != nil {
-			return err, nil, nil, nil
-		}
-		res := g.getLastResult()
-
-		if res.Value.Type().TypeKind() == llvm.PointerTypeKind {
-			load := g.Ctx.Builder.CreateLoad(res.Value.AllocatedType(), *res.Value, "")
-			indices = []llvm.Value{load}
-		} else {
-			indices = []llvm.Value{*res.Value}
-		}
-	default:
-		key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
-		return g.Ctx.Dialect.Error(key, expr.Index), nil, nil, nil
-	}
-
-	return nil, entry, array, indices
-}
-
-func (g *LLVMGenerator) resolveStructAccess(
-	structType *ast.StructSymbolTableEntry,
-	propName string,
-) (int, error) {
-	err, propIndex := structType.Metadata.PropertyIndex(propName)
-	if err != nil {
-		return 0, fmt.Errorf("struct %s has no field %s", structType.Metadata.Name, propName)
-	}
-	return propIndex, nil
 }
 
 func (g *LLVMGenerator) VisitPrefixExpression(node *ast.PrefixExpression) error {
@@ -1002,4 +776,153 @@ func (g *LLVMGenerator) resolveGepIndices(indexNode ast.Node) (error, []llvm.Val
 	}
 
 	return nil, indices
+}
+
+func (g *LLVMGenerator) findArraySymbolTableEntry(
+	expr *ast.ArrayAccessExpression,
+) (error, *ast.ArraySymbolTableEntry, *ast.SymbolTableEntry, []llvm.Value) {
+	var name string
+
+	var array *ast.SymbolTableEntry
+
+	var entry *ast.ArraySymbolTableEntry
+
+	switch expr.Name.(type) {
+	case ast.SymbolExpression:
+		varName, _ := expr.Name.(ast.SymbolExpression)
+
+		err, arrayEntry := g.Ctx.FindSymbol(varName.Value)
+		if err != nil {
+			key := "ArrayAccessExpression.NotFoundInSymbolTable"
+			return g.Ctx.Dialect.Error(key, varName.Value), nil, nil, nil
+		}
+
+		array = arrayEntry
+
+		err, arraySymEntry := g.Ctx.FindArraySymbol(varName.Value)
+		if err != nil {
+			key := "ArrayAccessExpression.NotFoundInArraySymbolTable"
+			return g.Ctx.Dialect.Error(key, varName.Value), nil, nil, nil
+		}
+		entry = arraySymEntry
+
+		name = varName.Value
+	case ast.MemberExpression:
+		if err := expr.Name.Accept(g); err != nil {
+			return err, nil, nil, nil
+		}
+		val := g.getLastResult()
+
+		var elementType llvm.Type
+		var arrayType llvm.Type
+		var elementsCount int = -1
+		var isPointerType bool = false
+
+		if val.SymbolTableEntry == nil && val.SymbolTableEntry.Ref == nil {
+			return fmt.Errorf("ArrayAccessExpression Missing SymbolTableEntry"), nil, nil, nil
+		}
+
+		propExpr, _ := expr.Name.(ast.MemberExpression)
+		propSym, _ := propExpr.Property.(ast.SymbolExpression)
+
+		if val.SymbolTableEntry.Ref == nil {
+			format := "ArrayAccessExpression property %s is not an array"
+			return fmt.Errorf(format, propSym.Value), nil, nil, nil
+		}
+
+		propIndex, err := g.resolveStructAccess(val.SymbolTableEntry.Ref, propSym.Value)
+		if err != nil {
+			return err, nil, nil, nil
+		}
+
+		astType := val.SymbolTableEntry.Ref.Metadata.Types[propIndex]
+
+		switch coltype := astType.(type) {
+		case ast.PointerType:
+			isPointerType = true
+			err, elementType = coltype.Underlying.LLVMType(g.Ctx)
+			if err != nil {
+				return err, nil, nil, nil
+			}
+			arrayType = elementType
+		case ast.ArrayType:
+			err, elementType = coltype.Underlying.LLVMType(g.Ctx)
+			if err != nil {
+				return err, nil, nil, nil
+			}
+			err, arrayType = coltype.LLVMType(g.Ctx)
+			if err != nil {
+				return err, nil, nil, nil
+			}
+			elementsCount = coltype.Size
+		default:
+			err := fmt.Errorf("Property %s is not an array", propSym.Value)
+			return err, nil, nil, nil
+		}
+
+		if isPointerType {
+			pointerValue := g.Ctx.Builder.CreateLoad(*val.StuctPropertyValueType, *val.Value, "")
+			array = &ast.SymbolTableEntry{Value: pointerValue}
+		} else {
+			array = &ast.SymbolTableEntry{Value: *val.Value}
+		}
+
+		entry = &ast.ArraySymbolTableEntry{
+			UnderlyingType: elementType,
+			Type:           arrayType,
+			ElementsCount:  elementsCount,
+		}
+	default:
+		err := fmt.Errorf("ArrayAccessExpression not implemented")
+		return err, nil, nil, nil
+	}
+
+	var indices []llvm.Value
+
+	switch expr.Index.(type) {
+	case ast.NumberExpression:
+		idx, _ := expr.Index.(ast.NumberExpression)
+
+		if int(idx.Value) < 0 {
+			key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
+			return g.Ctx.Dialect.Error(key, expr.Index), nil, nil, nil
+		}
+
+		if entry.ElementsCount >= 0 && int(idx.Value) > entry.ElementsCount-1 {
+			key := "ArrayAccessExpression.IndexOutOfBounds"
+			return g.Ctx.Dialect.Error(key, int(idx.Value), name), nil, nil, nil
+		}
+
+		indices = []llvm.Value{
+			llvm.ConstInt((*g.Ctx.Context).Int32Type(), uint64(idx.Value), false),
+		}
+	case ast.SymbolExpression, ast.BinaryExpression, ast.MemberExpression:
+		if err := expr.Index.Accept(g); err != nil {
+			return err, nil, nil, nil
+		}
+		res := g.getLastResult()
+
+		if res.Value.Type().TypeKind() == llvm.PointerTypeKind {
+			load := g.Ctx.Builder.CreateLoad(res.Value.AllocatedType(), *res.Value, "")
+			indices = []llvm.Value{load}
+		} else {
+			indices = []llvm.Value{*res.Value}
+		}
+	default:
+		key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
+		return g.Ctx.Dialect.Error(key, expr.Index), nil, nil, nil
+	}
+
+	return nil, entry, array, indices
+}
+
+func (g *LLVMGenerator) resolveStructAccess(
+	structType *ast.StructSymbolTableEntry,
+	propName string,
+) (int, error) {
+	err, propIndex := structType.Metadata.PropertyIndex(propName)
+	if err != nil {
+		return 0, fmt.Errorf("struct %s has no field %s", structType.Metadata.Name, propName)
+	}
+	return propIndex, nil
 }
