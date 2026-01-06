@@ -73,7 +73,6 @@ var structInjectors = map[reflect.Type]StructInitializationExpressionPropertyInj
 }
 
 func injectNestedStruct(g *LLVMGenerator, res *ast.CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
-
 	load := g.Ctx.Builder.CreateLoad(res.Value.AllocatedType(), *res.Value, "nested-struct.load")
 	g.Ctx.Builder.CreateStore(load, fieldAddr)
 }
