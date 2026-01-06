@@ -10,12 +10,108 @@ import (
 	"tinygo.org/x/go-llvm"
 )
 
+type CompilerResultType struct {
+	Type    llvm.Type
+	SubType llvm.Type
+	Sentry  *ast.StructSymbolTableEntry
+	Aentry  *ast.ArraySymbolTableEntry
+	Entry   *ast.SymbolTableEntry
+}
+
 type LLVMGenerator struct {
-	Ctx        *ast.CompilerCtx
-	lastResult *ast.CompilerResult
+	Ctx            *ast.CompilerCtx
+	lastResult     *ast.CompilerResult
+	lastTypeResult *CompilerResultType
 }
 
 var _ ast.CodeGenerator = (*LLVMGenerator)(nil)
+
+func (g *LLVMGenerator) VisitSymbolType(node *ast.SymbolType) error {
+	err, entry := g.Ctx.FindStructSymbol(node.Name)
+	if err != nil {
+		return err
+	}
+
+	g.setLastTypeVisitResult(&CompilerResultType{
+		Type:   entry.LLVMType,
+		Sentry: entry,
+	})
+
+	return nil
+}
+
+func (g *LLVMGenerator) VisitNumberType(node *ast.NumberType) error {
+	g.setLastTypeVisitResult(&CompilerResultType{
+		Type: llvm.GlobalContext().Int32Type(),
+	})
+
+	return nil
+}
+
+func (g *LLVMGenerator) VisitNumber64Type(node *ast.Number64Type) error {
+	g.setLastTypeVisitResult(&CompilerResultType{
+		Type: llvm.GlobalContext().Int64Type(),
+	})
+
+	return nil
+}
+
+func (g *LLVMGenerator) VisitArrayType(node *ast.ArrayType) error {
+	err := node.Underlying.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	under := g.getLastTypeVisitResult()
+
+	g.setLastTypeVisitResult(&CompilerResultType{
+		Type:    llvm.ArrayType(under.Type, node.Size),
+		SubType: under.Type,
+	})
+
+	return nil
+}
+
+func (g *LLVMGenerator) VisitFloatType(node *ast.FloatType) error {
+	g.setLastTypeVisitResult(&CompilerResultType{
+		Type: llvm.GlobalContext().DoubleType(),
+	})
+
+	return nil
+}
+
+func (g *LLVMGenerator) VisitPointerType(node *ast.PointerType) error {
+	err := node.Underlying.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	under := g.getLastTypeVisitResult()
+
+	g.setLastTypeVisitResult(&CompilerResultType{
+		Type:    llvm.PointerType(under.Type, 0),
+		SubType: under.Type,
+	})
+
+	return nil
+}
+
+func (g *LLVMGenerator) VisitStringType(node *ast.StringType) error {
+	g.setLastTypeVisitResult(&CompilerResultType{
+		Type:    llvm.PointerType(llvm.GlobalContext().Int8Type(), 0),
+		SubType: llvm.GlobalContext().Int8Type(),
+	})
+
+	return nil
+}
+
+func (g *LLVMGenerator) VisitVoidType(node *ast.VoidType) error {
+	g.setLastTypeVisitResult(&CompilerResultType{
+		Type: llvm.GlobalContext().VoidType(),
+	})
+
+	return nil
+}
 
 func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStructsAccessExpression) error {
 	if g.Ctx.Debugging {
@@ -395,22 +491,17 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 	for i, propertyName := range node.Properties {
 		propertyType := node.Types[i]
 
-		err, llvmType := propertyType.LLVMType(g.Ctx)
+		err := propertyType.Accept(g)
 		if err != nil {
 			return err
 		}
 
-		if llvmType.TypeKind() == llvm.StructTypeKind {
-			structType, _ := propertyType.(ast.SymbolType)
-			err, sEntry := g.Ctx.FindStructSymbol(structType.Name)
-			if err != nil {
-				return err
-			}
+		datatype := g.getLastTypeVisitResult()
+		entry.PropertyTypes = append(entry.PropertyTypes, datatype.Type)
 
-			entry.Embeds[propertyName] = *sEntry
+		if datatype.Type.TypeKind() == llvm.StructTypeKind {
+			entry.Embeds[propertyName] = *datatype.Sentry
 		}
-
-		entry.PropertyTypes = append(entry.PropertyTypes, llvmType)
 	}
 
 	newtype := g.Ctx.Context.StructCreateNamed(node.Name)
@@ -481,13 +572,14 @@ func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) e
 
 	switch node.Value {
 	case nil:
-		err, llvmType := node.ExplicitType.LLVMType(g.Ctx)
+		err := node.ExplicitType.Accept(g)
 		if err != nil {
 			return err
 		}
 
-		alloc := g.Ctx.Builder.CreateAlloca(llvmType, fmt.Sprintf("alloc.%s", node.Name))
-		g.Ctx.Builder.CreateStore(llvm.ConstNull(llvmType), alloc)
+		typeresult := g.getLastTypeVisitResult()
+		alloc := g.Ctx.Builder.CreateAlloca(typeresult.Type, fmt.Sprintf("alloc.%s", node.Name))
+		g.Ctx.Builder.CreateStore(llvm.ConstNull(typeresult.Type), alloc)
 
 		entry := &ast.SymbolTableEntry{
 			Value:        alloc,
@@ -804,6 +896,7 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 			key := "ArrayAccessExpression.NotFoundInArraySymbolTable"
 			return g.Ctx.Dialect.Error(key, varName.Value), nil, nil, nil
 		}
+
 		entry = arraySymEntry
 
 		name = varName.Value
@@ -811,11 +904,11 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 		if err := expr.Name.Accept(g); err != nil {
 			return err, nil, nil, nil
 		}
+
 		val := g.getLastResult()
 
-		var elementType llvm.Type
-		var arrayType llvm.Type
 		var elementsCount int = -1
+
 		var isPointerType bool = false
 
 		if val.SymbolTableEntry == nil && val.SymbolTableEntry.Ref == nil {
@@ -837,23 +930,17 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 
 		astType := val.SymbolTableEntry.Ref.Metadata.Types[propIndex]
 
+		err = astType.Accept(g)
+		if err != nil {
+			return err, nil, nil, nil
+		}
+
+		etype := g.getLastTypeVisitResult()
+
 		switch coltype := astType.(type) {
 		case ast.PointerType:
 			isPointerType = true
-			err, elementType = coltype.Underlying.LLVMType(g.Ctx)
-			if err != nil {
-				return err, nil, nil, nil
-			}
-			arrayType = elementType
 		case ast.ArrayType:
-			err, elementType = coltype.Underlying.LLVMType(g.Ctx)
-			if err != nil {
-				return err, nil, nil, nil
-			}
-			err, arrayType = coltype.LLVMType(g.Ctx)
-			if err != nil {
-				return err, nil, nil, nil
-			}
 			elementsCount = coltype.Size
 		default:
 			err := fmt.Errorf("Property %s is not an array", propSym.Value)
@@ -868,8 +955,8 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 		}
 
 		entry = &ast.ArraySymbolTableEntry{
-			UnderlyingType: elementType,
-			Type:           arrayType,
+			UnderlyingType: etype.SubType,
+			Type:           etype.Type,
 			ElementsCount:  elementsCount,
 		}
 	default:
@@ -900,6 +987,7 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 		if err := expr.Index.Accept(g); err != nil {
 			return err, nil, nil, nil
 		}
+
 		res := g.getLastResult()
 
 		if res.Value.Type().TypeKind() == llvm.PointerTypeKind {
@@ -925,4 +1013,26 @@ func (g *LLVMGenerator) resolveStructAccess(
 		return 0, fmt.Errorf("struct %s has no field %s", structType.Metadata.Name, propName)
 	}
 	return propIndex, nil
+}
+
+func (g *LLVMGenerator) setLastResult(res *ast.CompilerResult) {
+	g.lastResult = res
+}
+
+func (g *LLVMGenerator) getLastResult() *ast.CompilerResult {
+	res := g.lastResult
+	g.lastResult = nil
+
+	return res
+}
+
+func (g *LLVMGenerator) setLastTypeVisitResult(res *CompilerResultType) {
+	g.lastTypeResult = res
+}
+
+func (g *LLVMGenerator) getLastTypeVisitResult() *CompilerResultType {
+	res := g.lastTypeResult
+	g.lastTypeResult = nil
+
+	return res
 }

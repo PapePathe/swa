@@ -23,17 +23,18 @@ var ArrayInitializationExpressionInjectors = map[reflect.Type]ElementInjector{
 }
 
 func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitializationExpression) error {
-	err, llvmtyp := node.Underlying.LLVMType(g.Ctx)
+	err := node.Underlying.Accept(g)
 	if err != nil {
 		return err
 	}
 
+	llvmtyp := g.getLastTypeVisitResult()
+	arrayPointer := g.Ctx.Builder.CreateAlloca(llvmtyp.Type, "array_alloc")
+
 	var discoveredEntry *ast.StructSymbolTableEntry
 
-	arrayPointer := g.Ctx.Builder.CreateAlloca(llvmtyp, "array_alloc")
-
 	for i, expr := range node.Contents {
-		itemGep := g.Ctx.Builder.CreateGEP(llvmtyp, arrayPointer, []llvm.Value{
+		itemGep := g.Ctx.Builder.CreateGEP(llvmtyp.Type, arrayPointer, []llvm.Value{
 			llvm.ConstInt(llvm.GlobalContext().Int32Type(), 0, false),
 			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(i), false),
 		}, "")
@@ -56,10 +57,10 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 	g.setLastResult(&ast.CompilerResult{
 		Value: &arrayPointer,
 		ArraySymbolTableEntry: &ast.ArraySymbolTableEntry{
-			ElementsCount:     llvmtyp.ArrayLength(),
+			ElementsCount:     llvmtyp.Type.ArrayLength(),
 			UnderlyingTypeDef: discoveredEntry, // Correctly passed up!
-			UnderlyingType:    llvmtyp.ElementType(),
-			Type:              llvmtyp,
+			UnderlyingType:    llvmtyp.SubType,
+			Type:              llvmtyp.Type,
 		},
 	})
 

@@ -49,27 +49,8 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 			var entry ast.SymbolTableEntry
 
 			switch argType.(type) {
-			case ast.ArrayType:
-				param := p
-				entry = ast.SymbolTableEntry{
-					Value:        param,
-					DeclaredType: argType,
-					Address:      &param,
-				}
-			case ast.PointerType:
-				param := p
-				entry = ast.SymbolTableEntry{
-					Value:        param,
-					DeclaredType: argType,
-					Address:      &param,
-				}
-			case ast.SymbolType:
-				entry = ast.SymbolTableEntry{
-					Value:        p,
-					DeclaredType: argType,
-					Address:      &p,
-				}
-			case ast.FloatType, ast.NumberType, ast.Number64Type:
+			case ast.FloatType, ast.NumberType, ast.Number64Type,
+				ast.SymbolType, ast.PointerType, ast.ArrayType:
 				entry = ast.SymbolTableEntry{
 					Value:        p,
 					DeclaredType: argType,
@@ -108,7 +89,6 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 			if err != nil {
 				return fmt.Errorf("failed to add parameter %s to symbol table: %w", name, err)
 			}
-
 		}
 
 		err := node.Body.Accept(g)
@@ -132,14 +112,16 @@ type extractedType struct {
 }
 
 func (g *LLVMGenerator) extractType(ctx *ast.CompilerCtx, t ast.Type) (error, extractedType) {
-	err, compiledType := t.LLVMType(ctx)
+	err := t.Accept(g)
 	if err != nil {
 		return err, extractedType{}
 	}
 
+	compiledType := g.getLastTypeVisitResult()
+
 	switch typ := t.(type) {
 	case ast.NumberType, ast.Number64Type, ast.FloatType, ast.StringType, ast.VoidType:
-		return nil, extractedType{typ: compiledType}
+		return nil, extractedType{typ: compiledType.Type}
 	case ast.SymbolType:
 		err, entry := ctx.FindStructSymbol(typ.Name)
 		if err != nil {
@@ -148,7 +130,7 @@ func (g *LLVMGenerator) extractType(ctx *ast.CompilerCtx, t ast.Type) (error, ex
 
 		etyp := extractedType{
 			// TODO: need to dinstinguish between passing a struct as value and as a pointer
-			typ:    llvm.PointerType(compiledType, 0),
+			typ:    llvm.PointerType(compiledType.Type, 0),
 			sEntry: entry,
 		}
 
@@ -167,7 +149,7 @@ func (g *LLVMGenerator) extractType(ctx *ast.CompilerCtx, t ast.Type) (error, ex
 		default:
 		}
 
-		etype := extractedType{typ: compiledType, sEntry: sEntry}
+		etype := extractedType{typ: compiledType.Type, sEntry: sEntry}
 
 		return nil, etype
 	case ast.ArrayType:
@@ -185,12 +167,12 @@ func (g *LLVMGenerator) extractType(ctx *ast.CompilerCtx, t ast.Type) (error, ex
 		}
 
 		etype := extractedType{
-			typ: llvm.PointerType(compiledType.ElementType(), 0),
+			typ: llvm.PointerType(compiledType.SubType, 0),
 			aEntry: &ast.ArraySymbolTableEntry{
-				UnderlyingType:    compiledType.ElementType(),
+				UnderlyingType:    compiledType.SubType,
 				UnderlyingTypeDef: sEntry,
-				ElementsCount:     compiledType.ArrayLength(),
-				Type:              llvm.ArrayType(compiledType.ElementType(), typ.Size),
+				ElementsCount:     typ.Size,
+				Type:              llvm.ArrayType(compiledType.SubType, typ.Size),
 			},
 		}
 
@@ -219,15 +201,4 @@ func (g *LLVMGenerator) funcParams(ctx *ast.CompilerCtx, node *ast.FuncDeclState
 	}
 
 	return nil, params
-}
-
-func (g *LLVMGenerator) setLastResult(res *ast.CompilerResult) {
-	g.lastResult = res
-}
-
-func (g *LLVMGenerator) getLastResult() *ast.CompilerResult {
-	res := g.lastResult
-	g.lastResult = nil
-
-	return res
 }

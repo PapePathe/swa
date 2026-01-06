@@ -1,5 +1,14 @@
 package ast
 
+type CodeGenerator interface {
+	// Statements
+	StatementsCodeGenerator
+	// Expressions
+	ExpressionsCodeGenerator
+	// Types
+	TypeVisitor
+}
+
 type StatementsCodeGenerator interface {
 	VisitBlockStatement(node *BlockStatement) error
 	VisitVarDeclaration(node *VarDeclarationStatement) error
@@ -30,9 +39,13 @@ type ExpressionsCodeGenerator interface {
 	VisitPrefixExpression(node *PrefixExpression) error
 }
 
-type CodeGenerator interface {
-	// Statements
-	StatementsCodeGenerator
-	// Expressions
-	ExpressionsCodeGenerator
+type TypeVisitor interface {
+	VisitSymbolType(node *SymbolType) error
+	VisitNumberType(node *NumberType) error
+	VisitNumber64Type(node *Number64Type) error
+	VisitFloatType(node *FloatType) error
+	VisitPointerType(node *PointerType) error
+	VisitStringType(node *StringType) error
+	VisitArrayType(node *ArrayType) error
+	VisitVoidType(node *VoidType) error
 }
