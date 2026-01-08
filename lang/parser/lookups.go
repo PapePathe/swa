@@ -74,6 +74,7 @@ func createTokenLookups() {
 	nud(lexer.String, ParsePrimaryExpression)
 	nud(lexer.Identifier, ParsePrimaryExpression)
 	nud(lexer.Minus, ParsePrefixExpression)
+	nud(lexer.Not, ParsePrefixExpression)
 	nud(lexer.OpenParen, ParseGroupingExpression)
 
 	led(lexer.Dot, Member, ParseMemberCallExpression)
