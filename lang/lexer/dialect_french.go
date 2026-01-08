@@ -98,6 +98,7 @@ func (m French) Reserved() map[string]TokenKind {
 		"decimal":    TypeFloat,
 		"demarrer":   Main,
 		"dialecte":   DialectDeclaration,
+		"tantque":    KeywordWhile,
 		"entier":     TypeInt,
 		"fonction":   Function,
 		"si":         KeywordIf,

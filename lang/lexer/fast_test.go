@@ -428,12 +428,10 @@ func TestFasteywords(t *testing.T) {
 
 // TestFastrench tests French dialect
 func TestFastrench(t *testing.T) {
-	// TODO: fix parsing utf8 chars in identifiers or strings
-	t.Skip()
 	source := `dialecte:français;
 variable x = 42;
 afficher "Bonjour!";
-tant que vrai {
+tantque vrai {
     afficher "En boucle";
 }`
 
@@ -468,7 +466,7 @@ tant que vrai {
 		{Print, "afficher"},
 		{String, "Bonjour!"},
 		{SemiColon, ";"},
-		{KeywordWhile, "tant que"},
+		{KeywordWhile, "tantque"},
 		{Identifier, "vrai"},
 		{OpenCurly, "{"},
 		{Print, "afficher"},
@@ -545,8 +543,6 @@ func TestFasthitespace(t *testing.T) {
 
 // TestFastdgeCases tests edge cases
 func TestFastdgeCases(t *testing.T) {
-	// TODO: fix lexing accented characters
-	t.Skip()
 	tests := []struct {
 		name   string
 		source string

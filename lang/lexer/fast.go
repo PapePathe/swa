@@ -141,13 +141,6 @@ func (lex *FastLexer) skipWhitespace() {
 func (lex *FastLexer) lexIdentifierOrKeyword() {
 	for !lex.atEOF() {
 		ch := lex.peek()
-
-		if ch >= utf8.RuneSelf && unicode.IsLetter(ch) {
-			lex.advance()
-
-			continue
-		}
-
 		if !lex.isIdentifierPart(ch) {
 			break
 		}
@@ -371,8 +364,10 @@ func (lex *FastLexer) advance() rune {
 	if lex.position >= len(lex.source) {
 		return 0
 	}
-	ch := rune(lex.source[lex.position])
-	lex.position++
+
+	ch, size := utf8.DecodeRuneInString(lex.source[lex.position:])
+	//	ch := rune(lex.source[lex.position])
+	lex.position += size
 
 	if ch == '\n' {
 		lex.line++
@@ -388,14 +383,28 @@ func (lex *FastLexer) peek() rune {
 	if lex.position >= len(lex.source) {
 		return 0
 	}
-	return rune(lex.source[lex.position])
+
+	ch, _ := utf8.DecodeRuneInString(lex.source[lex.position:])
+
+	return ch
 }
 
 func (lex *FastLexer) peekNext() rune {
-	if lex.position+1 >= len(lex.source) {
+	if lex.position >= len(lex.source) {
 		return 0
 	}
-	return rune(lex.source[lex.position+1])
+
+	// Get the current rune size to find the next position
+	_, size := utf8.DecodeRuneInString(lex.source[lex.position:])
+	nextPos := lex.position + size
+
+	if nextPos >= len(lex.source) {
+		return 0
+	}
+
+	ch, _ := utf8.DecodeRuneInString(lex.source[nextPos:])
+
+	return ch
 }
 
 func (lex *FastLexer) newLine() {

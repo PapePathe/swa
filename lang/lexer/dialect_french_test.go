@@ -14,6 +14,7 @@ func TestReservedFrench(t *testing.T) {
 		"decimal":    TypeFloat,
 		"demarrer":   Main,
 		"dialecte":   DialectDeclaration,
+		"tantque":    KeywordWhile,
 		"entier":     TypeInt,
 		"fonction":   Function,
 		"si":         KeywordIf,
