@@ -88,17 +88,6 @@ func parseArrayType(p *Parser) (ast.Type, []lexer.Token) {
 	tokens := []lexer.Token{}
 	tokens = append(tokens, p.advance())
 
-	//	if p.currentToken().Kind == lexer.Number {
-	//		tok := p.expect(lexer.Number)
-	//		p.tokens = append(p.tokens, tok)
-	//
-	//		number, err := strconv.ParseInt(tok.Value, 10, 64)
-	//		if err != nil {
-	//			panic(err)
-	//		}
-	//
-	//		typ.Size = int(number)
-	//	}
 	expr, err := parseExpression(p, DefaultBindingPower)
 	if err != nil {
 		panic(err)
