@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-	"strconv"
 
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
@@ -89,15 +88,26 @@ func parseArrayType(p *Parser) (ast.Type, []lexer.Token) {
 	tokens := []lexer.Token{}
 	tokens = append(tokens, p.advance())
 
-	if p.currentToken().Kind == lexer.Number {
-		tok := p.expect(lexer.Number)
+	//	if p.currentToken().Kind == lexer.Number {
+	//		tok := p.expect(lexer.Number)
+	//		p.tokens = append(p.tokens, tok)
+	//
+	//		number, err := strconv.ParseInt(tok.Value, 10, 64)
+	//		if err != nil {
+	//			panic(err)
+	//		}
+	//
+	//		typ.Size = int(number)
+	//	}
+	expr, err := parseExpression(p, DefaultBindingPower)
+	if err != nil {
+		panic(err)
+	}
 
-		number, err := strconv.ParseInt(tok.Value, 10, 64)
-		if err != nil {
-			panic(err)
-		}
+	typ.DynSizeIdentifier = expr
 
-		typ.Size = int(number)
+	if tpexpr, ok := expr.(ast.NumberExpression); ok {
+		typ.Size = int(tpexpr.Value)
 	}
 
 	tokens = append(tokens, p.expect(lexer.CloseBracket))

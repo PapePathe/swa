@@ -88,8 +88,9 @@ func (se SymbolType) MarshalJSON() ([]byte, error) {
 }
 
 type ArrayType struct {
-	Underlying Type
-	Size       int
+	Underlying        Type
+	Size              int
+	DynSizeIdentifier Expression
 }
 
 var _ Type = (*ArrayType)(nil)
