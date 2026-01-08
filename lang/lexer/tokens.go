@@ -7,10 +7,11 @@ import (
 
 // Token ...
 type Token struct {
-	Value string
-	Name  string
-	Kind  TokenKind `json:"-"`
-	Line  int
+	Value  string
+	Name   string
+	Kind   TokenKind `json:"-"`
+	Line   int
+	Column int
 }
 
 // NewToken ...
@@ -25,6 +26,14 @@ func (t Token) Debug() {
 	} else {
 		fmt.Printf("%s\n", t.Kind)
 	}
+}
+
+func (t Token) String() string {
+	if t.isOneOfMany(Identifier, Number, String) {
+		return fmt.Sprintf("%s (%s) (%d:%d)", t.Kind, t.Value, t.Line, t.Column)
+	}
+
+	return fmt.Sprintf("%s (%d:%d)", t.Kind, t.Line, t.Column)
 }
 
 func (t Token) isOneOfMany(expectedTokens ...TokenKind) bool {
