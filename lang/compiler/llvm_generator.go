@@ -754,13 +754,29 @@ func (g *LLVMGenerator) finalizeSymbol(
 		entry.Ref = res.SymbolTableEntry.Ref
 	}
 
-	if err := g.Ctx.AddSymbol(node.Name, entry); err != nil {
+	if entry.Ref == nil &&
+		node.ExplicitType.Value() == ast.DataTypeSymbol {
+		err := node.ExplicitType.Accept(g)
+		if err != nil {
+			return err
+		}
+
+		compiledres := g.getLastTypeVisitResult()
+
+		if compiledres.Sentry != nil {
+			entry.Ref = compiledres.Sentry
+		}
+	}
+
+	err := g.Ctx.AddSymbol(node.Name, entry)
+	if err != nil {
 		return err
 	}
 
 	if _, ok := node.Value.(ast.ArrayInitializationExpression); ok {
 		return g.Ctx.AddArraySymbol(node.Name, res.ArraySymbolTableEntry)
 	}
+
 	return nil
 }
 
