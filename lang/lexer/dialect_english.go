@@ -15,6 +15,26 @@ func (m English) DetectionPattern() *regexp.Regexp {
 	return regexp.MustCompile(`dialect:english;`)
 }
 
+func (m English) Reserved() map[string]TokenKind {
+	return map[string]TokenKind{
+		"const":    Const,
+		"dialect":  DialectDeclaration,
+		"else":     KeywordElse,
+		"float":    TypeFloat,
+		"func":     Function,
+		"if":       KeywordIf,
+		"int":      TypeInt,
+		"int64":    TypeInt64,
+		"let":      Let,
+		"print":    Print,
+		"return":   Return,
+		"string":   TypeString,
+		"start":    Main,
+		"struct":   Struct,
+		"variadic": Variadic,
+		"while":    KeywordWhile,
+	}
+}
 func (m English) Patterns() []RegexpPattern {
 	return []RegexpPattern{
 		{regexp.MustCompile(`\n`), newlineHandler},
@@ -76,20 +96,6 @@ func (m English) Error(key string, args ...any) error {
 	}
 
 	return errmsg.NewAstError(formatted, args...)
-}
-
-func (m English) Reserved() map[string]TokenKind {
-	return map[string]TokenKind{
-		"if":     KeywordIf,
-		"else":   KeywordElse,
-		"struct": Struct,
-		"func":   Function,
-		"let":    Let,
-		"const":  Const,
-		"int":    TypeInt,
-		"float":  TypeFloat,
-		"string": TypeString,
-	}
 }
 
 func (m English) translations() map[string]string {
