@@ -15,7 +15,7 @@ func parseExpression(p *Parser, bp BindingPower) (ast.Expression, error) {
 			"nud handler expected for token %s and binding power %v \n %v",
 			tokenKind,
 			bp,
-			p.tokens,
+			p.tokens[p.pos].Line,
 		)
 	}
 

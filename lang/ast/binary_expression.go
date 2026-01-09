@@ -122,6 +122,10 @@ func (expr BinaryExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResu
 	return handler(ctx, finalLeftValue, finalRightValue)
 }
 
+func (expr BinaryExpression) Accept(g CodeGenerator) error {
+	return g.VisitBinaryExpression(&expr)
+}
+
 func (expr BinaryExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

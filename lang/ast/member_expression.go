@@ -177,8 +177,16 @@ func (expr MemberExpression) getNestedMemberAddress(ctx *CompilerCtx, member Mem
 	return nil, addr
 }
 
+func (expr MemberExpression) Accept(g CodeGenerator) error {
+	return g.VisitMemberExpression(&expr)
+}
+
 func (expr MemberExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
+}
+
+func (expr MemberExpression) String() string {
+	return fmt.Sprintf("%s.%s", expr.Object, expr.Property)
 }
 
 func (expr MemberExpression) MarshalJSON() ([]byte, error) {

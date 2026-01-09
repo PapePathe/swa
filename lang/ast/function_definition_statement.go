@@ -99,6 +99,10 @@ func (fd FuncDeclStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResul
 	return nil, nil
 }
 
+func (fd FuncDeclStatement) Accept(g CodeGenerator) error {
+	return g.VisitFunctionDefinition(&fd)
+}
+
 func (expr FuncDeclStatement) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

@@ -27,6 +27,10 @@ func (se FloatExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 	return nil, &CompilerResult{Value: &res}
 }
 
+func (expr FloatExpression) Accept(g CodeGenerator) error {
+	return g.VisitFloatExpression(&expr)
+}
+
 func (expr FloatExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

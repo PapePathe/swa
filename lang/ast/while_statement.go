@@ -45,6 +45,10 @@ func (expr WhileStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 	return nil, nil
 }
 
+func (ws WhileStatement) Accept(g CodeGenerator) error {
+	return g.VisitWhileStatement(&ws)
+}
+
 func (expr WhileStatement) TokenStream() []lexer.Token {
 	return expr.Tokens
 }

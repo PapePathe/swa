@@ -211,8 +211,16 @@ func (expr ArrayOfStructsAccessExpression) CompileLLVM(ctx *CompilerCtx) (error,
 	}
 }
 
+func (expr ArrayOfStructsAccessExpression) Accept(g CodeGenerator) error {
+	return g.VisitArrayOfStructsAccessExpression(&expr)
+}
+
 func (expr ArrayOfStructsAccessExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
+}
+
+func (expr ArrayOfStructsAccessExpression) String() string {
+	return fmt.Sprintf("%s[%s].%s", expr.Name, expr.Index, expr.Property)
 }
 
 func (cs ArrayOfStructsAccessExpression) MarshalJSON() ([]byte, error) {

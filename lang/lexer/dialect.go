@@ -12,6 +12,5 @@ var dialects = map[string]Dialect{
 type Dialect interface {
 	Error(key string, args ...any) error
 	DetectionPattern() *regexp.Regexp
-	Patterns() []RegexpPattern
 	Reserved() map[string]TokenKind
 }

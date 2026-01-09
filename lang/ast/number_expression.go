@@ -19,7 +19,7 @@ type NumberExpression struct {
 var _ Expression = (*NumberExpression)(nil)
 
 func (e NumberExpression) String() string {
-	return fmt.Sprintf("%d", int(e.Value))
+	return fmt.Sprintf("%d", e.Value)
 }
 
 func (se NumberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
@@ -40,6 +40,10 @@ func (se NumberExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult
 	res := llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(se.Value), signed)
 
 	return nil, &CompilerResult{Value: &res}
+}
+
+func (expr NumberExpression) Accept(g CodeGenerator) error {
+	return g.VisitNumberExpression(&expr)
 }
 
 func (expr NumberExpression) TokenStream() []lexer.Token {

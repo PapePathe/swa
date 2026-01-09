@@ -53,6 +53,7 @@ const (
 
 // Type
 type Type interface {
+	Accept(g CodeGenerator) error
 	Value() DataType
 	LLVMType(ctx *CompilerCtx) (error, llvm.Type)
 }
@@ -65,6 +66,10 @@ var _ Type = (*SymbolType)(nil)
 
 func (SymbolType) Value() DataType {
 	return DataTypeSymbol
+}
+
+func (typ SymbolType) Accept(g CodeGenerator) error {
+	return g.VisitSymbolType(&typ)
 }
 
 func (typ SymbolType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
@@ -88,14 +93,19 @@ func (se SymbolType) MarshalJSON() ([]byte, error) {
 }
 
 type ArrayType struct {
-	Underlying Type
-	Size       int
+	Underlying        Type
+	Size              int
+	DynSizeIdentifier Expression
 }
 
 var _ Type = (*ArrayType)(nil)
 
 func (ArrayType) Value() DataType {
 	return DataTypeArray
+}
+
+func (typ ArrayType) Accept(g CodeGenerator) error {
+	return g.VisitArrayType(&typ)
 }
 
 func (a ArrayType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
@@ -126,6 +136,10 @@ func (NumberType) Value() DataType {
 	return DataTypeNumber
 }
 
+func (typ NumberType) Accept(g CodeGenerator) error {
+	return g.VisitNumberType(&typ)
+}
+
 func (NumberType) LLVMType(*CompilerCtx) (error, llvm.Type) {
 	return nil, llvm.GlobalContext().Int32Type()
 }
@@ -151,6 +165,11 @@ func (se StringType) MarshalJSON() ([]byte, error) {
 
 	return json.Marshal(res)
 }
+
+func (typ StringType) Accept(g CodeGenerator) error {
+	return g.VisitStringType(&typ)
+}
+
 func (StringType) LLVMType(*CompilerCtx) (error, llvm.Type) {
 	return nil, llvm.PointerType(
 		llvm.GlobalContext().Int8Type(),
@@ -170,6 +189,10 @@ func (FloatType) LLVMType(*CompilerCtx) (error, llvm.Type) {
 	return nil, llvm.GlobalContext().DoubleType()
 }
 
+func (typ FloatType) Accept(g CodeGenerator) error {
+	return g.VisitFloatType(&typ)
+}
+
 func (se FloatType) MarshalJSON() ([]byte, error) {
 	res := make(map[string]any)
 	res["ast.FloatType"] = se.Value().String()
@@ -179,6 +202,10 @@ func (se FloatType) MarshalJSON() ([]byte, error) {
 
 type PointerType struct {
 	Underlying Type
+}
+
+func (typ PointerType) Accept(g CodeGenerator) error {
+	return g.VisitPointerType(&typ)
 }
 
 func (se PointerType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
@@ -222,6 +249,10 @@ func (VoidType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
 	return nil, llvm.GlobalContext().VoidType()
 }
 
+func (typ VoidType) Accept(g CodeGenerator) error {
+	return g.VisitVoidType(&typ)
+}
+
 type Number64Type struct{}
 
 var _ Type = (*Number64Type)(nil)
@@ -242,4 +273,8 @@ func (se Number64Type) MarshalJSON() ([]byte, error) {
 
 func (Number64Type) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
 	return nil, llvm.GlobalContext().Int64Type()
+}
+
+func (typ Number64Type) Accept(g CodeGenerator) error {
+	return g.VisitNumber64Type(&typ)
 }

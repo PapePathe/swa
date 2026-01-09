@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+	"os"
 	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
@@ -21,6 +22,7 @@ type StructSymbolTableEntry struct {
 	LLVMType      llvm.Type
 	PropertyTypes []llvm.Type
 	Metadata      StructDeclarationStatement
+	Embeds        map[string]StructSymbolTableEntry
 }
 
 type SymbolTableEntry struct {
@@ -47,6 +49,7 @@ type CompilerCtx struct {
 	structSymbolTable map[string]StructSymbolTableEntry
 	arraysSymbolTable map[string]ArraySymbolTableEntry
 	funcSymbolTable   map[string]llvm.Type
+	Debugging         bool
 }
 
 func NewCompilerContext(
@@ -56,12 +59,19 @@ func NewCompilerContext(
 	d lexer.Dialect,
 	p *CompilerCtx,
 ) *CompilerCtx {
+	var debugging bool
+	dbg := os.Getenv("SWA_DEBUG")
+	if dbg == "yes" {
+		debugging = true
+	}
+
 	return &CompilerCtx{
 		parent:            p,
 		Context:           c,
 		Builder:           b,
 		Module:            m,
 		Dialect:           d,
+		Debugging:         debugging,
 		symbolTable:       map[string]SymbolTableEntry{},
 		structSymbolTable: map[string]StructSymbolTableEntry{},
 		funcSymbolTable:   map[string]llvm.Type{},

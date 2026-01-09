@@ -15,10 +15,13 @@ func TestReservedFrench(t *testing.T) {
 		"demarrer":   Main,
 		"dialecte":   DialectDeclaration,
 		"entier":     TypeInt,
+		"entier64":   TypeInt64,
 		"fonction":   Function,
+		"retourner":  Return,
 		"si":         KeywordIf,
 		"sinon":      KeywordElse,
 		"structure":  Struct,
+		"tantque":    KeywordWhile,
 		"variable":   Let,
 		"variadique": Variadic,
 	}
@@ -27,10 +30,4 @@ func TestReservedFrench(t *testing.T) {
 	reserved := French.Reserved()
 
 	assert.Equal(t, expected, reserved)
-}
-
-func TestPatternsFrench(t *testing.T) {
-	french := French{}
-
-	assert.Equal(t, 48, len(french.Patterns()))
 }
