@@ -12,9 +12,6 @@ var _ Dialect = (*Malinke)(nil)
 func (Malinke) DetectionPattern() *regexp.Regexp {
 	return regexp.MustCompile(`dialect:malinke;`)
 }
-func (m Malinke) Patterns() []RegexpPattern {
-	return []RegexpPattern{}
-}
 
 func (m Malinke) Error(key string, args ...any) error {
 	return fmt.Errorf("Not implemented")

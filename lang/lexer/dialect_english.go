@@ -35,9 +35,6 @@ func (m English) Reserved() map[string]TokenKind {
 		"while":    KeywordWhile,
 	}
 }
-func (m English) Patterns() []RegexpPattern {
-	return []RegexpPattern{}
-}
 
 func (m English) Error(key string, args ...any) error {
 	formatted, ok := m.translations()[key]

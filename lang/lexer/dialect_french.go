@@ -36,10 +36,6 @@ func (m French) Reserved() map[string]TokenKind {
 	}
 }
 
-func (m French) Patterns() []RegexpPattern {
-	return []RegexpPattern{}
-}
-
 func (m French) Error(key string, args ...any) error {
 	formatted, ok := m.translations()[key]
 
