@@ -38,7 +38,8 @@ func NewFastLexer(source string) (*FastLexer, Dialect, error) {
 	}, dialect, nil
 }
 
-// NewFastLexer creates a new FastLexer instance with a specific dialect
+// NewFastLexerWithDialect ...
+// creates a new FastLexer instance with a specific dialect
 func NewFastLexerWithDialect(source string, dialect Dialect) (*FastLexer, error) {
 	return &FastLexer{
 		Tokens:        make([]Token, 0),
@@ -50,7 +51,6 @@ func NewFastLexerWithDialect(source string, dialect Dialect) (*FastLexer, error)
 	}, nil
 }
 
-// GetAllTokens returns all tokens from lexing the source
 func (lex *FastLexer) GetAllTokens() ([]Token, error) {
 	err := lex.Lex()
 	if err != nil {
@@ -60,7 +60,6 @@ func (lex *FastLexer) GetAllTokens() ([]Token, error) {
 	return lex.Tokens, nil
 }
 
-// Lex scans the source code and produces tokens
 func (lex *FastLexer) Lex() error {
 	for !lex.atEOF() {
 		lex.start = lex.position
@@ -70,7 +69,6 @@ func (lex *FastLexer) Lex() error {
 
 		switch {
 		case ch == '\n':
-			//			lex.push(Token{Kind: Newline, Value: "\n", Line: lex.startLine, Column: lex.startColumn})
 
 		case unicode.IsSpace(ch) && ch != '\n':
 			lex.skipWhitespace()
@@ -82,12 +80,14 @@ func (lex *FastLexer) Lex() error {
 			lex.lexNumber()
 
 		case ch == '"':
-			if err := lex.lexString(); err != nil {
+			err := lex.lexString()
+			if err != nil {
 				return err
 			}
 
 		case ch == '\'':
-			if err := lex.lexChar(); err != nil {
+			err := lex.lexChar()
+			if err != nil {
 				return err
 			}
 
@@ -99,25 +99,25 @@ func (lex *FastLexer) Lex() error {
 			}
 
 		case ch == ';':
-			lex.push2(SemiColon, string(ch))
+			lex.push(SemiColon, string(ch))
 
 		case ch == '(':
-			lex.push2(OpenParen, "(")
+			lex.push(OpenParen, "(")
 
 		case ch == ')':
-			lex.push2(CloseParen, ")")
+			lex.push(CloseParen, ")")
 
 		case ch == '{':
-			lex.push2(OpenCurly, "{")
+			lex.push(OpenCurly, "{")
 
 		case ch == '}':
-			lex.push2(CloseCurly, "}")
+			lex.push(CloseCurly, "}")
 
 		case ch == '[':
-			lex.push2(OpenBracket, "[")
+			lex.push(OpenBracket, "[")
 
 		case ch == ']':
-			lex.push2(CloseBracket, "]")
+			lex.push(CloseBracket, "]")
 
 		default:
 			lex.lexOperator()
@@ -151,12 +151,12 @@ func (lex *FastLexer) lexIdentifierOrKeyword() {
 	text := lex.currentText()
 
 	if kind, ok := lex.reservedWords[text]; ok {
-		lex.push2(kind, text)
+		lex.push(kind, text)
 
 		return
 	}
 
-	lex.push2(Identifier, text)
+	lex.push(Identifier, text)
 }
 
 func (lex *FastLexer) isIdentifierStart(ch rune) bool {
@@ -181,6 +181,7 @@ func (lex *FastLexer) lexNumber() {
 		ch := lex.peek()
 		if ch == '.' && !hadDecimal && unicode.IsDigit(lex.peekNext()) {
 			hadDecimal = true
+
 			lex.advance()
 		} else if unicode.IsDigit(ch) {
 			lex.advance()
@@ -191,14 +192,15 @@ func (lex *FastLexer) lexNumber() {
 
 	text := lex.currentText()
 	if hadDecimal {
-		lex.push2(Float, text)
+		lex.push(Float, text)
 	} else {
-		lex.push2(Number, text)
+		lex.push(Number, text)
 	}
 }
 
 func (lex *FastLexer) lexString() error {
 	var builder strings.Builder
+
 	escaped := false
 
 	for !lex.atEOF() {
@@ -220,11 +222,13 @@ func (lex *FastLexer) lexString() error {
 				// Invalid escape sequence
 				return fmt.Errorf("invalid escape sequence \\%c at line %d, column %d", ch, lex.line, lex.column)
 			}
+
 			escaped = false
 		} else if ch == '\\' {
 			escaped = true
 		} else if ch == '"' {
-			lex.push2(String, builder.String())
+			lex.push(String, builder.String())
+
 			return nil
 		} else {
 			builder.WriteRune(ch)
@@ -240,6 +244,7 @@ func (lex *FastLexer) lexChar() error {
 	}
 
 	ch := lex.advance()
+
 	var charValue rune
 
 	if ch == '\\' {
@@ -247,7 +252,9 @@ func (lex *FastLexer) lexChar() error {
 		if lex.atEOF() {
 			return fmt.Errorf("unterminated character literal at line %d, column %d", lex.startLine, lex.startColumn)
 		}
+
 		next := lex.advance()
+
 		switch next {
 		case 'n':
 			charValue = '\n'
@@ -271,7 +278,8 @@ func (lex *FastLexer) lexChar() error {
 		return fmt.Errorf("unterminated character literal at line %d, column %d", lex.startLine, lex.startColumn)
 	}
 
-	lex.push2(Character, string(charValue))
+	lex.push(Character, string(charValue))
+
 	return nil
 }
 
@@ -298,9 +306,9 @@ func (lex *FastLexer) lexOperator() {
 
 		if lex.isTwoCharOperator(twoChar) {
 			lex.advance()
-			lex.push2(lex.getOperatorKind(twoChar), twoChar)
+			lex.push(lex.getOperatorKind(twoChar), twoChar)
 		} else {
-			lex.push2(lex.getOperatorKind(text), text)
+			lex.push(lex.getOperatorKind(text), text)
 		}
 	}
 }
@@ -366,7 +374,6 @@ func (lex *FastLexer) advance() rune {
 	}
 
 	ch, size := utf8.DecodeRuneInString(lex.source[lex.position:])
-	//	ch := rune(lex.source[lex.position])
 	lex.position += size
 
 	if ch == '\n' {
@@ -407,16 +414,7 @@ func (lex *FastLexer) peekNext() rune {
 	return ch
 }
 
-func (lex *FastLexer) newLine() {
-	lex.line += 1
-	lex.column = 1
-}
-
-func (lex *FastLexer) push(token Token) {
-	lex.Tokens = append(lex.Tokens, token)
-}
-
-func (lex *FastLexer) push2(k TokenKind, v string) {
+func (lex *FastLexer) push(k TokenKind, v string) {
 	lex.Tokens = append(lex.Tokens, Token{
 		Kind:   k,
 		Value:  v,
