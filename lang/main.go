@@ -76,10 +76,18 @@ var compileCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		sourceCode := string(bytes)
-		tokens, dialect := lexer.Tokenize(sourceCode)
-		tree, err := parser.Parse(tokens)
-		if err != nil {
-			os.Stdout.WriteString(err.Error())
+		tokens, dialect, errs := lexer.Tokenize(sourceCode)
+		if len(errs) > 0 {
+			for _, err := range errs {
+				fmt.Printf("%s \n", err)
+			}
+			os.Exit(1)
+		}
+		tree, errs := parser.Parse(tokens)
+		if len(errs) > 0 {
+			for _, err := range errs {
+				fmt.Printf("%s \n", err)
+			}
 			os.Exit(1)
 		}
 		target := compiler.BuildTarget{
@@ -131,7 +139,13 @@ var tokenizeCmd = &cobra.Command{
 		}
 
 		sourceCode := string(bytes)
-		tokens, _ := lexer.Tokenize(sourceCode)
+		tokens, _, errs := lexer.Tokenize(sourceCode)
+		if len(errs) > 0 {
+			for _, err := range errs {
+				fmt.Printf("%s \n", err)
+			}
+			os.Exit(1)
+		}
 
 		fmt.Println(tokens)
 	},
@@ -150,10 +164,18 @@ var parseCmd = &cobra.Command{
 		}
 
 		sourceCode := string(bytes)
-		tokens, _ := lexer.Tokenize(sourceCode)
-		st, err := parser.Parse(tokens)
-		if err != nil {
-			fmt.Println(err)
+		tokens, _, errs := lexer.Tokenize(sourceCode)
+		if len(errs) > 0 {
+			for _, err := range errs {
+				fmt.Printf("%s \n", err)
+			}
+			os.Exit(1)
+		}
+		st, errs := parser.Parse(tokens)
+		if len(errs) > 0 {
+			for _, err := range errs {
+				fmt.Println(err)
+			}
 			os.Exit(1)
 		}
 
