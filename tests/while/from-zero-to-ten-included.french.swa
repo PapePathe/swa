@@ -1,7 +1,7 @@
 dialecte:français;
 
 demarrer() entier{
-  variable x : int = 0;
+  variable x : entier = 0;
   tantque(x <= 10) {
     afficher("%d ", x);
 
