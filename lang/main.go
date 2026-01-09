@@ -76,7 +76,7 @@ var compileCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		sourceCode := string(bytes)
-		tokens, dialect := lexer.Tokenize2(sourceCode)
+		tokens, dialect := lexer.Tokenize(sourceCode)
 		tree, err := parser.Parse(tokens)
 		if err != nil {
 			os.Stdout.WriteString(err.Error())
@@ -131,7 +131,7 @@ var tokenizeCmd = &cobra.Command{
 		}
 
 		sourceCode := string(bytes)
-		tokens, _ := lexer.Tokenize2(sourceCode)
+		tokens, _ := lexer.Tokenize(sourceCode)
 
 		fmt.Println(tokens)
 	},
@@ -150,7 +150,7 @@ var parseCmd = &cobra.Command{
 		}
 
 		sourceCode := string(bytes)
-		tokens, _ := lexer.Tokenize2(sourceCode)
+		tokens, _ := lexer.Tokenize(sourceCode)
 		st, err := parser.Parse(tokens)
 		if err != nil {
 			fmt.Println(err)
