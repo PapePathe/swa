@@ -68,7 +68,7 @@ func (WebParser) expectPayload(r *http.Request) (*WebParserRequest, error) {
 }
 
 func (WebParser) expectResponse(data *WebParserRequest) ([]byte, error) {
-	tokens, _ := lexer.Tokenize(data.Src)
+	tokens, _ := lexer.Tokenize2(data.Src)
 
 	absTree, err := parser.Parse(tokens)
 	if err != nil {

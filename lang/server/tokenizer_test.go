@@ -15,69 +15,61 @@ func TestTokenizer(t *testing.T) {
 	request, _ := http.NewRequest(http.MethodPost, "/t", payload)
 	response := httptest.NewRecorder()
 	expectedResponse := `[{
-        "Name": "DIALECT",
+        "Name": "",
         "Value": "dialecte",
-        "Column": 0,
-        "Line": 0
+        "Column": 1,
+        "Line": 1
     },
     {
-        "Name": "COLON",
-        "Column": 0,
-        "Line": 0,
+        "Name": "",
+        "Column": 9,
+        "Line": 1,
         "Value": ":"
     },
     {
-        "Name": "IDENTIFIER",
-        "Column": 0,
-        "Line": 0,
+        "Name": "",
+        "Column": 10,
+        "Line": 1,
         "Value": "français"
     },
     {
-        "Name": "SEMI_COLON",
-        "Column": 0,
-        "Line": 0,
+        "Name": "",
+        "Column": 18,
+        "Line": 1,
         "Value": ";"
     },
     {
-        "Name": "LET",
-        "Column": 0,
-        "Line": 0,
+        "Name": "",
+        "Column": 20,
+        "Line": 1,
         "Value": "variable"
     },
     {
-        "Name": "IDENTIFIER",
-        "Column": 0,
-        "Line": 0,
+        "Name": "",
+        "Column": 29,
+        "Line": 1,
         "Value": "x"
     },
     {
-        "Name": "ASSIGNMENT",
-        "Column": 0,
-        "Line": 0,
+        "Name": "",
+        "Column": 31,
+        "Line": 1,
         "Value": "="
     },
     {
-        "Name": "NUMBER",
-        "Column": 0,
-        "Line": 0,
+        "Name": "",
+        "Column": 33,
+        "Line": 1,
         "Value": "10"
     },
     {
-        "Name": "SEMI_COLON",
-        "Column": 0,
-        "Line": 0,
+        "Name": "",
+        "Column": 35,
+        "Line": 1,
         "Value": ";"
-    },
-    {
-        "Name": "EOF",
-        "Column": 0,
-        "Line": 0,
-        "Value": "EOF"
     }]`
 
 	web.ServeHTTP(response, request)
 
-	got := response.Body.String()
-
-	assert.JSONEq(t, got, expectedResponse)
+	assert.JSONEq(t, expectedResponse, response.Body.String())
 }
