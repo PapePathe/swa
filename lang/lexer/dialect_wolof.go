@@ -35,6 +35,6 @@ func (m Wolof) Reserved() map[string]TokenKind {
 }
 
 func (m Wolof) translations() map[string]string {
-	// TODO: add reserved words
+	// TODO: add translations for error messages
 	return map[string]string{}
 }
