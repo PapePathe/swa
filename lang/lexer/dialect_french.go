@@ -15,6 +15,27 @@ func (French) DetectionPattern() *regexp.Regexp {
 	return regexp.MustCompile(`dialecte:français;`)
 }
 
+func (m French) Reserved() map[string]TokenKind {
+	return map[string]TokenKind{
+		"afficher":   Print,
+		"chaine":     TypeString,
+		"constante":  Const,
+		"decimal":    TypeFloat,
+		"demarrer":   Main,
+		"dialecte":   DialectDeclaration,
+		"entier":     TypeInt,
+		"entier64":   TypeInt64,
+		"fonction":   Function,
+		"retourner":  Return,
+		"si":         KeywordIf,
+		"sinon":      KeywordElse,
+		"structure":  Struct,
+		"tantque":    KeywordWhile,
+		"variable":   Let,
+		"variadique": Variadic,
+	}
+}
+
 func (m French) Patterns() []RegexpPattern {
 	return []RegexpPattern{
 		{regexp.MustCompile(`\n`), newlineHandler},
@@ -88,25 +109,6 @@ func (m French) Error(key string, args ...any) error {
 	}
 
 	return errmsg.NewAstError(formatted, args...)
-}
-
-func (m French) Reserved() map[string]TokenKind {
-	return map[string]TokenKind{
-		"afficher":   Print,
-		"chaine":     TypeString,
-		"constante":  Const,
-		"decimal":    TypeFloat,
-		"demarrer":   Main,
-		"dialecte":   DialectDeclaration,
-		"tantque":    KeywordWhile,
-		"entier":     TypeInt,
-		"fonction":   Function,
-		"si":         KeywordIf,
-		"sinon":      KeywordElse,
-		"structure":  Struct,
-		"variable":   Let,
-		"variadique": Variadic,
-	}
 }
 
 func (m French) translations() map[string]string {
