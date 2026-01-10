@@ -13,14 +13,33 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 		return err
 	}
 
+	format := "Strings are not supported in %s of binary expression"
+	if _, ok := node.Left.(ast.StringExpression); ok {
+		return fmt.Errorf(format, "left")
+	}
+
+	if _, ok := node.Right.(ast.StringExpression); ok {
+		return fmt.Errorf(format, "right")
+	}
+
 	leftRes := g.getLastResult()
+	if leftRes.SymbolTableEntry != nil &&
+		leftRes.SymbolTableEntry.DeclaredType.Value() == ast.DataTypeString {
+		return fmt.Errorf(format, "symbol left")
+	}
+
+	leftVal := g.extractRValue(leftRes)
 
 	if err := node.Right.Accept(g); err != nil {
 		return err
 	}
 
 	rightRes := g.getLastResult()
-	leftVal := g.extractRValue(leftRes)
+	if rightRes.SymbolTableEntry != nil &&
+		rightRes.SymbolTableEntry.DeclaredType.Value() == ast.DataTypeString {
+		return fmt.Errorf(format, "symbol right")
+	}
+
 	rightVal := g.extractRValue(rightRes)
 
 	finalLeft, finalRight, err := g.coerceOperands(leftVal, rightVal)

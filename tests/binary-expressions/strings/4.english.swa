@@ -1,0 +1,6 @@
+dialect:english;
+
+start() int {
+  let concat : string =  1 + "";
+  return 0;
+}
