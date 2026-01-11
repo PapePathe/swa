@@ -30,6 +30,7 @@ type SymbolTableEntry struct {
 	Address      *llvm.Value
 	Ref          *StructSymbolTableEntry
 	DeclaredType Type
+	Global       bool
 }
 
 type ArraySymbolTableEntry struct {
@@ -50,6 +51,7 @@ type CompilerCtx struct {
 	arraysSymbolTable map[string]ArraySymbolTableEntry
 	funcSymbolTable   map[string]llvm.Type
 	Debugging         bool
+	InsideFunction    bool
 }
 
 func NewCompilerContext(
@@ -60,12 +62,13 @@ func NewCompilerContext(
 	p *CompilerCtx,
 ) *CompilerCtx {
 	var debugging bool
+
 	dbg := os.Getenv("SWA_DEBUG")
 	if dbg == "yes" {
 		debugging = true
 	}
 
-	return &CompilerCtx{
+	ctx := &CompilerCtx{
 		parent:            p,
 		Context:           c,
 		Builder:           b,
@@ -77,6 +80,12 @@ func NewCompilerContext(
 		funcSymbolTable:   map[string]llvm.Type{},
 		arraysSymbolTable: map[string]ArraySymbolTableEntry{},
 	}
+
+	if p != nil {
+		ctx.InsideFunction = p.InsideFunction
+	}
+
+	return ctx
 }
 
 func (ctx CompilerCtx) AddStructSymbol(name string, value *StructSymbolTableEntry) error {
