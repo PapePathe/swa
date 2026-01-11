@@ -569,12 +569,8 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 		return nil
 	}
 
-	// Check if the address is actually an alloca instruction or a function parameter
-	// Function parameters aren't stored in memory, they're SSA values
-	// We can detect this by checking if the instruction opcode is Alloca
 	if entry.Address.IsAInstruction().IsNil() ||
 		entry.Address.InstructionOpcode() != llvm.Alloca {
-		// This is likely a function parameter, use the value directly
 		g.setLastResult(
 			&ast.CompilerResult{
 				Value:            entry.Address,
@@ -685,6 +681,7 @@ func (g *LLVMGenerator) VisitPrefixExpression(node *ast.PrefixExpression) error 
 
 	val := handler(g, *res.Value)
 	g.setLastResult(&ast.CompilerResult{Value: &val})
+
 	return nil
 }
 
@@ -706,6 +703,7 @@ func (g *LLVMGenerator) prepareReturnValue(expr ast.Expression, res *ast.Compile
 	case ast.StringExpression:
 		alloc := g.Ctx.Builder.CreateAlloca(res.Value.Type(), "")
 		g.Ctx.Builder.CreateStore(*res.Value, alloc)
+
 		return alloc, nil
 	case ast.SymbolExpression, ast.BinaryExpression, ast.FunctionCallExpression, ast.NumberExpression, ast.FloatExpression:
 		return *res.Value, nil
