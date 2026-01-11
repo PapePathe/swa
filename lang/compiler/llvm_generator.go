@@ -735,11 +735,13 @@ var nodeVariableDeclarationStyles = map[reflect.Type]InitializationStyle{
 }
 
 func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatement) error {
-	if err := node.Value.Accept(g); err != nil {
+	err := node.Value.Accept(g)
+	if err != nil {
 		return err
 	}
 
 	res := g.getLastResult()
+
 	style, ok := nodeVariableDeclarationStyles[reflect.TypeOf(node.Value)]
 	if !ok {
 		return fmt.Errorf("var decl with %s not supported", node.Value)
