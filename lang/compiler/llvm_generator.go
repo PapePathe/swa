@@ -283,6 +283,10 @@ func (g *LLVMGenerator) VisitFloatExpression(node *ast.FloatExpression) error {
 
 // VisitMainStatement implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitMainStatement(node *ast.MainStatement) error {
+	g.Ctx.InsideFunction = true
+
+	defer func() { g.Ctx.InsideFunction = false }()
+
 	fnType := llvm.FunctionType(
 		g.Ctx.Context.Int32Type(),
 		[]llvm.Type{},
@@ -473,6 +477,13 @@ func (g *LLVMGenerator) VisitReturnStatement(node *ast.ReturnStatement) error {
 
 // VisitStringExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitStringExpression(node *ast.StringExpression) error {
+	if !g.Ctx.InsideFunction {
+		value := llvm.ConstString(node.Value, true)
+		g.setLastResult(&ast.CompilerResult{Value: &value})
+
+		return nil
+	}
+
 	valuePtr := g.Ctx.Builder.CreateGlobalStringPtr(node.Value, "")
 	res := ast.CompilerResult{Value: &valuePtr}
 
@@ -516,6 +527,35 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 	err, entry := g.Ctx.FindSymbol(node.Value)
 	if err != nil {
 		return err
+	}
+
+	if entry.Global {
+		load := llvm.Value{}
+
+		switch entry.DeclaredType.Value() {
+		case ast.DataTypeFloat, ast.DataTypeNumber, ast.DataTypeNumber64:
+			err := entry.DeclaredType.Accept(g)
+			if err != nil {
+				return err
+			}
+
+			datatype := g.getLastTypeVisitResult()
+
+			load = g.Ctx.Builder.CreateLoad(datatype.Type, *entry.Address, "")
+		case ast.DataTypeString:
+			load = *entry.Address
+		default:
+			return fmt.Errorf("Unsupported datatype in global")
+		}
+
+		g.setLastResult(
+			&ast.CompilerResult{
+				Value:            &load,
+				SymbolTableEntry: entry,
+			},
+		)
+
+		return nil
 	}
 
 	if entry.Address == nil {
@@ -585,6 +625,7 @@ func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) e
 			Value:        alloc,
 			Address:      &alloc,
 			DeclaredType: node.ExplicitType,
+			Global:       !g.Ctx.InsideFunction,
 		}
 
 		err = g.Ctx.AddSymbol(node.Name, entry)
@@ -710,9 +751,17 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 
 	switch style {
 	case StyleDirect:
+		if !g.Ctx.InsideFunction {
+			return fmt.Errorf("global var decl with %T not supported", node.Value)
+		}
+
 		finalAddr = res.Value
 
 	case StyleLoadStore:
+		if !g.Ctx.InsideFunction {
+			return fmt.Errorf("global var decl with %T not supported", node.Value)
+		}
+
 		// Logic for extracting value from an accessor
 		typ := res.Value.AllocatedType()
 		if _, ok := node.Value.(ast.ArrayOfStructsAccessExpression); ok {
@@ -725,9 +774,15 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 		finalAddr = &alloc
 
 	default: // StyleDefault
-		alloc := g.Ctx.Builder.CreateAlloca(res.Value.Type(), node.Name)
-		g.Ctx.Builder.CreateStore(*res.Value, alloc)
-		finalAddr = &alloc
+		if g.Ctx.InsideFunction {
+			alloc := g.Ctx.Builder.CreateAlloca(res.Value.Type(), node.Name)
+			g.Ctx.Builder.CreateStore(*res.Value, alloc)
+			finalAddr = &alloc
+		} else {
+			glob := llvm.AddGlobal(*g.Ctx.Module, res.Value.Type(), node.Name)
+			glob.SetInitializer(*res.Value)
+			finalAddr = &glob
+		}
 	}
 
 	// Unified Metadata Management
@@ -743,6 +798,7 @@ func (g *LLVMGenerator) finalizeSymbol(
 	entry := &ast.SymbolTableEntry{
 		Address:      addr,
 		DeclaredType: node.ExplicitType,
+		Global:       !g.Ctx.InsideFunction,
 		Ref:          res.StructSymbolTableEntry,
 	}
 
