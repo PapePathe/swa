@@ -9,6 +9,10 @@ import (
 )
 
 func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInitializationExpression) error {
+	if !g.Ctx.InsideFunction {
+		return fmt.Errorf("struct initialization should happen inside a function")
+	}
+
 	err, structType := g.Ctx.FindStructSymbol(node.Name)
 	if err != nil {
 		return err
