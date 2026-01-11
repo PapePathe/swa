@@ -6,6 +6,43 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestGlobals(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Global variables", func(t *testing.T) {
+
+		t.Run("1", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./globals/1.english.swa",
+				ExpectedExecutionOutput: "LANG: Swahili,PI: 3.14, SPEED_OF_LIGHT: 300000",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("2", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./globals/2.english.swa",
+				ExpectedOutput: "struct initialization should happen inside a function\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+
+		t.Run("3", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./globals/3.english.swa",
+				ExpectedOutput: "array initialization should happen inside a function\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+	})
+}
+
 func TestBugInvalidArrayAccess(t *testing.T) {
 	t.Parallel()
 

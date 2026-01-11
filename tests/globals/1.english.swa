@@ -1,0 +1,15 @@
+dialect:english;
+
+let NAME : string = "Swahili";
+let PI : float = 3.14;
+let SPEED_OF_LIGHT: int = 300000;
+
+start() int {
+  print(
+    "LANG: %s,PI: %.2f, SPEED_OF_LIGHT: %d", 
+    NAME,
+    PI, 
+    SPEED_OF_LIGHT
+  );
+  return 0;
+}
