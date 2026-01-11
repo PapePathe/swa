@@ -16,6 +16,12 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 		g.Ctx.Dialect,
 		g.Ctx,
 	)
+	g.Ctx.InsideFunction = true
+
+	defer func() {
+		g.Ctx.InsideFunction = false
+		g.Ctx = oldCtx
+	}()
 
 	err, params := g.funcParams(g.Ctx, node)
 	if err != nil {
@@ -98,8 +104,6 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 	} else {
 		newFunc.SetLinkage(llvm.ExternalLinkage)
 	}
-
-	g.Ctx = oldCtx
 
 	return nil
 }
