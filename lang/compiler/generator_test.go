@@ -13,7 +13,7 @@ func TestNumberExpression(t *testing.T) {
 	context := llvm.GlobalContext()
 	module := context.NewModule("swa-main")
 	builder := context.NewBuilder()
-	ctx := ast.NewCompilerContext(
+	ctx := NewCompilerContext(
 		&context,
 		&builder,
 		&module,
@@ -24,6 +24,7 @@ func TestNumberExpression(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		ctx.Dialect = lexer.French{}
 		g := NewLLVMGenerator(ctx)
+
 		t.Run("unsigned number", func(t *testing.T) {
 			t.Parallel()
 

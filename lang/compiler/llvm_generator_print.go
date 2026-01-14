@@ -8,7 +8,7 @@ import (
 	"tinygo.org/x/go-llvm"
 )
 
-type PrintableValueExtractor func(g *LLVMGenerator, res *ast.CompilerResult) llvm.Value
+type PrintableValueExtractor func(g *LLVMGenerator, res *CompilerResult) llvm.Value
 
 // VisitPrintStatement implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitPrintStatement(node *ast.PrintStatetement) error {
@@ -67,18 +67,18 @@ var printableValueExtractors = map[reflect.Type]PrintableValueExtractor{
 	reflect.TypeFor[ast.SymbolExpression]():       extractDirect,
 }
 
-func extractDirect(g *LLVMGenerator, res *ast.CompilerResult) llvm.Value {
+func extractDirect(g *LLVMGenerator, res *CompilerResult) llvm.Value {
 	return *res.Value
 }
 
-func extractWithArrayType(g *LLVMGenerator, res *ast.CompilerResult) llvm.Value {
+func extractWithArrayType(g *LLVMGenerator, res *CompilerResult) llvm.Value {
 	return g.Ctx.Builder.CreateLoad(
 		res.ArraySymbolTableEntry.UnderlyingType,
 		*res.Value,
 		"print.array.load",
 	)
 }
-func extractWithStructType(g *LLVMGenerator, res *ast.CompilerResult) llvm.Value {
+func extractWithStructType(g *LLVMGenerator, res *CompilerResult) llvm.Value {
 	return g.Ctx.Builder.CreateLoad(
 		*res.StuctPropertyValueType,
 		*res.Value,

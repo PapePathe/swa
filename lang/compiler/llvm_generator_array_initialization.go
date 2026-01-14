@@ -12,7 +12,7 @@ type ElementInjector func(
 	g *LLVMGenerator,
 	expr ast.Expression,
 	targetAddr llvm.Value,
-) (error, *ast.StructSymbolTableEntry)
+) (error, *StructSymbolTableEntry)
 
 var ArrayInitializationExpressionInjectors = map[reflect.Type]ElementInjector{
 	reflect.TypeFor[ast.SymbolExpression]():               injectSymbol,
@@ -35,7 +35,7 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 	llvmtyp := g.getLastTypeVisitResult()
 	arrayPointer := g.Ctx.Builder.CreateAlloca(llvmtyp.Type, "array_alloc")
 
-	var discoveredEntry *ast.StructSymbolTableEntry
+	var discoveredEntry *StructSymbolTableEntry
 
 	for i, expr := range node.Contents {
 		itemGep := g.Ctx.Builder.CreateGEP(llvmtyp.Type, arrayPointer, []llvm.Value{
@@ -58,9 +58,9 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 		}
 	}
 
-	g.setLastResult(&ast.CompilerResult{
+	g.setLastResult(&CompilerResult{
 		Value: &arrayPointer,
-		ArraySymbolTableEntry: &ast.ArraySymbolTableEntry{
+		ArraySymbolTableEntry: &ArraySymbolTableEntry{
 			ElementsCount:     llvmtyp.Type.ArrayLength(),
 			UnderlyingTypeDef: discoveredEntry, // Correctly passed up!
 			UnderlyingType:    llvmtyp.SubType,
@@ -71,7 +71,7 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 	return nil
 }
 
-func injectLiteral(g *LLVMGenerator, expr ast.Expression, targetAddr llvm.Value) (error, *ast.StructSymbolTableEntry) {
+func injectLiteral(g *LLVMGenerator, expr ast.Expression, targetAddr llvm.Value) (error, *StructSymbolTableEntry) {
 	err := expr.Accept(g)
 	if err != nil {
 		return err, nil
@@ -83,7 +83,7 @@ func injectLiteral(g *LLVMGenerator, expr ast.Expression, targetAddr llvm.Value)
 	return nil, nil // Literals don't define a struct subtype
 }
 
-func injectSymbol(g *LLVMGenerator, expr ast.Expression, targetAddr llvm.Value) (error, *ast.StructSymbolTableEntry) {
+func injectSymbol(g *LLVMGenerator, expr ast.Expression, targetAddr llvm.Value) (error, *StructSymbolTableEntry) {
 	err := expr.Accept(g)
 	if err != nil {
 		return err, nil
@@ -94,7 +94,7 @@ func injectSymbol(g *LLVMGenerator, expr ast.Expression, targetAddr llvm.Value) 
 	// If it's a struct/complex type, we use the Ref (SymbolTableEntry) to find the type
 	var loadType llvm.Type
 
-	var structEntry *ast.StructSymbolTableEntry
+	var structEntry *StructSymbolTableEntry
 
 	if res.SymbolTableEntry != nil && res.SymbolTableEntry.Ref != nil {
 		loadType = res.SymbolTableEntry.Ref.LLVMType
@@ -115,7 +115,7 @@ func injectSymbol(g *LLVMGenerator, expr ast.Expression, targetAddr llvm.Value) 
 	return nil, structEntry
 }
 
-func injectStruct(g *LLVMGenerator, expr ast.Expression, targetAddr llvm.Value) (error, *ast.StructSymbolTableEntry) {
+func injectStruct(g *LLVMGenerator, expr ast.Expression, targetAddr llvm.Value) (error, *StructSymbolTableEntry) {
 	node, _ := expr.(ast.StructInitializationExpression)
 
 	err, tblEntry := g.Ctx.FindStructSymbol(node.Name)

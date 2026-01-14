@@ -50,7 +50,7 @@ func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInit
 		injector(g, res, fieldAddr, targetType)
 	}
 
-	g.setLastResult(&ast.CompilerResult{
+	g.setLastResult(&CompilerResult{
 		Value:                  &instance,
 		StructSymbolTableEntry: structType,
 	})
@@ -60,7 +60,7 @@ func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInit
 
 type StructInitializationExpressionPropertyInjector func(
 	g *LLVMGenerator,
-	res *ast.CompilerResult,
+	res *CompilerResult,
 	fieldAddr llvm.Value,
 	targetType llvm.Type,
 )
@@ -77,16 +77,16 @@ var structInjectors = map[reflect.Type]StructInitializationExpressionPropertyInj
 	reflect.TypeFor[ast.StructInitializationExpression](): injectNestedStruct,
 }
 
-func injectNestedStruct(g *LLVMGenerator, res *ast.CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+func injectNestedStruct(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
 	load := g.Ctx.Builder.CreateLoad(res.Value.AllocatedType(), *res.Value, "nested-struct.load")
 	g.Ctx.Builder.CreateStore(load, fieldAddr)
 }
 
-func injectDirectly(g *LLVMGenerator, res *ast.CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+func injectDirectly(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
 	g.Ctx.Builder.CreateStore(*res.Value, fieldAddr)
 }
 
-func injectWithArrayDecay(g *LLVMGenerator, res *ast.CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+func injectWithArrayDecay(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
 	_, isArray := res.SymbolTableEntry.DeclaredType.(ast.ArrayType)
 
 	if isArray && targetType.TypeKind() == llvm.PointerTypeKind {
@@ -99,7 +99,7 @@ func injectWithArrayDecay(g *LLVMGenerator, res *ast.CompilerResult, fieldAddr l
 	g.Ctx.Builder.CreateStore(*res.Value, fieldAddr)
 }
 
-func injectArrayLiteral(g *LLVMGenerator, res *ast.CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+func injectArrayLiteral(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
 	if targetType.TypeKind() == llvm.PointerTypeKind {
 		ptr := g.Ctx.Builder.CreateBitCast(*res.Value, targetType, "array.ptr.cast")
 		g.Ctx.Builder.CreateStore(ptr, fieldAddr)
@@ -109,7 +109,7 @@ func injectArrayLiteral(g *LLVMGenerator, res *ast.CompilerResult, fieldAddr llv
 	}
 }
 
-func injectArrayAccess(g *LLVMGenerator, res *ast.CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+func injectArrayAccess(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
 	load := g.Ctx.Builder.CreateLoad(res.ArraySymbolTableEntry.UnderlyingType, *res.Value, "access.load")
 	g.Ctx.Builder.CreateStore(load, fieldAddr)
 }

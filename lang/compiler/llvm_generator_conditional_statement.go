@@ -69,7 +69,7 @@ func (g *LLVMGenerator) VisitConditionalStatement(node *ast.ConditionalStateteme
 	mergeBlock.MoveAfter(elseBlock)
 
 	if successVal != nil && failureVal != nil {
-		g.setLastResult(&ast.CompilerResult{Value: &phi})
+		g.setLastResult(&CompilerResult{Value: &phi})
 	} else {
 		g.setLastResult(nil)
 	}

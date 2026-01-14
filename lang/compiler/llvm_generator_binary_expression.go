@@ -58,7 +58,7 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 }
 
 // extractRValue ensures we are working with the actual value, not its memory address.
-func (g *LLVMGenerator) extractRValue(res *ast.CompilerResult) llvm.Value {
+func (g *LLVMGenerator) extractRValue(res *CompilerResult) llvm.Value {
 	val := *res.Value
 
 	if val.Type().TypeKind() != llvm.PointerTypeKind {
@@ -162,7 +162,7 @@ func (g *LLVMGenerator) handlePrefixNot(val llvm.Value) llvm.Value {
 	return g.Ctx.Builder.CreateZExt(boolVal, val.Type(), "")
 }
 
-func (g *LLVMGenerator) handleBinaryOp(kind lexer.TokenKind, l, r llvm.Value) (error, *ast.CompilerResult) {
+func (g *LLVMGenerator) handleBinaryOp(kind lexer.TokenKind, l, r llvm.Value) (error, *CompilerResult) {
 	handler, ok := binaryOpHandlers[kind]
 	if !ok {
 		return fmt.Errorf("Binary expressions : unsupported operator <%s>", kind), nil
@@ -170,7 +170,7 @@ func (g *LLVMGenerator) handleBinaryOp(kind lexer.TokenKind, l, r llvm.Value) (e
 
 	res := handler(g, l, r)
 
-	return nil, &ast.CompilerResult{Value: &res}
+	return nil, &CompilerResult{Value: &res}
 }
 
 func (g *LLVMGenerator) handleAnd(l, r llvm.Value) llvm.Value {

@@ -13,14 +13,14 @@ import (
 type CompilerResultType struct {
 	Type    llvm.Type
 	SubType llvm.Type
-	Sentry  *ast.StructSymbolTableEntry
-	Aentry  *ast.ArraySymbolTableEntry
-	Entry   *ast.SymbolTableEntry
+	Sentry  *StructSymbolTableEntry
+	Aentry  *ArraySymbolTableEntry
+	Entry   *SymbolTableEntry
 }
 
 type LLVMGenerator struct {
-	Ctx            *ast.CompilerCtx
-	lastResult     *ast.CompilerResult
+	Ctx            *CompilerCtx
+	lastResult     *CompilerResult
 	lastTypeResult *CompilerResultType
 }
 
@@ -160,7 +160,7 @@ func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStr
 		array.Ref = &nestedstruct
 	}
 
-	res := &ast.CompilerResult{
+	res := &CompilerResult{
 		Value:                  &structPtr,
 		SymbolTableEntry:       array,
 		StuctPropertyValueType: &proptype,
@@ -232,7 +232,7 @@ func (g *LLVMGenerator) VisitAssignmentExpression(node *ast.AssignmentExpression
 // VisitBlockStatement implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitBlockStatement(node *ast.BlockStatement) error {
 	oldCtx := g.Ctx
-	newCtx := ast.NewCompilerContext(
+	newCtx := NewCompilerContext(
 		oldCtx.Context,
 		oldCtx.Builder,
 		oldCtx.Module,
@@ -276,7 +276,7 @@ func (g *LLVMGenerator) VisitFloatExpression(node *ast.FloatExpression) error {
 		g.Ctx.Context.DoubleType(),
 		node.Value,
 	)
-	g.setLastResult(&ast.CompilerResult{Value: &res})
+	g.setLastResult(&CompilerResult{Value: &res})
 
 	return nil
 }
@@ -333,7 +333,7 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 
 		addr := g.Ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, baseValue, propIndex, "")
 		propType := varDef.Ref.PropertyTypes[propIndex]
-		result := &ast.CompilerResult{
+		result := &CompilerResult{
 			Value:                  &addr,
 			SymbolTableEntry:       varDef,
 			StuctPropertyValueType: &propType,
@@ -371,7 +371,7 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 			*lastresult.Value,
 			propIndex,
 			"")
-		result := &ast.CompilerResult{
+		result := &CompilerResult{
 			Value:                  &addr,
 			SymbolTableEntry:       lastresult.SymbolTableEntry,
 			StuctPropertyValueType: &propType,
@@ -401,8 +401,17 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 		}
 
 		addr := g.Ctx.Builder.CreateStructGEP(*result.StuctPropertyValueType, *result.Value, propIndex, "")
+
+		if propIndex > len(result.SymbolTableEntry.Ref.PropertyTypes) ||
+			len(result.SymbolTableEntry.Ref.PropertyTypes) == 0 {
+			format := "Property named %s does not exist at index %d"
+
+			return fmt.Errorf(format, prop.Value, propIndex)
+		}
+
 		propType := result.SymbolTableEntry.Ref.PropertyTypes[propIndex]
-		finalresult := &ast.CompilerResult{
+
+		finalresult := &CompilerResult{
 			Value:                  &addr,
 			SymbolTableEntry:       result.SymbolTableEntry,
 			StuctPropertyValueType: &propType,
@@ -447,7 +456,7 @@ func (g *LLVMGenerator) VisitNumberExpression(node *ast.NumberExpression) error 
 		uint64(node.Value),
 		signed,
 	)
-	g.setLastResult(&ast.CompilerResult{Value: &res})
+	g.setLastResult(&CompilerResult{Value: &res})
 
 	return nil
 }
@@ -479,13 +488,13 @@ func (g *LLVMGenerator) VisitReturnStatement(node *ast.ReturnStatement) error {
 func (g *LLVMGenerator) VisitStringExpression(node *ast.StringExpression) error {
 	if !g.Ctx.InsideFunction {
 		value := llvm.ConstString(node.Value, true)
-		g.setLastResult(&ast.CompilerResult{Value: &value})
+		g.setLastResult(&CompilerResult{Value: &value})
 
 		return nil
 	}
 
 	valuePtr := g.Ctx.Builder.CreateGlobalStringPtr(node.Value, "")
-	res := ast.CompilerResult{Value: &valuePtr}
+	res := CompilerResult{Value: &valuePtr}
 
 	g.setLastResult(&res)
 
@@ -494,9 +503,16 @@ func (g *LLVMGenerator) VisitStringExpression(node *ast.StringExpression) error 
 
 // VisitStructDeclaration implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatement) error {
-	entry := &ast.StructSymbolTableEntry{
+	entry := &StructSymbolTableEntry{
 		Metadata: *node,
-		Embeds:   map[string]ast.StructSymbolTableEntry{},
+		Embeds:   map[string]StructSymbolTableEntry{},
+	}
+	newtype := g.Ctx.Context.StructCreateNamed(node.Name)
+	entry.LLVMType = newtype
+
+	err := g.Ctx.AddStructSymbol(node.Name, entry)
+	if err != nil {
+		return err
 	}
 
 	for i, propertyName := range node.Properties {
@@ -515,11 +531,14 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 		}
 	}
 
-	newtype := g.Ctx.Context.StructCreateNamed(node.Name)
-	entry.LLVMType = newtype
 	newtype.StructSetBody(entry.PropertyTypes, false)
 
-	return g.Ctx.AddStructSymbol(node.Name, entry)
+	err = g.Ctx.UpdateStructSymbol(node.Name, entry)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // VisitSymbolExpression implements [ast.CodeGenerator].
@@ -549,7 +568,7 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 		}
 
 		g.setLastResult(
-			&ast.CompilerResult{
+			&CompilerResult{
 				Value:            &load,
 				SymbolTableEntry: entry,
 			},
@@ -560,7 +579,7 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 
 	if entry.Address == nil {
 		g.setLastResult(
-			&ast.CompilerResult{
+			&CompilerResult{
 				Value:            &entry.Value,
 				SymbolTableEntry: entry,
 			},
@@ -572,7 +591,7 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 	if entry.Address.IsAInstruction().IsNil() ||
 		entry.Address.InstructionOpcode() != llvm.Alloca {
 		g.setLastResult(
-			&ast.CompilerResult{
+			&CompilerResult{
 				Value:            entry.Address,
 				SymbolTableEntry: entry,
 			},
@@ -591,7 +610,7 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 	}
 
 	g.setLastResult(
-		&ast.CompilerResult{
+		&CompilerResult{
 			Value:            &loadedValue,
 			SymbolTableEntry: entry,
 		},
@@ -617,7 +636,7 @@ func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) e
 		alloc := g.Ctx.Builder.CreateAlloca(typeresult.Type, fmt.Sprintf("alloc.%s", node.Name))
 		g.Ctx.Builder.CreateStore(llvm.ConstNull(typeresult.Type), alloc)
 
-		entry := &ast.SymbolTableEntry{
+		entry := &SymbolTableEntry{
 			Value:        alloc,
 			Address:      &alloc,
 			DeclaredType: node.ExplicitType,
@@ -635,7 +654,7 @@ func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) e
 	}
 }
 
-func NewLLVMGenerator(ctx *ast.CompilerCtx) *LLVMGenerator {
+func NewLLVMGenerator(ctx *CompilerCtx) *LLVMGenerator {
 	return &LLVMGenerator{Ctx: ctx}
 }
 
@@ -659,7 +678,7 @@ func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpressi
 		"",
 	)
 
-	g.setLastResult(&ast.CompilerResult{
+	g.setLastResult(&CompilerResult{
 		Value:                 &itemPtr,
 		ArraySymbolTableEntry: entry,
 	})
@@ -680,7 +699,7 @@ func (g *LLVMGenerator) VisitPrefixExpression(node *ast.PrefixExpression) error 
 	}
 
 	val := handler(g, *res.Value)
-	g.setLastResult(&ast.CompilerResult{Value: &val})
+	g.setLastResult(&CompilerResult{Value: &val})
 
 	return nil
 }
@@ -694,7 +713,7 @@ func (g *LLVMGenerator) getProperty(expr *ast.MemberExpression) (string, error) 
 	return prop.Value, nil
 }
 
-func (g *LLVMGenerator) prepareReturnValue(expr ast.Expression, res *ast.CompilerResult) (llvm.Value, error) {
+func (g *LLVMGenerator) prepareReturnValue(expr ast.Expression, res *CompilerResult) (llvm.Value, error) {
 	switch expr.(type) {
 	case ast.ArrayAccessExpression:
 		return g.Ctx.Builder.CreateLoad((*g.Ctx.Context).Int32Type(), *res.Value, ""), nil
@@ -793,9 +812,9 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 func (g *LLVMGenerator) finalizeSymbol(
 	node *ast.VarDeclarationStatement,
 	addr *llvm.Value,
-	res *ast.CompilerResult,
+	res *CompilerResult,
 ) error {
-	entry := &ast.SymbolTableEntry{
+	entry := &SymbolTableEntry{
 		Address:      addr,
 		DeclaredType: node.ExplicitType,
 		Global:       !g.Ctx.InsideFunction,
@@ -838,7 +857,7 @@ func (g *LLVMGenerator) finalizeSymbol(
 
 func (g *LLVMGenerator) findArrayOfStructsSymbolTableEntry(
 	expr *ast.ArrayOfStructsAccessExpression,
-) (error, *ast.SymbolTableEntry, *ast.ArraySymbolTableEntry, []llvm.Value) {
+) (error, *SymbolTableEntry, *ArraySymbolTableEntry, []llvm.Value) {
 	err, baseSym, arrayMeta := g.resolveArrayOfStructsBase(expr.Name)
 	if err != nil {
 		return err, nil, nil, nil
@@ -852,7 +871,7 @@ func (g *LLVMGenerator) findArrayOfStructsSymbolTableEntry(
 	return nil, baseSym, arrayMeta, indices
 }
 
-func (g *LLVMGenerator) resolveArrayOfStructsBase(nameNode ast.Node) (error, *ast.SymbolTableEntry, *ast.ArraySymbolTableEntry) {
+func (g *LLVMGenerator) resolveArrayOfStructsBase(nameNode ast.Node) (error, *SymbolTableEntry, *ArraySymbolTableEntry) {
 	switch typednode := nameNode.(type) {
 	case ast.MemberExpression:
 		err := typednode.Object.Accept(g)
@@ -891,7 +910,7 @@ func (g *LLVMGenerator) resolveArrayOfStructsBase(nameNode ast.Node) (error, *as
 			}
 		}
 
-		return nil, lastres.SymbolTableEntry, &ast.ArraySymbolTableEntry{
+		return nil, lastres.SymbolTableEntry, &ArraySymbolTableEntry{
 			ElementsCount:     propType.ArrayLength(),
 			UnderlyingType:    propType.ElementType(),
 			Type:              propType,
@@ -944,12 +963,12 @@ func (g *LLVMGenerator) resolveGepIndices(indexNode ast.Node) (error, []llvm.Val
 
 func (g *LLVMGenerator) findArraySymbolTableEntry(
 	expr *ast.ArrayAccessExpression,
-) (error, *ast.ArraySymbolTableEntry, *ast.SymbolTableEntry, []llvm.Value) {
+) (error, *ArraySymbolTableEntry, *SymbolTableEntry, []llvm.Value) {
 	var name string
 
-	var array *ast.SymbolTableEntry
+	var array *SymbolTableEntry
 
-	var entry *ast.ArraySymbolTableEntry
+	var entry *ArraySymbolTableEntry
 
 	switch expr.Name.(type) {
 	case ast.SymbolExpression:
@@ -1021,12 +1040,12 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 
 		if isPointerType {
 			pointerValue := g.Ctx.Builder.CreateLoad(*val.StuctPropertyValueType, *val.Value, "")
-			array = &ast.SymbolTableEntry{Value: pointerValue}
+			array = &SymbolTableEntry{Value: pointerValue}
 		} else {
-			array = &ast.SymbolTableEntry{Value: *val.Value}
+			array = &SymbolTableEntry{Value: *val.Value}
 		}
 
-		entry = &ast.ArraySymbolTableEntry{
+		entry = &ArraySymbolTableEntry{
 			UnderlyingType: etype.SubType,
 			Type:           etype.Type,
 			ElementsCount:  elementsCount,
@@ -1077,7 +1096,7 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 }
 
 func (g *LLVMGenerator) resolveStructAccess(
-	structType *ast.StructSymbolTableEntry,
+	structType *StructSymbolTableEntry,
 	propName string,
 ) (int, error) {
 	err, propIndex := structType.Metadata.PropertyIndex(propName)
@@ -1087,11 +1106,11 @@ func (g *LLVMGenerator) resolveStructAccess(
 	return propIndex, nil
 }
 
-func (g *LLVMGenerator) setLastResult(res *ast.CompilerResult) {
+func (g *LLVMGenerator) setLastResult(res *CompilerResult) {
 	g.lastResult = res
 }
 
-func (g *LLVMGenerator) getLastResult() *ast.CompilerResult {
+func (g *LLVMGenerator) getLastResult() *CompilerResult {
 	res := g.lastResult
 	g.lastResult = nil
 

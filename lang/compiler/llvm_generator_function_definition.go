@@ -9,7 +9,7 @@ import (
 
 func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) error {
 	oldCtx := g.Ctx
-	g.Ctx = ast.NewCompilerContext(
+	g.Ctx = NewCompilerContext(
 		g.Ctx.Context,
 		g.Ctx.Builder,
 		g.Ctx.Module,
@@ -52,12 +52,12 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 			p.SetName(name)
 
 			// Create alloca for the parameter to support address taking and array indexing
-			var entry ast.SymbolTableEntry
+			var entry SymbolTableEntry
 
 			switch argType.(type) {
 			case ast.FloatType, ast.NumberType, ast.Number64Type,
 				ast.SymbolType, ast.PointerType, ast.ArrayType:
-				entry = ast.SymbolTableEntry{
+				entry = SymbolTableEntry{
 					Value:        p,
 					DeclaredType: argType,
 					Address:      &p,
@@ -66,7 +66,7 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 				alloca := g.Ctx.Builder.CreateAlloca(p.Type(), name)
 				g.Ctx.Builder.CreateStore(p, alloca)
 
-				entry = ast.SymbolTableEntry{
+				entry = SymbolTableEntry{
 					Value:        alloca,
 					DeclaredType: argType,
 					Address:      &alloca,
@@ -110,12 +110,12 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 
 type extractedType struct {
 	typ    llvm.Type
-	entry  *ast.SymbolTableEntry
-	sEntry *ast.StructSymbolTableEntry
-	aEntry *ast.ArraySymbolTableEntry
+	entry  *SymbolTableEntry
+	sEntry *StructSymbolTableEntry
+	aEntry *ArraySymbolTableEntry
 }
 
-func (g *LLVMGenerator) extractType(ctx *ast.CompilerCtx, t ast.Type) (error, extractedType) {
+func (g *LLVMGenerator) extractType(ctx *CompilerCtx, t ast.Type) (error, extractedType) {
 	err := t.Accept(g)
 	if err != nil {
 		return err, extractedType{}
@@ -140,7 +140,7 @@ func (g *LLVMGenerator) extractType(ctx *ast.CompilerCtx, t ast.Type) (error, ex
 
 		return nil, etyp
 	case ast.PointerType:
-		var sEntry *ast.StructSymbolTableEntry
+		var sEntry *StructSymbolTableEntry
 
 		switch undType := typ.Underlying.(type) {
 		case ast.SymbolType:
@@ -157,7 +157,7 @@ func (g *LLVMGenerator) extractType(ctx *ast.CompilerCtx, t ast.Type) (error, ex
 
 		return nil, etype
 	case ast.ArrayType:
-		var sEntry *ast.StructSymbolTableEntry
+		var sEntry *StructSymbolTableEntry
 
 		switch undType := typ.Underlying.(type) {
 		case ast.SymbolType:
@@ -172,7 +172,7 @@ func (g *LLVMGenerator) extractType(ctx *ast.CompilerCtx, t ast.Type) (error, ex
 
 		etype := extractedType{
 			typ: llvm.PointerType(compiledType.SubType, 0),
-			aEntry: &ast.ArraySymbolTableEntry{
+			aEntry: &ArraySymbolTableEntry{
 				UnderlyingType:    compiledType.SubType,
 				UnderlyingTypeDef: sEntry,
 				ElementsCount:     typ.Size,
@@ -186,7 +186,7 @@ func (g *LLVMGenerator) extractType(ctx *ast.CompilerCtx, t ast.Type) (error, ex
 	}
 }
 
-func (g *LLVMGenerator) funcParams(ctx *ast.CompilerCtx, node *ast.FuncDeclStatement) (error, []llvm.Type) {
+func (g *LLVMGenerator) funcParams(ctx *CompilerCtx, node *ast.FuncDeclStatement) (error, []llvm.Type) {
 	params := []llvm.Type{}
 
 	for _, arg := range node.Args {
