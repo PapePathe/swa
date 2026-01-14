@@ -1,0 +1,15 @@
+dialect:english;
+
+struct Node {
+  id: int,
+  parent: *Node,
+}
+
+start() int {
+  let node: Node = Node{id: 2, parent: Node{id: 1}};
+
+  // print("id: %d" node.id);
+  print("pid: %d" node.parent.id);
+
+  return 0;
+}
