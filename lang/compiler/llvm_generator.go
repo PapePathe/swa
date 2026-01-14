@@ -91,6 +91,7 @@ func (g *LLVMGenerator) VisitPointerType(node *ast.PointerType) error {
 	g.setLastTypeVisitResult(&CompilerResultType{
 		Type:    llvm.PointerType(under.Type, 0),
 		SubType: under.Type,
+		Sentry:  under.Sentry,
 	})
 
 	return nil
@@ -526,7 +527,24 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 		datatype := g.getLastTypeVisitResult()
 		entry.PropertyTypes = append(entry.PropertyTypes, datatype.Type)
 
+		if datatype.Type.TypeKind() == llvm.PointerTypeKind &&
+			datatype.SubType.TypeKind() == llvm.StructTypeKind {
+			if datatype.SubType.StructName() == node.Name {
+				format := "struct with pointer reference to self not supported, property: %s"
+
+				return fmt.Errorf(format, propertyName)
+			}
+
+			entry.Embeds[propertyName] = *datatype.Sentry
+		}
+
 		if datatype.Type.TypeKind() == llvm.StructTypeKind {
+			if datatype.Type.StructName() == node.Name {
+				format := "struct with reference to self not supported, property: %s"
+
+				return fmt.Errorf(format, propertyName)
+			}
+
 			entry.Embeds[propertyName] = *datatype.Sentry
 		}
 	}
