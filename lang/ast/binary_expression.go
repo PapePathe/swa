@@ -126,6 +126,10 @@ func (expr BinaryExpression) Accept(g CodeGenerator) error {
 	return g.VisitBinaryExpression(&expr)
 }
 
+func (expr BinaryExpression) String() string {
+	return fmt.Sprintf("%s%s%s", expr.Left, expr.Operator.Value, expr.Right)
+}
+
 func (expr BinaryExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
