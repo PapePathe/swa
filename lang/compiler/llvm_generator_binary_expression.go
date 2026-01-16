@@ -9,6 +9,12 @@ import (
 )
 
 func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error {
+	old := g.logger.Step("BinaryExpr")
+
+	defer g.logger.Restore(old)
+
+	g.Debugf("%s %s %s", node.Left, node.Operator.Value, node.Right)
+
 	if err := node.Left.Accept(g); err != nil {
 		return err
 	}

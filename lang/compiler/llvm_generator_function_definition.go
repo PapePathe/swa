@@ -8,6 +8,12 @@ import (
 )
 
 func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) error {
+	old := g.logger.Step("FunDefStmt")
+
+	defer g.logger.Restore(old)
+
+	g.Debugf("%s", node.Name)
+
 	oldCtx := g.Ctx
 	g.Ctx = NewCompilerContext(
 		g.Ctx.Context,

@@ -22,11 +22,28 @@ type LLVMGenerator struct {
 	Ctx            *CompilerCtx
 	lastResult     *CompilerResult
 	lastTypeResult *CompilerResultType
+	logger         *Logger
+}
+
+func NewLLVMGenerator(ctx *CompilerCtx) *LLVMGenerator {
+	logger := NewLogger("LLVM")
+
+	return &LLVMGenerator{Ctx: ctx, logger: logger}
 }
 
 var _ ast.CodeGenerator = (*LLVMGenerator)(nil)
 
+func (g *LLVMGenerator) Debugf(format string, args ...any) {
+	if g.Ctx.Debugging {
+		g.logger.Debug(fmt.Sprintf(format, args...))
+	}
+}
+
 func (g *LLVMGenerator) VisitSymbolType(node *ast.SymbolType) error {
+	old := g.logger.Step("SymbolType")
+
+	defer g.logger.Restore(old)
+
 	err, entry := g.Ctx.FindStructSymbol(node.Name)
 	if err != nil {
 		return err
@@ -41,6 +58,10 @@ func (g *LLVMGenerator) VisitSymbolType(node *ast.SymbolType) error {
 }
 
 func (g *LLVMGenerator) VisitNumberType(node *ast.NumberType) error {
+	old := g.logger.Step("NumberType")
+
+	defer g.logger.Restore(old)
+
 	g.setLastTypeVisitResult(&CompilerResultType{
 		Type: llvm.GlobalContext().Int32Type(),
 	})
@@ -49,6 +70,10 @@ func (g *LLVMGenerator) VisitNumberType(node *ast.NumberType) error {
 }
 
 func (g *LLVMGenerator) VisitNumber64Type(node *ast.Number64Type) error {
+	old := g.logger.Step("Number64Type")
+
+	defer g.logger.Restore(old)
+
 	g.setLastTypeVisitResult(&CompilerResultType{
 		Type: llvm.GlobalContext().Int64Type(),
 	})
@@ -57,6 +82,10 @@ func (g *LLVMGenerator) VisitNumber64Type(node *ast.Number64Type) error {
 }
 
 func (g *LLVMGenerator) VisitArrayType(node *ast.ArrayType) error {
+	old := g.logger.Step("ArrayType")
+
+	defer g.logger.Restore(old)
+
 	err := node.Underlying.Accept(g)
 	if err != nil {
 		return err
@@ -73,6 +102,10 @@ func (g *LLVMGenerator) VisitArrayType(node *ast.ArrayType) error {
 }
 
 func (g *LLVMGenerator) VisitFloatType(node *ast.FloatType) error {
+	old := g.logger.Step("FloatType")
+
+	defer g.logger.Restore(old)
+
 	g.setLastTypeVisitResult(&CompilerResultType{
 		Type: llvm.GlobalContext().DoubleType(),
 	})
@@ -81,6 +114,10 @@ func (g *LLVMGenerator) VisitFloatType(node *ast.FloatType) error {
 }
 
 func (g *LLVMGenerator) VisitPointerType(node *ast.PointerType) error {
+	old := g.logger.Step("PointerType")
+
+	defer g.logger.Restore(old)
+
 	err := node.Underlying.Accept(g)
 	if err != nil {
 		return err
@@ -98,6 +135,10 @@ func (g *LLVMGenerator) VisitPointerType(node *ast.PointerType) error {
 }
 
 func (g *LLVMGenerator) VisitStringType(node *ast.StringType) error {
+	old := g.logger.Step("StringType")
+
+	defer g.logger.Restore(old)
+
 	g.setLastTypeVisitResult(&CompilerResultType{
 		Type:    llvm.PointerType(llvm.GlobalContext().Int8Type(), 0),
 		SubType: llvm.GlobalContext().Int8Type(),
@@ -107,6 +148,10 @@ func (g *LLVMGenerator) VisitStringType(node *ast.StringType) error {
 }
 
 func (g *LLVMGenerator) VisitVoidType(node *ast.VoidType) error {
+	old := g.logger.Step("VoidType")
+
+	defer g.logger.Restore(old)
+
 	g.setLastTypeVisitResult(&CompilerResultType{
 		Type: llvm.GlobalContext().VoidType(),
 	})
@@ -115,9 +160,11 @@ func (g *LLVMGenerator) VisitVoidType(node *ast.VoidType) error {
 }
 
 func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStructsAccessExpression) error {
-	if g.Ctx.Debugging {
-		fmt.Printf("VisitArrayOfStructsAccessExpression %s[%s].%s\n", node.Name, node.Index, node.Property)
-	}
+	old := g.logger.Step("ArrayOfStructsAccessExpr")
+
+	defer g.logger.Restore(old)
+
+	g.Debugf("%s[%s].%s", node.Name, node.Index, node.Property)
 
 	err, array, arrayEntry, itemIndex := g.findArrayOfStructsSymbolTableEntry(node)
 	if err != nil {
@@ -175,9 +222,11 @@ func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStr
 
 // VisitAssignmentExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitAssignmentExpression(node *ast.AssignmentExpression) error {
-	if g.Ctx.Debugging {
-		fmt.Printf("VisitAssignmentExpression %s\n", node)
-	}
+	old := g.logger.Step("AssignmentExpr")
+
+	defer g.logger.Restore(old)
+
+	g.Debugf("%s", node)
 
 	err := node.Assignee.Accept(g)
 	if err != nil {
@@ -207,6 +256,7 @@ func (g *LLVMGenerator) VisitAssignmentExpression(node *ast.AssignmentExpression
 	}
 
 	var address *llvm.Value
+
 	if compiledAssignee.SymbolTableEntry != nil &&
 		compiledAssignee.SymbolTableEntry.Address != nil {
 		// TODO: figure out why we are doing this
@@ -273,6 +323,12 @@ func (g *LLVMGenerator) VisitExpressionStatement(node *ast.ExpressionStatement) 
 
 // VisitFloatExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitFloatExpression(node *ast.FloatExpression) error {
+	old := g.logger.Step("FloatExpr")
+
+	defer g.logger.Restore(old)
+
+	g.Debugf("%v", node.Value)
+
 	res := llvm.ConstFloat(
 		g.Ctx.Context.DoubleType(),
 		node.Value,
@@ -285,6 +341,9 @@ func (g *LLVMGenerator) VisitFloatExpression(node *ast.FloatExpression) error {
 // VisitMainStatement implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitMainStatement(node *ast.MainStatement) error {
 	g.Ctx.InsideFunction = true
+	old := g.logger.Step("MainStmt")
+
+	defer g.logger.Restore(old)
 
 	defer func() { g.Ctx.InsideFunction = false }()
 
@@ -302,9 +361,11 @@ func (g *LLVMGenerator) VisitMainStatement(node *ast.MainStatement) error {
 
 // VisitMemberExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error {
-	if g.Ctx.Debugging {
-		fmt.Printf("VisitMemberExpression %s.%s\n", node.Object, node.Property)
-	}
+	old := g.logger.Step("MemberExpr")
+
+	defer g.logger.Restore(old)
+
+	g.Debugf("VisitMemberExpression %s.%s", node.Object, node.Property)
 
 	switch objectType := node.Object.(type) {
 	case ast.SymbolExpression:
@@ -438,6 +499,10 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 
 // VisitNumberExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitNumberExpression(node *ast.NumberExpression) error {
+	old := g.logger.Step("NumberExpr")
+
+	defer g.logger.Restore(old)
+
 	if node.Value < math.MinInt32 {
 		return g.Ctx.Dialect.Error("NumberExpression.LessThanMinInt32", node.Value)
 	}
@@ -468,6 +533,10 @@ func (g *LLVMGenerator) NotImplemented(msg string) {
 }
 
 func (g *LLVMGenerator) VisitReturnStatement(node *ast.ReturnStatement) error {
+	old := g.logger.Step("ReturnStmt")
+
+	defer g.logger.Restore(old)
+
 	err := node.Value.Accept(g)
 	if err != nil {
 		return err
@@ -487,6 +556,10 @@ func (g *LLVMGenerator) VisitReturnStatement(node *ast.ReturnStatement) error {
 
 // VisitStringExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitStringExpression(node *ast.StringExpression) error {
+	old := g.logger.Step("StringExpr")
+
+	defer g.logger.Restore(old)
+
 	if !g.Ctx.InsideFunction {
 		value := llvm.ConstString(node.Value, true)
 		g.setLastResult(&CompilerResult{Value: &value})
@@ -504,6 +577,12 @@ func (g *LLVMGenerator) VisitStringExpression(node *ast.StringExpression) error 
 
 // VisitStructDeclaration implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatement) error {
+	old := g.logger.Step("StructDeclExpr")
+
+	defer g.logger.Restore(old)
+
+	g.Debugf(node.Name)
+
 	entry := &StructSymbolTableEntry{
 		Metadata: *node,
 		Embeds:   map[string]StructSymbolTableEntry{},
@@ -561,6 +640,12 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 
 // VisitSymbolExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error {
+	old := g.logger.Step("SymbolExpr")
+
+	defer g.logger.Restore(old)
+
+	g.Debugf(node.Value)
+
 	err, entry := g.Ctx.FindSymbol(node.Value)
 	if err != nil {
 		return err
@@ -639,6 +724,12 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 
 // VisitVarDeclaration implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) error {
+	old := g.logger.Step("VarDeclStmt")
+
+	defer g.logger.Restore(old)
+
+	g.Debugf(node.Name)
+
 	if g.Ctx.SymbolExistsInCurrentScope(node.Name) {
 		return fmt.Errorf("variable %s is already defined", node.Name)
 	}
@@ -672,11 +763,11 @@ func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) e
 	}
 }
 
-func NewLLVMGenerator(ctx *CompilerCtx) *LLVMGenerator {
-	return &LLVMGenerator{Ctx: ctx}
-}
-
 func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpression) error {
+	old := g.logger.Step("ArrayAccessExpr")
+
+	defer g.logger.Restore(old)
+
 	err, entry, array, indices := g.findArraySymbolTableEntry(node)
 	if err != nil {
 		return err
@@ -705,7 +796,12 @@ func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpressi
 }
 
 func (g *LLVMGenerator) VisitPrefixExpression(node *ast.PrefixExpression) error {
-	if err := node.RightExpression.Accept(g); err != nil {
+	old := g.logger.Step("PrefixExpr")
+
+	defer g.logger.Restore(old)
+
+	err := node.RightExpression.Accept(g)
+	if err != nil {
 		return err
 	}
 

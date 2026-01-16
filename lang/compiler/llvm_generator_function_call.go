@@ -8,6 +8,12 @@ import (
 )
 
 func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) error {
+	old := g.logger.Step("FunCallExpr")
+
+	defer g.logger.Restore(old)
+
+	g.Debugf("%s", node.Name)
+
 	name, ok := node.Name.(ast.SymbolExpression)
 	if !ok {
 		return fmt.Errorf("FunctionCallExpression: name is not a symbol")

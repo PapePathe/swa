@@ -9,6 +9,12 @@ import (
 )
 
 func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInitializationExpression) error {
+	old := g.logger.Step("StructInitExpr")
+
+	defer g.logger.Restore(old)
+
+	g.Debugf("%s", node.Name)
+
 	if !g.Ctx.InsideFunction {
 		return fmt.Errorf("struct initialization should happen inside a function")
 	}

@@ -12,6 +12,12 @@ type PrintableValueExtractor func(g *LLVMGenerator, res *CompilerResult) llvm.Va
 
 // VisitPrintStatement implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitPrintStatement(node *ast.PrintStatetement) error {
+	old := g.logger.Step("PrintStmt")
+
+	defer g.logger.Restore(old)
+
+	g.Debugf("%s", node.Values)
+
 	printableValues := []llvm.Value{}
 
 	for _, expr := range node.Values {

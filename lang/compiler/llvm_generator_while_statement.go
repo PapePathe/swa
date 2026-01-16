@@ -7,6 +7,12 @@ import (
 )
 
 func (g *LLVMGenerator) VisitWhileStatement(node *ast.WhileStatement) error {
+	old := g.logger.Step("WhileStmt")
+
+	defer g.logger.Restore(old)
+
+	g.Debugf("%s", node.Condition)
+
 	bodyBlock := g.Ctx.Builder.GetInsertBlock()
 	parentFunc := bodyBlock.Parent()
 

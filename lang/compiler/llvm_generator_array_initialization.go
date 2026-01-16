@@ -23,6 +23,10 @@ var ArrayInitializationExpressionInjectors = map[reflect.Type]ElementInjector{
 }
 
 func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitializationExpression) error {
+	old := g.logger.Step("ArrayInitExpr")
+
+	defer g.logger.Restore(old)
+
 	if !g.Ctx.InsideFunction {
 		return fmt.Errorf("array initialization should happen inside a function")
 	}

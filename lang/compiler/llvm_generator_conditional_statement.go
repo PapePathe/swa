@@ -7,6 +7,12 @@ import (
 )
 
 func (g *LLVMGenerator) VisitConditionalStatement(node *ast.ConditionalStatetement) error {
+	old := g.logger.Step("CondExpr")
+
+	defer g.logger.Restore(old)
+
+	g.Debugf("%s", node.Condition)
+
 	err := node.Condition.Accept(g)
 	if err != nil {
 		return err
