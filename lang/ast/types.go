@@ -82,12 +82,8 @@ func (typ SymbolType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
 }
 
 func (se SymbolType) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Value"] = se.Value().String()
-	m["Name"] = se.Name
-
 	res := make(map[string]any)
-	res["ast.SymbolType"] = m
+	res["ast.SymbolType"] = se.Name
 
 	return json.Marshal(res)
 }
@@ -118,12 +114,8 @@ func (a ArrayType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
 }
 
 func (se ArrayType) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Value"] = se.Value().String()
-	m["Underlying"] = se.Underlying
-
 	res := make(map[string]any)
-	res["ast.ArrayType"] = m
+	res["ast.ArrayType"] = se.Underlying
 
 	return json.Marshal(res)
 }
@@ -225,7 +217,7 @@ func (PointerType) Value() DataType {
 
 func (se PointerType) MarshalJSON() ([]byte, error) {
 	res := make(map[string]any)
-	res["ast.PointerType"] = se.Value().String()
+	res["ast.PointerType"] = se.Underlying
 
 	return json.Marshal(res)
 }
