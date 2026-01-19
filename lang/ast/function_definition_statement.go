@@ -109,10 +109,10 @@ func (expr FuncDeclStatement) TokenStream() []lexer.Token {
 
 func (fd FuncDeclStatement) MarshalJSON() ([]byte, error) {
 	m := make(map[string]any)
-	m["Args"] = fd.Args
-	m["Body"] = fd.Body
 	m["Name"] = fd.Name
 	m["ReturnType"] = fd.ReturnType
+	m["Args"] = fd.Args
+	m["Body"] = fd.Body
 
 	res := make(map[string]any)
 	res["ast.FuncDeclStatement"] = m
