@@ -24,6 +24,7 @@ type StructSymbolTableEntry struct {
 	PropertyTypes []llvm.Type
 	Metadata      ast.StructDeclarationStatement
 	Embeds        map[string]StructSymbolTableEntry
+	ArrayEmbeds   map[string]ArraySymbolTableEntry
 }
 
 type SymbolTableEntry struct {

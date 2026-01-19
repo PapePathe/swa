@@ -96,6 +96,12 @@ func (g *LLVMGenerator) VisitArrayType(node *ast.ArrayType) error {
 	g.setLastTypeVisitResult(&CompilerResultType{
 		Type:    llvm.ArrayType(under.Type, node.Size),
 		SubType: under.Type,
+		Aentry: &ArraySymbolTableEntry{
+			Type:              llvm.ArrayType(under.Type, node.Size),
+			UnderlyingTypeDef: under.Sentry,
+			ElementsCount:     node.Size,
+			UnderlyingType:    under.Type,
+		},
 	})
 
 	return nil
@@ -189,9 +195,15 @@ func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStr
 		g.NotImplemented(fmt.Sprintf("Type %s not supported in ArrayOfStructsAccessExpression", node.Property))
 	}
 
+	g.Debugf("struct name: %s, props: %v", array.Ref.Metadata.Name, array.Ref.Metadata.Properties)
+
 	err, propIndex := array.Ref.Metadata.PropertyIndex(propName.Value)
 	if err != nil {
-		return fmt.Errorf("ArrayOfStructsAccessExpression: property %s not found", propName.Value)
+		g.Debugf("prop %s not found", propName.Value)
+
+		format := "property (%s) not found in struct %s"
+
+		return fmt.Errorf(format, propName.Value, array.Ref.Metadata.Name)
 	}
 
 	structPtr := g.Ctx.Builder.CreateStructGEP(
@@ -208,12 +220,30 @@ func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStr
 		array.Ref = &nestedstruct
 	}
 
+	if proptype.TypeKind() == llvm.ArrayTypeKind &&
+		proptype.ElementType().TypeKind() == llvm.StructTypeKind {
+		format := "processing nested array of struct(%s)"
+
+		g.Debugf(format, arrayEntry.UnderlyingTypeDef.Metadata.Name)
+
+		array.Ref = arrayEntry.UnderlyingTypeDef
+	}
+
 	res := &CompilerResult{
 		Value:                  &structPtr,
 		SymbolTableEntry:       array,
 		StuctPropertyValueType: &proptype,
 		ArraySymbolTableEntry:  arrayEntry,
 	}
+
+	debugf := "result object, value:%v, sdef: %s, adef: %s"
+
+	g.Debugf(
+		debugf,
+		res.Value,
+		array.Ref.Metadata.Name,
+		arrayEntry.UnderlyingTypeDef.Metadata.Name,
+	)
 
 	g.setLastResult(res)
 
@@ -226,7 +256,7 @@ func (g *LLVMGenerator) VisitAssignmentExpression(node *ast.AssignmentExpression
 
 	defer g.logger.Restore(old)
 
-	g.Debugf("%s", node)
+	g.Debugf("%d", node.Tokens[0].Line)
 
 	err := node.Assignee.Accept(g)
 	if err != nil {
@@ -584,8 +614,9 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 	g.Debugf(node.Name)
 
 	entry := &StructSymbolTableEntry{
-		Metadata: *node,
-		Embeds:   map[string]StructSymbolTableEntry{},
+		Metadata:    *node,
+		Embeds:      map[string]StructSymbolTableEntry{},
+		ArrayEmbeds: map[string]ArraySymbolTableEntry{},
 	}
 	newtype := g.Ctx.Context.StructCreateNamed(node.Name)
 	entry.LLVMType = newtype
@@ -606,6 +637,13 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 		datatype := g.getLastTypeVisitResult()
 		entry.PropertyTypes = append(entry.PropertyTypes, datatype.Type)
 
+		if datatype.Type.TypeKind() == llvm.ArrayTypeKind &&
+			datatype.SubType.TypeKind() == llvm.StructTypeKind {
+			g.Debugf("processing property %s as array of structs", propertyName)
+
+			entry.ArrayEmbeds[propertyName] = *datatype.Aentry
+		}
+
 		if datatype.Type.TypeKind() == llvm.PointerTypeKind &&
 			datatype.SubType.TypeKind() == llvm.StructTypeKind {
 			if datatype.SubType.StructName() == node.Name {
@@ -613,6 +651,8 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 
 				return fmt.Errorf(format, propertyName)
 			}
+
+			g.Debugf("processing property %s as struct", propertyName)
 
 			entry.Embeds[propertyName] = *datatype.Sentry
 		}
@@ -623,6 +663,8 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 
 				return fmt.Errorf(format, propertyName)
 			}
+
+			g.Debugf("processing property %s as nested struct", propertyName)
 
 			entry.Embeds[propertyName] = *datatype.Sentry
 		}
@@ -768,6 +810,8 @@ func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpressi
 
 	defer g.logger.Restore(old)
 
+	g.Debugf("(%d) %s[%s]", node.Tokens[0].Line, node.Name, node.Index)
+
 	err, entry, array, indices := g.findArraySymbolTableEntry(node)
 	if err != nil {
 		return err
@@ -790,6 +834,7 @@ func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpressi
 	g.setLastResult(&CompilerResult{
 		Value:                 &itemPtr,
 		ArraySymbolTableEntry: entry,
+		SymbolTableEntry:      array,
 	})
 
 	return nil
@@ -833,12 +878,15 @@ func (g *LLVMGenerator) prepareReturnValue(expr ast.Expression, res *CompilerRes
 		return g.Ctx.Builder.CreateLoad((*g.Ctx.Context).Int32Type(), *res.Value, ""), nil
 	case ast.MemberExpression:
 		return g.Ctx.Builder.CreateLoad(*res.StuctPropertyValueType, *res.Value, ""), nil
+	case ast.StructInitializationExpression:
+		return g.Ctx.Builder.CreateLoad(res.Value.AllocatedType(), *res.Value, ""), nil
 	case ast.StringExpression:
 		alloc := g.Ctx.Builder.CreateAlloca(res.Value.Type(), "")
 		g.Ctx.Builder.CreateStore(*res.Value, alloc)
 
 		return alloc, nil
-	case ast.SymbolExpression, ast.BinaryExpression, ast.FunctionCallExpression, ast.NumberExpression, ast.FloatExpression:
+	case ast.SymbolExpression, ast.BinaryExpression, ast.FunctionCallExpression,
+		ast.NumberExpression, ast.FloatExpression:
 		return *res.Value, nil
 	default:
 		return llvm.Value{}, fmt.Errorf("ReturnStatement unknown expression <%s>", expr)
@@ -986,8 +1034,69 @@ func (g *LLVMGenerator) findArrayOfStructsSymbolTableEntry(
 }
 
 func (g *LLVMGenerator) resolveArrayOfStructsBase(nameNode ast.Node) (error, *SymbolTableEntry, *ArraySymbolTableEntry) {
+	old := g.logger.Step("resolveArrayOfStructsBase")
+	defer g.logger.Restore(old)
+
+	g.Debugf("%s", nameNode)
+
 	switch typednode := nameNode.(type) {
+	case ast.ArrayOfStructsAccessExpression:
+		g.Debugf("processing ast.ArrayOfStructsAccessExpression")
+
+		err := typednode.Accept(g)
+		if err != nil {
+			return err, nil, nil
+		}
+
+		lastres := g.getLastResult()
+
+		g.Debugf("%s", nameNode)
+
+		debugf := "base result object, value:%v, sdef: %s, adef: %s"
+
+		g.Debugf(
+			debugf,
+			lastres.Value,
+			lastres.SymbolTableEntry.Ref.Metadata.Name,
+			lastres.ArraySymbolTableEntry.UnderlyingTypeDef.Metadata.Name,
+		)
+
+		mem, _ := typednode.Property.(ast.SymbolExpression)
+
+		propIndex, err := g.resolveStructAccess(lastres.SymbolTableEntry.Ref, mem.Value)
+		if err != nil {
+			return err, nil, nil
+		}
+
+		propType := lastres.SymbolTableEntry.Ref.PropertyTypes[propIndex]
+
+		if propType.TypeKind() == llvm.ArrayTypeKind &&
+			propType.ElementType().TypeKind() == llvm.StructTypeKind {
+			g.Debugf("proptype %v", propType.TypeKind())
+
+			nested, ok := lastres.SymbolTableEntry.Ref.ArrayEmbeds[mem.Value]
+			if ok {
+				lastres.SymbolTableEntry.Ref = nested.UnderlyingTypeDef
+
+				itemPtr := g.Ctx.Builder.CreateInBoundsGEP(
+					propType,
+					*lastres.Value,
+					[]llvm.Value{
+						llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(propIndex), false),
+					},
+					"",
+				)
+
+				g.Debugf("item ptr of array sym entry %s", itemPtr)
+
+				lastres.SymbolTableEntry.Address = &itemPtr
+			}
+		}
+
+		return nil, lastres.SymbolTableEntry, lastres.ArraySymbolTableEntry
 	case ast.MemberExpression:
+		g.Debugf("processing ast.MemberExpression %s.%s", typednode.Object, typednode.Property)
+
 		err := typednode.Object.Accept(g)
 		if err != nil {
 			return err, nil, nil
@@ -1010,6 +1119,8 @@ func (g *LLVMGenerator) resolveArrayOfStructsBase(nameNode ast.Node) (error, *Sy
 
 		if propType.TypeKind() == llvm.ArrayTypeKind {
 			if propType.ElementType().TypeKind() == llvm.StructTypeKind {
+				g.Debugf("ast.MemberExpression with array of structs %s", propName)
+
 				proptype := lastres.SymbolTableEntry.Ref.Metadata.Types[propIndex]
 				arrtype, _ := proptype.(ast.ArrayType)
 				stype, _ := arrtype.Underlying.(ast.SymbolType)
@@ -1031,6 +1142,8 @@ func (g *LLVMGenerator) resolveArrayOfStructsBase(nameNode ast.Node) (error, *Sy
 			UnderlyingTypeDef: underlyingTypeDef,
 		}
 	case ast.SymbolExpression:
+		g.Debugf("processing ast.SymbolExpression")
+
 		name := typednode.Value
 
 		err, symEntry := g.Ctx.FindSymbol(name)
@@ -1078,19 +1191,62 @@ func (g *LLVMGenerator) resolveGepIndices(indexNode ast.Node) (error, []llvm.Val
 func (g *LLVMGenerator) findArraySymbolTableEntry(
 	expr *ast.ArrayAccessExpression,
 ) (error, *ArraySymbolTableEntry, *SymbolTableEntry, []llvm.Value) {
+	old := g.logger.Step("findArraySymbolTableEntry")
+
+	defer g.logger.Restore(old)
+
 	var name string
 
 	var array *SymbolTableEntry
 
 	var entry *ArraySymbolTableEntry
 
-	switch expr.Name.(type) {
+	switch typedExpr := expr.Name.(type) {
+	case ast.ArrayOfStructsAccessExpression:
+		g.Debugf("array access expr (%d) %s ", expr.Tokens[0].Line, expr.Name)
+
+		err := expr.Name.Accept(g)
+		if err != nil {
+			return err, nil, nil, nil
+		}
+
+		lastesult := g.getLastResult()
+
+		symbol, _ := typedExpr.Property.(ast.SymbolExpression)
+
+		embed, _ := lastesult.SymbolTableEntry.Ref.ArrayEmbeds[symbol.Value]
+
+		propIndex, err := g.resolveStructAccess(lastesult.SymbolTableEntry.Ref, symbol.Value)
+		propType := lastesult.SymbolTableEntry.Ref.PropertyTypes[propIndex]
+		g.Debugf(
+			"struct types for prop(%s) idx(%d): %s %s",
+			typedExpr.Property,
+			propIndex,
+			lastesult.SymbolTableEntry.Address,
+			propType.TypeKind(),
+		)
+
+		arrayItemPtr := g.Ctx.Builder.CreateInBoundsGEP(
+			propType,
+			*lastesult.SymbolTableEntry.Address,
+			[]llvm.Value{
+				llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(propIndex), false),
+			},
+			fmt.Sprintf("%s[%s]", expr.Name, expr.Index),
+		)
+
+		array = lastesult.SymbolTableEntry
+		array.Address = &arrayItemPtr
+		array.Ref = embed.UnderlyingTypeDef
+		entry = &embed
+
 	case ast.SymbolExpression:
 		varName, _ := expr.Name.(ast.SymbolExpression)
 
 		err, arrayEntry := g.Ctx.FindSymbol(varName.Value)
 		if err != nil {
 			key := "ArrayAccessExpression.NotFoundInSymbolTable"
+
 			return g.Ctx.Dialect.Error(key, varName.Value), nil, nil, nil
 		}
 
@@ -1099,6 +1255,7 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 		err, arraySymEntry := g.Ctx.FindArraySymbol(varName.Value)
 		if err != nil {
 			key := "ArrayAccessExpression.NotFoundInArraySymbolTable"
+
 			return g.Ctx.Dialect.Error(key, varName.Value), nil, nil, nil
 		}
 
@@ -1106,7 +1263,8 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 
 		name = varName.Value
 	case ast.MemberExpression:
-		if err := expr.Name.Accept(g); err != nil {
+		err := expr.Name.Accept(g)
+		if err != nil {
 			return err, nil, nil, nil
 		}
 
@@ -1125,6 +1283,7 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 
 		if val.SymbolTableEntry.Ref == nil {
 			format := "ArrayAccessExpression property %s is not an array"
+
 			return fmt.Errorf(format, propSym.Value), nil, nil, nil
 		}
 
@@ -1165,7 +1324,8 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 			ElementsCount:  elementsCount,
 		}
 	default:
-		err := fmt.Errorf("ArrayAccessExpression not implemented")
+		err := fmt.Errorf("ArrayAccessExpression not implemented for %T", expr.Name)
+
 		return err, nil, nil, nil
 	}
 
@@ -1177,11 +1337,13 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 
 		if int(idx.Value) < 0 {
 			key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
+
 			return g.Ctx.Dialect.Error(key, expr.Index), nil, nil, nil
 		}
 
 		if entry.ElementsCount >= 0 && int(idx.Value) > entry.ElementsCount-1 {
 			key := "ArrayAccessExpression.IndexOutOfBounds"
+
 			return g.Ctx.Dialect.Error(key, int(idx.Value), name), nil, nil, nil
 		}
 
@@ -1189,7 +1351,8 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 			llvm.ConstInt((*g.Ctx.Context).Int32Type(), uint64(idx.Value), false),
 		}
 	case ast.SymbolExpression, ast.BinaryExpression, ast.MemberExpression:
-		if err := expr.Index.Accept(g); err != nil {
+		err := expr.Index.Accept(g)
+		if err != nil {
 			return err, nil, nil, nil
 		}
 
@@ -1203,6 +1366,7 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 		}
 	default:
 		key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
+
 		return g.Ctx.Dialect.Error(key, expr.Index), nil, nil, nil
 	}
 

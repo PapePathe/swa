@@ -9,11 +9,9 @@ import (
 )
 
 func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInitializationExpression) error {
-	old := g.logger.Step("StructInitExpr")
+	old := g.logger.Step(fmt.Sprintf("StructInitExpr %s", node.Name))
 
 	defer g.logger.Restore(old)
-
-	g.Debugf("%s", node.Name)
 
 	if !g.Ctx.InsideFunction {
 		return fmt.Errorf("struct initialization should happen inside a function")
@@ -25,11 +23,20 @@ func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInit
 	}
 
 	instance := g.Ctx.Builder.CreateAlloca(structType.LLVMType, node.Name+".instance")
-
+	// TODO stucts should be allocated on the heap
+	//	instance := g.Ctx.Builder.CreateMalloc(structType.LLVMType, node.Name+".instance")
 	for _, name := range node.Properties {
+		g.Debugf("initializing property %s", name)
+
 		err, propIndex := structType.Metadata.PropertyIndex(name)
 		if err != nil {
 			return err
+		}
+
+		g.Debugf("property index: %d", propIndex)
+
+		if propIndex >= len(node.Values) {
+			return fmt.Errorf("All struct properties must be initialized")
 		}
 
 		expr := node.Values[propIndex]
@@ -106,10 +113,21 @@ func injectWithArrayDecay(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.
 }
 
 func injectArrayLiteral(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+	g.Debugf("injectArrayLiteral %s %v %t", fieldAddr, res, targetType)
+
 	if targetType.TypeKind() == llvm.PointerTypeKind {
+		g.Debugf("injectArrayLiteral of pointer type")
+
 		ptr := g.Ctx.Builder.CreateBitCast(*res.Value, targetType, "array.ptr.cast")
 		g.Ctx.Builder.CreateStore(ptr, fieldAddr)
+	} else if targetType.TypeKind() == llvm.ArrayTypeKind {
+		g.Debugf("injectArrayLiteral of array type")
+
+		load := g.Ctx.Builder.CreateLoad(res.Value.AllocatedType(), *res.Value, "array.load.v1")
+		g.Ctx.Builder.CreateStore(load, fieldAddr)
 	} else {
+		g.Debugf("injectArrayLiteral of other type")
+
 		load := g.Ctx.Builder.CreateLoad(res.ArraySymbolTableEntry.Type, *res.Value, "array.load")
 		g.Ctx.Builder.CreateStore(load, fieldAddr)
 	}

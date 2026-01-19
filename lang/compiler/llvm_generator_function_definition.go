@@ -39,7 +39,8 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 		return err
 	}
 
-	newfuncType := llvm.FunctionType(returnType.typ, params, node.ArgsVariadic)
+	typetoReturn := returnType.typ
+	newfuncType := llvm.FunctionType(typetoReturn, params, node.ArgsVariadic)
 	newFunc := llvm.AddFunction(*g.Ctx.Module, node.Name, newfuncType)
 
 	err = oldCtx.AddFuncSymbol(node.Name, &newfuncType)
