@@ -1,9 +1,9 @@
 package compiler
 
 import (
+	"fmt"
 	"log"
-"os"
-"fmt"
+	"os"
 )
 
 type Logger struct {
@@ -15,7 +15,7 @@ func NewLogger(prefix string) *Logger {
 		dbg: log.New(
 			os.Stdout,
 			fmt.Sprintf("%s %s ", "DBG", prefix),
-			log.Lmsgprefix|log.LUTC|log.Ldate|log.Ltime,
+			log.Lmsgprefix,
 		),
 	}
 
