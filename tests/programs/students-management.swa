@@ -1,0 +1,151 @@
+dialect:english;
+// ---------------------------------------------------------
+// STRUCT DEFINITIONS
+// ---------------------------------------------------------
+
+struct Address {
+    StreetNumber: int,
+    StreetName: string,
+    ZipCode: int,
+}
+
+struct Grades {
+    Math: float,
+    Science: float,
+    History: float,
+    Average: float,
+}
+
+struct Student {
+    Id: int,
+    Name: string,
+    Location: Address,
+    Performance: Grades,
+    IsActive: int,
+}
+
+struct Classroom {
+    RoomNumber: int,
+    Students: [5]Student,
+    TotalStudents: int,
+}
+
+// ---------------------------------------------------------
+// UTILITY FUNCTIONS
+// ---------------------------------------------------------
+
+func calculateAverage(m: float, s: float, h: float) float {
+    // Demonstrates binary expression refactor with float promotion
+    let sum: float = m + s + h;
+    return sum / 3.0;
+}
+
+func printAddress(addr: Address) int {
+    print("      Address: %d %s, %d", addr.StreetNumber, addr.StreetName, addr.ZipCode);
+    return 0;
+}
+
+func printGrades(g: Grades) int {
+    print("      Grades -> M: %.1f, S: %.1f, H: %.1f | AVG: %.2f", g.Math, g.Science, g.History, g.Average);
+    return 0;
+}
+
+// ---------------------------------------------------------
+// CORE LOGIC
+// ---------------------------------------------------------
+
+func initializeStudent(id: int, name: string, streetNum: int, streetName: string, m: float, s: float, h: float) Student {
+    // Demonstrates Nested Struct Initialization & Default Values
+    let avg: float = calculateAverage(m, s, h);
+    
+    return Student{
+        Id: id,
+        Name: name,
+        Location: Address{
+            StreetNumber: streetNum,
+            StreetName: streetName,
+            ZipCode: 90210
+        },
+        Performance: Grades{
+            Math: m,
+            Science: s,
+            History: h,
+            Average: avg
+        },
+        IsActive: 1
+    };
+}
+
+func updateStudentPerformance(stud: *Student, m: float, s: float, h: float) int {
+    // Demonstrates Pointer Decay and Member Access via Pointer
+    stud.Performance.Math = m;
+    stud.Performance.Science = s;
+    stud.Performance.History = h;
+    stud.Performance.Average = calculateAverage(m, s, h);
+    return 1;
+}
+
+// ---------------------------------------------------------
+// MAIN EXECUTION
+// ---------------------------------------------------------
+
+start() int {
+    print("--- STARTING STUDENT MANAGEMENT SYSTEM ---");
+
+    // 1. Initialize a Classroom (Array of Structs)
+    let myClass: Classroom = Classroom{
+        RoomNumber: 101,
+        TotalStudents: 0
+    };
+
+    // 2. Add Students manually (Demonstrates Struct injection)
+    myClass.Students[0] = initializeStudent(1, "Alice Smith", 123, "Maple Ave", 95.5, 88.0, 92.0);
+    myClass.Students[1] = initializeStudent(2, "Bob Jones", 456, "Oak St", 70.0, 75.5, 80.0);
+    myClass.Students[2] = initializeStudent(3, "Charlie Brown", 789, "Pine Rd", 85.0, 82.0, 88.5);
+    myClass.TotalStudents = 3;
+
+    // 3. Update a student using a pointer (Demonstrates injectSymbol and load logic)
+    print("Updating Charlie's grades...");
+    updateStudentPerformance(myClass.Students[2], 90.0, 90.0, 95.0);
+
+    // 4. Iterate and Print using Deep Access (Nested Struct Access)
+    print("Classroom Report (Room %d):", myClass.RoomNumber);
+    
+    let i: int = 0;
+    while (i < myClass.TotalStudents) {
+        let s: Student = myClass.Students[i];
+        
+        print("Student ID: %d | Name: %s", s.Id, s.Name);
+        
+        // Deep Property Access: Student -> Address -> StreetName
+        print("   Location: %s", myClass.Students[i].Location.StreetName);
+        
+        // Accessing nested math results
+        printGrades(s.Performance);
+        
+        i = i + 1;
+    }
+
+    // 5. Statistics Calculation (Binary Expression Casting)
+    let classSum: float = 0.0;
+    let k: int = 0;
+    while (k < myClass.TotalStudents) {
+        classSum = classSum + myClass.Students[k].Performance.Average;
+        k = k + 1;
+    }
+
+    // Demonstrating int/float coercion in print
+    let classAvg: float = classSum / myClass.TotalStudents;
+    print("---");
+    print("Class Average Score: %.2f", classAvg);
+
+    // 6. Conditional Logic test
+    if (classAvg > 80.0) {
+        print("Status: Excellence Achievement Unlocked.");
+    } else {
+        print("Status: Standard Progress.");
+    }
+
+    print("--- SYSTEM SHUTDOWN ---");
+    return 0;
+}

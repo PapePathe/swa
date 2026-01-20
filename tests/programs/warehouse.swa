@@ -1,0 +1,190 @@
+dialect:english;
+//
+// ---------------------------------------------------------
+// DOMAIN MODELS
+// ---------------------------------------------------------
+
+struct Dimensions {
+    Length: float,
+    Width: float,
+    Height: float,
+}
+
+struct Item {
+    SKU: string,
+    Weight: float,
+    Dim: Dimensions,
+    Quantity: int,
+    Price: float,
+}
+
+struct Bin {
+    Id: int,
+    Items: [5]Item,
+    ItemCount: int,
+}
+
+struct Aisle {
+    Letter: string,
+    Bins: [10]Bin,
+}
+
+struct Warehouse {
+    Location: string,
+    Aisles: [3]Aisle,
+    Capacity: float,
+}
+
+struct Truck {
+    ID: int,
+    MaxWeight: float,
+    CurrentWeight: float,
+    IsFull: int,
+}
+
+// ---------------------------------------------------------
+// CALCULATION HELPERS
+// ---------------------------------------------------------
+
+func calculateVolume(d: Dimensions) float {
+    return d.Length * d.Width * d.Height;
+}
+
+func calculateShippingCost(weight: float, distance: int, priority: int) float {
+    // Math Coercion: float * int * int
+    let base: float = weight * 0.5;
+    let distCharge: float = distance * 0.15;
+    let priorityMultiplier: float = 1.0;
+    
+    if (priority == 1) {
+        priorityMultiplier = 1.5;
+    }
+    
+    return (base + distCharge) * priorityMultiplier;
+}
+
+// ---------------------------------------------------------
+// WAREHOUSE OPERATIONS
+// ---------------------------------------------------------
+
+func initializeWarehouse(wh: *Warehouse) int {
+    wh.Location = "Central Hub - Paris";
+    wh.Capacity = 5000.0;
+    
+    // Demonstrates deep indexing in loops
+    let a: int = 0;
+    while (a < 3) {
+        if (a == 0) { wh.Aisles[a].Letter = "A"; }
+        if (a == 1) { wh.Aisles[a].Letter = "B"; }
+        if (a == 2) { wh.Aisles[a].Letter = "C"; }
+        
+        let b: int = 0;
+        while (b < 10) {
+            wh.Aisles[a].Bins[b].Id = (a * 10) + b;
+            wh.Aisles[a].Bins[b].ItemCount = 0;
+            b = b + 1;
+        }
+        a = a + 1;
+    }
+    return 1;
+}
+
+func addItem(wh: *Warehouse, aisleIdx: int, binIdx: int, item: Item) int {
+    let count: int = wh.Aisles[aisleIdx].Bins[binIdx].ItemCount;
+    
+    if (count >= 5) {
+        print("Bin %d in Aisle %s is full!", binIdx, wh.Aisles[aisleIdx].Letter);
+        return -1;
+    }
+    
+    // Struct injection into nested array element
+    wh.Aisles[aisleIdx].Bins[binIdx].Items[count] = item;
+    wh.Aisles[aisleIdx].Bins[binIdx].ItemCount = count + 1;
+    
+    return 0;
+}
+
+// ---------------------------------------------------------
+// TRUCK LOADING LOGIC
+// ---------------------------------------------------------
+
+func loadTruck(t: *Truck, item: Item) int {
+    if (t.CurrentWeight + item.Weight > t.MaxWeight) {
+        t.IsFull = 1;
+        return -1;
+    }
+    
+    t.CurrentWeight = t.CurrentWeight + item.Weight;
+    print("Truck %d: Loaded SKU %s. Current Weight: %.2f", t.ID, item.SKU, t.CurrentWeight);
+    return 1;
+}
+
+// ---------------------------------------------------------
+// MAIN EXECUTION (ENTRY POINT)
+// ---------------------------------------------------------
+
+start() int {
+    print("=== LOGISTICS SYSTEM INITIALIZING ===");
+
+    // 1. Setup Warehouse
+    let myWarehouse: Warehouse = Warehouse{}; // Default initialization (zero-values)
+    initializeWarehouse(myWarehouse);
+    print("Warehouse %s initialized.", myWarehouse.Location);
+
+    // 2. Create Stock Items
+    let laptop: Item = Item{
+        SKU: "LAP-001", 
+        Weight: 2.5, 
+        Dim: Dimensions{Length: 35.0, Width: 25.0, Height: 2.0},
+        Quantity: 10,
+        Price: 1200.0
+    };
+
+    let monitor: Item = Item{
+        SKU: "MON-99", 
+        Weight: 5.2, 
+        Dim: Dimensions{Length: 60.0, Width: 40.0, Height: 15.0},
+        Quantity: 5,
+        Price: 350.0
+    };
+
+    // 3. Stock the Warehouse (Testing Deep GEP)
+    addItem(myWarehouse, 0, 0, laptop);
+    addItem(myWarehouse, 0, 0, laptop);
+    addItem(myWarehouse, 1, 5, monitor);
+
+    // 4. Inventory Audit Logic
+    print("--- INVENTORY AUDIT ---");
+    let totalValue: float = 0.0;
+    let i: int = 0;
+    while (i < 3) {
+        let j: int = 0;
+        while (j < 10) {
+            let k: int = 0;
+            let currentBin: Bin = myWarehouse.Aisles[i].Bins[j];
+            while (k < currentBin.ItemCount) {
+                let it: Item = currentBin.Items[k];
+                print("Aisle %s-Bin %d: SKU %s found.", myWarehouse.Aisles[i].Letter, j, it.SKU);
+                totalValue = totalValue + it.Price;
+                k = k + 1;
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+    print("Total Asset Value in Warehouse: $%.2f", totalValue);
+
+    // 5. Fleet Management
+    let deliveryTruck: Truck = Truck{ID: 501, MaxWeight: 100.0, CurrentWeight: 0.0, IsFull: 0};
+    
+    // Load truck from warehouse stock
+    loadTruck(deliveryTruck, myWarehouse.Aisles[0].Bins[0].Items[0]);
+    loadTruck(deliveryTruck, myWarehouse.Aisles[1].Bins[5].Items[0]);
+
+    // 6. Calculate Route Costs
+    let shippingFee: float = calculateShippingCost(deliveryTruck.CurrentWeight, 250, 1);
+    print("Shipment Cost for 250km (Priority): $%.2f", shippingFee);
+
+    print("=== SYSTEM SHUTDOWN ===");
+    return 0;
+}

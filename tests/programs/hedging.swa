@@ -1,0 +1,131 @@
+dialect:english;
+// ---------------------------------------------------------
+// DATA STRUCTURES
+// ---------------------------------------------------------
+
+struct Currency {
+    Code: string,
+    CurrentRate: float,    // Rate relative to USD
+    Volatility: float,     // 0.0 to 1.0
+    InterestRate: float,
+}
+
+struct Exposure {
+    CurrencyCode: string,
+    Amount: float,         // Amount in local currency
+    RiskLevel: int,        // 1 (Low) to 5 (High)
+}
+
+struct HedgeStrategy {
+    Name: string,
+    Efficiency: float,     // How much of the risk is covered
+    CostBasis: float,      // Operational cost
+}
+
+struct Portfolio {
+    Owner: string,
+    Exposures: [4]Exposure,
+    Count: int,
+    TotalValueUSD: float,
+}
+
+// ---------------------------------------------------------
+// STRATEGY CALCULATIONS
+// ---------------------------------------------------------
+
+func calculateForwardHedge(amount: float, rate: float, efficiency: float) float {
+    // Math Coercion Test: float * float * float
+    return (amount * rate) * efficiency;
+}
+
+func calculateOptionHedge(amount: float, rate: float, vol: float) float {
+    // Complex Math: Uses volatility to discount the hedge value
+    let baseValue: float = amount * rate;
+    let discount: float = 1.0 - (vol * 0.5);
+    return baseValue * discount;
+}
+
+// ---------------------------------------------------------
+// ENGINE LOGIC
+// ---------------------------------------------------------
+
+func findCurrency(code: string, market: [3]Currency) *Currency {
+    let i: int = 0;
+    while (i < 3) {
+        if (market[i].Code == code) {
+            return market[i];
+        }
+        i = i + 1;
+    }
+    return market[0]; // Default to first (usually USD)
+}
+
+func processPortfolio(p: *Portfolio, market: [3]Currency) int {
+    print("--- Processing Portfolio for: %s ---", p.Owner);
+    
+    let i: int = 0;
+    p.TotalValueUSD = 0.0;
+
+    while (i < p.Count) {
+        // Nested Array Access: p -> Exposures[i]
+        let exp: Exposure = p.Exposures[i];
+        let curr: *Currency = findCurrency(exp.CurrencyCode, market);
+        
+        let rawValue: float = exp.Amount * curr.CurrentRate;
+        let hedgedValue: float = 0.0;
+
+        // Dynamic Strategy Selection
+        if (curr.Volatility > 0.15 || exp.RiskLevel > 3) {
+            print("  [Strategy] Using Option Hedge for %s", exp.CurrencyCode);
+            hedgedValue = calculateOptionHedge(exp.Amount, curr.CurrentRate, curr.Volatility);
+        } else {
+            print("  [Strategy] Using Forward Hedge for %s", exp.CurrencyCode);
+            hedgedValue = calculateForwardHedge(exp.Amount, curr.CurrentRate, 0.98);
+        }
+
+        print("  Exposure: %.2f %s | Raw USD: %.2f | Hedged USD: %.2f", 
+            exp.Amount, exp.CurrencyCode, rawValue, hedgedValue);
+            
+        p.TotalValueUSD = p.TotalValueUSD + hedgedValue;
+        i = i + 1;
+    }
+
+    return 0;
+}
+
+// ---------------------------------------------------------
+// START
+// ---------------------------------------------------------
+
+start() int {
+    // 1. Setup Market Data
+    let market: [3]Currency = [3]Currency{
+        Currency{Code: "EUR", CurrentRate: 1.10, Volatility: 0.05, InterestRate: 0.03},
+        Currency{Code: "GBP", CurrentRate: 1.25, Volatility: 0.08, InterestRate: 0.04},
+        Currency{Code: "JPY", CurrentRate: 0.0067, Volatility: 0.22, InterestRate: 0.001}
+    };
+
+    // 2. Initialize Portfolio with nested Exposures
+    // Tests Struct-in-Struct initialization and array literals
+    let myPortfolio: Portfolio = Portfolio{
+        Owner: "Global Corp Assets",
+        Count: 3,
+        Exposures: [4]Exposure{
+            Exposure{CurrencyCode: "EUR", Amount: 100000.0, RiskLevel: 2},
+            Exposure{CurrencyCode: "GBP", Amount: 50000.0, RiskLevel: 1},
+            Exposure{CurrencyCode: "JPY", Amount: 15000000.0, RiskLevel: 5},
+            Exposure{CurrencyCode: "USD", Amount: 0.0, RiskLevel: 0} // Null entry
+        },
+        TotalValueUSD: 0.0
+    };
+
+    // 3. Run the Engine
+    // Passing a pointer to a struct to test pointer decay logic
+    processPortfolio(myPortfolio, market);
+
+    print("---------------------------------------");
+    print("Final Portfolio Hedged Value: $%.2f USD", myPortfolio.TotalValueUSD);
+    print("---------------------------------------");
+
+    return 0;
+}

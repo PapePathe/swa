@@ -1,0 +1,201 @@
+dialect:english;
+// ---------------------------------------------------------
+// 1. DATA MODELS & STRUCTURES
+// ---------------------------------------------------------
+
+struct Address {
+    Street: string,
+    Zip: int,
+}
+
+struct Transaction {
+    Id: int,
+    Description: string,
+    Amount: float,
+    Category: int,    // 1: Revenue, 2: OPEX, 3: CAPEX, 4: Payroll
+}
+
+struct FixedAsset {
+    Description: string,
+    InitialCost: float,
+    PurchaseQuarter: int,
+    UsefulLifeQuarters: int,
+}
+
+struct BusinessState {
+    Name: string,
+    BankBalance: float,
+    MonthlySaaSRevenue: float,
+    MonthlyPayroll: float,
+    GrowthRate: float,
+    Location: Address,
+}
+
+struct AllHandsReport {
+    TotalRevenue: float,
+    TotalExpenses: float,
+    NetIncome: float,
+    Depreciation: float,
+}
+
+struct BalanceSheet {
+    Cash: float,
+    AssetBookValue: float,
+    Equity: float,
+}
+
+struct CashFlow {
+    OperatingCash: float,
+    NetChange: float,
+    Closing: float,
+}
+
+// ---------------------------------------------------------
+// 2. CORE ACCOUNTING CALCULATIONS
+// ---------------------------------------------------------
+
+func calculateDepreciation(asset: FixedAsset, currentQ: int) float {
+    if (currentQ < asset.PurchaseQuarter) { 
+        return 0.0; 
+    }
+    let age: int = currentQ - asset.PurchaseQuarter;
+    if (age >= asset.UsefulLifeQuarters) { 
+        return 0.0; 
+    }
+    // Straight line depreciation
+    return asset.InitialCost / asset.UsefulLifeQuarters;
+}
+
+func calculateBookValue(asset: FixedAsset, currentQ: int) float {
+    let quartersOwned: int = currentQ - asset.PurchaseQuarter;
+    if (quartersOwned <= 0) { return asset.InitialCost; }
+    
+    let depPerQ: float = asset.InitialCost / asset.UsefulLifeQuarters;
+    let accumulated: float = depPerQ * quartersOwned;
+    
+    if (accumulated >= asset.InitialCost) { return 0.0; }
+    return asset.InitialCost - accumulated;
+}
+
+// ---------------------------------------------------------
+// 3. SIMULATION & REPORTING ENGINE
+// ---------------------------------------------------------
+
+func runQuarter(state: *BusinessState, assets: [2]FixedAsset, qNum: int) AllHandsReport {
+    // 3 months of activity
+    let rev: float = state.MonthlySaaSRevenue * 3.0;
+    let opex: float = state.MonthlyPayroll * 3.0;
+    
+    // Calculate non-cash depreciation
+    let totalDep: float = 0.0;
+    let i: int = 0;
+    while (i < 2) {
+        totalDep = totalDep + calculateDepreciation(assets[i], qNum);
+        i = i + 1;
+    }
+
+    let report: AllHandsReport = AllHandsReport{
+        TotalRevenue: rev,
+        TotalExpenses: opex + totalDep,
+        NetIncome: rev - (opex + totalDep),
+        Depreciation: totalDep
+    };
+
+    // Cash movement (Depreciation is added back for cash balance)
+    state.BankBalance = state.BankBalance + (rev - opex);
+    
+    // Apply growth for next quarter
+    state.MonthlySaaSRevenue = state.MonthlySaaSRevenue * state.GrowthRate;
+
+    return report;
+}
+
+func generateStatements(state: BusinessState, report: AllHandsReport, assets: [2]FixedAsset, qNum: int) int {
+    // 1. Balance Sheet Audit
+    let bookVal: float = 0.0;
+    let i: int = 0;
+    while (i < 2) {
+        bookVal = bookVal + calculateBookValue(assets[i], qNum);
+        i = i + 1;
+    }
+
+    let bs: BalanceSheet = BalanceSheet{
+        Cash: state.BankBalance,
+        AssetBookValue: bookVal,
+        Equity: state.BankBalance + bookVal
+    };
+
+    // 2. Cash Flow Statement
+    let cf: CashFlow = CashFlow{
+        OperatingCash: report.NetIncome + report.Depreciation,
+        NetChange: report.NetIncome + report.Depreciation,
+        Closing: state.BankBalance
+    };
+
+    // 3. Print Output
+    print("--- QUARTER %d FINANCIAL STATEMENTS ---", qNum);
+    print("  P&L: Rev: %.2f | Exp: %.2f | Net: %.2f", report.TotalRevenue, report.TotalExpenses, report.NetIncome);
+    print("  B/S: Cash: %.2f | Assets: %.2f | Equity: %.2f", bs.Cash, bs.AssetBookValue, bs.Equity);
+    print("  C/F: Op. Cash Flow: %.2f | Closing Cash: %.2f", cf.OperatingCash, cf.Closing);
+    print("----------------------------------------");
+    
+    return 0;
+}
+
+// ---------------------------------------------------------
+// 4. MAIN ENTRY POINT
+// ---------------------------------------------------------
+
+start() int {
+    print("INITIALIZING ENTERPRISE ACCOUNTING SUITE...");
+
+    // Setup persistent business state
+    let myCorp: BusinessState = BusinessState{
+        Name: "TechFlow Systems",
+        BankBalance: 1000000.0,
+        MonthlySaaSRevenue: 50000.0,
+        MonthlyPayroll: 45000.0,
+        GrowthRate: 1.10,
+        Location: Address{ Street: "101 Innovation Way", Zip: 94025 }
+    };
+
+    // Setup Capital Assets
+    let assets: [2]FixedAsset = [2]FixedAsset{
+        FixedAsset{Description: "Mainframe", InitialCost: 120000.0, PurchaseQuarter: 1, UsefulLifeQuarters: 12},
+        FixedAsset{Description: "Fleet", InitialCost: 80000.0, PurchaseQuarter: 2, UsefulLifeQuarters: 16}
+    };
+
+    let annualRevenue: float = 0.0;
+    let annualNet: float = 0.0;
+
+    // Run Fiscal Year Simulation
+    let q: int = 1;
+    while (q <= 4) {
+        let qReport: AllHandsReport = runQuarter(myCorp, assets, q);
+        
+        generateStatements(myCorp, qReport, assets, q);
+        
+        annualRevenue = annualRevenue + qReport.TotalRevenue;
+        annualNet = annualNet + qReport.NetIncome;
+        
+        q = q + 1;
+    }
+
+    // Final Annual Analysis
+    print("*****************************************");
+    print("       ANNUAL ALL-HANDS SUMMARY          ");
+    print("*****************************************");
+    print("TOTAL ANNUAL REVENUE:   $%12.2f", annualRevenue);
+    print("TOTAL ANNUAL NET PROFIT:$%12.2f", annualNet);
+    print("FINAL BANK LIQUIDITY:   $%12.2f", myCorp.BankBalance);
+    print("LOCATION:               %s", myCorp.Location.Street);
+    print("*****************************************");
+
+    if (annualNet > 0.0) {
+        print("STATUS: PERFORMANCE MET. TARGETING IPO 2026.");
+    } else {
+        print("STATUS: RESTRUCTURING REQUIRED.");
+    }
+
+    return 0;
+}

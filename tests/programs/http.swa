@@ -1,0 +1,1631 @@
+dialect:english;
+
+// ==================== HTTP CONSTANTS AND STRUCTURES ====================
+
+// HTTP Methods
+let HTTP_GET: int = 1;
+let HTTP_POST: int = 2;
+let HTTP_PUT: int = 3;
+let HTTP_DELETE: int = 4;
+let HTTP_HEAD: int = 5;
+let HTTP_OPTIONS: int = 6;
+let HTTP_PATCH: int = 7;
+
+// HTTP Versions
+let HTTP_VERSION_1_0: int = 10;
+let HTTP_VERSION_1_1: int = 11;
+let HTTP_VERSION_2_0: int = 20;
+
+// HTTP Status Codes
+let HTTP_STATUS_CONTINUE: int = 100;
+let HTTP_STATUS_OK: int = 200;
+let HTTP_STATUS_CREATED: int = 201;
+let HTTP_STATUS_ACCEPTED: int = 202;
+let HTTP_STATUS_NO_CONTENT: int = 204;
+let HTTP_STATUS_MOVED_PERMANENTLY: int = 301;
+let HTTP_STATUS_FOUND: int = 302;
+let HTTP_STATUS_BAD_REQUEST: int = 400;
+let HTTP_STATUS_UNAUTHORIZED: int = 401;
+let HTTP_STATUS_FORBIDDEN: int = 403;
+let HTTP_STATUS_NOT_FOUND: int = 404;
+let HTTP_STATUS_METHOD_NOT_ALLOWED: int = 405;
+let HTTP_STATUS_INTERNAL_SERVER_ERROR: int = 500;
+let HTTP_STATUS_NOT_IMPLEMENTED: int = 501;
+let HTTP_STATUS_BAD_GATEWAY: int = 502;
+let HTTP_STATUS_SERVICE_UNAVAILABLE: int = 503;
+
+// HTTP Headers
+struct HTTPHeader {
+  name: string,
+  value: string,
+}
+
+// HTTP Request Structure
+struct HTTPRequest {
+  method: int,
+  path: string,
+  version: int,
+  headers: [50]HTTPHeader,
+  header_count: int,
+  body: [4096]int,
+  body_length: int,
+  query_params: [20]HTTPHeader,
+  query_param_count: int,
+}
+
+// HTTP Response Structure
+struct HTTPResponse {
+  version: int,
+  status_code: int,
+  status_text: string,
+  headers: [50]HTTPHeader,
+  header_count: int,
+  body: [4096]int,
+  body_length: int,
+}
+
+// JSON Value Types
+let JSON_TYPE_NULL: int = 0;
+let JSON_TYPE_BOOL: int = 1;
+let JSON_TYPE_NUMBER: int = 2;
+let JSON_TYPE_STRING: int = 3;
+let JSON_TYPE_ARRAY: int = 4;
+let JSON_TYPE_OBJECT: int = 5;
+
+// JSON Structure
+struct JSONValue {
+  type: int,
+  bool_value: int,
+  number_value: float,
+  string_value: string,
+  array_items: [20]JSONValue,
+  array_size: int,
+  object_properties: [20]JSONProperty,
+  object_size: int,
+}
+
+struct JSONProperty {
+  key: string,
+  value: JSONValue,
+}
+
+// ==================== UTILITY FUNCTIONS ====================
+
+func int_to_string(num: int) string {
+  if (num == 0) {
+    return "0";
+  }
+  
+  let result: string = "";
+  let temp: int = num;
+  let is_negative: int = 0;
+  
+  if (temp < 0) {
+    is_negative = 1;
+    temp = 0 - temp;
+  }
+  
+  let done: int = 0;
+  while (done == 0) {
+    if (temp == 0) {
+      done = 1;
+    } else {
+      let digit: int = temp % 10;
+      let digit_str: string = "";
+      if (digit == 0) { digit_str = "0"; }
+      if (digit == 1) { digit_str = "1"; }
+      if (digit == 2) { digit_str = "2"; }
+      if (digit == 3) { digit_str = "3"; }
+      if (digit == 4) { digit_str = "4"; }
+      if (digit == 5) { digit_str = "5"; }
+      if (digit == 6) { digit_str = "6"; }
+      if (digit == 7) { digit_str = "7"; }
+      if (digit == 8) { digit_str = "8"; }
+      if (digit == 9) { digit_str = "9"; }
+      
+      result = digit_str + result;
+      temp = temp / 10;
+    }
+  }
+  
+  if (is_negative == 1) {
+    result = "-" + result;
+  }
+  
+  return result;
+}
+
+func string_to_int(str: string) int {
+  let result: int = 0;
+  let i: int = 0;
+  let is_negative: int = 0;
+  
+  if (str.length > 0) {
+    if (str[0] == "-") {
+      is_negative = 1;
+      i = 1;
+    }
+  }
+  
+  while (i < str.length) {
+    let ch: string = str[i];
+    let digit: int = 0;
+    
+    if (ch == "0") { digit = 0; }
+    if (ch == "1") { digit = 1; }
+    if (ch == "2") { digit = 2; }
+    if (ch == "3") { digit = 3; }
+    if (ch == "4") { digit = 4; }
+    if (ch == "5") { digit = 5; }
+    if (ch == "6") { digit = 6; }
+    if (ch == "7") { digit = 7; }
+    if (ch == "8") { digit = 8; }
+    if (ch == "9") { digit = 9; }
+    
+    result = result * 10 + digit;
+    i = i + 1;
+  }
+  
+  if (is_negative == 1) {
+    result = 0 - result;
+  }
+  
+  return result;
+}
+
+func float_to_string(num: float) string {
+  // Simple float to string conversion
+  let int_part: int = num;
+  let frac_part: float = num - int_part;
+  
+  let int_str: string = int_to_string(int_part);
+  
+  if (frac_part == 0.0) {
+    return int_str;
+  } else {
+    // Convert fraction part (2 decimal places)
+    let frac_int: int = frac_part * 100.0;
+    let frac_str: string = int_to_string(frac_int);
+    
+    // Ensure 2 digits
+    if (frac_int < 10) {
+      frac_str = "0" + frac_str;
+    }
+    
+    return int_str + "." + frac_str;
+  }
+}
+
+func ascii_to_char(code: int) string {
+  if (code == 32) { return " ";}
+  if (code == 33) { return "!";}
+  if (code == 34) { return "\"";}
+  if (code == 35) { return "#";}
+  if (code == 36) { return "$";}
+  if (code == 37) { return "%";}
+  if (code == 38) { return "&";}
+  if (code == 39) { return "'";}
+  if (code == 40) { return "(";}
+  if (code == 41) { return ")";}
+  if (code == 42) { return "*";}
+  if (code == 43) { return "+";}
+  if (code == 44) { return ",";}
+  if (code == 45) { return "-";}
+  if (code == 46) { return ".";}
+  if (code == 47) { return "/";}
+  if (code == 58) { return ":";}
+  if (code == 59) { return ";";}
+  if (code == 60) { return "<";}
+  if (code == 61) { return "=";}
+  if (code == 62) { return ">";}
+  if (code == 63) { return "?";}
+  if (code == 64) { return "@";}
+  if (code == 91) { return "[";}
+  if (code == 92) { return "\\";}
+  if (code == 93) { return "]";}
+  if (code == 94) { return "^";}
+  if (code == 95) { return "_";}
+  if (code == 96) { return "`";}
+  if (code == 123){ return "{";}
+  if (code == 124){ return "|";}
+  if (code == 125){ return "}";}
+  if (code == 126){ return "~";}
+  
+  if (code >= 48 && code <= 57) {
+    return int_to_string(code - 48);
+  }
+  
+  if (code >= 65 && code <= 90) {
+    let letter_num: int = code - 65;
+    if (letter_num == 0) { return "A";}
+    if (letter_num == 1) { return "B";}
+    if (letter_num == 2) { return "C";}
+    if (letter_num == 3) { return "D";}
+    if (letter_num == 4) { return "E";}
+    if (letter_num == 5) { return "F";}
+    if (letter_num == 6) { return "G";}
+    if (letter_num == 7) { return "H";}
+    if (letter_num == 8) { return "I";}
+    if (letter_num == 9) { return "J";}
+    if (letter_num == 10){ return "K";}
+    if (letter_num == 11){ return "L";}
+    if (letter_num == 12){ return "M";}
+    if (letter_num == 13){ return "N";}
+    if (letter_num == 14){ return "O";}
+    if (letter_num == 15){ return "P";}
+    if (letter_num == 16){ return "Q";}
+    if (letter_num == 17){ return "R";}
+    if (letter_num == 18){ return "S";}
+    if (letter_num == 19){ return "T";}
+    if (letter_num == 20){ return "U";}
+    if (letter_num == 21){ return "V";}
+    if (letter_num == 22){ return "W";}
+    if (letter_num == 23){ return "X";}
+    if (letter_num == 24){ return "Y";}
+    return "Z";
+  }
+  
+  if (code >= 97 && code <= 122) {
+    let letter_num: int = code - 97;
+    if (letter_num == 0) { return "a";}
+    if (letter_num == 1) { return "b";}
+    if (letter_num == 2) { return "c";}
+    if (letter_num == 3) { return "d";}
+    if (letter_num == 4) { return "e";}
+    if (letter_num == 5) { return "f";}
+    if (letter_num == 6) { return "g";}
+    if (letter_num == 7) { return "h";}
+    if (letter_num == 8) { return "i";}
+    if (letter_num == 9) { return "j";}
+    if (letter_num == 10){ return "k";}
+    if (letter_num == 11){ return "l";}
+    if (letter_num == 12){ return "m";}
+    if (letter_num == 13){ return "n";}
+    if (letter_num == 14){ return "o";}
+    if (letter_num == 15){ return "p";}
+    if (letter_num == 16){ return "q";}
+    if (letter_num == 17){ return "r";}
+    if (letter_num == 18){ return "s";}
+    if (letter_num == 19){ return "t";}
+    if (letter_num == 20){ return "u";}
+    if (letter_num == 21){ return "v";}
+    if (letter_num == 22){ return "w";}
+    if (letter_num == 23){ return "x";}
+    if (letter_num == 24){ return "y";}
+    return "z";
+  }
+  
+  return "?";
+}
+
+func char_to_ascii(ch: string) int {
+  if (ch == " ") { return 32;}
+  if (ch == "!") { return 33;}
+  if (ch == "\""){ return 34;}
+  if (ch == "#") { return 35;}
+  if (ch == "$") { return 36;}
+  if (ch == "%") { return 37;}
+  if (ch == "&") { return 38;}
+  if (ch == "'") { return 39;}
+  if (ch == "(") { return 40;}
+  if (ch == ")") { return 41;}
+  if (ch == "*") { return 42;}
+  if (ch == "+") { return 43;}
+  if (ch == ",") { return 44;}
+  if (ch == "-") { return 45;}
+  if (ch == ".") { return 46;}
+  if (ch == "/") { return 47;}
+  if (ch == ":") { return 58;}
+  if (ch == ";") { return 59;}
+  if (ch == "<") { return 60;}
+  if (ch == "=") { return 61;}
+  if (ch == ">") { return 62;}
+  if (ch == "?") { return 63;}
+  if (ch == "@") { return 64;}
+  if (ch == "[") { return 91;}
+  if (ch == "\\"){ return 92;}
+  if (ch == "]") { return 93;}
+  if (ch == "^") { return 94;}
+  if (ch == "_") { return 95;}
+  if (ch == "`") { return 96;}
+  if (ch == "{") { return 123;}
+  if (ch == "|") { return 124;}
+  if (ch == "}") { return 125;}
+  if (ch == "~") { return 126;}
+  
+  if (ch == "0"){ return 48;}
+  if (ch == "1"){ return 49;}
+  if (ch == "2"){ return 50;}
+  if (ch == "3"){ return 51;}
+  if (ch == "4"){ return 52;}
+  if (ch == "5"){ return 53;}
+  if (ch == "6"){ return 54;}
+  if (ch == "7"){ return 55;}
+  if (ch == "8"){ return 56;}
+  if (ch == "9"){ return 57;}
+  if (ch == "A"){ return 65;}
+  if (ch == "B"){ return 66;}
+  if (ch == "C"){ return 67;}
+  if (ch == "D"){ return 68;}
+  if (ch == "E"){ return 69;}
+  if (ch == "F"){ return 70;}
+  if (ch == "G"){ return 71;}
+  if (ch == "H"){ return 72;}
+  if (ch == "I"){ return 73;}
+  if (ch == "J"){ return 74;}
+  if (ch == "K"){ return 75;}
+  if (ch == "L"){ return 76;}
+  if (ch == "M"){ return 77;}
+  if (ch == "N"){ return 78;}
+  if (ch == "O"){ return 79;}
+  if (ch == "P"){ return 80;}
+  if (ch == "Q"){ return 81;}
+  if (ch == "R"){ return 82;}
+  if (ch == "S"){ return 83;}
+  if (ch == "T"){ return 84;}
+  if (ch == "U"){ return 85;}
+  if (ch == "V"){ return 86;}
+  if (ch == "W"){ return 87;}
+  if (ch == "X"){ return 88;}
+  if (ch == "Y"){ return 89;}
+  if (ch == "Z"){ return 90;}
+  if (ch == "a"){ return 97;}
+  if (ch == "b"){ return 98;}
+  if (ch == "c"){ return 99;}
+  if (ch == "d"){ return 100;}
+  if (ch == "e"){ return 101;}
+  if (ch == "f"){ return 102;}
+  if (ch == "g"){ return 103;}
+  if (ch == "h"){ return 104;}
+  if (ch == "i"){ return 105;}
+  if (ch == "j"){ return 106;}
+  if (ch == "k"){ return 107;}
+  if (ch == "l"){ return 108;}
+  if (ch == "m"){ return 109;}
+  if (ch == "n"){ return 110;}
+  if (ch == "o"){ return 111;}
+  if (ch == "p"){ return 112;}
+  if (ch == "q"){ return 113;}
+  if (ch == "r"){ return 114;}
+  if (ch == "s"){ return 115;}
+  if (ch == "t"){ return 116;}
+  if (ch == "u"){ return 117;}
+  if (ch == "v"){ return 118;}
+  if (ch == "w"){ return 119;}
+  if (ch == "x"){ return 120;}
+  if (ch == "y"){ return 121;}
+  if (ch == "z"){ return 122;}
+  
+  return 63; // "?"
+}
+
+func string_to_ascii_array(str: string) [4096]int {
+  let result: [4096]int = [4096]int{0};
+  let i: int = 0;
+  let done: int = 0;
+  
+  while (done == 0) {
+    if (i >= str.length || i >= 4096) {
+      done = 1;
+    } else {
+      result[i] = char_to_ascii(str[i]);
+      i = i + 1;
+    }
+  }
+  
+  return result;
+}
+
+func ascii_array_to_string(data: [4096]int, length: int) string {
+  let result: string = "";
+  let i: int = 0;
+  let done: int = 0;
+  
+  while (done == 0) {
+    if (i >= length || i >= 4096) {
+      done = 1;
+    } else {
+      result = result + ascii_to_char(data[i]);
+      i = i + 1;
+    }
+  }
+  
+  return result;
+}
+
+func get_http_method_name(method: int) string {
+  if (method == HTTP_GET)    { return "GET";}
+  if (method == HTTP_POST)   { return "POST";}
+  if (method == HTTP_PUT)    { return "PUT";}
+  if (method == HTTP_DELETE) { return "DELETE";}
+  if (method == HTTP_HEAD)   { return "HEAD";}
+  if (method == HTTP_OPTIONS){ return "OPTIONS";}
+  if (method == HTTP_PATCH)  { return "PATCH";}
+  return "UNKNOWN";
+}
+
+func get_http_version_name(version: int) string {
+  if (version == HTTP_VERSION_1_0){ return "HTTP/1.0";}
+  if (version == HTTP_VERSION_1_1){ return "HTTP/1.1";}
+  if (version == HTTP_VERSION_2_0){ return "HTTP/2.0";}
+  return "HTTP/UNKNOWN";
+}
+
+func get_http_status_text(status_code: int) string {
+  if (status_code == HTTP_STATUS_CONTINUE)             { return "Continue"; }
+  if (status_code == HTTP_STATUS_OK)                   { return "OK";}
+  if (status_code == HTTP_STATUS_CREATED)              { return "Created";}
+  if (status_code == HTTP_STATUS_ACCEPTED)             { return "Accepted";}
+  if (status_code == HTTP_STATUS_NO_CONTENT)           { return "No Content";}
+  if (status_code == HTTP_STATUS_MOVED_PERMANENTLY)    { return "Moved Permanently";}
+  if (status_code == HTTP_STATUS_FOUND)                { return "Found";}
+  if (status_code == HTTP_STATUS_BAD_REQUEST)          { return "Bad Request";}
+  if (status_code == HTTP_STATUS_UNAUTHORIZED)         { return "Unauthorized";}
+  if (status_code == HTTP_STATUS_FORBIDDEN)            { return "Forbidden";}
+  if (status_code == HTTP_STATUS_NOT_FOUND)            { return "Not Found";}
+  if (status_code == HTTP_STATUS_METHOD_NOT_ALLOWED)   { return "Method Not Allowed";}
+  if (status_code == HTTP_STATUS_INTERNAL_SERVER_ERROR){ return "Internal Server Error";}
+  if (status_code == HTTP_STATUS_NOT_IMPLEMENTED)      { return "Not Implemented";}
+  if (status_code == HTTP_STATUS_BAD_GATEWAY)          { return "Bad Gateway";}
+  if (status_code == HTTP_STATUS_SERVICE_UNAVAILABLE)  { return "Service Unavailable";}
+  return "Unknown Status";
+}
+
+// ==================== HTTP PARSER ====================
+
+func parse_http_request(data: [4096]int, length: int) HTTPRequest {
+  let request: HTTPRequest = HTTPRequest{
+    method: 0,
+    path: "",
+    version: 0,
+    headers: [50]HTTPHeader{},
+    header_count: 0,
+    body: [4096]int{0},
+    body_length: 0,
+    query_params: [20]HTTPHeader{},
+    query_param_count: 0,
+  };
+  
+  let i: int = 0;
+  let parsing_done: int = 0;
+  let state: int = 0; // 0=method, 1=path, 2=version, 3=headers, 4=body
+  
+  let current_token: string = "";
+  let is_query_param: int = 0;
+  
+  while (parsing_done == 0) {
+    if (i >= length) {
+      parsing_done = 1;
+    } else {
+      let ch_int: int = data[i];
+      let ch: string = ascii_to_char(ch_int);
+      
+      if (state == 0) {
+        // Parse method
+        if (ch_int == 32) { // Space
+          if (current_token == "GET") {
+            request.method = HTTP_GET;
+          } else {
+            if (current_token == "POST") {
+              request.method = HTTP_POST;
+            } else {
+              if (current_token == "PUT") {
+                request.method = HTTP_PUT;
+              } else {
+                if (current_token == "DELETE") {
+                  request.method = HTTP_DELETE;
+                } else {
+                  if (current_token == "HEAD") {
+                    request.method = HTTP_HEAD;
+                  } else {
+                    if (current_token == "OPTIONS") {
+                      request.method = HTTP_OPTIONS;
+                    } else {
+                      if (current_token == "PATCH") {
+                        request.method = HTTP_PATCH;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          current_token = "";
+          state = 1;
+        } else {
+          current_token = current_token + ch;
+        }
+      } else {
+        if (state == 1) {
+          // Parse path and query parameters
+          if (ch_int == 32) { // Space
+            request.path = current_token;
+            
+            // Parse query parameters from path
+            let query_start: int = 0;
+            let find_query_done: int = 0;
+            let j: int = 0;
+            
+            while (find_query_done == 0) {
+              if (j >= request.path.length) {
+                find_query_done = 1;
+              } else {
+                if (request.path[j] == "?") {
+                  query_start = j + 1;
+                  find_query_done = 1;
+                }
+                j = j + 1;
+              }
+            }
+            
+            if (query_start > 0) {
+              let actual_path: string = "";
+              let k: int = 0;
+              let copy_path_done: int = 0;
+              
+              while (copy_path_done == 0) {
+                if (k >= query_start - 1) {
+                  copy_path_done = 1;
+                } else {
+                  actual_path = actual_path + request.path[k];
+                  k = k + 1;
+                }
+              }
+              
+              request.path = actual_path;
+              
+              // Parse query string
+              let query_str: string = "";
+              let l: int = query_start;
+              let copy_query_done: int = 0;
+              
+              while (copy_query_done == 0) {
+                if (l >= request.path.length) {
+                  copy_query_done = 1;
+                } else {
+                  query_str = query_str + request.path[l];
+                  l = l + 1;
+                }
+              }
+              
+              // Parse query parameters
+              let param_name: string = "";
+              let param_value: string = "";
+              let in_name: int = 1;
+              let m: int = 0;
+              let parse_params_done: int = 0;
+              
+              while (parse_params_done == 0) {
+                if (m >= query_str.length) {
+                  parse_params_done = 1;
+                  if (param_name != "") {
+                    request.query_params[request.query_param_count] = HTTPHeader{
+                      name: param_name,
+                      value: param_value
+                    };
+                    request.query_param_count = request.query_param_count + 1;
+                  }
+                } else {
+                  let query_ch: string = query_str[m];
+                  
+                  if (query_ch == "=") {
+                    in_name = 0;
+                  } else {
+                    if (query_ch == "&") {
+                      if (param_name != "") {
+                        request.query_params[request.query_param_count] = HTTPHeader{
+                          name: param_name,
+                          value: param_value
+                        };
+                        request.query_param_count = request.query_param_count + 1;
+                      }
+                      param_name = "";
+                      param_value = "";
+                      in_name = 1;
+                    } else {
+                      if (in_name == 1) {
+                        param_name = param_name + query_ch;
+                      } else {
+                        param_value = param_value + query_ch;
+                      }
+                    }
+                  }
+                  
+                  m = m + 1;
+                }
+              }
+            }
+            
+            current_token = "";
+            state = 2;
+          } else {
+            current_token = current_token + ch;
+          }
+        } else {
+          if (state == 2) {
+            // Parse version
+            if (ch_int == 13) { // CR
+              // Check for HTTP version
+              if (current_token == "HTTP/1.0") {
+                request.version = HTTP_VERSION_1_0;
+              } else {
+                if (current_token == "HTTP/1.1") {
+                  request.version = HTTP_VERSION_1_1;
+                } else {
+                  if (current_token == "HTTP/2.0") {
+                    request.version = HTTP_VERSION_2_0;
+                  }
+                }
+              }
+              current_token = "";
+              i = i + 1; // Skip LF after CR
+              state = 3;
+            } else {
+              current_token = current_token + ch;
+            }
+          } else {
+            if (state == 3) {
+              // Parse headers
+              if (ch_int == 13) { // CR
+                i = i + 1; // Skip LF
+                
+                if (i < length && data[i] == 13) {
+                  // Double CRLF means end of headers
+                  i = i + 2; // Skip CRLF
+                  state = 4;
+                } else {
+                  // Parse header line
+                  let header_line: string = current_token;
+                  current_token = "";
+                  
+                  let colon_pos: int = 0;
+                  let find_colon_done: int = 0;
+                  let j: int = 0;
+                  
+                  while (find_colon_done == 0) {
+                    if (j >= header_line.length) {
+                      find_colon_done = 1;
+                    } else {
+                      if (header_line[j] == ":") {
+                        colon_pos = j;
+                        find_colon_done = 1;
+                      }
+                      j = j + 1;
+                    }
+                  }
+                  
+                  if (colon_pos > 0) {
+                    let header_name: string = "";
+                    let header_value: string = "";
+                    
+                    let k: int = 0;
+                    let copy_name_done: int = 0;
+                    
+                    while (copy_name_done == 0) {
+                      if (k >= colon_pos) {
+                        copy_name_done = 1;
+                      } else {
+                        header_name = header_name + header_line[k];
+                        k = k + 1;
+                      }
+                    }
+                    
+                    // Skip colon and space
+                    let value_start: int = colon_pos + 1;
+                    if (value_start < header_line.length && header_line[value_start] == " ") {
+                      value_start = value_start + 1;
+                    }
+                    
+                    let l: int = value_start;
+                    let copy_value_done: int = 0;
+                    
+                    while (copy_value_done == 0) {
+                      if (l >= header_line.length) {
+                        copy_value_done = 1;
+                      } else {
+                        header_value = header_value + header_line[l];
+                        l = l + 1;
+                      }
+                    }
+                    
+                    request.headers[request.header_count] = HTTPHeader{
+                      name: header_name,
+                      value: header_value
+                    };
+                    request.header_count = request.header_count + 1;
+                  }
+                }
+              } else {
+                current_token = current_token + ch;
+              }
+            } else {
+              if (state == 4) {
+                // Parse body
+                let body_idx: int = 0;
+                let copy_body_done: int = 0;
+                
+                while (copy_body_done == 0) {
+                  if (i >= length || body_idx >= 4096) {
+                    copy_body_done = 1;
+                  } else {
+                    request.body[body_idx] = data[i];
+                    body_idx = body_idx + 1;
+                    i = i + 1;
+                  }
+                }
+                
+                request.body_length = body_idx;
+                parsing_done = 1;
+              }
+            }
+          }
+        }
+      }
+      
+      i = i + 1;
+    }
+  }
+  
+  return request;
+}
+
+func create_http_response(version: int, status_code: int, body: [4096]int, body_length: int) HTTPResponse {
+  let response: HTTPResponse = HTTPResponse{
+    version: version,
+    status_code: status_code,
+    status_text: get_http_status_text(status_code),
+    headers: [50]HTTPHeader{},
+    header_count: 0,
+    body: body,
+    body_length: body_length,
+  };
+  
+  // Add default headers
+  response.headers[0] = HTTPHeader{
+    name: "Content-Type",
+    value: "text/plain"
+  };
+  response.header_count = response.header_count + 1;
+  
+  response.headers[1] = HTTPHeader{
+    name: "Content-Length",
+    value: int_to_string(body_length)
+  };
+  response.header_count = response.header_count + 1;
+  
+  response.headers[2] = HTTPHeader{
+    name: "Connection",
+    value: "close"
+  };
+  response.header_count = response.header_count + 1;
+  
+  return response;
+}
+
+func http_response_to_string(response: HTTPResponse) string {
+  let result: string = "";
+  
+  // Status line
+  result = result + get_http_version_name(response.version) + " ";
+  result = result + int_to_string(response.status_code) + " ";
+  result = result + response.status_text + "\r\n";
+  
+  // Headers
+  let i: int = 0;
+  let add_headers_done: int = 0;
+  
+  while (add_headers_done == 0) {
+    if (i >= response.header_count) {
+      add_headers_done = 1;
+    } else {
+      result = result + response.headers[i].name + ": " + response.headers[i].value + "\r\n";
+      i = i + 1;
+    }
+  }
+  
+  // Empty line
+  result = result + "\r\n";
+  
+  // Body
+  let body_str: string = ascii_array_to_string(response.body, response.body_length);
+  result = result + body_str;
+  
+  return result;
+}
+
+// ==================== JSON PARSER ====================
+
+func parse_json_string(data: string, startval: int) JSONValue {
+  let result: JSONValue = JSONValue{
+    type: JSON_TYPE_NULL,
+    bool_value: 0,
+    number_value: 0.0,
+    string_value: "",
+    array_items: [20]JSONValue{},
+    array_size: 0,
+    object_properties: [20]JSONProperty{},
+    object_size: 0,
+  };
+  
+  let i: int = startval;
+  let parsing_done: int = 0;
+  
+  while (parsing_done == 0) {
+    if (i >= data.length) {
+      parsing_done = 1;
+    } else {
+      let ch: string = data[i];
+      
+      if (ch == " " || ch == "\t" || ch == "\n" || ch == "\r") {
+        // Skip whitespace
+        i = i + 1;
+      } else {
+        if (ch == "n") {
+          // null
+          if (i + 3 < data.length) {
+            if (data[i+1] == "u" && data[i+2] == "l" && data[i+3] == "l") {
+              result.type = JSON_TYPE_NULL;
+              parsing_done = 1;
+            }
+          }
+        } else {
+          if (ch == "t") {
+            // true
+            if (i + 3 < data.length) {
+              if (data[i+1] == "r" && data[i+2] == "u" && data[i+3] == "e") {
+                result.type = JSON_TYPE_BOOL;
+                result.bool_value = 1;
+                parsing_done = 1;
+              }
+            }
+          } else {
+            if (ch == "f") {
+              // false
+              if (i + 4 < data.length) {
+                if (data[i+1] == "a" && data[i+2] == "l" && data[i+3] == "s" && data[i+4] == "e") {
+                  result.type = JSON_TYPE_BOOL;
+                  result.bool_value = 0;
+                  parsing_done = 1;
+                }
+              }
+            } else {
+              if (ch == "\"") {
+                // string
+                result.type = JSON_TYPE_STRING;
+                let str_content: string = "";
+                i = i + 1;
+                let string_done: int = 0;
+                
+                while (string_done == 0) {
+                  if (i >= data.length) {
+                    string_done = 1;
+                  } else {
+                    if (data[i] == "\"") {
+                      string_done = 1;
+                      i = i + 1;
+                    } else {
+                      str_content = str_content + data[i];
+                      i = i + 1;
+                    }
+                  }
+                }
+                
+                result.string_value = str_content;
+                parsing_done = 1;
+              } else {
+                if (ch == "[") {
+                  // array
+                  result.type = JSON_TYPE_ARRAY;
+                  i = i + 1;
+                  let array_done: int = 0;
+                  
+                  while (array_done == 0) {
+                    if (i >= data.length) {
+                      array_done = 1;
+                    } else {
+                      let array_ch: string = data[i];
+                      
+                      if (array_ch == " " || array_ch == "\t" || array_ch == "\n" || array_ch == "\r") {
+                        i = i + 1;
+                      } else {
+                        if (array_ch == "]") {
+                          array_done = 1;
+                          i = i + 1;
+                        } else {
+                          if (array_ch == ",") {
+                            i = i + 1;
+                          } else {
+                            let item: JSONValue = parse_json_string(data, i);
+                            result.array_items[result.array_size] = item;
+                            result.array_size = result.array_size + 1;
+                            
+                            // Find where parsing ended
+                            let temp_i: int = i;
+                            let find_end_done: int = 0;
+                            
+                            while (find_end_done == 0) {
+                              if (temp_i >= data.length) {
+                                find_end_done = 1;
+                              } else {
+                                let test_value: JSONValue = parse_json_string(data, temp_i);
+                                if (test_value.type != JSON_TYPE_NULL || 
+                                    (temp_i + 3 < data.length && 
+                                     data[temp_i] == "n" && 
+                                     data[temp_i+1] == "u" && 
+                                     data[temp_i+2] == "l" && 
+                                     data[temp_i+3] == "l")) {
+                                  i = temp_i;
+                                  find_end_done = 1;
+                                }
+                                temp_i = temp_i + 1;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  
+                  parsing_done = 1;
+                } else {
+                  if (ch == "{") {
+                    // object
+                    result.type = JSON_TYPE_OBJECT;
+                    i = i + 1;
+                    let object_done: int = 0;
+                    
+                    while (object_done == 0) {
+                      if (i >= data.length) {
+                        object_done = 1;
+                      } else {
+                        let object_ch: string = data[i];
+                        
+                        if (object_ch == " " || object_ch == "\t" || object_ch == "\n" || object_ch == "\r") {
+                          i = i + 1;
+                        } else {
+                          if (object_ch == "}") {
+                            object_done = 1;
+                            i = i + 1;
+                          } else {
+                            if (object_ch == ",") {
+                              i = i + 1;
+                            } else {
+                              // Parse key
+                              let key_value: JSONValue = parse_json_string(data, i);
+                              if (key_value.type == JSON_TYPE_STRING) {
+                                // Skip to colon
+                                let colon_done: int = 0;
+                                while (colon_done == 0) {
+                                  if (i >= data.length) {
+                                    colon_done = 1;
+                                  } else {
+                                    if (data[i] == ":") {
+                                      colon_done = 1;
+                                    }
+                                    i = i + 1;
+                                  }
+                                }
+                                
+                                // Parse value
+                                let value: JSONValue = parse_json_string(data, i);
+                                
+                                result.object_properties[result.object_size] = JSONProperty{
+                                  key: key_value.string_value,
+                                  value: value
+                                };
+                                result.object_size = result.object_size + 1;
+                                
+                                // Find where parsing ended
+                                let temp_i: int = i;
+                                let find_end_done: int = 0;
+                                
+                                while (find_end_done == 0) {
+                                  if (temp_i >= data.length) {
+                                    find_end_done = 1;
+                                  } else {
+                                    let test_value: JSONValue = parse_json_string(data, temp_i);
+                                    if (test_value.type != JSON_TYPE_NULL || 
+                                        (temp_i + 3 < data.length && 
+                                         data[temp_i] == "n" && 
+                                         data[temp_i+1] == "u" && 
+                                         data[temp_i+2] == "l" && 
+                                         data[temp_i+3] == "l")) {
+                                      i = temp_i;
+                                      find_end_done = 1;
+                                    }
+                                    temp_i = temp_i + 1;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    
+                    parsing_done = 1;
+                  } else {
+                    // number
+                    result.type = JSON_TYPE_NUMBER;
+                    let num_str: string = "";
+                    let number_done: int = 0;
+                    
+                    while (number_done == 0) {
+                      if (i >= data.length) {
+                        number_done = 1;
+                      } else {
+                        let num_ch: string = data[i];
+                        
+                        if ((num_ch >= "0" && num_ch <= "9") || num_ch == "." || num_ch == "-") {
+                          num_str = num_str + num_ch;
+                          i = i + 1;
+                        } else {
+                          number_done = 1;
+                        }
+                      }
+                    }
+                    
+                    // Simple string to float conversion
+                    let is_negative: int = 0;
+                    let int_part: int = 0;
+                    let frac_part: int = 0;
+                    let in_fraction: int = 0;
+                    let frac_divisor: int = 1;
+                    let j: int = 0;
+                    
+                    if (num_str.length > 0 && num_str[0] == "-") {
+                      is_negative = 1;
+                      j = 1;
+                    }
+                    
+                    while (j < num_str.length) {
+                      let digit_ch: string = num_str[j];
+                      
+                      if (digit_ch == ".") {
+                        in_fraction = 1;
+                      } else {
+                        let digit: int = 0;
+                        if (digit_ch == "0") { digit = 0; }
+                        if (digit_ch == "1") { digit = 1; }
+                        if (digit_ch == "2") { digit = 2; }
+                        if (digit_ch == "3") { digit = 3; }
+                        if (digit_ch == "4") { digit = 4; }
+                        if (digit_ch == "5") { digit = 5; }
+                        if (digit_ch == "6") { digit = 6; }
+                        if (digit_ch == "7") { digit = 7; }
+                        if (digit_ch == "8") { digit = 8; }
+                        if (digit_ch == "9") { digit = 9; }
+                        
+                        if (in_fraction == 0) {
+                          int_part = int_part * 10 + digit;
+                        } else {
+                          frac_part = frac_part * 10 + digit;
+                          frac_divisor = frac_divisor * 10;
+                        }
+                      }
+                      
+                      j = j + 1;
+                    }
+                    
+                    result.number_value = int_part + (frac_part / frac_divisor);
+                    if (is_negative == 1) {
+                      result.number_value = 0.0 - result.number_value;
+                    }
+                    
+                    parsing_done = 1;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  return result;
+}
+
+func json_value_to_string(value: JSONValue, indent: int) string {
+  let result: string = "";
+  
+  if (value.type == JSON_TYPE_NULL) {
+    result = "null";
+  } else {
+    if (value.type == JSON_TYPE_BOOL) {
+      if (value.bool_value == 1) {
+        result = "true";
+      } else {
+        result = "false";
+      }
+    } else {
+      if (value.type == JSON_TYPE_NUMBER) {
+        result = float_to_string(value.number_value);
+      } else {
+        if (value.type == JSON_TYPE_STRING) {
+          result = "\"" + value.string_value + "\"";
+        } else {
+          if (value.type == JSON_TYPE_ARRAY) {
+            result = result + "[";
+            
+            let i: int = 0;
+            let array_done: int = 0;
+            
+            while (array_done == 0) {
+              if (i >= value.array_size) {
+                array_done = 1;
+              } else {
+                if (i > 0) {
+                  result = result + ", ";
+                }
+                result = result + json_value_to_string(value.array_items[i], indent + 2);
+                i = i + 1;
+              }
+            }
+            
+            result = result + "]";
+          } else {
+            if (value.type == JSON_TYPE_OBJECT) {
+              result = result + "{";
+              
+              let i: int = 0;
+              let object_done: int = 0;
+              
+              while (object_done == 0) {
+                if (i >= value.object_size) {
+                  object_done = 1;
+                } else {
+                  if (i > 0) {
+                    result = result + ", ";
+                  }
+                  result = result + "\"" + value.object_properties[i].key + "\": ";
+                  result = result + json_value_to_string(value.object_properties[i].value, indent + 2);
+                  i = i + 1;
+                }
+              }
+              
+              result = result + "}";
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  return result;
+}
+
+// ==================== HTTP SERVER SIMULATION ====================
+
+func handle_http_request(request: HTTPRequest) HTTPResponse {
+  let response_body: [4096]int = [4096]int{0};
+  let body_length: int = 0;
+  let status_code: int = HTTP_STATUS_OK;
+  
+  // Check path
+  if (request.path == "/") {
+    let html: string = "<html><body><h1>Welcome to HTTP Server</h1><p>Try /api/json or /api/data</p></body></html>";
+    let html_data: [4096]int = string_to_ascii_array(html);
+    body_length = html.length;
+    
+    let i: int = 0;
+    let copy_done: int = 0;
+    
+    while (copy_done == 0) {
+      if (i >= body_length) {
+        copy_done = 1;
+      } else {
+        response_body[i] = html_data[i];
+        i = i + 1;
+      }
+    }
+    
+    let response: HTTPResponse = create_http_response(HTTP_VERSION_1_1, status_code, response_body, body_length);
+    response.headers[0].value = "text/html";
+    return response;
+  } else {
+    if (request.path == "/api/json") {
+      // Create JSON response
+      let json_obj: JSONValue = JSONValue{
+        type: JSON_TYPE_OBJECT,
+        bool_value: 0,
+        number_value: 0.0,
+        string_value: "",
+        array_items: [20]JSONValue{},
+        array_size: 3,
+        object_properties: [20]JSONProperty{},
+        object_size: 4,
+      };
+      
+      // Add properties
+      json_obj.object_properties[0] = JSONProperty{
+        key: "status",
+        value: JSONValue{type: JSON_TYPE_STRING, string_value: "success", bool_value: 0, number_value: 0.0, 
+                         array_items: [20]JSONValue{}, array_size: 0, 
+                         object_properties: [20]JSONProperty{}, object_size: 0}
+      };
+      
+      json_obj.object_properties[1] = JSONProperty{
+        key: "message",
+        value: JSONValue{type: JSON_TYPE_STRING, string_value: "Hello from JSON API", bool_value: 0, number_value: 0.0, 
+                         array_items: [20]JSONValue{}, array_size: 0, 
+                         object_properties: [20]JSONProperty{}, object_size: 0}
+      };
+      
+      json_obj.object_properties[2] = JSONProperty{
+        key: "count",
+        value: JSONValue{type: JSON_TYPE_NUMBER, string_value: "", bool_value: 0, number_value: 42.5, 
+                         array_items: [20]JSONValue{}, array_size: 0, 
+                         object_properties: [20]JSONProperty{}, object_size: 0}
+      };
+      
+      // Create array
+      let items_array: JSONValue = JSONValue{
+        type: JSON_TYPE_ARRAY,
+        bool_value: 0,
+        number_value: 0.0,
+        string_value: "",
+        array_items: [20]JSONValue{},
+        array_size: 3,
+        object_properties: [20]JSONProperty{},
+        object_size: 0,
+      };
+      
+      items_array.array_items[0] = JSONValue{type: JSON_TYPE_STRING, string_value: "item1", bool_value: 0, number_value: 0.0, 
+                                            array_items: [20]JSONValue{}, array_size: 0, 
+                                            object_properties: [20]JSONProperty{}, object_size: 0};
+      items_array.array_items[1] = JSONValue{type: JSON_TYPE_NUMBER, string_value: "", bool_value: 0, number_value: 100.0, 
+                                            array_items: [20]JSONValue{}, array_size: 0, 
+                                            object_properties: [20]JSONProperty{}, object_size: 0};
+      items_array.array_items[2] = JSONValue{type: JSON_TYPE_BOOL, string_value: "", bool_value: 1, number_value: 0.0, 
+                                            array_items: [20]JSONValue{}, array_size: 0, 
+                                            object_properties: [20]JSONProperty{}, object_size: 0};
+      
+      json_obj.object_properties[3] = JSONProperty{
+        key: "items",
+        value: items_array
+      };
+      
+      let json_str: string = json_value_to_string(json_obj, 0);
+      let json_data: [4096]int = string_to_ascii_array(json_str);
+      body_length = json_str.length;
+      
+      let i: int = 0;
+      let copy_done: int = 0;
+      
+      while (copy_done == 0) {
+        if (i >= body_length) {
+          copy_done = 1;
+        } else {
+          response_body[i] = json_data[i];
+          i = i + 1;
+        }
+      }
+      
+      let response: HTTPResponse = create_http_response(HTTP_VERSION_1_1, status_code, response_body, body_length);
+      response.headers[0].value = "application/json";
+      return response;
+    } else {
+      if (request.path == "/api/data" && request.method == HTTP_POST) {
+        // Parse JSON from request body
+        let body_str: string = ascii_array_to_string(request.body, request.body_length);
+        let json_data: JSONValue = parse_json_string(body_str, 0);
+        
+        // Create response
+        let response_json: JSONValue = JSONValue{
+          type: JSON_TYPE_OBJECT,
+          bool_value: 0,
+          number_value: 0.0,
+          string_value: "",
+          array_items: [20]JSONValue{},
+          array_size: 0,
+          object_properties: [20]JSONProperty{},
+          object_size: 2,
+        };
+        
+        response_json.object_properties[0] = JSONProperty{
+          key: "received",
+          value: json_data
+        };
+        
+        response_json.object_properties[1] = JSONProperty{
+          key: "processed",
+          value: JSONValue{type: JSON_TYPE_BOOL, string_value: "", bool_value: 1, number_value: 0.0, 
+                          array_items: [20]JSONValue{}, array_size: 0, 
+                          object_properties: [20]JSONProperty{}, object_size: 0}
+        };
+        
+        let json_str: string = json_value_to_string(response_json, 0);
+        let json_data_resp: [4096]int = string_to_ascii_array(json_str);
+        body_length = json_str.length;
+        
+        let i: int = 0;
+        let copy_done: int = 0;
+        
+        while (copy_done == 0) {
+          if (i >= body_length) {
+            copy_done = 1;
+          } else {
+            response_body[i] = json_data_resp[i];
+            i = i + 1;
+          }
+        }
+        
+        let response: HTTPResponse = create_http_response(HTTP_VERSION_1_1, status_code, response_body, body_length);
+        response.headers[0].value = "application/json";
+        return response;
+      } else {
+        // 404 Not Found
+        let error_msg: string = "404 Not Found: " + request.path;
+        let error_data: [4096]int = string_to_ascii_array(error_msg);
+        body_length = error_msg.length;
+        
+        let i: int = 0;
+        let copy_done: int = 0;
+        
+        while (copy_done == 0) {
+          if (i >= body_length) {
+            copy_done = 1;
+          } else {
+            response_body[i] = error_data[i];
+            i = i + 1;
+          }
+        }
+        
+        return create_http_response(HTTP_VERSION_1_1, HTTP_STATUS_NOT_FOUND, response_body, body_length);
+      }
+    }
+  }
+}
+
+// ==================== MAIN TEST PROGRAM ====================
+
+start() int {
+  print("=========================================");
+  print("HTTP PARSER WITH JSON SUPPORT");
+  print("=========================================");
+  
+  print("");
+  print("TEST 1: HTTP REQUEST PARSING");
+  print("----------------------------");
+  
+  // Create a test HTTP request
+  let http_request_raw: string = "POST /api/data?name=test&id=123 HTTP/1.1\r\n";
+  http_request_raw = http_request_raw + "Host: localhost:8080\r\n";
+  http_request_raw = http_request_raw + "Content-Type: application/json\r\n";
+  http_request_raw = http_request_raw + "Content-Length: 56\r\n";
+  http_request_raw = http_request_raw + "\r\n";
+  http_request_raw = http_request_raw + "{\"name\": \"John\", \"age\": 30, \"active\": true}";
+  
+  let request_data: [4096]int = string_to_ascii_array(http_request_raw);
+  let request: HTTPRequest = parse_http_request(request_data, http_request_raw.length);
+  
+  print("Parsed HTTP Request:");
+  print("  Method: ", get_http_method_name(request.method));
+  print("  Path: ", request.path);
+  print("  Version: ", get_http_version_name(request.version));
+  print("  Headers: ", request.header_count);
+  
+  let i: int = 0;
+  let print_headers_done: int = 0;
+  
+  while (print_headers_done == 0) {
+    if (i >= request.header_count) {
+      print_headers_done = 1;
+    } else {
+      print("    ", request.headers[i].name, ": ", request.headers[i].value);
+      i = i + 1;
+    }
+  }
+  
+  print("  Query Parameters: ", request.query_param_count);
+  
+  i = 0;
+  let print_params_done: int = 0;
+  
+  while (print_params_done == 0) {
+    if (i >= request.query_param_count) {
+      print_params_done = 1;
+    } else {
+      print("    ", request.query_params[i].name, " = ", request.query_params[i].value);
+      i = i + 1;
+    }
+  }
+  
+  let body_str: string = ascii_array_to_string(request.body, request.body_length);
+  print("  Body: ", body_str);
+  
+  print("");
+  print("TEST 2: JSON PARSING");
+  print("-------------------");
+  
+  let json_str: string = "{\"name\": \"Alice\", \"age\": 25, \"scores\": [95, 87, 92], \"active\": true}";
+  print("JSON string: ", json_str);
+  
+  let json_value: JSONValue = parse_json_string(json_str, 0);
+  print("Parsed JSON:");
+  print("  Type: ", json_value.type, " (OBJECT)");
+  print("  Properties: ", json_value.object_size);
+  
+  i = 0;
+  let print_props_done: int = 0;
+  
+  while (print_props_done == 0) {
+    if (i >= json_value.object_size) {
+      print_props_done = 1;
+    } else {
+      let prop: JSONProperty = json_value.object_properties[i];
+      print("    ", prop.key, ": ", json_value_to_string(prop.value, 0));
+      i = i + 1;
+    }
+  }
+  
+  print("");
+  print("TEST 3: JSON CREATION AND SERIALIZATION");
+  print("---------------------------------------");
+  
+  let new_json: JSONValue = JSONValue{
+    type: JSON_TYPE_OBJECT,
+    bool_value: 0,
+    number_value: 0.0,
+    string_value: "",
+    array_items: [20]JSONValue{},
+    array_size: 0,
+    object_properties: [20]JSONProperty{},
+    object_size: 3,
+  };
+  
+  new_json.object_properties[0] = JSONProperty{
+    key: "id",
+    value: JSONValue{type: JSON_TYPE_NUMBER, string_value: "", bool_value: 0, number_value: 1001.0, 
+                    array_items: [20]JSONValue{}, array_size: 0, 
+                    object_properties: [20]JSONProperty{}, object_size: 0}
+  };
+  
+  new_json.object_properties[1] = JSONProperty{
+    key: "name",
+    value: JSONValue{type: JSON_TYPE_STRING, string_value: "Test User", bool_value: 0, number_value: 0.0, 
+                    array_items: [20]JSONValue{}, array_size: 0, 
+                    object_properties: [20]JSONProperty{}, object_size: 0}
+  };
+  
+  let tags_array: JSONValue = JSONValue{
+    type: JSON_TYPE_ARRAY,
+    bool_value: 0,
+    number_value: 0.0,
+    string_value: "",
+    array_items: [20]JSONValue{},
+    array_size: 3,
+    object_properties: [20]JSONProperty{},
+    object_size: 0,
+  };
+  
+  tags_array.array_items[0] = JSONValue{type: JSON_TYPE_STRING, string_value: "admin", bool_value: 0, number_value: 0.0, 
+                                       array_items: [20]JSONValue{}, array_size: 0, 
+                                       object_properties: [20]JSONProperty{}, object_size: 0};
+  tags_array.array_items[1] = JSONValue{type: JSON_TYPE_STRING, string_value: "user", bool_value: 0, number_value: 0.0, 
+                                       array_items: [20]JSONValue{}, array_size: 0, 
+                                       object_properties: [20]JSONProperty{}, object_size: 0};
+  tags_array.array_items[2] = JSONValue{type: JSON_TYPE_STRING, string_value: "tester", bool_value: 0, number_value: 0.0, 
+                                       array_items: [20]JSONValue{}, array_size: 0, 
+                                       object_properties: [20]JSONProperty{}, object_size: 0};
+  
+  new_json.object_properties[2] = JSONProperty{
+    key: "tags",
+    value: tags_array
+  };
+  
+  let serialized_json: string = json_value_to_string(new_json, 0);
+  print("Created JSON: ", serialized_json);
+  
+  print("");
+  print("TEST 4: HTTP RESPONSE CREATION");
+  print("------------------------------");
+  
+  let response_body_str: string = "{\"message\": \"Hello World\", \"timestamp\": 1234567890}";
+  let response_body_data: [4096]int = string_to_ascii_array(response_body_str);
+  
+  let http_response: HTTPResponse = create_http_response(HTTP_VERSION_1_1, HTTP_STATUS_OK, 
+                                                        response_body_data, response_body_str.length);
+  http_response.headers[0].value = "application/json";
+  
+  let response_str: string = http_response_to_string(http_response);
+  print("HTTP Response:");
+  print(response_str);
+  
+  print("");
+  print("TEST 5: HTTP SERVER SIMULATION");
+  print("------------------------------");
+  
+  print("");
+  print("1. Handling GET / request:");
+  let get_request_raw: string = "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n";
+  let get_request_data: [4096]int = string_to_ascii_array(get_request_raw);
+  let get_request: HTTPRequest = parse_http_request(get_request_data, get_request_raw.length);
+  let get_response: HTTPResponse = handle_http_request(get_request);
+  print("   Status: ", get_response.status_code, " ", get_response.status_text);
+  print("   Content-Type: ", get_response.headers[0].value);
+  
+  print("");
+  print("2. Handling GET /api/json request:");
+  let json_request_raw: string = "GET /api/json HTTP/1.1\r\nHost: localhost\r\n\r\n";
+  let json_request_data: [4096]int = string_to_ascii_array(json_request_raw);
+  let json_request: HTTPRequest = parse_http_request(json_request_data, json_request_raw.length);
+  let json_api_response: HTTPResponse = handle_http_request(json_request);
+  print("   Status: ", json_api_response.status_code, " ", json_api_response.status_text);
+  print("   Content-Type: ", json_api_response.headers[0].value);
+  
+  let json_response_body: string = ascii_array_to_string(json_api_response.body, json_api_response.body_length);
+  print("   Body (first 100 chars): ");
+  
+  i = 0;
+  let print_body_done: int = 0;
+  
+  while (print_body_done == 0) {
+    if (i >= 100 || i >= json_response_body.length) {
+      print_body_done = 1;
+    } else {
+      print(json_response_body[i]);
+      i = i + 1;
+    }
+  }
+  print("");
+  
+  print("");
+  print("3. Handling POST /api/data request:");
+  let post_request_raw: string = "POST /api/data HTTP/1.1\r\n";
+  post_request_raw = post_request_raw + "Host: localhost\r\n";
+  post_request_raw = post_request_raw + "Content-Type: application/json\r\n";
+  post_request_raw = post_request_raw + "Content-Length: 28\r\n";
+  post_request_raw = post_request_raw + "\r\n";
+  post_request_raw = post_request_raw + "{\"action\": \"test\", \"value\": 42}";
+  
+  let post_request_data: [4096]int = string_to_ascii_array(post_request_raw);
+  let post_request: HTTPRequest = parse_http_request(post_request_data, post_request_raw.length);
+  let post_response: HTTPResponse = handle_http_request(post_request);
+  print("   Status: ", post_response.status_code, " ", post_response.status_text);
+  print("   Content-Type: ", post_response.headers[0].value);
+  
+  let post_response_body: string = ascii_array_to_string(post_response.body, post_response.body_length);
+  print("   Response: ", post_response_body);
+  
+  print("");
+  print("4. Handling 404 request:");
+  let notfound_request_raw: string = "GET /unknown/path HTTP/1.1\r\nHost: localhost\r\n\r\n";
+  let notfound_request_data: [4096]int = string_to_ascii_array(notfound_request_raw);
+  let notfound_request: HTTPRequest = parse_http_request(notfound_request_data, notfound_request_raw.length);
+  let notfound_response: HTTPResponse = handle_http_request(notfound_request);
+  print("   Status: ", notfound_response.status_code, " ", notfound_response.status_text);
+  
+  print("");
+  print("TEST 6: UTILITY FUNCTIONS");
+  print("-------------------------");
+  
+  let test_int: int = -12345;
+  let int_str: string = int_to_string(test_int);
+  print("Integer to string: ", test_int, " -> \"", int_str, "\"");
+  
+  let test_float: float = 123.456;
+  let float_str: string = float_to_string(test_float);
+  print("Float to string: ", test_float, " -> \"", float_str, "\"");
+  
+  print("");
+  print("=========================================");
+  print("HTTP PARSER WITH JSON SUPPORT - COMPLETE");
+  print("=========================================");
+  print("");
+  print("Features implemented:");
+  print("1. Complete HTTP/1.1 request parsing");
+  print("2. HTTP method support (GET, POST, PUT, DELETE, HEAD, OPTIONS, PATCH)");
+  print("3. Query parameter parsing");
+  print("4. Header parsing and management");
+  print("5. JSON parser with all types (null, boolean, number, string, array, object)");
+  print("6. JSON serializer");
+  print("7. HTTP response generation");
+  print("8. HTTP server simulation with routing");
+  print("9. Content-Type negotiation (text/html, application/json)");
+  print("10. Error handling (404 Not Found)");
+  print("11. No break statements - all loops use condition variables");
+  
+  return 0;
+}

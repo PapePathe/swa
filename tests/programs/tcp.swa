@@ -1,0 +1,1338 @@
+dialect:english;
+
+// ==================== FOUNDATIONAL STRUCTURES ====================
+
+struct DynArray {
+  Size: int,
+  Capacity: int,
+  Data: *int,
+}
+
+struct IPAddress {
+  address: [4]int,  // IPv4 as 4 integers 0-255
+  port: int,
+}
+
+struct Socket {
+  fd: int,
+  family: int,
+  type: int,
+  protocol: int,
+  local_addr: IPAddress,
+  remote_addr: IPAddress,
+  state: int,
+  recv_buffer: [1024]int,
+  send_buffer: [1024]int,
+  recv_idx: int,
+  send_idx: int,
+  recv_count: int,
+  send_count: int,
+  seq_num: int,
+  ack_num: int,
+}
+
+struct TCPHeader {
+  source_port: int,
+  dest_port: int,
+  sequence: int,
+  ack_number: int,
+  data_offset: int,
+  flags: int,
+  window: int,
+  checksum: int,
+  urgent_pointer: int,
+}
+
+struct Connection {
+  socket: Socket,
+  last_activity: int,
+  bytes_sent: int,
+  bytes_received: int,
+  is_active: int,
+}
+
+struct ConnectionManager {
+  connections: [100]Connection,
+  connection_count: int,
+  max_connections: int,
+}
+
+struct Person {
+  Age: int,
+  Height: float,
+  Name: string,
+}
+
+struct NetworkConfig {
+  mtu: int,
+  window_size: int,
+  timeout: int,
+  max_retries: int,
+}
+
+// ==================== CONSTANTS ====================
+
+// TCP States
+let TCP_CLOSED: int = 0;
+let TCP_LISTEN: int = 1;
+let TCP_SYN_SENT: int = 2;
+let TCP_SYN_RCVD: int = 3;
+let TCP_ESTABLISHED: int = 4;
+let TCP_FIN_WAIT_1: int = 5;
+let TCP_FIN_WAIT_2: int = 6;
+let TCP_CLOSE_WAIT: int = 7;
+let TCP_CLOSING: int = 8;
+let TCP_LAST_ACK: int = 9;
+let TCP_TIME_WAIT: int = 10;
+
+// TCP Flags
+let TCP_FLAG_FIN: int = 1;
+let TCP_FLAG_SYN: int = 2;
+let TCP_FLAG_RST: int = 3;
+let TCP_FLAG_PSH: int = 4;
+let TCP_FLAG_ACK: int = 5;
+let TCP_FLAG_URG: int = 6;
+
+// Protocol Numbers
+let IPPROTO_TCP: int = 6;
+let IPPROTO_UDP: int = 17;
+let IPPROTO_ICMP: int = 1;
+
+// Socket Types
+let SOCK_STREAM: int = 1;
+let SOCK_DGRAM: int = 2;
+
+// Address Families
+let AF_INET: int = 2;
+
+// Port Ranges
+let PORT_MIN: int = 1;
+let PORT_MAX: int = 65535;
+let WELL_KNOWN_PORT_MAX: int = 1023;
+
+// Buffer Sizes
+let MAX_PACKET_SIZE: int = 1500;
+let TCP_HEADER_SIZE: int = 20;
+let IP_HEADER_SIZE: int = 20;
+
+// ==================== DYNAMIC ARRAY IMPLEMENTATION ====================
+
+func push_dyn_array(arr: DynArray, value: int) int {
+  if (arr.Size >= arr.Capacity) {
+    print("Error: Array capacity exceeded (max ", arr.Capacity, ")");
+    return -1;
+  }
+  arr.Data[arr.Size] = value;
+  arr.Size = arr.Size + 1;
+  return arr.Size;
+}
+
+func get_dyn_array(arr: DynArray, index: int) int {
+  if (index < 0 || index >= arr.Size) {
+    print("Error: Index ", index, " out of bounds (size: ", arr.Size, ")");
+    return -1;
+  }
+  return arr.Data[index];
+}
+
+func set_dyn_array(arr: DynArray, index: int, value: int) int {
+  if (index < 0 || index >= arr.Size) {
+    print("Error: Index ", index, " out of bounds (size: ", arr.Size, ")");
+    return -1;
+  }
+  arr.Data[index] = value;
+  return value;
+}
+
+func print_dyn_array(arr: DynArray) int {
+  print("DynArray (Size: ", arr.Size, ", Capacity: ", arr.Capacity, "):");
+  let i: int = 0;
+  while (i < arr.Size) {
+    print("  [", i, "]: ", arr.Data[i]);
+    i = i + 1;
+  }
+  return 0;
+}
+
+// ==================== NETWORK UTILITIES ====================
+
+func htons(port: int) int {
+  // Convert host byte order to network byte order
+  if (port < 0 || port > 65535) {
+    print("Error: Invalid port ", port);
+    return 0;
+  }
+  let low_byte: int = port % 256;
+  let high_byte: int = port / 256;
+  return low_byte * 256 + high_byte;
+}
+
+func ntohs(port: int) int {
+  // Convert network byte order to host byte order
+  return htons(port);  // Symmetric operation
+}
+
+func htonl(value: int) int {
+  // Convert 32-bit host to network byte order
+  let byte1: int = value % 256;
+  let byte2: int = (value / 256) % 256;
+  let byte3: int = (value / 65536) % 256;
+  let byte4: int = value / 16777216;
+  
+  return byte1 * 16777216 + byte2 * 65536 + byte3 * 256 + byte4;
+}
+
+func ntohl(value: int) int {
+  // Convert 32-bit network to host byte order
+  return htonl(value);  // Symmetric operation
+}
+
+func ip_to_string(ip: [4]int) string {
+  // Convert IP to string "a.b.c.d"
+  let part1: string = int_to_string(ip[0]);
+  let part2: string = int_to_string(ip[1]);
+  let part3: string = int_to_string(ip[2]);
+  let part4: string = int_to_string(ip[3]);
+  
+  return part1 + "." + part2 + "." + part3 + "." + part4;
+}
+
+func string_to_ip(ip_str: string) [4]int {
+  let ip: [4]int = [4]int{0, 0, 0, 0};
+  let parts: [4]string = [4]string{"", "", "", ""};
+  let part_idx: int = 0;
+  let char_idx: int = 0;
+  
+  // Parse IP string
+  while (char_idx < ip_str.length && part_idx < 4) {
+    let ch: string = ip_str[char_idx];
+    if (ch == ".") {
+      part_idx = part_idx + 1;
+    } else {
+      parts[part_idx] = parts[part_idx] + ch;
+    }
+    char_idx = char_idx + 1;
+  }
+  
+  // Convert to integers
+  ip[0] = string_to_int(parts[0]);
+  ip[1] = string_to_int(parts[1]);
+  ip[2] = string_to_int(parts[2]);
+  ip[3] = string_to_int(parts[3]);
+  
+  // Validate each octet
+  if (ip[0] < 0 || ip[0] > 255 || ip[1] < 0 || ip[1] > 255 ||
+      ip[2] < 0 || ip[2] > 255 || ip[3] < 0 || ip[3] > 255) {
+    print("Warning: Invalid IP address octet");
+  }
+  
+  return ip;
+}
+
+func int_to_string(num: int) string {
+  if (num == 0) { return "0"; }
+  if (num < 0) {
+    return "-" + int_to_string(0 - num);
+  }
+  
+  let result: string = "";
+  let temp: int = num;
+  let digits: [20]int = [20]int{0};
+  let digit_count: int = 0;
+  
+  // Extract digits
+  while (temp > 0) {
+    digits[digit_count] = temp % 10;
+    temp = temp / 10;
+    digit_count = digit_count + 1;
+  }
+  
+  // Build string
+  let i: int = digit_count - 1;
+  while (i >= 0) {
+    if (digits[i] == 0) { result = result + "0"; }
+    if (digits[i] == 1) { result = result + "1"; }
+    if (digits[i] == 2) { result = result + "2"; }
+    if (digits[i] == 3) { result = result + "3"; }
+    if (digits[i] == 4) { result = result + "4"; }
+    if (digits[i] == 5) { result = result + "5"; }
+    if (digits[i] == 6) { result = result + "6"; }
+    if (digits[i] == 7) { result = result + "7"; }
+    if (digits[i] == 8) { result = result + "8"; }
+    if (digits[i] == 9) { result = result + "9"; }
+    i = i - 1;
+  }
+  
+  return result;
+}
+
+func string_to_int(str: string) int {
+  let result: int = 0;
+  let i: int = 0;
+  let is_negative: int = 0;
+  
+  // Check for negative sign
+  if (str.length > 0 && str[0] == "-") {
+    is_negative = 1;
+    i = 1;
+  }
+  
+  while (i < str.length) {
+    let ch: string = str[i];
+    let digit: int = 0;
+    
+    if (ch == "0") { digit = 0; }
+    if (ch == "1") { digit = 1; }
+    if (ch == "2") { digit = 2; }
+    if (ch == "3") { digit = 3; }
+    if (ch == "4") { digit = 4; }
+    if (ch == "5") { digit = 5; }
+    if (ch == "6") { digit = 6; }
+    if (ch == "7") { digit = 7; }
+    if (ch == "8") { digit = 8; }
+    if (ch == "9") { digit = 9; }
+    
+    result = result * 10 + digit;
+    i = i + 1;
+  }
+  
+  if (is_negative == 1) {
+    result = 0 - result;
+  }
+  
+  return result;
+}
+
+func calculate_checksum(data: [1500]int, length: int) int {
+  // Simplified checksum calculation
+  let sum: int = 0;
+  let i: int = 0;
+  
+  while (i < length) {
+    sum = sum + data[i];
+    i = i + 1;
+  }
+  
+  // Keep within 16-bit range
+  while (sum > 65535) {
+    sum = sum - 65536;
+  }
+  
+  return 65535 - sum;
+}
+
+func validate_port(port: int) int {
+  if (port < PORT_MIN || port > PORT_MAX) {
+    print("Error: Port ", port, " out of range (1-65535)");
+    return -1;
+  }
+  return 0;
+}
+
+func validate_ip(ip: [4]int) int {
+  if (ip[0] < 0 || ip[0] > 255 || ip[1] < 0 || ip[1] > 255 ||
+      ip[2] < 0 || ip[2] > 255 || ip[3] < 0 || ip[3] > 255) {
+    print("Error: Invalid IP address octet");
+    return -1;
+  }
+  return 0;
+}
+
+// ==================== SOCKET API ====================
+
+func create_socket(domain: int, type: int, protocol: int) Socket {
+  // Create new socket
+  let sock: Socket = Socket{
+    fd: -1,
+    family: domain,
+    type: type,
+    protocol: protocol,
+    local_addr: IPAddress{address: [4]int{0,0,0,0}, port: 0},
+    remote_addr: IPAddress{address: [4]int{0,0,0,0}, port: 0},
+    state: TCP_CLOSED,
+    recv_buffer: [1024]int{0},
+    send_buffer: [1024]int{0},
+    recv_idx: 0,
+    send_idx: 0,
+    recv_count: 0,
+    send_count: 0,
+    seq_num: 0,
+    ack_num: 0,
+  };
+  
+  // Validate parameters
+  if (domain != AF_INET) {
+    print("Error: Only AF_INET (IPv4) supported");
+    return sock;
+  }
+  
+  if (type != SOCK_STREAM && type != SOCK_DGRAM) {
+    print("Error: Invalid socket type");
+    return sock;
+  }
+  
+  // Assign file descriptor
+  let next_fd: int = 3;  // Start after stdin/stdout/stderr
+  sock.fd = next_fd;
+  next_fd = next_fd + 1;
+  
+  print("Socket created: fd=", sock.fd, ", type=", type);
+  return sock;
+}
+
+func bind_socket(sock: *Socket, addr: IPAddress) int {
+  if (sock.state != TCP_CLOSED) {
+    print("Error: Socket must be in CLOSED state to bind");
+    return -1;
+  }
+  
+  if (validate_ip(addr.address) < 0) {
+    return -1;
+  }
+  
+  if (validate_port(addr.port) < 0) {
+    return -1;
+  }
+  
+  sock.local_addr = addr;
+  print("Socket bound to ", ip_to_string(addr.address), ":", addr.port);
+  
+  return 0;
+}
+
+func listen_socket(sock: *Socket, backlog: int) int {
+  if (sock.state != TCP_CLOSED) {
+    print("Error: Socket must be in CLOSED state to listen");
+    return -1;
+  }
+  
+  if (backlog <= 0) {
+    print("Error: Invalid backlog size");
+    return -1;
+  }
+  
+  sock.state = TCP_LISTEN;
+  print("Listening on ", ip_to_string(sock.local_addr.address), ":", 
+        sock.local_addr.port, ", backlog=", backlog);
+  
+  return 0;
+}
+
+func accept_connection(sock: *Socket) Socket {
+  if (sock.state != TCP_LISTEN) {
+    print("Error: Socket not listening");
+    return Socket{fd: -1};
+  }
+  
+  // Simulate accepting a connection
+  let next_client_port: int = 50000;
+  
+  let client_sock: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  client_sock.local_addr = sock.local_addr;
+  client_sock.remote_addr = IPAddress{
+    address: [4]int{192, 168, 1, 100},
+    port: next_client_port
+  };
+  next_client_port = next_client_port + 1;
+  
+  client_sock.state = TCP_ESTABLISHED;
+  client_sock.seq_num = 1000;  // Initial sequence number
+  client_sock.ack_num = 0;
+  
+  print("Accepted connection from ", 
+        ip_to_string(client_sock.remote_addr.address), ":",
+        client_sock.remote_addr.port);
+  
+  return client_sock;
+}
+
+func connect_socket(sock: *Socket, addr: IPAddress) int {
+  if (sock.state != TCP_CLOSED) {
+    print("Error: Socket must be in CLOSED state to connect");
+    return -1;
+  }
+  
+  if (validate_ip(addr.address) < 0) {
+    return -1;
+  }
+  
+  if (validate_port(addr.port) < 0) {
+    return -1;
+  }
+  
+  sock.remote_addr = addr;
+  sock.state = TCP_SYN_SENT;
+  sock.seq_num = 2000;  // Initial sequence number
+  
+  print("Connecting to ", ip_to_string(addr.address), ":", addr.port);
+  print("Sending SYN (seq=", sock.seq_num, ")");
+  
+  // Simulate three-way handshake
+  sock.seq_num = sock.seq_num + 1;  // SYN consumes one sequence number
+  sock.state = TCP_ESTABLISHED;
+  
+  print("Connection established");
+  return 0;
+}
+
+func send_tcp_data(sock: *Socket, data: [1024]int, length: int) int {
+  if (sock.state != TCP_ESTABLISHED) {
+    print("Error: Socket not connected");
+    return -1;
+  }
+  
+  if (length <= 0 || length > 1024) {
+    print("Error: Invalid data length");
+    return -1;
+  }
+  
+  // Build TCP packet
+  let packet: [1500]int = [1500]int{0};
+  let packet_idx: int = 0;
+  
+  // Build header (simplified)
+  packet[packet_idx] = htons(sock.local_addr.port); packet_idx = packet_idx + 1;
+  packet[packet_idx] = htons(sock.remote_addr.port); packet_idx = packet_idx + 1;
+  packet[packet_idx] = htonl(sock.seq_num); packet_idx = packet_idx + 1;
+  packet[packet_idx] = htonl(sock.ack_num); packet_idx = packet_idx + 1;
+  packet[packet_idx] = (5 * 16) + 0;  // Data offset (5 * 4 = 20 bytes)
+  packet_idx = packet_idx + 1;
+  packet[packet_idx] = TCP_FLAG_PSH + TCP_FLAG_ACK; packet_idx = packet_idx + 1;
+  packet[packet_idx] = htons(8192);  // Window size
+  packet_idx = packet_idx + 1;
+  packet[packet_idx] = 0;  // Checksum placeholder
+  packet_idx = packet_idx + 1;
+  packet[packet_idx] = 0;  // Urgent pointer
+  packet_idx = packet_idx + 1;
+  
+  // Copy data
+  let i: int = 0;
+  while (i < length) {
+    sock.send_buffer[sock.send_idx] = data[i];
+    sock.send_idx = sock.send_idx + 1;
+    sock.send_count = sock.send_count + 1;
+    packet[packet_idx] = data[i];
+    packet_idx = packet_idx + 1;
+    i = i + 1;
+  }
+  
+  // Update sequence number
+  sock.seq_num = sock.seq_num + length;
+  
+  // Calculate checksum
+  let checksum: int = calculate_checksum(packet, packet_idx);
+  packet[16] = checksum % 256;
+  packet[17] = checksum / 256;
+  
+  print("Sent ", length, " bytes to ", 
+        ip_to_string(sock.remote_addr.address), ":", 
+        sock.remote_addr.port, " (seq=", sock.seq_num - length, ")");
+  
+  return length;
+}
+
+func receive_tcp_data(sock: *Socket, buffer: [1024]int, max_length: int) int {
+  if (sock.state != TCP_ESTABLISHED) {
+    print("Error: Socket not connected");
+    return -1;
+  }
+  
+  if (max_length <= 0) {
+    print("Error: Invalid buffer size");
+    return -1;
+  }
+  
+  // Simulate receiving data
+  let simulated_data: [50]int = [50]int{
+    72, 101, 108, 108, 111, 44, 32, 84, 67, 80, 32, 87, 111, 114, 108, 100, 33, 10,
+    84, 104, 105, 115, 32, 105, 115, 32, 97, 32, 116, 101, 115, 116, 32, 109, 101,
+    115, 115, 97, 103, 101, 46, 10, 69, 110, 100, 32, 111, 102, 32, 100
+  };
+  
+  let to_receive: int = 20;
+  if (to_receive > max_length) {
+    to_receive = max_length;
+  }
+  
+  let received: int = 0;
+  while (received < to_receive) {
+    buffer[received] = simulated_data[received];
+    sock.recv_buffer[sock.recv_idx] = simulated_data[received];
+    sock.recv_idx = sock.recv_idx + 1;
+    sock.recv_count = sock.recv_count + 1;
+    received = received + 1;
+  }
+  
+  // Update acknowledgment number
+  sock.ack_num = sock.ack_num + received;
+  
+  if (received > 0) {
+    print("Received ", received, " bytes from ", 
+          ip_to_string(sock.remote_addr.address), ":", 
+          sock.remote_addr.port, " (ack=", sock.ack_num, ")");
+  }
+  
+  return received;
+}
+
+func close_socket(sock: *Socket) int {
+  print("Closing socket fd=", sock.fd);
+  
+  if (sock.state == TCP_ESTABLISHED) {
+    print("Sending FIN packet");
+    sock.state = TCP_FIN_WAIT_1;
+    
+    // Simulate FIN-ACK exchange
+    sock.state = TCP_TIME_WAIT;
+    print("Connection in TIME_WAIT state");
+    
+    // Simulate 2MSL wait
+    print("Waiting for 2MSL...");
+  }
+  
+  sock.state = TCP_CLOSED;
+  sock.fd = -1;
+  
+  print("Socket closed");
+  return 0;
+}
+
+// ==================== TCP STATE MACHINE ====================
+
+func process_tcp_event(sock: *Socket, event_type: int, event_data: int) int {
+  let old_state: int = sock.state;
+  let action: int = 0;
+  
+  print("TCP State: ", get_state_name(old_state), " -> Event: ", 
+        get_event_name(event_type));
+  
+  if (old_state == TCP_LISTEN && event_type == TCP_FLAG_SYN) {
+    sock.state = TCP_SYN_RCVD;
+    sock.seq_num = 3000;  // Initial server sequence
+    action = 1;  // Send SYN-ACK
+  }
+  if (old_state == TCP_SYN_RCVD && event_type == TCP_FLAG_ACK) {
+    sock.state = TCP_ESTABLISHED;
+    action = 0;  // Connection established
+  }
+  if (old_state == TCP_SYN_SENT && event_type == TCP_FLAG_SYN) {
+    sock.state = TCP_SYN_RCVD;
+    action = 1;  // Send SYN-ACK
+  }
+  if (old_state == TCP_SYN_SENT && event_type == TCP_FLAG_ACK) {
+    sock.state = TCP_ESTABLISHED;
+    action = 0;
+  }
+  if (old_state == TCP_ESTABLISHED && event_type == TCP_FLAG_FIN) {
+    sock.state = TCP_CLOSE_WAIT;
+    action = 2;  // Send ACK for FIN
+  }
+  if (old_state == TCP_CLOSE_WAIT) {
+    sock.state = TCP_LAST_ACK;
+    action = 3;  // Send FIN
+  }
+  if (old_state == TCP_LAST_ACK && event_type == TCP_FLAG_ACK) {
+    sock.state = TCP_CLOSED;
+    action = 0;
+  }
+  if (old_state == TCP_FIN_WAIT_1 && event_type == TCP_FLAG_ACK) {
+    sock.state = TCP_FIN_WAIT_2;
+    action = 0;
+  }
+  if (old_state == TCP_FIN_WAIT_2 && event_type == TCP_FLAG_FIN) {
+    sock.state = TCP_TIME_WAIT;
+    action = 2;  // Send ACK for FIN
+  }
+  if (old_state == TCP_TIME_WAIT) {
+    // Timeout occurred
+    sock.state = TCP_CLOSED;
+    action = 0;
+  }
+  else {
+    print("Warning: Unhandled state transition");
+    action = -1;
+  }
+  
+  print("New State: ", get_state_name(sock.state), ", Action: ", action);
+  return action;
+}
+
+func get_state_name(state: int) string {
+  if (state == TCP_CLOSED)     { return "CLOSED"; }
+  if (state == TCP_LISTEN)     { return "LISTEN";}
+  if (state == TCP_SYN_SENT)   { return "SYN_SENT";}
+  if (state == TCP_SYN_RCVD)   { return "SYN_RCVD";}
+  if (state == TCP_ESTABLISHED){ return "ESTABLISHED";}
+  if (state == TCP_FIN_WAIT_1) { return "FIN_WAIT_1";}
+  if (state == TCP_FIN_WAIT_2) { return "FIN_WAIT_2";}
+  if (state == TCP_CLOSE_WAIT) { return "CLOSE_WAIT";}
+  if (state == TCP_CLOSING)    { return "CLOSING";}
+  if (state == TCP_LAST_ACK)   { return "LAST_ACK";}
+  if (state == TCP_TIME_WAIT)  { return "TIME_WAIT";}
+  return "UNKNOWN";
+}
+
+func get_event_name(event: int) string {
+  if (event == TCP_FLAG_FIN) { return "FIN";}
+  if (event == TCP_FLAG_SYN) { return "SYN";}
+  if (event == TCP_FLAG_RST) { return "RST";}
+  if (event == TCP_FLAG_PSH) { return "PSH";}
+  if (event == TCP_FLAG_ACK) { return "ACK";}
+  if (event == TCP_FLAG_URG) { return "URG";}
+  return "UNKNOWN";
+}
+
+// ==================== CONNECTION MANAGER ====================
+
+func create_connection_manager(max_conns: int) ConnectionManager {
+  let manager: ConnectionManager = ConnectionManager{
+    connections: [100]Connection{},
+    connection_count: 0,
+    max_connections: max_conns,
+  };
+  
+  // Initialize all connections as inactive
+  let i: int = 0;
+  while (i < 100) {
+    manager.connections[i] = Connection{
+      socket: Socket{fd: -1},
+      last_activity: 0,
+      bytes_sent: 0,
+      bytes_received: 0,
+      is_active: 0,
+    };
+    i = i + 1;
+  }
+  
+  print("Connection manager created (max=", max_conns, ")");
+  return manager;
+}
+
+func add_connection(manager: *ConnectionManager, sock: Socket) int {
+  if (manager.connection_count >= manager.max_connections) {
+    print("Error: Connection limit reached (", manager.max_connections, ")");
+    return -1;
+  }
+  
+  // Find first inactive slot
+  let i: int = 0;
+  while (i < manager.max_connections) {
+    if (manager.connections[i].is_active == 0) {
+      manager.connections[i] = Connection{
+        socket: sock,
+        last_activity: 0,  // Would be timestamp
+        bytes_sent: 0,
+        bytes_received: 0,
+        is_active: 1,
+      };
+      manager.connection_count = manager.connection_count + 1;
+      
+      print("Connection added at index ", i, " (total: ", 
+            manager.connection_count, ")");
+      return i;
+    }
+    i = i + 1;
+  }
+  
+  return -1;
+}
+
+func remove_connection(manager: *ConnectionManager, conn_index: int) int {
+  if (conn_index < 0 || conn_index >= manager.max_connections) {
+    print("Error: Invalid connection index");
+    return -1;
+  }
+  
+  if (manager.connections[conn_index].is_active == 0) {
+    print("Error: Connection not active");
+    return -1;
+  }
+  
+  // Close the socket
+  close_socket(manager.connections[conn_index].socket);
+  
+  // Mark as inactive
+  manager.connections[conn_index].is_active = 0;
+  manager.connection_count = manager.connection_count - 1;
+  
+  print("Connection removed from index ", conn_index, " (remaining: ",
+        manager.connection_count, ")");
+  
+  return 0;
+}
+
+func find_connection_by_fd(manager: ConnectionManager, fd: int) int {
+  let i: int = 0;
+  while (i < manager.max_connections) {
+    if (manager.connections[i].is_active == 1 && 
+        manager.connections[i].socket.fd == fd) {
+      return i;
+    }
+    i = i + 1;
+  }
+  return -1;
+}
+
+func update_connection_stats(manager: *ConnectionManager, conn_index: int, 
+                            sent: int, received: int) {
+  if (conn_index < 0 || conn_index >= manager.max_connections) {
+    // TODO how do we explicityly return from a functi
+   // return;
+  }
+  
+  manager.connections[conn_index].bytes_sent = 
+    manager.connections[conn_index].bytes_sent + sent;
+  manager.connections[conn_index].bytes_received = 
+    manager.connections[conn_index].bytes_received + received;
+  manager.connections[conn_index].last_activity = 0;  // Would update timestamp
+}
+
+func print_connection_stats(manager: ConnectionManager) {
+  print("");
+  print("=== CONNECTION STATISTICS ===");
+  print("Active connections: ", manager.connection_count, "/", 
+        manager.max_connections);
+  print("");
+  print("ID  FD  Remote Address       State        Sent     Recv");
+  print("--------------------------------------------------------");
+  
+  let i: int = 0;
+  let active_count: int = 0;
+  while (i < manager.max_connections && active_count < manager.connection_count) {
+    if (manager.connections[i].is_active == 1) {
+      let conn: Connection = manager.connections[i];
+      let state_name: string = get_state_name(conn.socket.state);
+      
+      print(i, "  ", conn.socket.fd, "  ",
+            ip_to_string(conn.socket.remote_addr.address), ":",
+            conn.socket.remote_addr.port, "  ",
+            state_name, "  ",
+            conn.bytes_sent, "  ",
+            conn.bytes_received);
+      active_count = active_count + 1;
+    }
+    i = i + 1;
+  }
+}
+
+// ==================== TCP SERVER IMPLEMENTATION ====================
+
+func start_tcp_server(bind_ip: string, port: int, max_clients: int) int {
+  print("");
+  print("=== STARTING TCP SERVER ===");
+  print("Binding to: ", bind_ip, ":", port);
+  print("Max clients: ", max_clients);
+  
+  // Create server socket
+  let server_socket: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (server_socket.fd < 0) {
+    print("Failed to create server socket");
+    return -1;
+  }
+  
+  // Bind to address
+  let bind_addr: IPAddress = IPAddress{
+    address: string_to_ip(bind_ip),
+    port: htons(port)
+  };
+  
+  if (bind_socket(server_socket, bind_addr) < 0) {
+    print("Failed to bind socket");
+    return -1;
+  }
+  
+  // Start listening
+  if (listen_socket(server_socket, max_clients) < 0) {
+    print("Failed to listen");
+    return -1;
+  }
+  
+  // Create connection manager
+  let conn_manager: ConnectionManager = create_connection_manager(max_clients);
+  
+  print("Server ready. Accepting connections...");
+  
+  // Accept and handle connections
+  let client_count: int = 0;
+  while (client_count < 3) {  // Demo: handle 3 clients
+    print("");
+    print("Waiting for client ", client_count + 1, "...");
+    
+    let client_socket: Socket = accept_connection(server_socket);
+    if (client_socket.fd < 0) {
+      print("Failed to accept connection");
+      continue;
+    }
+    
+    // Add to connection manager
+    let conn_idx: int = add_connection(conn_manager, client_socket);
+    if (conn_idx < 0) {
+      print("Failed to add connection to manager");
+      close_socket(client_socket);
+      continue;
+    }
+    
+    // Handle client
+    print("Handling client connection");
+    
+    // Send welcome message
+    let welcome_data: [256]int = [256]int{0};
+    welcome_data[0] = 87;   // W
+    welcome_data[1] = 101;  // e
+    welcome_data[2] = 108;  // l
+    welcome_data[3] = 99;   // c
+    welcome_data[4] = 111;  // o
+    welcome_data[5] = 109;  // m
+    welcome_data[6] = 101;  // e
+    welcome_data[7] = 32;   // space
+    welcome_data[8] = 116;  // t
+    welcome_data[9] = 111;  // o
+    welcome_data[10] = 32;  // space
+    welcome_data[11] = 84;  // T
+    welcome_data[12] = 67;  // C
+    welcome_data[13] = 80;  // P
+    welcome_data[14] = 32;  // space
+    welcome_data[15] = 83;  // S
+    welcome_data[16] = 101; // e
+    welcome_data[17] = 114; // r
+    welcome_data[18] = 118; // v
+    welcome_data[19] = 101; // e
+    welcome_data[20] = 114; // r
+    welcome_data[21] = 33;  // !
+    welcome_data[22] = 10;  // \n
+    
+    let sent: int = send_tcp_data(client_socket, welcome_data, 23);
+    update_connection_stats(conn_manager, conn_idx, sent, 0);
+    
+    // Receive data
+    let recv_buffer: [1024]int = [1024]int{0};
+    let received: int = receive_tcp_data(client_socket, recv_buffer, 1024);
+    update_connection_stats(conn_manager, conn_idx, 0, received);
+    
+    if (received > 0) {
+      print("Received ", received, " bytes from client");
+      
+      // Echo back
+      let echo_sent: int = send_tcp_data(client_socket, recv_buffer, received);
+      update_connection_stats(conn_manager, conn_idx, echo_sent, 0);
+    }
+    
+    // Close client connection
+    remove_connection(conn_manager, conn_idx);
+    
+    client_count = client_count + 1;
+  }
+  
+  // Show final statistics
+  print_connection_stats(conn_manager);
+  
+  // Close server socket
+  close_socket(server_socket);
+  
+  print("");
+  print("Server shutdown complete");
+  return 0;
+}
+
+// ==================== TCP CLIENT IMPLEMENTATION ====================
+
+func start_tcp_client(server_ip: string, server_port: int) int {
+  print("");
+  print("=== STARTING TCP CLIENT ===");
+  print("Connecting to: ", server_ip, ":", server_port);
+  
+  // Create client socket
+  let client_socket: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (client_socket.fd < 0) {
+    print("Failed to create client socket");
+    return -1;
+  }
+  
+  // Connect to server
+  let server_addr: IPAddress = IPAddress{
+    address: string_to_ip(server_ip),
+    port: htons(server_port)
+  };
+  
+  if (connect_socket(client_socket, server_addr) < 0) {
+    print("Failed to connect to server");
+    return -1;
+  }
+  
+  print("Connected to server");
+  
+  // Send data
+  let message_data: [256]int = [256]int{0};
+  message_data[0] = 72;   // H
+  message_data[1] = 101;  // e
+  message_data[2] = 108;  // l
+  message_data[3] = 108;  // l
+  message_data[4] = 111;  // o
+  message_data[5] = 44;   // ,
+  message_data[6] = 32;   // space
+  message_data[7] = 83;   // S
+  message_data[8] = 101;  // e
+  message_data[9] = 114;  // r
+  message_data[10] = 118; // v
+  message_data[11] = 101; // e
+  message_data[12] = 114; // r
+  message_data[13] = 33;  // !
+  message_data[14] = 10;  // \n
+  
+  let sent: int = send_tcp_data(client_socket, message_data, 15);
+  print("Sent ", sent, " bytes to server");
+  
+  // Receive response
+  let recv_buffer: [1024]int = [1024]int{0};
+  let received: int = receive_tcp_data(client_socket, recv_buffer, 1024);
+  
+  if (received > 0) {
+    print("Received ", received, " bytes from server:");
+    
+    // Display as text
+    let i: int = 0;
+    print("Message: \"");
+    while (i < received && i < 50) {
+      let ch: int = recv_buffer[i];
+      if (ch == 10) {
+        print("\\n");
+      } if (ch == 32) {
+        print(" ");
+      } if (ch >= 65 && ch <= 90) {
+        // Uppercase letters
+        if (ch == 65) { print("A");}
+         if (ch == 66){ print("B");}
+         if (ch == 67){ print("C");}
+         if (ch == 68){ print("D");}
+         if (ch == 69){ print("E");}
+         if (ch == 70){ print("F");}
+         if (ch == 71){ print("G");}
+         if (ch == 72){ print("H");}
+         if (ch == 73){ print("I");}
+         if (ch == 74){ print("J");}
+         if (ch == 75){ print("K");}
+         if (ch == 76){ print("L");}
+         if (ch == 77){ print("M");}
+         if (ch == 78){ print("N");}
+         if (ch == 79){ print("O");}
+         if (ch == 80){ print("P");}
+         if (ch == 81){ print("Q");}
+         if (ch == 82){ print("R");}
+         if (ch == 83){ print("S");}
+         if (ch == 84){ print("T");}
+         if (ch == 85){ print("U");}
+         if (ch == 86){ print("V");}
+         if (ch == 87){ print("W");}
+         if (ch == 88){ print("X");}
+         if (ch == 89){ print("Y");}
+         if (ch == 90){ print("Z");}
+      } if (ch >= 97 && ch <= 122) {
+        // Lowercase letters
+        if (ch == 97)  { print("a");}
+         if (ch == 98) { print("b");}
+         if (ch == 99) { print("c");}
+         if (ch == 100){ print("d");}
+         if (ch == 101){ print("e");}
+         if (ch == 102){ print("f");}
+         if (ch == 103){ print("g");}
+         if (ch == 104){ print("h");}
+         if (ch == 105){ print("i");}
+         if (ch == 106){ print("j");}
+         if (ch == 107){ print("k");}
+         if (ch == 108){ print("l");}
+         if (ch == 109){ print("m");}
+         if (ch == 110){ print("n");}
+         if (ch == 111){ print("o");}
+         if (ch == 112){ print("p");}
+         if (ch == 113){ print("q");}
+         if (ch == 114){ print("r");}
+         if (ch == 115){ print("s");}
+         if (ch == 116){ print("t");}
+         if (ch == 117){ print("u");}
+         if (ch == 118){ print("v");}
+         if (ch == 119){ print("w");}
+         if (ch == 120){ print("x");}
+         if (ch == 121){ print("y");}
+         if (ch == 122){ print("z");}
+      } else {
+        print(".");
+      }
+      i = i + 1;
+    }
+    print("\"");
+  }
+  
+  // Close connection
+  close_socket(client_socket);
+  
+  print("Client disconnected");
+  return 0;
+}
+
+// ==================== DEMONSTRATION FUNCTIONS ====================
+
+func demonstrate_tcp_handshake() {
+  print("");
+  print("=== DEMONSTRATING TCP THREE-WAY HANDSHAKE ===");
+  
+  let client: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  let server: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  
+  print("");
+  print("1. Client -> Server: SYN");
+  print("   Client state: ", get_state_name(client.state));
+  process_tcp_event(server, TCP_FLAG_SYN, 0);
+  
+  print("");
+  print("2. Server -> Client: SYN-ACK");
+  print("   Server state: ", get_state_name(server.state));
+  process_tcp_event(client, TCP_FLAG_SYN, 0);
+  
+  print("");
+  print("3. Client -> Server: ACK");
+  print("   Client state: ", get_state_name(client.state));
+  process_tcp_event(server, TCP_FLAG_ACK, 0);
+  
+  print("");
+  print("Handshake Complete!");
+  print("Client state: ", get_state_name(client.state));
+  print("Server state: ", get_state_name(server.state));
+}
+
+func demonstrate_connection_close() {
+  print("");
+  print("=== DEMONSTRATING TCP CONNECTION CLOSE ===");
+  
+  let conn: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  conn.state = TCP_ESTABLISHED;
+  
+  print("");
+  print("1. Application initiates close");
+  print("   State: ", get_state_name(conn.state));
+  process_tcp_event(conn, 0, 0);  // Application close
+  
+  print("");
+  print("2. Send FIN, wait for ACK");
+  print("   State: ", get_state_name(conn.state));
+  process_tcp_event(conn, TCP_FLAG_ACK, 0);
+  
+  print("");
+  print("3. Receive FIN from other side, send ACK");
+  print("   State: ", get_state_name(conn.state));
+  process_tcp_event(conn, TCP_FLAG_FIN, 0);
+  
+  print("");
+  print("4. Wait 2MSL timeout");
+  print("   State: ", get_state_name(conn.state));
+  process_tcp_event(conn, 0, 0);  // Timeout
+  
+  print("");
+  print("Connection fully closed");
+  print("Final state: ", get_state_name(conn.state));
+}
+
+// ==================== INTEGRATED DEMO PROGRAM ====================
+
+start() int {
+  print("=================================================");
+  print("COMPLETE TCP/IP PROTOCOL IMPLEMENTATION");
+  print("=================================================");
+  
+  // Test 1: Network Utilities
+  print("");
+  print("TEST 1: NETWORK UTILITIES");
+  print("-------------------------");
+  
+  let test_port: int = 8080;
+  print("Port conversion test:");
+  print("  Original: ", test_port);
+  print("  Network: ", htons(test_port));
+  print("  Host: ", ntohs(htons(test_port)));
+  
+  let test_ip: string = "192.168.1.100";
+  let ip_array: [4]int = string_to_ip(test_ip);
+  print("");
+  print("IP conversion test:");
+  print("  String: ", test_ip);
+  print("  Array: [", ip_array[0], ", ", ip_array[1], ", ", 
+        ip_array[2], ", ", ip_array[3], "]");
+  print("  Back to string: ", ip_to_string(ip_array));
+  
+  // Test 2: Dynamic Arrays
+  print("");
+  print("TEST 2: DYNAMIC ARRAYS");
+  print("----------------------");
+  
+  let backing_array: [10]int = [10]int{0,0,0,0,0,0,0,0,0,0};
+  let dyn_arr: DynArray = DynArray{
+    Size: 0,
+    Capacity: 10,
+    Data: backing_array,
+  };
+  
+  print("Pushing values 10-60:");
+  let val: int = 10;
+  while (val <= 60) {
+    let result: int = push_dyn_array(dyn_arr, val);
+    print("  Pushed ", val, ", size: ", result);
+    val = val + 10;
+  }
+  
+  print_dyn_array(dyn_arr);
+  
+  print("Accessing elements:");
+  print("  arr[0] = ", get_dyn_array(dyn_arr, 0));
+  print("  arr[3] = ", get_dyn_array(dyn_arr, 3));
+  print("  arr[5] = ", get_dyn_array(dyn_arr, 5));
+  
+  // Test 3: TCP State Machine
+  demonstrate_tcp_handshake();
+  demonstrate_connection_close();
+  
+  // Test 4: Socket API
+  print("");
+  print("TEST 4: SOCKET API");
+  print("------------------");
+  
+  let test_socket: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  print("Created socket fd=", test_socket.fd);
+  
+  // Test 5: Connection Manager
+  print("");
+  print("TEST 5: CONNECTION MANAGER");
+  print("--------------------------");
+  
+  let manager: ConnectionManager = create_connection_manager(5);
+  
+  // Add some connections
+  let sock1: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  sock1.remote_addr = IPAddress{address: [4]int{192,168,1,101}, port: 12345};
+  sock1.state = TCP_ESTABLISHED;
+  
+  let sock2: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  sock2.remote_addr = IPAddress{address: [4]int{10,0,0,5}, port: 80};
+  sock2.state = TCP_ESTABLISHED;
+  
+  let sock3: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  sock3.remote_addr = IPAddress{address: [4]int{172,16,0,1}, port: 443};
+  sock3.state = TCP_ESTABLISHED;
+  
+  add_connection(manager, sock1);
+  add_connection(manager, sock2);
+  add_connection(manager, sock3);
+  
+  // Update stats
+  update_connection_stats(manager, 0, 1500, 1200);
+  update_connection_stats(manager, 1, 500, 300);
+  update_connection_stats(manager, 2, 10000, 8000);
+  
+  print_connection_stats(manager);
+  
+  // Remove a connection
+  print("");
+  print("Removing connection 1...");
+  remove_connection(manager, 1);
+  print_connection_stats(manager);
+  
+  // Test 6: Full Server-Client Simulation
+  print("");
+  print("TEST 6: SERVER-CLIENT SIMULATION");
+  print("--------------------------------");
+  
+  // Note: Uncomment to run full simulation
+  // start_tcp_server("0.0.0.0", 8080, 5);
+  // start_tcp_client("127.0.0.1", 8080);
+  
+  // Instead, do a mini simulation
+  print("");
+  print("Mini simulation of server-client interaction:");
+  
+  let server_demo: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  server_demo.local_addr = IPAddress{address: [4]int{0,0,0,0}, port: htons(8080)};
+  server_demo.state = TCP_LISTEN;
+  
+  let client_demo: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  client_demo.remote_addr = IPAddress{address: [4]int{127,0,0,1}, port: htons(8080)};
+  
+  print("Server listening on port 8080");
+  print("Client connecting to server...");
+  
+  // Simulate connection
+  process_tcp_event(server_demo, TCP_FLAG_SYN, 0);
+  process_tcp_event(client_demo, TCP_FLAG_SYN, 0);
+  process_tcp_event(server_demo, TCP_FLAG_ACK, 0);
+  
+  print("Connection established!");
+  
+  // Simulate data transfer
+  let demo_data: [10]int = [10]int{72, 101, 108, 108, 111, 33, 10, 0, 0, 0};
+  print("Client sending 'Hello!'");
+  send_tcp_data(client_demo, demo_data, 7);
+  
+  print("Server receiving data...");
+  let demo_buffer: [1024]int = [1024]int{0};
+  receive_tcp_data(server_demo, demo_buffer, 1024);
+  
+  // Simulate close
+  print("Closing connection...");
+  close_socket(client_demo);
+  close_socket(server_demo);
+  
+  // Test 7: Error Handling
+  print("");
+  print("TEST 7: ERROR HANDLING");
+  print("----------------------");
+  
+  let error_sock: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  
+  // Try invalid operations
+  print("Testing error cases:");
+  print("1. Send on closed socket:");
+  let dummy_data: [5]int = [5]int{1,2,3,4,5};
+  let send_result: int = send_tcp_data(error_sock, dummy_data, 5);
+  print("   Result: ", send_result, " (should be -1)");
+  
+  print("2. Bind with invalid port:");
+  let invalid_addr: IPAddress = IPAddress{
+    address: [4]int{0,0,0,0},
+    port: 70000  // Invalid port
+  };
+  let bind_result: int = bind_socket(error_sock, invalid_addr);
+  print("   Result: ", bind_result, " (should be -1)");
+  
+  print("3. Connect with invalid IP:");
+  let invalid_ip_addr: IPAddress = IPAddress{
+    address: [4]int{300,500,700,900},  // Invalid octets
+    port: htons(80)
+  };
+  let connect_result: int = connect_socket(error_sock, invalid_ip_addr);
+  print("   Result: ", connect_result, " (should be -1)");
+  
+  // Final summary
+  print("");
+  print("=================================================");
+  print("IMPLEMENTATION SUMMARY");
+  print("=================================================");
+  print("");
+  print("Features implemented:");
+  print("1. Complete TCP socket API");
+  print("2. TCP state machine with all states");
+  print("3. Connection management with statistics");
+  print("4. Network byte order conversion");
+  print("5. IP address parsing and formatting");
+  print("6. Dynamic array support");
+  print("7. Error handling and validation");
+  print("8. Data transfer with sequence numbers");
+  print("9. Checksum calculation");
+  print("10. Server and client implementations");
+  print("");
+  print("TCP States supported: CLOSED, LISTEN, SYN_SENT, SYN_RCVD,");
+  print("ESTABLISHED, FIN_WAIT_1, FIN_WAIT_2, CLOSE_WAIT,");
+  print("CLOSING, LAST_ACK, TIME_WAIT");
+  print("");
+  print("=================================================");
+  print("TCP/IP IMPLEMENTATION COMPLETE");
+  print("=================================================");
+  
+  return 0;
+}

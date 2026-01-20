@@ -1,0 +1,653 @@
+dialect:english;
+
+// ==================== STRUCT DEFINITIONS ====================
+struct DynArray {
+  Size: int,
+  Capacity: int,
+  Data: *int,
+}
+
+struct Person {
+  Age: int,
+  Height: float,
+  Name: string,
+  Salary: int64,
+  IsEmployed: int, // Using int as boolean (0=false, 1=true)
+}
+
+struct Company {
+  Name: string,
+  Employees: [10]Person,
+  CEO: Person,
+  Revenue: float,
+}
+
+struct Point {
+  x: int,
+  y: int,
+}
+
+struct ComplexData {
+  Id: int,
+  Values: [5]float,
+  Name: string,
+  Next: *ComplexData,
+}
+
+// ==================== ARRAY UTILITIES ====================
+func push(arr: DynArray, value: int) int {
+  if (arr.Size >= arr.Capacity) {
+    print("Error: Array capacity exceeded (max %d)", arr.Capacity);
+    return -1;
+  }
+  arr.Data[arr.Size] = value;
+  arr.Size = arr.Size + 1;
+  return arr.Size;
+}
+
+func get(arr: DynArray, index: int) int {
+  if (index < 0 || index >= arr.Size) {
+    print("Error: Index %d out of bounds (size: %d)", index, arr.Size);
+    return -1;
+  }
+  return arr.Data[index];
+}
+
+func set(arr: DynArray, index: int, value: int) int {
+  if (index < 0 || index >= arr.Size) {
+    print("Error: Index %d out of bounds (size: %d)", index, arr.Size);
+    return -1;
+  }
+  arr.Data[index] = value;
+  return value;
+}
+
+func print_array(arr: DynArray) int {
+  print("DynArray (Size: %d, Capacity: %d):", arr.Size, arr.Capacity);
+  let i: int = 0;
+  while (i < arr.Size) {
+    print("  [%d]: %d", i, arr.Data[i]);
+    i = i + 1;
+  }
+  return 0;
+}
+
+// ==================== MATH OPERATIONS ====================
+func add(a: int, b: int) int {
+  return a + b;
+}
+
+func addf(a: float, b: float) float {
+  return a + b;
+}
+
+func subtract(a: int, b: int) int {
+  return a - b;
+}
+
+func multiply(a: int, b: int) int {
+  return a * b;
+}
+
+func divide(a: int, b: int) int {
+  if (b == 0) {
+    print("Error: Division by zero");
+    return 0;
+  }
+  return a / b;
+}
+
+func modulo(a: int, b: int) int {
+  if (b == 0) {
+    print("Error: Modulo by zero");
+    return 0;
+  }
+  return a % b;
+}
+
+// ==================== STRING/ARRAY MANIPULATION ====================
+func sum_array(arr: [5]int) int {
+  let total: int = 0;
+  let i: int = 0;
+  while (i < 5) {
+    total = total + arr[i];
+    i = i + 1;
+  }
+  return total;
+}
+
+func average_array(arr: [5]float) float {
+  let total: float = 0.0;
+  let i: int = 0;
+  while (i < 5) {
+    total = total + arr[i];
+    i = i + 1;
+  }
+  return total / 5.0;
+}
+
+func reverse_array(arr: [5]int) [5]int {
+  let result: [5]int = [5]int{0, 0, 0, 0, 0};
+  let i: int = 0;
+  while (i < 5) {
+    result[4 - i] = arr[i];
+    i = i + 1;
+  }
+  return result;
+}
+
+// ==================== STRUCT MANIPULATION ====================
+func makePoint(x: int, y: int) Point {
+  return Point{x: x, y: y};
+}
+
+func distance(p1: Point, p2: Point) float {
+  let dx: int = p1.x - p2.x;
+  let dy: int = p1.y - p2.y;
+  let dxf: float = dx;
+  let dyf: float = dy;
+  return (dxf * dxf + dyf * dyf);
+}
+
+func birthday(person: *Person) int {
+  person.Age = person.Age + 1;
+  print("%s is now %d years old!", person.Name, person.Age);
+  return person.Age;
+}
+
+func promote(person: *Person, raise: float) float {
+  person.Salary = person.Salary * (1.0 + raise / 100.0);
+  return person.Salary;
+}
+
+// ==================== COMPLEX DATA STRUCTURES ====================
+func create_linked_list() *ComplexData {
+  let node3: ComplexData = ComplexData{
+    Id: 3,
+    Values: [5]float{3.1, 3.2, 3.3, 3.4, 3.5},
+    Name: "Third",
+    Next: 0, // null pointer
+  };
+  
+  let node2: ComplexData = ComplexData{
+    Id: 2,
+    Values: [5]float{2.1, 2.2, 2.3, 2.4, 2.5},
+    Name: "Second",
+    Next: node3,
+  };
+  
+  let node1: ComplexData = ComplexData{
+    Id: 1,
+    Values: [5]float{1.1, 1.2, 1.3, 1.4, 1.5},
+    Name: "First",
+    Next: node2,
+  };
+  
+  return node1;
+}
+
+func print_linked_list(head: *ComplexData) int {
+  let current: *ComplexData = head;
+  let count: int = 0;
+  
+  while (current != 0) {
+    print("Node %d: %s (id: %d)", count, current.Name, current.Id);
+    current = current.Next;
+    count = count + 1;
+  }
+  
+  return count;
+}
+
+// ==================== CONDITIONAL LOGIC TESTS ====================
+func test_conditionals() int {
+  print("\n=== Testing Conditionals ===");
+  
+  let a: int = 10;
+  let b: int = 20;
+  let c: float = 15.5;
+  let d: float = 25.5;
+  
+  // Basic comparisons
+  if (a < b) {
+    print("a < b is true");
+  } else {
+    print("ERROR: a < b should be true");
+  }
+  
+  if (a > b) {
+    print("ERROR: a > b should be false");
+  } else {
+    print("a > b is false");
+  }
+  
+  if (c == 15.5 && d == 25.5) {
+    print("c == 15.5 && d == 25.5 is true");
+  }
+  
+  if (a == 10 || b == 100) {
+    print("a == 10 || b == 100 is true (short-circuit)");
+  }
+  
+  // Complex logical expressions
+  if ((a < b && c < d) || (a > b && c > d)) {
+    print("Complex expression 1 is true");
+  }
+  
+  if (!(a == b) && (c != d)) {
+    print("Complex expression 2 is true");
+  }
+  
+  // Nested conditionals
+  if (a > 5) {
+    if (b > 10) {
+      if (c > 0.0) {
+        print("Triple-nested condition is true");
+      }
+    }
+  }
+  
+  return 0;
+}
+
+// ==================== LOOP TESTS ====================
+func test_loops() int {
+  print("\n=== Testing Loops ===");
+  
+  // While loop with array
+  let numbers: [10]int = [10]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  let i: int = 0;
+  let sum: int = 0;
+  
+  print("Array elements:");
+  while (i < 10) {
+    print("  numbers[%d] = %d", i, numbers[i]);
+    sum = sum + numbers[i];
+    i = i + 1;
+  }
+  print("Sum of array: %d", sum);
+  
+  // Count even numbers
+  i = 0;
+  let even_count: int = 0;
+  while (i < 10) {
+    if (numbers[i] % 2 == 0) {
+      even_count = even_count + 1;
+    }
+    i = i + 1;
+  }
+  print("Even numbers count: %d", even_count);
+  
+  // Countdown
+  print("Countdown from 5:");
+  let count: int = 5;
+  while (count > 0) {
+    print("  %d...", count);
+    count = count - 1;
+  }
+  print("Blast off!");
+  
+  return 0;
+}
+
+// ==================== TYPE SYSTEM TESTS ====================
+func test_types() int {
+  print("\n=== Testing Type System ===");
+  
+  // Integer types
+  let small_int: int = 42;
+  let large_int: int64 = 9223372036854775807; // max int64
+  let negative_int: int = -2147483647;
+  
+  print("Integers: %d, %d, %d", small_int, large_int, negative_int);
+  
+  // Floating point
+  let pi: float = 3.14159;
+  let negative_pi: float = -3.14159;
+  let large_float: float = 1.00000000000;
+  
+  print("Floats: %.5f, %.5f, %.1f", pi, negative_pi, large_float);
+  
+  // Strings
+  let greeting: string = "Hello, World!";
+  let name: string = "Alice";
+  let empty: string = "";
+  
+  print("Strings: '%s', '%s', '%s'", greeting, name, empty);
+  
+  // Mixed arithmetic
+  let int_val: int = 10;
+  let float_val: float = 2.5;
+  let mixed_result: float = int_val * float_val;
+  
+  print("Mixed arithmetic: %d * %.1f = %.1f", int_val, float_val, mixed_result);
+  
+  return 0;
+}
+
+// ==================== FUNCTION TESTS ====================
+func test_functions() int {
+  print("\n=== Testing Functions ===");
+  
+  // Test math functions
+  let x: int = 100;
+  let y: int = 25;
+  
+  print("Math operations on %d and %d:", x, y);
+  print("  Addition: %d", add(x, y));
+  print("  Subtraction: %d", subtract(x, y));
+  print("  Multiplication: %d", multiply(x, y));
+  print("  Division: %d", divide(x, y));
+  print("  Modulo: %d", modulo(x, y));
+  
+  // Test array functions
+  let arr: [5]int = [5]int{1, 2, 3, 4, 5};
+  let sum: int = sum_array(arr);
+  let reversed: [5]int = reverse_array(arr);
+  
+  print("Array sum: %d", sum);
+  print("Reversed array: %d %d %d %d %d", 
+        reversed[0], reversed[1], reversed[2], reversed[3], reversed[4]);
+  
+  // Test struct functions
+  let p1: Point = makePoint(0, 0);
+  let p2: Point = makePoint(3, 4);
+  let dist: float = distance(p1, p2);
+  
+  print("Distance between (%d,%d) and (%d,%d): %.2f", 
+        p1.x, p1.y, p2.x, p2.y, dist);
+  
+  return 0;
+}
+
+// ==================== EDGE CASE TESTS ====================
+func test_edge_cases() int {
+  print("\n=== Testing Edge Cases ===");
+  
+  // 1. Array bounds checking
+  print("1. Array bounds testing:");
+  let small_array: [3]int = [3]int{1, 2, 3};
+  
+  // These should all work
+  print("  small_array[0] = %d", small_array[0]);
+  print("  small_array[2] = %d", small_array[2]);
+  
+  // 2. Division by zero (handled in function)
+  print("\n2. Division by zero:");
+  print("  10 / 0 = %d", divide(10, 0));
+  
+  // 3. Integer overflow
+  print("\n3. Integer limits:");
+  let max_int: int = 2147483647;
+  let min_int: int = -2147483648;
+  print("  Max int: %d, Min int: %d", max_int, min_int);
+  
+  // 4. Pointer to stack variable (potentially unsafe)
+  print("\n4. Pointer lifetime test:");
+  struct LocalData {
+    value: int,
+    ptr: *int,
+  }
+  
+  let local_arr: [2]int = [2]int{42, 99};
+  let local_data: LocalData = LocalData{
+    value: 100,
+    ptr: local_arr,
+  };
+  
+  // Accessing should work while in scope
+  print("  local_data.ptr[0] = %d", local_data.ptr[0]);
+  
+  // 5. Nested scopes with variable shadowing
+  print("\n5. Variable shadowing:");
+  let outer: int = 100;
+  print("  Outer before inner scope: %d", outer);
+  
+  if (outer > 0) {
+    let outer: int = 200; // Shadows outer variable
+    print("  Inner scope outer: %d", outer);
+    
+    if (outer > 150) {
+      let outer: int = 300; // Another level of shadowing
+      print("  Nested inner scope outer: %d", outer);
+    }
+    
+    print("  Inner scope outer after nested: %d", outer);
+  }
+  
+  print("  Outer after inner scope: %d", outer);
+  
+  // 6. Empty while loop
+  print("\n6. Empty while loop:");
+  let counter: int = 3;
+  while (counter > 0) {
+    // Empty body
+    counter = counter - 1;
+  }
+  print("  Loop completed");
+  
+  // 7. Recursion simulation (with loop)
+  print("\n7. Recursion simulation (factorial):");
+  let n: int = 5;
+  let factorial: int = 1;
+  while (n > 0) {
+    factorial = factorial * n;
+    n = n - 1;
+  }
+  print("  5! = %d", factorial);
+  
+  return 0;
+}
+
+// ==================== REAL-WORLD SCENARIO ====================
+func company_simulation() int {
+  print("\n=== Company Simulation ===");
+  
+  // Create company
+  let google: Company = Company{
+    Name: "Google",
+    Employees: [10]Person{
+      Person{Age: 25, Height: 1.75, Name: "Alice", Salary: 100000, IsEmployed: 1},
+      Person{Age: 30, Height: 1.80, Name: "Bob", Salary: 120000, IsEmployed: 1},
+      Person{Age: 35, Height: 1.70, Name: "Charlie", Salary: 150000, IsEmployed: 1},
+      Person{Age: 40, Height: 1.85, Name: "Diana", Salary: 200000, IsEmployed: 1},
+      Person{Age: 28, Height: 1.65, Name: "Eve", Salary: 90000, IsEmployed: 1},
+      Person{Age: 0, Height: 0.0, Name: "", Salary: 0, IsEmployed: 0}, // Empty slot
+      Person{Age: 0, Height: 0.0, Name: "", Salary: 0, IsEmployed: 0}, // Empty slot
+      Person{Age: 0, Height: 0.0, Name: "", Salary: 0, IsEmployed: 0}, // Empty slot
+      Person{Age: 0, Height: 0.0, Name: "", Salary: 0, IsEmployed: 0}, // Empty slot
+      Person{Age: 0, Height: 0.0, Name: "", Salary: 0, IsEmployed: 0}, // Empty slot
+    },
+    CEO: Person{Age: 50, Height: 1.78, Name: "Sundar Pichai", Salary: 2000000, IsEmployed: 1},
+    Revenue: 300000000000.0, // 300 billion
+  };
+  
+  // Print company info
+  print("Company: %s", google.Name);
+  print("CEO: %s (Age: %d, Salary: %d)", google.CEO.Name, google.CEO.Age, google.CEO.Salary);
+  print("Revenue: %.0f", google.Revenue);
+  
+  // Calculate average employee age and salary
+  let total_age: int = 0;
+  let total_salary: int64 = 0;
+  let employee_count: int = 0;
+  let i: int = 0;
+  
+  while (i < 10) {
+    if (google.Employees[i].IsEmployed == 1) {
+      total_age = total_age + google.Employees[i].Age;
+      total_salary = total_salary + google.Employees[i].Salary;
+      employee_count = employee_count + 1;
+    }
+    i = i + 1;
+  }
+  
+  let avg_age: int = total_age / employee_count;
+  let avg_salary: int64 = total_salary / employee_count;
+  
+  print("Employee Count: %d", employee_count);
+  print("Average Age: %d", avg_age);
+  print("Average Salary: %d", avg_salary);
+  
+  // Give everyone a birthday and raise
+  print("\n--- Annual Review ---");
+  i = 0;
+  while (i < 10) {
+    if (google.Employees[i].IsEmployed == 1) {
+      let old_age: int = google.Employees[i].Age;
+      let old_salary: int64 = google.Employees[i].Salary;
+      
+      birthday(google.Employees[i]);
+      google.Employees[i].Salary = google.Employees[i].Salary * 1.05; // 5% raise
+      
+      print("  %s: Age %d->%d, Salary %d->%d", 
+            google.Employees[i].Name, old_age, google.Employees[i].Age, 
+            old_salary, google.Employees[i].Salary);
+    }
+    i = i + 1;
+  }
+  
+  return 0;
+}
+
+// ==================== DYNAMIC ARRAY DEMO ====================
+func dynamic_array_demo() int {
+  print("\n=== Dynamic Array Demo ===");
+  
+  // Create backing storage
+  let backing: [20]int = [20]int{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  
+  // Initialize dynamic array
+  let arr: DynArray = DynArray{
+    Size: 0,
+    Capacity: 20,
+    Data: backing,
+  };
+  
+  // Fill the array
+  print("Pushing values 1-15:");
+  let i: int = 1;
+  while (i <= 15) {
+    let result: int = push(arr, i * 10);
+    print("  Pushed %d, new size: %d", i * 10, result);
+    i = i + 1;
+  }
+  
+  print_array(arr);
+  
+  // Access elements
+  print("\nAccessing elements:");
+  print("  arr[0] = %d", get(arr, 0));
+  print("  arr[7] = %d", get(arr, 7));
+  print("  arr[14] = %d", get(arr, 14));
+  
+  // Test bounds checking
+  print("\nTesting bounds checking:");
+  print("  arr[-1] = %d (should be -1 error)", get(arr, -1));
+  print("  arr[20] = %d (should be -1 error)", get(arr, 20));
+  
+  // Modify elements
+  print("\nModifying elements:");
+  print("  Setting arr[5] to 999: %d", set(arr, 5, 999));
+  print("  Setting arr[10] to 888: %d", set(arr, 10, 888));
+  
+  print_array(arr);
+  
+  // Try to overflow
+  print("\nTesting overflow:");
+  while (i <= 25) {
+    let result: int = push(arr, i * 10);
+    if (result == -1) {
+      print("  Failed to push %d: capacity exceeded", i * 10);
+    } else {
+      print("  Pushed %d, new size: %d", i * 10, result);
+    }
+    i = i + 1;
+  }
+  
+  return 0;
+}
+
+// ==================== MAIN PROGRAM ====================
+start() int {
+  print("=========================================");
+  print("COMPREHENSIVE PROGRAM TESTING ALL FEATURES");
+  print("=========================================");
+  
+  // Run all test suites
+  test_conditionals();
+  test_loops();
+  test_types();
+  test_functions();
+  test_edge_cases();
+  
+  // Real-world simulations
+  company_simulation();
+  dynamic_array_demo();
+  
+  // Test linked list
+  print("\n=== Linked List Test ===");
+  let head: *ComplexData = create_linked_list();
+  let node_count: int = print_linked_list(head);
+  print("Total nodes: %d", node_count);
+  
+  // Final output formatting test
+  print("\n=== Formatted Output Test ===");
+  print("%-20s | %10s | %10s", "Name", "Age", "Salary");
+  print("%-20s-|-%10s-|-%10s", "--------------------", "----------", "----------");
+  print("%-20s | %10d | %10d", "Alice", 25, 100000);
+  print("%-20s | %10d | %10d", "Bob", 30, 120000);
+  print("%-20s | %10d | %10d", "Charlie", 35, 150000);
+  
+  // Mixed type operations
+  print("\n=== Mixed Type Operations ===");
+  let int_val: int = 7;
+  let float_val: float = 3.5;
+  let result1: float = int_val + float_val;
+  let result2: float = int_val * float_val;
+  let result3: float = int_val - float_val;
+  let result4: float = int_val / float_val;
+  
+  print("7 + 3.5 = %.2f", result1);
+  print("7 * 3.5 = %.2f", result2);
+  print("7 - 3.5 = %.2f", result3);
+  print("7 / 3.5 = %.2f", result4);
+  
+  // Test array of structs
+  print("\n=== Array of Structs ===");
+  let points: [3]Point = [3]Point{
+    makePoint(1, 2),
+    makePoint(3, 4),
+    makePoint(5, 6)
+  };
+  
+  let j: int = 0;
+  while (j < 3) {
+    print("Point %d: (%d, %d)", j, points[j].x, points[j].y);
+    j = j + 1;
+  }
+  
+  // Test nested struct access
+  print("\n=== Nested Struct Access ===");
+  struct Container {
+    id: int,
+    data: Person,
+    points: [2]Point,
+  }
+  
+  let container: Container = Container{
+    id: 1,
+    data: Person{Age: 25, Height: 1.75, Name: "Nested", Salary: 50000, IsEmployed: 1},
+    points: [2]Point{makePoint(10, 20), makePoint(30, 40)},
+  };
+  
+  print("Container ID: %d", container.id);
+  print("  Person: %s, Age: %d", container.data.Name, container.data.Age);
+  print("  Point 0: (%d, %d)", container.points[0].x, container.points[0].y);
+  
+  print("\n=========================================");
+  print("PROGRAM COMPLETED SUCCESSFULLY");
+  print("=========================================");
+  
+  return 0;
+}
