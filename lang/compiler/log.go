@@ -14,7 +14,7 @@ func NewLogger(prefix string) *Logger {
 	l := Logger{
 		dbg: log.New(
 			os.Stdout,
-			fmt.Sprintf("%s %s ", "DBG", prefix),
+			fmt.Sprintf("%s ", prefix),
 			log.Lmsgprefix,
 		),
 	}
