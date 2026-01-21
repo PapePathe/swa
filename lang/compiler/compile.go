@@ -34,50 +34,26 @@ func Compile(tree ast.BlockStatement, target BuildTarget, dialect lexer.Dialect,
 
 	var err error
 
-	if experimental {
-		ctx := NewCompilerContext(
-			&context,
-			&builder,
-			&module,
-			dialect,
-			nil,
-		)
+	ctx := NewCompilerContext(
+		&context,
+		&builder,
+		&module,
+		dialect,
+		nil,
+	)
+	generator := NewLLVMGenerator(ctx)
 
-		generator := NewLLVMGenerator(ctx)
-		err = tree.Accept(generator)
+	err = tree.Accept(generator)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
 
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
-
-		err = llvm.VerifyModule(*ctx.Module, llvm.ReturnStatusAction)
-		if err != nil {
-			ctx.Module.Dump()
-			fmt.Println(err)
-			os.Exit(1)
-		}
-	} else {
-		ctx := ast.NewCompilerContext(
-			&context,
-			&builder,
-			&module,
-			dialect,
-			nil,
-		)
-		err, _ = tree.CompileLLVM(ctx)
-
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
-
-		err = llvm.VerifyModule(*ctx.Module, llvm.ReturnStatusAction)
-		if err != nil {
-			ctx.Module.Dump()
-			fmt.Println(err)
-			os.Exit(1)
-		}
+	err = llvm.VerifyModule(*ctx.Module, llvm.ReturnStatusAction)
+	if err != nil {
+		ctx.Module.Dump()
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	llirFileName := fmt.Sprintf("%s.ll", target.Output)
