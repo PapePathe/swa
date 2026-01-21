@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"encoding/json"
 	"fmt"
 	"swahili/lang/lexer"
 
@@ -46,16 +45,6 @@ func (rs ReturnStatement) Accept(g CodeGenerator) error {
 
 func (expr ReturnStatement) TokenStream() []lexer.Token {
 	return expr.Tokens
-}
-
-func (rs ReturnStatement) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Value"] = rs.Value
-
-	res := make(map[string]any)
-	res["ast.ReturnStatement"] = m
-
-	return json.Marshal(res)
 }
 
 func (rs ReturnStatement) compileArrayAccess(ctx *CompilerCtx) (error, *CompilerResult) {

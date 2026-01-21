@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"encoding/json"
 	"fmt"
 	"swahili/lang/lexer"
 
@@ -240,19 +239,6 @@ func (expr VarDeclarationStatement) Accept(g CodeGenerator) error {
 
 func (expr VarDeclarationStatement) TokenStream() []lexer.Token {
 	return expr.Tokens
-}
-
-func (cs VarDeclarationStatement) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Name"] = cs.Name
-	m["IsConstant"] = cs.IsConstant
-	m["Value"] = cs.Value
-	m["ExplicitType"] = cs.ExplicitType
-
-	res := make(map[string]any)
-	res["ast.VarDeclarationStatement"] = m
-
-	return json.Marshal(res)
 }
 
 func (vd VarDeclarationStatement) compileStructInitializationExpression(

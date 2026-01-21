@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"encoding/json"
 	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
@@ -35,14 +34,4 @@ func (ms MainStatement) Accept(g CodeGenerator) error {
 
 func (expr MainStatement) TokenStream() []lexer.Token {
 	return expr.Tokens
-}
-
-func (cs MainStatement) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Body"] = cs.Body
-
-	res := make(map[string]any)
-	res["ast.MainProGram"] = m
-
-	return json.Marshal(res)
 }

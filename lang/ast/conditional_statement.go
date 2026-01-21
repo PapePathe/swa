@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"encoding/json"
 	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
@@ -76,16 +75,4 @@ func (cs ConditionalStatetement) Accept(g CodeGenerator) error {
 
 func (expr ConditionalStatetement) TokenStream() []lexer.Token {
 	return expr.Tokens
-}
-
-func (cs ConditionalStatetement) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["success"] = cs.Success
-	m["condition"] = cs.Condition
-	m["failure"] = cs.Failure
-
-	res := make(map[string]any)
-	res["ast.ConditionalStatetement"] = m
-
-	return json.Marshal(res)
 }

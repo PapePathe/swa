@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"encoding/json"
 	"fmt"
 	"swahili/lang/lexer"
 
@@ -54,11 +53,4 @@ func (expr SymbolExpression) Accept(g CodeGenerator) error {
 
 func (expr SymbolExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
-}
-
-func (expr SymbolExpression) MarshalJSON() ([]byte, error) {
-	res := make(map[string]any)
-	res["ast.SymbolExpression"] = expr.Value
-
-	return json.Marshal(res)
 }

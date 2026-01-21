@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"encoding/json"
 	"fmt"
 	"swahili/lang/lexer"
 
@@ -151,15 +150,4 @@ func (expr ArrayInitializationExpression) Accept(g CodeGenerator) error {
 
 func (expr ArrayInitializationExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
-}
-
-func (cs ArrayInitializationExpression) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["UnderlyingType"] = cs.Underlying
-	m["Contents"] = cs.Contents
-
-	res := make(map[string]any)
-	res["ast.ArrayInitializationExpression"] = m
-
-	return json.Marshal(res)
 }

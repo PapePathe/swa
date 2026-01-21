@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"encoding/json"
 	"fmt"
 	"swahili/lang/lexer"
 
@@ -59,16 +58,4 @@ func (sd StructDeclarationStatement) Accept(g CodeGenerator) error {
 
 func (expr StructDeclarationStatement) TokenStream() []lexer.Token {
 	return expr.Tokens
-}
-
-func (expr StructDeclarationStatement) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Name"] = expr.Name
-	m["Properties"] = expr.Properties
-	m["Types"] = expr.Types
-
-	res := make(map[string]any)
-	res["ast.StructDeclarationStatement"] = m
-
-	return json.Marshal(res)
 }

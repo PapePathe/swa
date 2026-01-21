@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
 
@@ -48,11 +47,4 @@ func (expr NumberExpression) Accept(g CodeGenerator) error {
 
 func (expr NumberExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
-}
-
-func (se NumberExpression) MarshalJSON() ([]byte, error) {
-	res := make(map[string]any)
-	res["ast.NumberExpression"] = se.Value
-
-	return json.Marshal(res)
 }

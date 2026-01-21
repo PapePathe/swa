@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"encoding/json"
 	"fmt"
 	"swahili/lang/lexer"
 
@@ -221,16 +220,4 @@ func (expr ArrayOfStructsAccessExpression) TokenStream() []lexer.Token {
 
 func (expr ArrayOfStructsAccessExpression) String() string {
 	return fmt.Sprintf("%s[%s].%s", expr.Name, expr.Index, expr.Property)
-}
-
-func (cs ArrayOfStructsAccessExpression) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Name"] = cs.Name
-	m["Index"] = cs.Index
-	m["Property"] = cs.Property
-
-	res := make(map[string]any)
-	res["ast.ArrayOfStructsAccessExpression"] = m
-
-	return json.Marshal(res)
 }

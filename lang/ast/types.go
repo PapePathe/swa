@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 
@@ -81,13 +80,6 @@ func (typ SymbolType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
 	return nil, sym.LLVMType
 }
 
-func (se SymbolType) MarshalJSON() ([]byte, error) {
-	res := make(map[string]any)
-	res["ast.SymbolType"] = se.Name
-
-	return json.Marshal(res)
-}
-
 type ArrayType struct {
 	Underlying        Type
 	Size              int
@@ -113,13 +105,6 @@ func (a ArrayType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
 	return nil, llvm.ArrayType(under, a.Size)
 }
 
-func (se ArrayType) MarshalJSON() ([]byte, error) {
-	res := make(map[string]any)
-	res["ast.ArrayType"] = se.Underlying
-
-	return json.Marshal(res)
-}
-
 type NumberType struct{}
 
 var _ Type = (*NumberType)(nil)
@@ -136,26 +121,12 @@ func (NumberType) LLVMType(*CompilerCtx) (error, llvm.Type) {
 	return nil, llvm.GlobalContext().Int32Type()
 }
 
-func (se NumberType) MarshalJSON() ([]byte, error) {
-	res := make(map[string]any)
-	res["ast.NumberType"] = se.Value().String()
-
-	return json.Marshal(res)
-}
-
 type StringType struct{}
 
 var _ Type = (*StringType)(nil)
 
 func (StringType) Value() DataType {
 	return DataTypeString
-}
-
-func (se StringType) MarshalJSON() ([]byte, error) {
-	res := make(map[string]any)
-	res["ast.StringType"] = se.Value().String()
-
-	return json.Marshal(res)
 }
 
 func (typ StringType) Accept(g CodeGenerator) error {
@@ -185,13 +156,6 @@ func (typ FloatType) Accept(g CodeGenerator) error {
 	return g.VisitFloatType(&typ)
 }
 
-func (se FloatType) MarshalJSON() ([]byte, error) {
-	res := make(map[string]any)
-	res["ast.FloatType"] = se.Value().String()
-
-	return json.Marshal(res)
-}
-
 type PointerType struct {
 	Underlying Type
 }
@@ -215,26 +179,12 @@ func (PointerType) Value() DataType {
 	return DataTypePointer
 }
 
-func (se PointerType) MarshalJSON() ([]byte, error) {
-	res := make(map[string]any)
-	res["ast.PointerType"] = se.Underlying
-
-	return json.Marshal(res)
-}
-
 type VoidType struct{}
 
 var _ Type = (*VoidType)(nil)
 
 func (VoidType) Value() DataType {
 	return DataTypeVoid
-}
-
-func (se VoidType) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["ast.FloatType"] = se.Value().String()
-
-	return json.Marshal(m)
 }
 
 func (VoidType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
@@ -251,16 +201,6 @@ var _ Type = (*Number64Type)(nil)
 
 func (Number64Type) Value() DataType {
 	return DataTypeNumber64
-}
-
-func (se Number64Type) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Value"] = se.Value().String()
-
-	res := make(map[string]any)
-	res["ast.Number64Type"] = m
-
-	return json.Marshal(res)
 }
 
 func (Number64Type) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {

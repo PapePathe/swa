@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"encoding/json"
 	"fmt"
 	"swahili/lang/lexer"
 
@@ -132,18 +131,6 @@ func (expr BinaryExpression) String() string {
 
 func (expr BinaryExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
-}
-
-func (expr BinaryExpression) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Left"] = expr.Left
-	m["Right"] = expr.Right
-	m["Operator"] = expr.Operator
-
-	res := make(map[string]any)
-	res["ast.BinaryExpression"] = m
-
-	return json.Marshal(res)
 }
 
 func (expr BinaryExpression) compileLeftAndRightResult(ctx *CompilerCtx) (error, *CompilerResult, *CompilerResult) {

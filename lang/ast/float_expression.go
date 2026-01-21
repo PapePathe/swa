@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"tinygo.org/x/go-llvm"
@@ -33,14 +32,4 @@ func (expr FloatExpression) Accept(g CodeGenerator) error {
 
 func (expr FloatExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
-}
-
-func (se FloatExpression) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Value"] = se.Value
-
-	res := make(map[string]any)
-	res["ast.FloatExpression"] = m
-
-	return json.Marshal(res)
 }

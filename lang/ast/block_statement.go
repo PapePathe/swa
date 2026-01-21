@@ -1,8 +1,6 @@
 package ast
 
 import (
-	"encoding/json"
-
 	"swahili/lang/lexer"
 )
 
@@ -39,11 +37,4 @@ func (bs BlockStatement) Accept(g CodeGenerator) error {
 
 func (expr BlockStatement) TokenStream() []lexer.Token {
 	return expr.Tokens
-}
-
-func (bs BlockStatement) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["ast.BlockStatement"] = bs.Body
-
-	return json.Marshal(m)
 }

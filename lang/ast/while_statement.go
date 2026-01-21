@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"encoding/json"
 	"swahili/lang/lexer"
 )
 
@@ -51,15 +50,4 @@ func (ws WhileStatement) Accept(g CodeGenerator) error {
 
 func (expr WhileStatement) TokenStream() []lexer.Token {
 	return expr.Tokens
-}
-
-func (expr WhileStatement) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Condition"] = expr.Condition
-	m["Body"] = expr.Body
-
-	res := make(map[string]any)
-	res["ast.WhileStatement"] = m
-
-	return json.Marshal(res)
 }

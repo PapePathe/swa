@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"encoding/json"
 	"fmt"
 	"swahili/lang/lexer"
 
@@ -187,18 +186,6 @@ func (expr MemberExpression) TokenStream() []lexer.Token {
 
 func (expr MemberExpression) String() string {
 	return fmt.Sprintf("%s.%s", expr.Object, expr.Property)
-}
-
-func (expr MemberExpression) MarshalJSON() ([]byte, error) {
-	m := make(map[string]any)
-	m["Object"] = expr.Object
-	m["Property"] = expr.Property
-	m["Computed"] = expr.Computed
-
-	res := make(map[string]any)
-	res["ast.MemberExpression"] = m
-
-	return json.Marshal(res)
 }
 
 func (expr MemberExpression) findBaseSymbol(obj Expression) (SymbolExpression, error) {
