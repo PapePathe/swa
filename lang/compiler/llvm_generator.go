@@ -824,6 +824,10 @@ func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpressi
 		arrayAddr = *array.Address
 	}
 
+	if entry.UnderlyingType.IsNil() {
+		return fmt.Errorf("underlying type not set")
+	}
+
 	itemPtr := g.Ctx.Builder.CreateInBoundsGEP(
 		entry.UnderlyingType,
 		arrayAddr,
