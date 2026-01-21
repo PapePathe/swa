@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"swahili/lang/compiler"
+	"swahili/lang/compiler/astformat"
 	"swahili/lang/lexer"
 	"swahili/lang/parser"
 	"swahili/lang/server"
@@ -160,7 +161,15 @@ var parseCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		result, err := json.MarshalIndent(st, " ", "  ")
+		jf := astformat.NewJsonFormatter()
+		err = st.Accept(jf)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		res := jf.Element
+		result, err := json.MarshalIndent(res, " ", "  ")
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
