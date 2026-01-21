@@ -356,7 +356,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("English", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/103-missing-argument-type-check-in-function-calls.english.swa",
-				ExpectedOutput: "expected argument of type IntegerType(32 bits) expected but got PointerType(Reference)\n",
+				ExpectedOutput: "expected argument of type IntegerType(32 bits) but got PointerType(Reference)\n",
 				T:              t,
 			}
 

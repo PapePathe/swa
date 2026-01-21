@@ -11,7 +11,7 @@ func TestArrayOfStructsWithUndefinedPropertyAccess(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{
 			InputPath:      "./arrays/structs/undefined-property-access.french.swa",
-			ExpectedOutput: "ArrayOfStructsAccessExpression: property Name not found\n",
+			ExpectedOutput: "property (Name) not found in struct Engineer\n",
 			T:              t,
 		}
 
