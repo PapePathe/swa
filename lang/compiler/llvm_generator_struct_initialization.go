@@ -23,6 +23,18 @@ func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInit
 	}
 
 	instance := g.Ctx.Builder.CreateAlloca(structType.LLVMType, node.Name+".instance")
+
+	if len(node.Values) == 0 {
+		zero := llvm.ConstNull(structType.LLVMType)
+		g.Ctx.Builder.CreateStore(zero, instance)
+
+		g.setLastResult(&CompilerResult{
+			Value:                  &instance,
+			StructSymbolTableEntry: structType,
+		})
+		return nil
+	}
+
 	// TODO stucts should be allocated on the heap
 	//	instance := g.Ctx.Builder.CreateMalloc(structType.LLVMType, node.Name+".instance")
 	for _, name := range node.Properties {

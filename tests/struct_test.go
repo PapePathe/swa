@@ -6,6 +6,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestStructZeroValues(t *testing.T) {
+	t.Run("Structs", func(t *testing.T) {
+		t.Parallel()
+
+		req := CompileRequest{
+			InputPath:               "./structs/zero-values.swa",
+			ExpectedExecutionOutput: "- Dimension with zero value\nLength: 0.00, Width: 0, Height: 0, Name: (null)\n\n- Object with zero value\nLength: 0.00, Width: 0, Height: 0, Name: (null), Shape: (null)\n\n- Block with zero value\nTop(Length: 0.00, Width: 0, Height: 0, Name: (null), Shape: (null))\nBottom(Length: 0.00, Width: 0, Height: 0, Name: (null), Shape: (null))\n",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+}
+
 func TestStructWithUnknownType(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		t.Parallel()
