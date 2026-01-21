@@ -831,6 +831,8 @@ func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpressi
 		"",
 	)
 
+	array.Address = &itemPtr
+
 	g.setLastResult(&CompilerResult{
 		Value:                 &itemPtr,
 		ArraySymbolTableEntry: entry,
