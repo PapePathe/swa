@@ -113,7 +113,7 @@ func injectWithArrayDecay(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.
 }
 
 func injectArrayLiteral(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
-	g.Debugf("injectArrayLiteral %s %v %t", fieldAddr, res, targetType)
+	g.Debugf("injectArrayLiteral %s %v", fieldAddr, res)
 
 	if targetType.TypeKind() == llvm.PointerTypeKind {
 		g.Debugf("injectArrayLiteral of pointer type")

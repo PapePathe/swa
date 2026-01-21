@@ -1096,6 +1096,7 @@ func (g *LLVMGenerator) resolveArrayOfStructsBase(nameNode ast.Node) (error, *Sy
 				g.Debugf("item ptr of array sym entry %s", itemPtr)
 
 				lastres.SymbolTableEntry.Address = &itemPtr
+				lastres.ArraySymbolTableEntry = &nested
 			}
 		}
 
@@ -1319,9 +1320,11 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 
 		if isPointerType {
 			pointerValue := g.Ctx.Builder.CreateLoad(*val.StuctPropertyValueType, *val.Value, "")
-			array = &SymbolTableEntry{Value: pointerValue}
+			// TODO declared type should be set
+			array = &SymbolTableEntry{Value: pointerValue, DeclaredType: astType}
 		} else {
-			array = &SymbolTableEntry{Value: *val.Value}
+			// TODO declared type should be set
+			array = &SymbolTableEntry{Value: *val.Value, DeclaredType: astType}
 		}
 
 		entry = &ArraySymbolTableEntry{

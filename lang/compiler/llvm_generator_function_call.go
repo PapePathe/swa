@@ -57,7 +57,7 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 
 		if argType != paramType {
 			err := fmt.Errorf(
-				"expected argument of type %s expected but got %s",
+				"expected argument of type %s but got %s",
 				g.formatLLVMType(paramType),
 				g.formatLLVMType(argType),
 			)
@@ -86,6 +86,7 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 			// Pass arrays by reference
 			if _, ok := val.SymbolTableEntry.DeclaredType.(ast.ArrayType); ok {
 				args = append(args, *val.SymbolTableEntry.Address)
+
 				break
 			}
 

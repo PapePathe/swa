@@ -29,6 +29,7 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 	}
 
 	leftRes := g.getLastResult()
+
 	if leftRes.SymbolTableEntry != nil &&
 		leftRes.SymbolTableEntry.DeclaredType.Value() == ast.DataTypeString {
 		return fmt.Errorf(format, "symbol left")
