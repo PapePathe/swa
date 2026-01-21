@@ -12,38 +12,6 @@ type WhileStatement struct {
 	Tokens    []lexer.Token
 }
 
-func (expr WhileStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	bodyBlock := ctx.Builder.GetInsertBlock()
-	parentFunc := bodyBlock.Parent()
-
-	loopBlock := ctx.Context.AddBasicBlock(parentFunc, "loopBlock")
-	conditionBlock := ctx.Context.AddBasicBlock(parentFunc, "conditionBlock")
-	ctx.Builder.CreateBr(loopBlock)
-	exitBlock := ctx.Context.AddBasicBlock(parentFunc, "exitBlock")
-	ctx.Builder.SetInsertPointAtEnd(conditionBlock)
-
-	err, cond := expr.Condition.CompileLLVM(ctx)
-	if err != nil {
-		return err, nil
-	}
-
-	ctx.Builder.CreateCondBr(*cond.Value, loopBlock, exitBlock)
-	ctx.Builder.SetInsertPointAtEnd(loopBlock)
-
-	err, _ = expr.Body.CompileLLVM(ctx)
-	if err != nil {
-		return err, nil
-	}
-
-	ctx.Builder.CreateBr(conditionBlock)
-	conditionBlock.MoveAfter(bodyBlock)
-	loopBlock.MoveAfter(bodyBlock)
-	exitBlock.MoveAfter(loopBlock)
-	ctx.Builder.SetInsertPointAtEnd(exitBlock)
-
-	return nil, nil
-}
-
 func (ws WhileStatement) Accept(g CodeGenerator) error {
 	return g.VisitWhileStatement(&ws)
 }

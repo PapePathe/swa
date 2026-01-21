@@ -50,13 +50,6 @@ const (
 	DataTypeVoid
 )
 
-// Type
-type Type interface {
-	Accept(g CodeGenerator) error
-	Value() DataType
-	LLVMType(ctx *CompilerCtx) (error, llvm.Type)
-}
-
 type SymbolType struct {
 	Name string
 }
@@ -69,15 +62,6 @@ func (SymbolType) Value() DataType {
 
 func (typ SymbolType) Accept(g CodeGenerator) error {
 	return g.VisitSymbolType(&typ)
-}
-
-func (typ SymbolType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
-	err, sym := ctx.FindStructSymbol(typ.Name)
-	if err != nil {
-		return err, llvm.Type{}
-	}
-
-	return nil, sym.LLVMType
 }
 
 type ArrayType struct {
@@ -96,15 +80,6 @@ func (typ ArrayType) Accept(g CodeGenerator) error {
 	return g.VisitArrayType(&typ)
 }
 
-func (a ArrayType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
-	err, under := a.Underlying.LLVMType(ctx)
-	if err != nil {
-		return err, llvm.Type{}
-	}
-
-	return nil, llvm.ArrayType(under, a.Size)
-}
-
 type NumberType struct{}
 
 var _ Type = (*NumberType)(nil)
@@ -115,10 +90,6 @@ func (NumberType) Value() DataType {
 
 func (typ NumberType) Accept(g CodeGenerator) error {
 	return g.VisitNumberType(&typ)
-}
-
-func (NumberType) LLVMType(*CompilerCtx) (error, llvm.Type) {
-	return nil, llvm.GlobalContext().Int32Type()
 }
 
 type StringType struct{}
@@ -133,23 +104,12 @@ func (typ StringType) Accept(g CodeGenerator) error {
 	return g.VisitStringType(&typ)
 }
 
-func (StringType) LLVMType(*CompilerCtx) (error, llvm.Type) {
-	return nil, llvm.PointerType(
-		llvm.GlobalContext().Int8Type(),
-		0,
-	)
-}
-
 type FloatType struct{}
 
 var _ Type = (*FloatType)(nil)
 
 func (FloatType) Value() DataType {
 	return DataTypeFloat
-}
-
-func (FloatType) LLVMType(*CompilerCtx) (error, llvm.Type) {
-	return nil, llvm.GlobalContext().DoubleType()
 }
 
 func (typ FloatType) Accept(g CodeGenerator) error {
@@ -162,15 +122,6 @@ type PointerType struct {
 
 func (typ PointerType) Accept(g CodeGenerator) error {
 	return g.VisitPointerType(&typ)
-}
-
-func (se PointerType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
-	err, under := se.Underlying.LLVMType(ctx)
-	if err != nil {
-		return err, llvm.Type{}
-	}
-
-	return nil, llvm.PointerType(under, 0)
 }
 
 var _ Type = (*PointerType)(nil)
@@ -201,10 +152,6 @@ var _ Type = (*Number64Type)(nil)
 
 func (Number64Type) Value() DataType {
 	return DataTypeNumber64
-}
-
-func (Number64Type) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
-	return nil, llvm.GlobalContext().Int64Type()
 }
 
 func (typ Number64Type) Accept(g CodeGenerator) error {

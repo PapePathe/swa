@@ -3,8 +3,6 @@ package ast
 import (
 	"fmt"
 	"swahili/lang/lexer"
-
-	"tinygo.org/x/go-llvm"
 )
 
 type StructDeclarationStatement struct {
@@ -24,32 +22,6 @@ func (sd StructDeclarationStatement) PropertyIndex(name string) (error, int) {
 	}
 
 	return fmt.Errorf("Property with name (%s) does not exist on struct %s", name, sd.Name), 0
-}
-
-func (sd StructDeclarationStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	attrs := []llvm.Type{}
-
-	for idx := range sd.Properties {
-		typ := sd.Types[idx]
-		err, llvmType := typ.LLVMType(ctx)
-		if err != nil {
-			return err, nil
-		}
-
-		attrs = append(attrs, llvmType)
-	}
-
-	newtype := ctx.Context.StructCreateNamed(sd.Name)
-	newtype.StructSetBody(attrs, false)
-
-	entry := &StructSymbolTableEntry{
-		LLVMType:      newtype,
-		Metadata:      sd,
-		PropertyTypes: attrs,
-	}
-	err := ctx.AddStructSymbol(sd.Name, entry)
-
-	return err, nil
 }
 
 func (sd StructDeclarationStatement) Accept(g CodeGenerator) error {

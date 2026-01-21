@@ -1,8 +1,6 @@
 package ast
 
 import (
-	"fmt"
-
 	"swahili/lang/lexer"
 )
 
@@ -14,10 +12,6 @@ type CallExpression struct {
 }
 
 var _ Expression = (*CallExpression)(nil)
-
-func (CallExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	return fmt.Errorf("CallExpression compilation is not implemented"), nil
-}
 
 func (expr CallExpression) Accept(g CodeGenerator) error {
 	return g.VisitCallExpression(&expr)

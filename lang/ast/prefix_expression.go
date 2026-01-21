@@ -14,10 +14,6 @@ type PrefixExpression struct {
 
 var _ Expression = (*PrefixExpression)(nil)
 
-func (PrefixExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	return fmt.Errorf("PrefixExpression compilation is not implemented"), nil
-}
-
 func (e PrefixExpression) String() string {
 	return fmt.Sprintf("%s %s", e.Operator.Value, e.RightExpression)
 }

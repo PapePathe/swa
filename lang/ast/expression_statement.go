@@ -13,15 +13,6 @@ type ExpressionStatement struct {
 
 var _ Statement = (*ExpressionStatement)(nil)
 
-func (exp ExpressionStatement) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	err, _ := exp.Exp.CompileLLVM(ctx)
-	if err != nil {
-		return err, nil
-	}
-
-	return nil, nil
-}
-
 func (es ExpressionStatement) Accept(g CodeGenerator) error {
 	return g.VisitExpressionStatement(&es)
 }

@@ -2,6 +2,17 @@ package ast
 
 import "swahili/lang/lexer"
 
+// Type
+type Type interface {
+	Accept(g CodeGenerator) error
+	Value() DataType
+}
+
+type ExpressionType interface {
+	Equivalent(a ExpressionType, b ExpressionType) bool
+	Compatible(a ExpressionType, b ExpressionType) bool
+}
+
 // Node ...
 type Node interface {
 	Accept(g CodeGenerator) error
@@ -11,13 +22,11 @@ type Node interface {
 // Statement ...
 type Statement interface {
 	Node
-	CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 }
 
 // Expression ...
 type Expression interface {
 	Node
-	CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult)
 }
 
 // CodeGenerator ...

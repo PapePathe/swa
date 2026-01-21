@@ -3,8 +3,6 @@ package ast
 import (
 	"fmt"
 
-	"tinygo.org/x/go-llvm"
-
 	"swahili/lang/lexer"
 )
 
@@ -18,12 +16,6 @@ var _ Expression = (*FloatExpression)(nil)
 
 func (e FloatExpression) String() string {
 	return fmt.Sprintf("%f", e.Value)
-}
-
-func (se FloatExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	res := llvm.ConstFloat(llvm.GlobalContext().DoubleType(), se.Value)
-
-	return nil, &CompilerResult{Value: &res}
 }
 
 func (expr FloatExpression) Accept(g CodeGenerator) error {

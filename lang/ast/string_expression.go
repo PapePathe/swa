@@ -16,12 +16,6 @@ func (expr StringExpression) String() string {
 	return expr.Value
 }
 
-func (expr StringExpression) CompileLLVM(ctx *CompilerCtx) (error, *CompilerResult) {
-	res := ctx.Context.ConstString(expr.Value, true)
-
-	return nil, &CompilerResult{Value: &res}
-}
-
 func (expr StringExpression) Accept(g CodeGenerator) error {
 	return g.VisitStringExpression(&expr)
 }
