@@ -5,6 +5,7 @@ import "swahili/lang/lexer"
 // Type
 type Type interface {
 	Accept(g CodeGenerator) error
+	AcceptZero(g CodeGenerator) error
 	Value() DataType
 }
 
@@ -37,6 +38,8 @@ type CodeGenerator interface {
 	ExpressionsCodeGenerator
 	// Types
 	TypeVisitor
+	// Zero values
+	ZeroValueVisitor
 }
 
 type StatementsCodeGenerator interface {
@@ -78,4 +81,15 @@ type TypeVisitor interface {
 	VisitStringType(node *StringType) error
 	VisitArrayType(node *ArrayType) error
 	VisitVoidType(node *VoidType) error
+}
+
+type ZeroValueVisitor interface {
+	ZeroOfSymbolType(node *SymbolType) error
+	ZeroOfNumberType(node *NumberType) error
+	ZeroOfNumber64Type(node *Number64Type) error
+	ZeroOfFloatType(node *FloatType) error
+	ZeroOfPointerType(node *PointerType) error
+	ZeroOfStringType(node *StringType) error
+	ZeroOfArrayType(node *ArrayType) error
+	ZeroOfVoidType(node *VoidType) error
 }
