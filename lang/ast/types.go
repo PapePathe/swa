@@ -54,6 +54,11 @@ type SymbolType struct {
 	Name string
 }
 
+// AcceptZero implements [Type].
+func (typ SymbolType) AcceptZero(g CodeGenerator) error {
+	return g.ZeroOfSymbolType(&typ)
+}
+
 var _ Type = (*SymbolType)(nil)
 
 func (SymbolType) Value() DataType {
@@ -70,6 +75,11 @@ type ArrayType struct {
 	DynSizeIdentifier Expression
 }
 
+// AcceptZero implements [Type].
+func (typ ArrayType) AcceptZero(g CodeGenerator) error {
+	return g.ZeroOfArrayType(&typ)
+}
+
 var _ Type = (*ArrayType)(nil)
 
 func (ArrayType) Value() DataType {
@@ -81,6 +91,11 @@ func (typ ArrayType) Accept(g CodeGenerator) error {
 }
 
 type NumberType struct{}
+
+// AcceptZero implements [Type].
+func (typ NumberType) AcceptZero(g CodeGenerator) error {
+	return g.ZeroOfNumberType(&typ)
+}
 
 var _ Type = (*NumberType)(nil)
 
@@ -94,6 +109,11 @@ func (typ NumberType) Accept(g CodeGenerator) error {
 
 type StringType struct{}
 
+// AcceptZero implements [Type].
+func (typ StringType) AcceptZero(g CodeGenerator) error {
+	return g.ZeroOfStringType(&typ)
+}
+
 var _ Type = (*StringType)(nil)
 
 func (StringType) Value() DataType {
@@ -105,6 +125,11 @@ func (typ StringType) Accept(g CodeGenerator) error {
 }
 
 type FloatType struct{}
+
+// AcceptZero implements [Type].
+func (typ FloatType) AcceptZero(g CodeGenerator) error {
+	return g.ZeroOfFloatType(&typ)
+}
 
 var _ Type = (*FloatType)(nil)
 
@@ -120,6 +145,11 @@ type PointerType struct {
 	Underlying Type
 }
 
+// AcceptZero implements [Type].
+func (typ PointerType) AcceptZero(g CodeGenerator) error {
+	return g.ZeroOfPointerType(&typ)
+}
+
 func (typ PointerType) Accept(g CodeGenerator) error {
 	return g.VisitPointerType(&typ)
 }
@@ -131,6 +161,11 @@ func (PointerType) Value() DataType {
 }
 
 type VoidType struct{}
+
+// AcceptZero implements [Type].
+func (typ VoidType) AcceptZero(g CodeGenerator) error {
+	return g.ZeroOfVoidType(&typ)
+}
 
 var _ Type = (*VoidType)(nil)
 
@@ -147,6 +182,11 @@ func (typ VoidType) Accept(g CodeGenerator) error {
 }
 
 type Number64Type struct{}
+
+// AcceptZero implements [Type].
+func (typ Number64Type) AcceptZero(g CodeGenerator) error {
+	return g.ZeroOfNumber64Type(&typ)
+}
 
 var _ Type = (*Number64Type)(nil)
 

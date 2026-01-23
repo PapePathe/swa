@@ -8,9 +8,51 @@ type Json struct {
 	Element map[string]any
 }
 
+// ZeroOfArrayType implements [ast.CodeGenerator].
+func (j *Json) ZeroOfArrayType(node *ast.ArrayType) error {
+	panic("unimplemented")
+}
+
+// ZeroOfFloatType implements [ast.CodeGenerator].
+func (j *Json) ZeroOfFloatType(node *ast.FloatType) error {
+	panic("unimplemented")
+}
+
+// ZeroOfNumber64Type implements [ast.CodeGenerator].
+func (j *Json) ZeroOfNumber64Type(node *ast.Number64Type) error {
+	panic("unimplemented")
+}
+
+// ZeroOfNumberType implements [ast.CodeGenerator].
+func (j *Json) ZeroOfNumberType(node *ast.NumberType) error {
+	panic("unimplemented")
+}
+
+// ZeroOfPointerType implements [ast.CodeGenerator].
+func (j *Json) ZeroOfPointerType(node *ast.PointerType) error {
+	panic("unimplemented")
+}
+
+// ZeroOfStringType implements [ast.CodeGenerator].
+func (j *Json) ZeroOfStringType(node *ast.StringType) error {
+	panic("unimplemented")
+}
+
+// ZeroOfSymbolType implements [ast.CodeGenerator].
+func (j *Json) ZeroOfSymbolType(node *ast.SymbolType) error {
+	panic("unimplemented")
+}
+
+// ZeroOfVoidType implements [ast.CodeGenerator].
+func (j *Json) ZeroOfVoidType(node *ast.VoidType) error {
+	panic("unimplemented")
+}
+
 func NewJsonFormatter() *Json {
 	return &Json{Element: map[string]any{}}
 }
+
+var _ ast.CodeGenerator = (*Json)(nil)
 
 // VisitArrayAccessExpression implements [ast.CodeGenerator].
 func (j *Json) VisitArrayAccessExpression(node *ast.ArrayAccessExpression) error {

@@ -25,13 +25,131 @@ type LLVMGenerator struct {
 	logger         *Logger
 }
 
+var _ ast.CodeGenerator = (*LLVMGenerator)(nil)
+
+// ZeroOfArrayType implements [ast.CodeGenerator].
+func (g *LLVMGenerator) ZeroOfArrayType(node *ast.ArrayType) error {
+	panic("unimplemented")
+}
+
+// ZeroOfFloatType implements [ast.CodeGenerator].
+func (g *LLVMGenerator) ZeroOfFloatType(node *ast.FloatType) error {
+	err := node.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	lastres := g.getLastTypeVisitResult()
+	zero := llvm.ConstNull(lastres.Type)
+	res := &CompilerResult{Value: &zero}
+
+	g.setLastResult(res)
+
+	return nil
+}
+
+// ZeroOfNumber64Type implements [ast.CodeGenerator].
+func (g *LLVMGenerator) ZeroOfNumber64Type(node *ast.Number64Type) error {
+	err := node.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	lastres := g.getLastTypeVisitResult()
+	zero := llvm.ConstNull(lastres.Type)
+	res := &CompilerResult{Value: &zero}
+
+	g.setLastResult(res)
+
+	return nil
+}
+
+// ZeroOfNumberType implements [ast.CodeGenerator].
+func (g *LLVMGenerator) ZeroOfNumberType(node *ast.NumberType) error {
+	err := node.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	lastres := g.getLastTypeVisitResult()
+	zero := llvm.ConstNull(lastres.Type)
+	res := &CompilerResult{Value: &zero}
+
+	g.setLastResult(res)
+
+	return nil
+}
+
+// ZeroOfPointerType implements [ast.CodeGenerator].
+func (g *LLVMGenerator) ZeroOfPointerType(node *ast.PointerType) error {
+	err := node.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	lastres := g.getLastTypeVisitResult()
+	zero := llvm.ConstNull(lastres.Type)
+	res := &CompilerResult{Value: &zero}
+
+	g.setLastResult(res)
+
+	return nil
+}
+
+// ZeroOfStringType implements [ast.CodeGenerator].
+func (g *LLVMGenerator) ZeroOfStringType(node *ast.StringType) error {
+	zero := g.Ctx.Builder.CreateGlobalStringPtr("", "")
+	res := &CompilerResult{Value: &zero}
+
+	g.setLastResult(res)
+
+	return nil
+}
+
+// ZeroOfSymbolType implements [ast.CodeGenerator].
+func (g *LLVMGenerator) ZeroOfSymbolType(node *ast.SymbolType) error {
+	err := node.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	typ := g.getLastTypeVisitResult()
+	alloc := g.Ctx.Builder.CreateAlloca(typ.Type, "")
+
+	for index, v := range typ.Sentry.Metadata.Types {
+		err := v.AcceptZero(g)
+		if err != nil {
+			return err
+		}
+
+		lastres := g.getLastResult()
+		fieldAddr := g.Ctx.Builder.CreateStructGEP(
+			typ.Type,
+			alloc,
+			index,
+			"",
+		)
+
+		g.Ctx.Builder.CreateStore(*lastres.Value, fieldAddr)
+	}
+	load := g.Ctx.Builder.CreateLoad(alloc.AllocatedType(), alloc, "")
+
+	res := &CompilerResult{Value: &load, StructSymbolTableEntry: typ.Sentry}
+	g.setLastResult(res)
+
+	return nil
+}
+
+// ZeroOfVoidType implements [ast.CodeGenerator].
+func (g *LLVMGenerator) ZeroOfVoidType(node *ast.VoidType) error {
+	panic("unimplemented")
+}
+
 func NewLLVMGenerator(ctx *CompilerCtx) *LLVMGenerator {
 	logger := NewLogger("LLVM")
 
 	return &LLVMGenerator{Ctx: ctx, logger: logger}
 }
-
-var _ ast.CodeGenerator = (*LLVMGenerator)(nil)
 
 func (g *LLVMGenerator) Debugf(format string, args ...any) {
 	if g.Ctx.Debugging {
@@ -785,13 +903,25 @@ func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) e
 
 		typeresult := g.getLastTypeVisitResult()
 		alloc := g.Ctx.Builder.CreateAlloca(typeresult.Type, fmt.Sprintf("alloc.%s", node.Name))
-		g.Ctx.Builder.CreateStore(llvm.ConstNull(typeresult.Type), alloc)
+
+		err = node.ExplicitType.AcceptZero(g)
+		if err != nil {
+			return err
+		}
+
+		zero := g.getLastResult()
+
+		g.Ctx.Builder.CreateStore(*zero.Value, alloc)
 
 		entry := &SymbolTableEntry{
 			Value:        alloc,
 			Address:      &alloc,
 			DeclaredType: node.ExplicitType,
 			Global:       !g.Ctx.InsideFunction,
+		}
+
+		if zero.StructSymbolTableEntry != nil {
+			entry.Ref = zero.StructSymbolTableEntry
 		}
 
 		err = g.Ctx.AddSymbol(node.Name, entry)

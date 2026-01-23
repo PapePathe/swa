@@ -25,13 +25,20 @@ func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInit
 	instance := g.Ctx.Builder.CreateAlloca(structType.LLVMType, node.Name+".instance")
 
 	if len(node.Values) == 0 {
-		zero := llvm.ConstNull(structType.LLVMType)
-		g.Ctx.Builder.CreateStore(zero, instance)
+		typ := ast.SymbolType{Name: node.Name}
 
+		err := typ.AcceptZero(g)
+		if err != nil {
+			return err
+		}
+
+		zero := g.getLastResult()
+		g.Ctx.Builder.CreateStore(*zero.Value, instance)
 		g.setLastResult(&CompilerResult{
 			Value:                  &instance,
 			StructSymbolTableEntry: structType,
 		})
+
 		return nil
 	}
 
