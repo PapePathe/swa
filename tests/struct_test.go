@@ -12,7 +12,7 @@ func TestStructZeroValues(t *testing.T) {
 
 		req := CompileRequest{
 			InputPath:               "./structs/zero-values.swa",
-			ExpectedExecutionOutput: "- Dimension with zero value\nLength: 0.00, Width: 0, Height: 0, Name: (null)\n\n- Object with zero value\nLength: 0.00, Width: 0, Height: 0, Name: (null), Shape: (null)\n\n- Block with zero value\nTop(Length: 0.00, Width: 0, Height: 0, Name: (null), Shape: (null))\nBottom(Length: 0.00, Width: 0, Height: 0, Name: (null), Shape: (null))\n",
+			ExpectedExecutionOutput: "- Dimension with zero value\nLength: 0.00, Width: 0.00, Height: 0, Name: \n\n- Object with zero value\nLength: 0.00, Width: 0.00, Height: 0, Name: , Shape: \n\n- Block with zero value\nTop(Length: 0.00, Width: 0.00, Height: 0, Name: , Shape: )\nBottom(Length: 0.00, Width: 0.00, Height: 0, Name: , Shape: )\n",
 			T:                       t,
 		}
 

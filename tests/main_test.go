@@ -36,6 +36,7 @@ func (cr *CompileRequest) Compile() error {
 	cr.OutputPath = uuid.New().String()
 
 	var experimental string
+
 	exp := os.Getenv("SWA_EXPERIMENTAL")
 	if exp != "" {
 		experimental = "--experimental"
