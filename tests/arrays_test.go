@@ -50,7 +50,6 @@ func TestArrayOfStructs(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{
 			InputPath:               "./arrays/structs/source.french.swa",
-			ExpectedOutput:          "",
 			ExpectedExecutionOutput: "(nom: Pathe, age: 40, taille: 1.80, technos: Ruby, Rust, Go) (nom: Lucien, age: 24, taille: 1.81, technos: Typescript, HTML, Css) (nom: Manel, age: 25, taille: 1.82, technos: Typescript, Ruby) (nom: Bintou, age: 28, technos: Javascript, Css, HTML)",
 			T:                       t,
 		}
@@ -62,7 +61,6 @@ func TestArrayOfStructs(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{
 			InputPath:               "./arrays/structs/source.english.swa",
-			ExpectedOutput:          "",
 			ExpectedExecutionOutput: "(nom: Pathe, age: 40, taille: 1.80, stack: Ruby, Rust, Go) (nom: Lucien, age: 24, taille: 1.81, stack: Typescript, HTML, Css) (nom: Manel, age: 25, taille: 1.82, stack: Typescript, Ruby) (nom: Bintou, age: 28, taille: 1.83, stack: Javascript, Css, HTML) ",
 			T:                       t,
 		}
@@ -76,7 +74,6 @@ func TestArrayOfStrings(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{
 			InputPath:               "./arrays/strings/source.french.swa",
-			ExpectedOutput:          "",
 			ExpectedExecutionOutput: "valeurs dans le tableau: (abc),(efg),(ijk)",
 			T:                       t,
 		}
@@ -88,7 +85,6 @@ func TestArrayOfStrings(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{
 			InputPath:               "./arrays/strings/source.english.swa",
-			ExpectedOutput:          "",
 			ExpectedExecutionOutput: "values in the array: (abc),(efg),(ijk)",
 			T:                       t,
 		}
@@ -102,7 +98,6 @@ func TestArraysInPrintStatement(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{
 			InputPath:               "./arrays/print/source.french.swa",
-			ExpectedOutput:          "",
 			ExpectedExecutionOutput: "Les valeurs dans le tableau sont: 1 2 3 4 5",
 			T:                       t,
 		}
@@ -114,7 +109,6 @@ func TestArraysInPrintStatement(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{
 			InputPath:               "./arrays/print/source.english.swa",
-			ExpectedOutput:          "",
 			ExpectedExecutionOutput: "Array values are: 1 2 3 4 5",
 			T:                       t,
 		}
@@ -127,9 +121,8 @@ func TestArrays(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{
-			InputPath:      "./arrays/ok/source.french.swa",
-			ExpectedOutput: "",
-			T:              t,
+			InputPath: "./arrays/ok/source.french.swa",
+			T:         t,
 		}
 
 		req.AssertCompileAndExecute()
@@ -138,9 +131,8 @@ func TestArrays(t *testing.T) {
 	t.Run("English", func(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{
-			InputPath:      "./arrays/ok/source.english.swa",
-			ExpectedOutput: "",
-			T:              t,
+			InputPath: "./arrays/ok/source.english.swa",
+			T:         t,
 		}
 
 		req.AssertCompileAndExecute()
