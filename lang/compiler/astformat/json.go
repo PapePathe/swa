@@ -8,6 +8,10 @@ type Json struct {
 	Element map[string]any
 }
 
+func NewJsonFormatter() *Json {
+	return &Json{Element: map[string]any{}}
+}
+
 // ZeroOfArrayType implements [ast.CodeGenerator].
 func (j *Json) ZeroOfArrayType(node *ast.ArrayType) error {
 	panic("unimplemented")
@@ -46,10 +50,6 @@ func (j *Json) ZeroOfSymbolType(node *ast.SymbolType) error {
 // ZeroOfVoidType implements [ast.CodeGenerator].
 func (j *Json) ZeroOfVoidType(node *ast.VoidType) error {
 	panic("unimplemented")
-}
-
-func NewJsonFormatter() *Json {
-	return &Json{Element: map[string]any{}}
 }
 
 var _ ast.CodeGenerator = (*Json)(nil)
@@ -228,7 +228,7 @@ func (j *Json) VisitFloatExpression(node *ast.FloatExpression) error {
 // VisitFloatType implements [ast.CodeGenerator].
 func (j *Json) VisitFloatType(node *ast.FloatType) error {
 	res := map[string]any{
-		"FloatType": node.Value,
+		"FloatType": node.Value().String(),
 	}
 
 	j.setLastResult(res)
@@ -338,7 +338,7 @@ func (j *Json) VisitNumberType(node *ast.NumberType) error {
 // VisitPointerType implements [ast.CodeGenerator].
 func (j *Json) VisitPointerType(node *ast.PointerType) error {
 	res := make(map[string]any)
-	res["PointerType"] = node.Underlying
+	res["PointerType"] = node.Underlying.Value().String()
 
 	j.setLastResult(res)
 
@@ -395,7 +395,7 @@ func (j *Json) VisitStringExpression(node *ast.StringExpression) error {
 // VisitStringType implements [ast.CodeGenerator].
 func (j *Json) VisitStringType(node *ast.StringType) error {
 	res := map[string]any{
-		"StringType": node.Value,
+		"StringType": node.Value().String(),
 	}
 
 	j.setLastResult(res)
@@ -466,8 +466,10 @@ func (j *Json) VisitVarDeclaration(node *ast.VarDeclarationStatement) error {
 	m["Name"] = node.Name
 	m["IsConstant"] = node.IsConstant
 
-	_ = node.Value.Accept(j)
-	m["Value"] = j.getLastResult()
+	if node.Value != nil {
+		_ = node.Value.Accept(j)
+		m["Value"] = j.getLastResult()
+	}
 
 	_ = node.ExplicitType.Accept(j)
 	m["ExplicitType"] = j.getLastResult()
@@ -483,7 +485,7 @@ func (j *Json) VisitVarDeclaration(node *ast.VarDeclarationStatement) error {
 // VisitVoidType implements [ast.CodeGenerator].
 func (j *Json) VisitVoidType(node *ast.VoidType) error {
 	res := make(map[string]any)
-	res["VoidType"] = node.Value()
+	res["VoidType"] = node.Value().String()
 
 	j.setLastResult(res)
 
