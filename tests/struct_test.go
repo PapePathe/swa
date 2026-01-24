@@ -7,17 +7,32 @@ import (
 )
 
 func TestStructZeroValues(t *testing.T) {
-	t.Run("Structs", func(t *testing.T) {
+	expected := "- Dimension with zero value\nLength: 0.00, Width: 0.00, Height: 0, Name: \n\n- Object with zero value\nLength: 0.00, Width: 0.00, Height: 0, Name: , Shape: \n\n- Block with zero value\nTop(Length: 0.00, Width: 0.00, Height: 0, Name: , Shape: )\nBottom(Length: 0.00, Width: 0.00, Height: 0, Name: , Shape: )\n"
+
+	t.Run("Structs with explicit zero initializer", func(t *testing.T) {
 		t.Parallel()
 
 		req := CompileRequest{
 			InputPath:               "./structs/zero-values.swa",
-			ExpectedExecutionOutput: "- Dimension with zero value\nLength: 0.00, Width: 0.00, Height: 0, Name: \n\n- Object with zero value\nLength: 0.00, Width: 0.00, Height: 0, Name: , Shape: \n\n- Block with zero value\nTop(Length: 0.00, Width: 0.00, Height: 0, Name: , Shape: )\nBottom(Length: 0.00, Width: 0.00, Height: 0, Name: , Shape: )\n",
+			ExpectedExecutionOutput: expected,
 			T:                       t,
 		}
 
 		req.AssertCompileAndExecute()
 	})
+
+	t.Run("Structs with implicit zero initializer", func(t *testing.T) {
+		t.Parallel()
+
+		req := CompileRequest{
+			InputPath:               "./structs/zero-values-implicit.swa",
+			ExpectedExecutionOutput: expected,
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+
 }
 
 func TestStructWithUnknownType(t *testing.T) {

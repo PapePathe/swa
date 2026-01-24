@@ -1,0 +1,25 @@
+dialect:english;
+
+struct Dimension {
+  Length: float,
+  Height: int,
+}
+
+start() int {
+
+  let l : [3]Dimension;
+  print("- [3]Dimension with zero value\n");
+  print(
+    "(Index: 0) Length: %.2f Height: %d\n", 
+    l[0].Length,  l[0].Height
+  );
+  print(
+    "(Index: 1) Length: %.2f Height: %d\n", 
+    l[1].Length,  l[1].Height
+  );
+  print(
+    "(Index: 2) Length: %.2f Height: %d\n", 
+    l[2].Length,  l[2].Height
+  );
+  return 0;
+}

@@ -1,0 +1,9 @@
+dialect:english;
+
+start() int {
+  let i : [3]int;
+  print("- [3]int with zero value\n");
+  print("%d %d %d\n\n", i[0], i[1], i[2]);
+
+  return 0;
+}

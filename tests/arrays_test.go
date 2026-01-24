@@ -240,6 +240,46 @@ func TestSortingAlgorithms(t *testing.T) {
 		)
 	})
 }
+func TestArrayZeroValues(t *testing.T) {
+	t.Run("Array of ints", func(t *testing.T) {
+		t.Parallel()
+		NewSuccessfulCompileRequest(
+			t,
+			"./arrays/zero-values/int.swa",
+			"- [3]int with zero value\n0 0 0\n\n",
+		)
+	})
+
+	t.Run("Array of floats", func(t *testing.T) {
+		t.Parallel()
+
+		NewSuccessfulCompileRequest(
+			t,
+			"./arrays/zero-values/float.swa",
+			"- [3]float with zero value\n0.00 0.00 0.00\n\n",
+		)
+	})
+
+	t.Run("Array of strings", func(t *testing.T) {
+		t.Parallel()
+
+		NewSuccessfulCompileRequest(
+			t,
+			"./arrays/zero-values/string.swa",
+			"- [3]string with zero value\n'' '' ''\n\n",
+		)
+	})
+
+	t.Run("Array of structs", func(t *testing.T) {
+		t.Parallel()
+
+		NewSuccessfulCompileRequest(
+			t,
+			"./arrays/zero-values/struct.swa",
+			"- [3]Dimension with zero value\n(Index: 0) Length: 0.00 Height: 0\n(Index: 1) Length: 0.00 Height: 0\n(Index: 2) Length: 0.00 Height: 0\n",
+		)
+	})
+}
 
 func TestArrayAccessWithSymbolExpression(t *testing.T) {
 	t.Run("French", func(t *testing.T) {

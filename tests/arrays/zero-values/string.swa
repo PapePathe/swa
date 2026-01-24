@@ -1,0 +1,9 @@
+dialect:english;
+
+start() int {
+  let k : [3]string;
+  print("- [3]string with zero value\n");
+  print("'%s' '%s' '%s'\n\n", k[1], k[1], k[2]);
+
+  return 0;
+}

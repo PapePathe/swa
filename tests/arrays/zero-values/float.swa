@@ -1,0 +1,9 @@
+dialect:english;
+
+start() int {
+  let j : [3]float;
+  print("- [3]float with zero value\n");
+  print("%.2f %.2f %.2f\n\n", j[1], j[1], j[2]);
+
+  return 0;
+}
