@@ -297,9 +297,9 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 		if datatype.Type.TypeKind() == llvm.PointerTypeKind &&
 			datatype.SubType.TypeKind() == llvm.StructTypeKind {
 			if datatype.SubType.StructName() == node.Name {
-				format := "struct with pointer reference to self not supported, property: %s"
+				key := "VisitStructDeclaration.SelfPointerReferenceNotAllowed"
 
-				return fmt.Errorf(format, propertyName)
+				return g.Ctx.Dialect.Error(key, propertyName)
 			}
 
 			g.Debugf("processing property %s as struct", propertyName)
@@ -309,9 +309,9 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 
 		if datatype.Type.TypeKind() == llvm.StructTypeKind {
 			if datatype.Type.StructName() == node.Name {
-				format := "struct with reference to self not supported, property: %s"
+				key := "VisitStructDeclaration.SelfReferenceNotAllowed"
 
-				return fmt.Errorf(format, propertyName)
+				return g.Ctx.Dialect.Error(key, propertyName)
 			}
 
 			g.Debugf("processing property %s as nested struct", propertyName)
@@ -359,7 +359,9 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 		case ast.DataTypeString:
 			load = *entry.Address
 		default:
-			return fmt.Errorf("Unsupported datatype in global")
+			key := "VisitSymbolExpression.UnsupportedTypeAsGlobal"
+
+			return g.Ctx.Dialect.Error(key, entry.DeclaredType)
 		}
 
 		g.setLastResult(
@@ -428,7 +430,9 @@ func (g *LLVMGenerator) VisitPrefixExpression(node *ast.PrefixExpression) error 
 
 	handler, ok := prefixOpHandlers[node.Operator.Kind]
 	if !ok {
-		return fmt.Errorf("PrefixExpression: operator %s not supported", node.Operator.Kind)
+		key := "VisitPrefixExpression.OperatorNotSupported"
+
+		return g.Ctx.Dialect.Error(key, node.Operator.Kind)
 	}
 
 	val := handler(g, *res.Value)

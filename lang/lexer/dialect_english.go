@@ -56,5 +56,11 @@ func (m English) translations() map[string]string {
 
 		"NumberExpression.LessThanMinInt32":    "%d is smaller than min value for int32",
 		"NumberExpression.GreaterThanMaxInt32": "%d is greater than max value for int32",
+
+		"VisitStructDeclaration.SelfPointerReferenceNotAllowed": "struct with pointer reference to self not supported, property: %s",
+		"VisitStructDeclaration.SelfReferenceNotAllowed":        "struct with reference to self not supported, property: %s",
+
+		"VisitSymbolExpression.UnsupportedTypeAsGlobal": "Unsupported datatype %s in global",
+		"VisitPrefixExpression.OperatorNotSupported":    "PrefixExpression: operator %s not supported",
 	}
 }
