@@ -33,6 +33,17 @@ func TestStructZeroValues(t *testing.T) {
 		req.AssertCompileAndExecute()
 	})
 
+	t.Run("Array of structs", func(t *testing.T) {
+		t.Parallel()
+
+		req := CompileRequest{
+			InputPath:               "./structs/zero-values-array.swa",
+			ExpectedExecutionOutput: "- [1]Path with zero value\nx1: 0 y1:0",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
 }
 
 func TestStructWithUnknownType(t *testing.T) {

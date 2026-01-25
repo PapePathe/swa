@@ -1,0 +1,21 @@
+dialect:english;
+
+struct Point {
+  x: int,
+  y: int,
+}
+
+struct Path {
+  points: [1]Point,
+}
+
+start() int {
+  let l : [2]Path;
+  print("- [1]Path with zero value\n");
+  print(
+    "x1: %d y1:%d", 
+    l[0].points[0].x, l[0].points[0].y
+  );
+
+  return 0;
+}
