@@ -83,7 +83,6 @@ func (g *LLVMGenerator) VisitAssignmentExpression(node *ast.AssignmentExpression
 		} else {
 			address = compiledAssignee.SymbolTableEntry.Address
 		}
-
 	} else {
 		address = compiledAssignee.Value
 	}
@@ -467,7 +466,9 @@ func (g *LLVMGenerator) prepareReturnValue(expr ast.Expression, res *CompilerRes
 		ast.NumberExpression, ast.FloatExpression:
 		return *res.Value, nil
 	default:
-		return llvm.Value{}, fmt.Errorf("ReturnStatement unknown expression <%s>", expr)
+		key := "VisitReturnStatement.UnsupportedExpression"
+
+		return llvm.Value{}, g.Ctx.Dialect.Error(key, expr)
 	}
 }
 
