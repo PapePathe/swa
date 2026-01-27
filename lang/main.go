@@ -90,8 +90,18 @@ var compileCmd = &cobra.Command{
 			Architecture:    "X86-64",
 			Output:          output,
 		}
-		experimental, _ := cmd.Flags().GetBool("experimental")
-		compiler.Compile(tree, target, dialect, experimental)
+		req := compiler.LLVMCompilerRequest{
+			Tree:     tree,
+			Target:   target,
+			Dialect:  dialect,
+			Filename: source,
+		}
+
+		err = compiler.Compile(req)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	},
 }
 
