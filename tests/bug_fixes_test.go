@@ -287,69 +287,67 @@ func TestBugFixes(t *testing.T) {
 	})
 
 	t.Run("99-missing-type-check-in-variable-declaration", func(t *testing.T) {
-		//		t.Run("1", func(t *testing.T) {
-		//			req := CompileRequest{
-		//				InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.1.swa",
-		//				ExpectedOutput: "expected DataTypeString got DoubleTypeKind\n",
-		//				T:              t,
-		//			}
-		//
-		//			assert.Error(t, req.Compile())
-		//		})
-		//
-		//		t.Run("2", func(t *testing.T) {
-		//			req := CompileRequest{
-		//				InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.2.swa",
-		//				ExpectedOutput: "expected DataTypeString got IntegerTypeKind\n",
-		//				T:              t,
-		//			}
-		//
-		//			assert.Error(t, req.Compile())
-		//		})
-		//
-		//		t.Run("3", func(t *testing.T) {
-		//			//			TODO: fix validation when var type is string
-		//			_ = CompileRequest{
-		//				InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.3.swa",
-		//				ExpectedOutput: "",
-		//				T:              t,
-		//			}
-		//
-		//			//			assert.Error(t, req.Compile())
-		//		})
-		//
-		//		t.Run("4", func(t *testing.T) {
-		//			req := CompileRequest{
-		//				InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.4.swa",
-		//				ExpectedOutput: "expected DataTypeNumber got pointer of %!v(PANIC=String method: unreachable)\n",
-		//				T:              t,
-		//			}
-		//
-		//			assert.Error(t, req.Compile())
-		//		})
-		//
-		//		t.Run("5", func(t *testing.T) {
-		//			req := CompileRequest{
-		//				InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.5.swa",
-		//				ExpectedOutput: "expected DataTypeNumber got DoubleTypeKind\n",
-		//				T:              t,
-		//			}
-		//
-		//			assert.Error(t, req.Compile())
-		//		})
-		//
-		//		t.Run("6", func(t *testing.T) {
-		//			req := CompileRequest{
-		//				InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.6.swa",
-		//				ExpectedOutput: "expected DataTypeNumber got ArrayTypeKind\n",
-		//				T:              t,
-		//			}
-		//
-		//			assert.Error(t, req.Compile())
-		//		})
-		//
+		t.Run("1", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.1.swa",
+				ExpectedOutput: "expected DataTypeString but got DataTypeFloat\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+
+		t.Run("2", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.2.swa",
+				ExpectedOutput: "expected DataTypeString but got DataTypeNumber\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+
+		//	TODO: implemenent typechecker for var decl with ArrayAccessExpression
+		//	t.Run("3", func(t *testing.T) {
+		//		req := CompileRequest{
+		//			InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.3.swa",
+		//			ExpectedOutput: "",
+		//			T:              t,
+		//		}
+
+		//		assert.Error(t, req.Compile())
 		//	})
 
+		//	TODO: implemenent typechecker for var decl with ArrayAccessExpression
+		//	t.Run("4", func(t *testing.T) {
+		//		req := CompileRequest{
+		//			InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.4.swa",
+		//			ExpectedOutput: "expected DataTypeNumber got pointer of %!v(PANIC=String method: unreachable)\n",
+		//			T:              t,
+		//		}
+
+		//		assert.Error(t, req.Compile())
+		//	})
+
+		t.Run("5", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.5.swa",
+				ExpectedOutput: "expected DataTypeNumber but got DataTypeFloat\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+
+		t.Run("6", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.6.swa",
+				ExpectedOutput: "expected DataTypeNumber but got DataTypeString\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
 	})
 
 	t.Run("103-missing-argument-type-check-in-function-calls", func(t *testing.T) {
