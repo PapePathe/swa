@@ -1,6 +1,9 @@
 package compiler
 
-import "swahili/lang/ast"
+import (
+	"fmt"
+	"swahili/lang/ast"
+)
 
 type LLVMTypeChecker struct {
 	ctx *CompilerCtx
@@ -42,6 +45,13 @@ func (l *LLVMTypeChecker) VisitBinaryExpression(node *ast.BinaryExpression) erro
 
 // VisitBlockStatement implements [ast.CodeGenerator].
 func (l *LLVMTypeChecker) VisitBlockStatement(node *ast.BlockStatement) error {
+	for _, v := range node.Body {
+		err := v.Accept(l)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -82,7 +92,7 @@ func (l *LLVMTypeChecker) VisitFunctionDefinition(node *ast.FuncDeclStatement) e
 
 // VisitMainStatement implements [ast.CodeGenerator].
 func (l *LLVMTypeChecker) VisitMainStatement(node *ast.MainStatement) error {
-	return nil
+	return node.Body.Accept(l)
 }
 
 // VisitMemberExpression implements [ast.CodeGenerator].
@@ -157,6 +167,22 @@ func (l *LLVMTypeChecker) VisitSymbolType(node *ast.SymbolType) error {
 
 // VisitVarDeclaration implements [ast.CodeGenerator].
 func (l *LLVMTypeChecker) VisitVarDeclaration(node *ast.VarDeclarationStatement) error {
+	if node.Value == nil {
+		return nil
+	}
+
+	if node.Value.VisitedSwaType() == nil {
+		return fmt.Errorf("VisitedSwaType is nil for %T", node.Value)
+	}
+
+	if node.ExplicitType != node.Value.VisitedSwaType() {
+		return fmt.Errorf(
+			"expected %s but got %s",
+			node.ExplicitType.Value().String(),
+			node.Value.VisitedSwaType().Value().String(),
+		)
+	}
+
 	return nil
 }
 
