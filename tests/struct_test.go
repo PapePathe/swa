@@ -100,9 +100,10 @@ func TestStructAll(t *testing.T) {
 	t.Run("English", func(t *testing.T) {
 		t.Parallel()
 
+		expected := "Name: (Pathe), TechStack: (Ruby, Rust, Go), Age: (40), Height: (1.80)"
 		req := CompileRequest{
 			InputPath:               "./structs/all/source.english.swa",
-			ExpectedExecutionOutput: "Name: (Pathe), TechStack: (Ruby, Rust, Go), Age: (40), Height: (1.80)",
+			ExpectedExecutionOutput: expected,
 			T:                       t,
 		}
 
@@ -112,9 +113,10 @@ func TestStructAll(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		t.Parallel()
 
+		expected := "Nom: (Pathe), Stack Technique: (Ruby, Rust, Go), Age: (40), Taille: (1.80)"
 		req := CompileRequest{
 			InputPath:               "./structs/all/source.french.swa",
-			ExpectedExecutionOutput: "Nom: (Pathe), Stack Technique: (Ruby, Rust, Go), Age: (40), Taille: (1.80)",
+			ExpectedExecutionOutput: expected,
 			T:                       t,
 		}
 
@@ -284,9 +286,10 @@ func TestStructMixedArrays(t *testing.T) {
 	t.Run("English", func(t *testing.T) {
 		t.Parallel()
 
+		expected := "embedded[0]=10 embedded[1]=20 pointer[0]=100 pointer[2]=300"
 		req := CompileRequest{
 			InputPath:               "./structs/mixed-arrays/source.english.swa",
-			ExpectedExecutionOutput: "embedded[0]=10 embedded[1]=20 pointer[0]=100 pointer[2]=300",
+			ExpectedExecutionOutput: expected,
 			T:                       t,
 		}
 

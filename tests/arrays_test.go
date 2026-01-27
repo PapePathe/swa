@@ -48,9 +48,11 @@ func TestArrayOfStructsWithUndefined(t *testing.T) {
 func TestArrayOfStructs(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		t.Parallel()
+
+		expected := "(nom: Pathe, age: 40, taille: 1.80, technos: Ruby, Rust, Go) (nom: Lucien, age: 24, taille: 1.81, technos: Typescript, HTML, Css) (nom: Manel, age: 25, taille: 1.82, technos: Typescript, Ruby) (nom: Bintou, age: 28, technos: Javascript, Css, HTML)"
 		req := CompileRequest{
 			InputPath:               "./arrays/structs/source.french.swa",
-			ExpectedExecutionOutput: "(nom: Pathe, age: 40, taille: 1.80, technos: Ruby, Rust, Go) (nom: Lucien, age: 24, taille: 1.81, technos: Typescript, HTML, Css) (nom: Manel, age: 25, taille: 1.82, technos: Typescript, Ruby) (nom: Bintou, age: 28, technos: Javascript, Css, HTML)",
+			ExpectedExecutionOutput: expected,
 			T:                       t,
 		}
 
@@ -59,9 +61,10 @@ func TestArrayOfStructs(t *testing.T) {
 
 	t.Run("English", func(t *testing.T) {
 		t.Parallel()
+		expected := "(nom: Pathe, age: 40, taille: 1.80, stack: Ruby, Rust, Go) (nom: Lucien, age: 24, taille: 1.81, stack: Typescript, HTML, Css) (nom: Manel, age: 25, taille: 1.82, stack: Typescript, Ruby) (nom: Bintou, age: 28, taille: 1.83, stack: Javascript, Css, HTML) "
 		req := CompileRequest{
 			InputPath:               "./arrays/structs/source.english.swa",
-			ExpectedExecutionOutput: "(nom: Pathe, age: 40, taille: 1.80, stack: Ruby, Rust, Go) (nom: Lucien, age: 24, taille: 1.81, stack: Typescript, HTML, Css) (nom: Manel, age: 25, taille: 1.82, stack: Typescript, Ruby) (nom: Bintou, age: 28, taille: 1.83, stack: Javascript, Css, HTML) ",
+			ExpectedExecutionOutput: expected,
 			T:                       t,
 		}
 
@@ -143,9 +146,10 @@ func TestArrayIndexOutOfBounds(t *testing.T) {
 	t.Parallel()
 
 	t.Run("French", func(t *testing.T) {
+		expected := "L'element a la position (%!s(int=5)) depasse les limites du tableau (tableau)\n"
 		req := CompileRequest{
 			InputPath:      "./arrays/out-of-bounds/source.french.swa",
-			ExpectedOutput: "L'element a la position (%!s(int=5)) depasse les limites du tableau (tableau)\n",
+			ExpectedOutput: expected,
 			T:              t,
 		}
 

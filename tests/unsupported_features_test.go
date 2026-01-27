@@ -9,7 +9,7 @@ import (
 func TestUnsuppotedFeatures(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Self refencing pointer to struct", func(t *testing.T) {
+	t.Run("Self referencing pointer to struct", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:      "./unsupported-features/self-referencing-pointer-to-struct.swa",
 			ExpectedOutput: "struct with pointer reference to self not supported, property: parent\n",
@@ -20,7 +20,7 @@ func TestUnsuppotedFeatures(t *testing.T) {
 
 	})
 
-	t.Run("Self refencing struct", func(t *testing.T) {
+	t.Run("Self referencing struct", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:      "./unsupported-features/self-referencing-struct.swa",
 			ExpectedOutput: "struct with reference to self not supported, property: parent\n",

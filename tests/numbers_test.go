@@ -8,9 +8,10 @@ func TestMixedNumbers(t *testing.T) {
 	t.Run("Mixed", func(t *testing.T) {
 		t.Parallel()
 
+		expected := "(x + y = 7.50, y + x = 7.50)(x * y = 12.50, y * x = 12.50)(x / y = 2.00, y / x = 0.50)(x - y = 2.50, y - x = -2.50)"
 		req := CompileRequest{
 			InputPath:               "./numbers/mixed.english.swa",
-			ExpectedExecutionOutput: "(x + y = 7.50, y + x = 7.50)(x * y = 12.50, y * x = 12.50)(x / y = 2.00, y / x = 0.50)(x - y = 2.50, y - x = -2.50)",
+			ExpectedExecutionOutput: expected,
 			T:                       t,
 		}
 		req.AssertCompileAndExecute()
