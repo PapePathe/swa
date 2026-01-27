@@ -12,7 +12,7 @@ type Wolof struct{}
 var _ Dialect = (*Wolof)(nil)
 
 func (m Wolof) DetectionPattern() *regexp.Regexp {
-	return regexp.MustCompile(`dialect:wolof;`)
+	return regexp.MustCompile(`laak:wolof;`)
 }
 
 func (m Wolof) Error(key string, args ...any) error {
@@ -26,8 +26,27 @@ func (m Wolof) Error(key string, args ...any) error {
 }
 
 func (m Wolof) Reserved() map[string]TokenKind {
-	// TODO: add reserved for wolof
-	return map[string]TokenKind{}
+	return map[string]TokenKind{
+		"constante": Const,
+		"laak":      DialectDeclaration,
+		// TODO: find  translation for function
+		"fonction": Function,
+		"sude":     KeywordIf,
+		"wala":     KeywordElse,
+		// TODO: find  translation for while
+		"while":     KeywordWhile,
+		"dencukaay": Let,
+		"tambali":   Main,
+		"wanel":     Print,
+		"deloko":    Return,
+		"structure": Struct,
+		"decimal":   TypeFloat,
+		"lëmm":      TypeInt,
+		"lëmm64":    TypeInt64,
+		"ay_araf":   TypeString,
+		// TODO: find  translation for variadic
+		"variadique": Variadic,
+	}
 }
 
 func (m Wolof) translations() map[string]string {
