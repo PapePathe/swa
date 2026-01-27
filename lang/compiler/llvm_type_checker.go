@@ -172,7 +172,8 @@ func (l *LLVMTypeChecker) VisitVarDeclaration(node *ast.VarDeclarationStatement)
 	}
 
 	if node.Value.VisitedSwaType() == nil {
-		return fmt.Errorf("VisitedSwaType is nil for %T", node.Value)
+		return nil
+		//	return fmt.Errorf("VisitedSwaType is nil for %T", node.Value)
 	}
 
 	if node.ExplicitType != node.Value.VisitedSwaType() {
