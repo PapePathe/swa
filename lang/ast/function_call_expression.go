@@ -5,9 +5,10 @@ import (
 )
 
 type FunctionCallExpression struct {
-	Name   Expression
-	Args   []Expression
-	Tokens []lexer.Token
+	Name    Expression
+	Args    []Expression
+	Tokens  []lexer.Token
+	SwaType Type
 }
 
 var _ Expression = (*FunctionCallExpression)(nil)

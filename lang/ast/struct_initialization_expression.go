@@ -11,6 +11,7 @@ type StructInitializationExpression struct {
 	Properties []string
 	Values     []Expression
 	Tokens     []lexer.Token
+	SwaType    Type
 }
 
 var _ Expression = (*StructInitializationExpression)(nil)

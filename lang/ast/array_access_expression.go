@@ -5,9 +5,10 @@ import (
 )
 
 type ArrayAccessExpression struct {
-	Name   Expression
-	Index  Expression
-	Tokens []lexer.Token
+	Name    Expression
+	Index   Expression
+	Tokens  []lexer.Token
+	SwaType Type
 }
 
 var _ Expression = (*ArrayAccessExpression)(nil)

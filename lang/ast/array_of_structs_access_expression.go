@@ -10,6 +10,7 @@ type ArrayOfStructsAccessExpression struct {
 	Index    Expression
 	Property Expression
 	Tokens   []lexer.Token
+	SwaType  Type
 }
 
 func (expr ArrayOfStructsAccessExpression) Accept(g CodeGenerator) error {

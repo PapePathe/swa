@@ -8,8 +8,9 @@ import (
 
 // FloatExpression represents a floating-point literal.
 type FloatExpression struct {
-	Value  float64
-	Tokens []lexer.Token
+	Value   float64
+	Tokens  []lexer.Token
+	SwaType Type
 }
 
 var _ Expression = (*FloatExpression)(nil)

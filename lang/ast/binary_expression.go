@@ -11,6 +11,7 @@ type BinaryExpression struct {
 	Right    Expression
 	Operator lexer.Token
 	Tokens   []lexer.Token
+	SwaType  Type
 }
 
 var _ Expression = (*BinaryExpression)(nil)

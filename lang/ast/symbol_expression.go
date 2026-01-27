@@ -6,8 +6,9 @@ import (
 
 // SymbolExpression ...
 type SymbolExpression struct {
-	Value  string
-	Tokens []lexer.Token
+	Value   string
+	Tokens  []lexer.Token
+	SwaType Type
 }
 
 var _ Expression = (*SymbolExpression)(nil)

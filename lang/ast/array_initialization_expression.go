@@ -8,6 +8,7 @@ type ArrayInitializationExpression struct {
 	Underlying Type
 	Contents   []Expression
 	Tokens     []lexer.Token
+	SwaType    Type
 }
 
 var _ Expression = (*ArrayInitializationExpression)(nil)

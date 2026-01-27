@@ -10,6 +10,7 @@ type MemberExpression struct {
 	Property Expression
 	Computed bool
 	Tokens   []lexer.Token
+	SwaType  Type
 }
 
 var _ Expression = (*MemberExpression)(nil)

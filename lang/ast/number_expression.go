@@ -8,8 +8,9 @@ import (
 
 // NumberExpression ...
 type NumberExpression struct {
-	Value  int64
-	Tokens []lexer.Token
+	Value   int64
+	Tokens  []lexer.Token
+	SwaType Type
 }
 
 var _ Expression = (*NumberExpression)(nil)

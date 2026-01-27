@@ -10,6 +10,7 @@ type StructDeclarationStatement struct {
 	Properties []string
 	Types      []Type
 	Tokens     []lexer.Token
+	SwaType    Type
 }
 
 var _ Statement = (*StructDeclarationStatement)(nil)
