@@ -33,6 +33,7 @@ func NewLLVMCompiler(req LLVMCompilerRequest) *LLVMCompiler {
 		req: req,
 		passes: []ast.CodeGenerator{
 			NewLLVMGenerator(ctx),
+			NewLLVMTypeChecker(ctx),
 		},
 		context: ctx,
 	}
