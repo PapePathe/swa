@@ -19,16 +19,31 @@ func TestMixedNumbers(t *testing.T) {
 
 func TestNumberZeroValues(t *testing.T) {
 	t.Run("Float", func(t *testing.T) {
-		t.Parallel()
+		t.Run("English", func(t *testing.T) {
+			t.Parallel()
 
-		req := CompileRequest{
-			InputPath:               "./numbers/zero-values/float.swa",
-			ExpectedExecutionOutput: "zero value: 0.000000 assigned value: 100.000000",
-			T:                       t,
-		}
+			req := CompileRequest{
+				InputPath:               "./numbers/zero-values/float.swa",
+				ExpectedExecutionOutput: "zero value: 0.000000 assigned value: 100.000000",
+				T:                       t,
+			}
 
-		req.AssertCompileAndExecute()
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("Wolof", func(t *testing.T) {
+			t.Parallel()
+
+			req := CompileRequest{
+				InputPath:               "./numbers/zero-values/float.wolof.swa",
+				ExpectedExecutionOutput: "zero value: 0.000000 assigned value: 100.000000",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
 	})
+
 	t.Run("Int", func(t *testing.T) {
 		t.Parallel()
 
