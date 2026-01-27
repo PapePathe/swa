@@ -17,21 +17,21 @@ func (French) DetectionPattern() *regexp.Regexp {
 
 func (m French) Reserved() map[string]TokenKind {
 	return map[string]TokenKind{
-		"afficher":   Print,
-		"chaine":     TypeString,
 		"constante":  Const,
-		"decimal":    TypeFloat,
-		"demarrer":   Main,
 		"dialecte":   DialectDeclaration,
-		"entier":     TypeInt,
-		"entier64":   TypeInt64,
 		"fonction":   Function,
-		"retourner":  Return,
-		"si":         KeywordIf,
 		"sinon":      KeywordElse,
-		"structure":  Struct,
+		"si":         KeywordIf,
 		"tantque":    KeywordWhile,
 		"variable":   Let,
+		"demarrer":   Main,
+		"afficher":   Print,
+		"retourner":  Return,
+		"structure":  Struct,
+		"decimal":    TypeFloat,
+		"entier":     TypeInt,
+		"entier64":   TypeInt64,
+		"chaine":     TypeString,
 		"variadique": Variadic,
 	}
 }

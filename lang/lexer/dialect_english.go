@@ -19,20 +19,20 @@ func (m English) Reserved() map[string]TokenKind {
 	return map[string]TokenKind{
 		"const":    Const,
 		"dialect":  DialectDeclaration,
-		"else":     KeywordElse,
-		"float":    TypeFloat,
 		"func":     Function,
+		"else":     KeywordElse,
 		"if":       KeywordIf,
-		"int":      TypeInt,
-		"int64":    TypeInt64,
+		"while":    KeywordWhile,
 		"let":      Let,
+		"start":    Main,
 		"print":    Print,
 		"return":   Return,
-		"string":   TypeString,
-		"start":    Main,
 		"struct":   Struct,
+		"float":    TypeFloat,
+		"int":      TypeInt,
+		"int64":    TypeInt64,
+		"string":   TypeString,
 		"variadic": Variadic,
-		"while":    KeywordWhile,
 	}
 }
 
