@@ -12,14 +12,10 @@ import (
 )
 
 type CompileRequest struct {
-	Folder       string
-	InputPath    string
-	OutputPath   string
-	ExpectedLLIR string
-
+	InputPath  string
+	OutputPath string
 	// The expected output after the program is compiled
 	ExpectedOutput string
-
 	// The expected output when the program is executed on the host machine
 	ExpectedExecutionOutput string
 	T                       *testing.T
