@@ -28,3 +28,7 @@ func (expr StructInitializationExpression) Accept(g CodeGenerator) error {
 func (expr StructInitializationExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
+
+func (expr StructInitializationExpression) VisitedSwaType() Type {
+	return expr.SwaType
+}

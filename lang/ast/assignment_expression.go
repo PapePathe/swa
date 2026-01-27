@@ -30,3 +30,7 @@ func (expr AssignmentExpression) Accept(g CodeGenerator) error {
 func (expr AssignmentExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
+
+func (expr AssignmentExpression) VisitedSwaType() Type {
+	panic("VisitedSwaType for AssignmentExpression not implemented")
+}

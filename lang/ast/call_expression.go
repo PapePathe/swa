@@ -20,3 +20,7 @@ func (expr CallExpression) Accept(g CodeGenerator) error {
 func (expr CallExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
+
+func (expr CallExpression) VisitedSwaType() Type {
+	panic("VisitedSwaType for CallExpression not implemented")
+}

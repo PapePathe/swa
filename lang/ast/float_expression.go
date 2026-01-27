@@ -26,3 +26,7 @@ func (expr FloatExpression) Accept(g CodeGenerator) error {
 func (expr FloatExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
+
+func (expr FloatExpression) VisitedSwaType() Type {
+	return FloatType{}
+}

@@ -28,6 +28,7 @@ type Statement interface {
 // Expression ...
 type Expression interface {
 	Node
+	VisitedSwaType() Type
 }
 
 // CodeGenerator ...

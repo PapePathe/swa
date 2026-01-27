@@ -26,3 +26,7 @@ func (expr NumberExpression) Accept(g CodeGenerator) error {
 func (expr NumberExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
+
+func (expr NumberExpression) VisitedSwaType() Type {
+	return NumberType{}
+}

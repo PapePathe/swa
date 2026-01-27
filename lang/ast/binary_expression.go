@@ -27,3 +27,7 @@ func (expr BinaryExpression) String() string {
 func (expr BinaryExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
+
+func (expr BinaryExpression) VisitedSwaType() Type {
+	return expr.SwaType
+}

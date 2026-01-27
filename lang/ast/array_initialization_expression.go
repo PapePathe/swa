@@ -20,3 +20,7 @@ func (expr ArrayInitializationExpression) Accept(g CodeGenerator) error {
 func (expr ArrayInitializationExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
+
+func (expr ArrayInitializationExpression) VisitedSwaType() Type {
+	return expr.SwaType
+}

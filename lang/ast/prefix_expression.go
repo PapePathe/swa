@@ -25,3 +25,7 @@ func (expr PrefixExpression) Accept(g CodeGenerator) error {
 func (expr PrefixExpression) TokenStream() []lexer.Token {
 	return expr.Tokens
 }
+
+func (expr PrefixExpression) VisitedSwaType() Type {
+	panic("VisitedSwaType not implemented for PrefixExpression")
+}

@@ -26,3 +26,7 @@ func (expr MemberExpression) TokenStream() []lexer.Token {
 func (expr MemberExpression) String() string {
 	return fmt.Sprintf("%s.%s", expr.Object, expr.Property)
 }
+
+func (expr MemberExpression) VisitedSwaType() Type {
+	return expr.SwaType
+}

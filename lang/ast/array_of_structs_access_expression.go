@@ -24,3 +24,7 @@ func (expr ArrayOfStructsAccessExpression) TokenStream() []lexer.Token {
 func (expr ArrayOfStructsAccessExpression) String() string {
 	return fmt.Sprintf("%s[%s].%s", expr.Name, expr.Index, expr.Property)
 }
+
+func (expr ArrayOfStructsAccessExpression) VisitedSwaType() Type {
+	return expr.SwaType
+}
