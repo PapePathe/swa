@@ -150,6 +150,8 @@ func (g *LLVMGenerator) VisitFloatExpression(node *ast.FloatExpression) error {
 		g.Ctx.Context.DoubleType(),
 		node.Value,
 	)
+	node.SwaType = ast.FloatType{}
+
 	g.setLastResult(&CompilerResult{Value: &res})
 
 	return nil
@@ -201,6 +203,7 @@ func (g *LLVMGenerator) VisitNumberExpression(node *ast.NumberExpression) error 
 		uint64(node.Value),
 		signed,
 	)
+	node.SwaType = ast.NumberType{}
 	g.setLastResult(&CompilerResult{Value: &res})
 
 	return nil
@@ -248,6 +251,8 @@ func (g *LLVMGenerator) VisitStringExpression(node *ast.StringExpression) error 
 
 	valuePtr := g.Ctx.Builder.CreateGlobalStringPtr(node.Value, "")
 	res := CompilerResult{Value: &valuePtr}
+
+	node.SwaType = ast.StringType{}
 
 	g.setLastResult(&res)
 
@@ -326,6 +331,8 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 		return err
 	}
 
+	node.SwaType = ast.SymbolType{Name: node.Name}
+
 	return nil
 }
 
@@ -369,6 +376,8 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 				SymbolTableEntry: entry,
 			},
 		)
+
+		node.SwaType = entry.DeclaredType
 
 		return nil
 	}
