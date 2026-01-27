@@ -91,13 +91,13 @@ var compileCmd = &cobra.Command{
 			Output:          output,
 		}
 		req := compiler.LLVMCompilerRequest{
-			Tree:     tree,
+			Tree:     &tree,
 			Target:   target,
 			Dialect:  dialect,
 			Filename: source,
 		}
 
-		err = compiler.Compile(req)
+		err = compiler.Compile(&req)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
