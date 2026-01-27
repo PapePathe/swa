@@ -12,7 +12,7 @@ type BuildTarget struct {
 
 const FilePerm = 0600
 
-func Compile(req LLVMCompilerRequest) error {
+func Compile(req *LLVMCompilerRequest) error {
 	cmp := NewLLVMCompiler(req)
 
 	err := cmp.Run()

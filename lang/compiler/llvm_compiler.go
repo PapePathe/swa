@@ -11,19 +11,19 @@ import (
 )
 
 type LLVMCompiler struct {
-	req     LLVMCompilerRequest
+	req     *LLVMCompilerRequest
 	passes  []ast.CodeGenerator
 	context *CompilerCtx
 }
 
 type LLVMCompilerRequest struct {
-	Tree     ast.BlockStatement
+	Tree     *ast.BlockStatement
 	Target   BuildTarget
 	Dialect  lexer.Dialect
 	Filename string
 }
 
-func NewLLVMCompiler(req LLVMCompilerRequest) *LLVMCompiler {
+func NewLLVMCompiler(req *LLVMCompilerRequest) *LLVMCompiler {
 	context := llvm.GlobalContext()
 	module := context.NewModule(req.Filename)
 	builder := context.NewBuilder()
@@ -39,7 +39,7 @@ func NewLLVMCompiler(req LLVMCompilerRequest) *LLVMCompiler {
 	}
 }
 
-func (c LLVMCompiler) Run() error {
+func (c *LLVMCompiler) Run() error {
 	defer c.context.Module.Dispose()
 	defer c.context.Builder.Dispose()
 
