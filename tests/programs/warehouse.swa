@@ -93,7 +93,7 @@ func addItem(wh: *Warehouse, aisleIdx: int, binIdx: int, item: Item) int {
     let count: int = wh.Aisles[aisleIdx].Bins[binIdx].ItemCount;
     
     if (count >= 5) {
-        print("Bin %d in Aisle %s is full!", binIdx, wh.Aisles[aisleIdx].Letter);
+        print("Bin %d in Aisle %s is full!\n", binIdx, wh.Aisles[aisleIdx].Letter);
         return -1;
     }
     
@@ -115,7 +115,7 @@ func loadTruck(t: *Truck, item: Item) int {
     }
     
     t.CurrentWeight = t.CurrentWeight + item.Weight;
-    print("Truck %d: Loaded SKU %s. Current Weight: %.2f", t.ID, item.SKU, t.CurrentWeight);
+    print("Truck %d: Loaded SKU %s. Current Weight: %.2f\n", t.ID, item.SKU, t.CurrentWeight);
     return 1;
 }
 
@@ -124,7 +124,7 @@ func loadTruck(t: *Truck, item: Item) int {
 // ---------------------------------------------------------
 
 start() int {
-    print("=== LOGISTICS SYSTEM INITIALIZING ===");
+    print("=== LOGISTICS SYSTEM INITIALIZING ===\n");
 
     // 1. Setup Warehouse
     let myWarehouse: Warehouse = Warehouse{}; // Default initialization (zero-values)
@@ -154,7 +154,7 @@ start() int {
     addItem(myWarehouse, 1, 5, monitor);
 
     // 4. Inventory Audit Logic
-    print("--- INVENTORY AUDIT ---");
+    print("--- INVENTORY AUDIT ---\n");
     let totalValue: float = 0.0;
     let i: int = 0;
     while (i < 3) {
@@ -172,7 +172,7 @@ start() int {
         }
         i = i + 1;
     }
-    print("Total Asset Value in Warehouse: $%.2f", totalValue);
+    print("Total Asset Value in Warehouse: $%.2f\n", totalValue);
 
     // 5. Fleet Management
     let deliveryTruck: Truck = Truck{ID: 501, MaxWeight: 100.0, CurrentWeight: 0.0, IsFull: 0};
@@ -183,7 +183,7 @@ start() int {
 
     // 6. Calculate Route Costs
     let shippingFee: float = calculateShippingCost(deliveryTruck.CurrentWeight, 250, 1);
-    print("Shipment Cost for 250km (Priority): $%.2f", shippingFee);
+    print("Shipment Cost for 250km (Priority): $%.2f\n", shippingFee);
 
     print("=== SYSTEM SHUTDOWN ===");
     return 0;
