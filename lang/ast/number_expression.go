@@ -28,5 +28,5 @@ func (expr NumberExpression) TokenStream() []lexer.Token {
 }
 
 func (expr NumberExpression) VisitedSwaType() Type {
-	return NumberType{}
+	return expr.SwaType
 }
