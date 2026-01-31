@@ -55,7 +55,7 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		g.Debugf("Symbol Table entry: %+v", val.SymbolTableEntry)
 		g.Debugf("array symbol Table entry: %+v", val.ArraySymbolTableEntry)
 
-		// Type checking
+		// TODO this should be moved to the type checking pass
 		argType := val.Value.Type()
 		if val.SymbolTableEntry != nil && val.SymbolTableEntry.Ref != nil {
 			if val.StuctPropertyValueType != nil {
@@ -67,6 +67,15 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 
 		if val.ArraySymbolTableEntry != nil {
 			argType = val.ArraySymbolTableEntry.UnderlyingType
+
+			if argType.TypeKind() == llvm.StructTypeKind {
+				if val.StuctPropertyValueType == nil {
+					msg := "Struct property value type should be set -- Also cannot index array item that is a struct"
+					return fmt.Errorf(msg)
+				}
+
+				argType = *val.StuctPropertyValueType
+			}
 		}
 
 		if argType != paramType {
@@ -88,9 +97,11 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		}
 
 		switch arg.(type) {
-		case ast.MemberExpression, ast.ArrayAccessExpression:
+		case ast.MemberExpression, ast.ArrayAccessExpression,
+			ast.ArrayOfStructsAccessExpression:
 			load := g.Ctx.Builder.CreateLoad(argType, *val.Value, "")
 			args = append(args, load)
+
 		case ast.SymbolExpression:
 			if val.SymbolTableEntry.Ref != nil {
 				alloca := g.Ctx.Builder.CreateAlloca(val.SymbolTableEntry.Ref.LLVMType, "")
@@ -100,19 +111,19 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 				break
 			}
 
-			// Pass arrays by reference
 			if _, ok := val.SymbolTableEntry.DeclaredType.(ast.ArrayType); ok {
 				args = append(args, *val.SymbolTableEntry.Address)
 
 				break
 			}
 
-			// For simple types (int, float, etc.), use the loaded value
-			// VisitSymbolExpression already loaded the value for us
 			args = append(args, *val.Value)
 
-		default:
+		case ast.FloatExpression, ast.NumberExpression,
+			ast.StringExpression, ast.BinaryExpression:
 			args = append(args, *val.Value)
+		default:
+			return fmt.Errorf("Type %T not supported as function call argument", arg)
 		}
 	}
 

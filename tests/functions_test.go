@@ -2,6 +2,8 @@ package tests
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFunctions(t *testing.T) {
@@ -111,8 +113,29 @@ func TestFunctions(t *testing.T) {
 				req.AssertCompileAndExecute()
 			})
 
+			t.Run("Incomplete Array access expression", func(t *testing.T) {
+				t.Parallel()
+
+				req := CompileRequest{
+					InputPath:      "./functions/pass-incomplete-array-of-structs-access-expression-as-param.swa",
+					ExpectedOutput: "Struct property value type should be set -- Also cannot index array item that is a struct\n",
+					T:              t,
+				}
+
+				assert.Error(t, req.Compile(), "")
+			})
+
 			t.Run("Array of structs access expression", func(t *testing.T) {
-				// TODO
+				t.Parallel()
+
+				req := CompileRequest{
+					InputPath:               "./functions/pass-array-of-structs-access-expression-as-param.swa",
+					ExpectedExecutionOutput: "10.25 + 4.75 = 15.00",
+					T:                       t,
+				}
+
+				req.AssertCompileAndExecute()
+
 			})
 
 			t.Run("Function call expression", func(t *testing.T) {

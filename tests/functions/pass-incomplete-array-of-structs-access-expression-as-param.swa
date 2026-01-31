@@ -12,7 +12,7 @@ start () int {
   let p : [1]Float= [1]Float{
     Float{v: 10.25},
   };
-  let res : float = add(p[0].v, 4.75);
+  let res : float = add(p[0], 4.75);
   print("10.25 + 4.75 = %.2f", res);
   return 0; 
 }
