@@ -101,8 +101,9 @@ func TestFunctions(t *testing.T) {
 
 			t.Run("Array access expression", func(t *testing.T) {
 				t.Parallel()
+
 				req := CompileRequest{
-					InputPath:               "./functions/pass-member-expression-as-param.swa",
+					InputPath:               "./functions/pass-array-access-expression-as-param.swa",
 					ExpectedExecutionOutput: "10.25 + 4.75 = 15.00",
 					T:                       t,
 				}
