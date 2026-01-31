@@ -1,0 +1,16 @@
+dialect:english;
+
+struct Point {
+  x : float,
+}
+
+func add(first: float, last: float) float {
+  return first + last;
+}
+
+start () int {
+  let p : Point = Point{x: 10.25};
+  let res : float = add(p.x, 4.75);
+  print("10.25 + 4.75 = %.2f", res);
+  return 0; 
+}

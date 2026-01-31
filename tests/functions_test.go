@@ -87,6 +87,19 @@ func TestFunctions(t *testing.T) {
 			})
 		})
 
+		t.Run("Function call params", func(t *testing.T) {
+			t.Run("Member expression", func(t *testing.T) {
+				t.Parallel()
+				req := CompileRequest{
+					InputPath:               "./functions/pass-member-expression-as-param.swa",
+					ExpectedExecutionOutput: "10.25 + 4.75 = 15.00",
+					T:                       t,
+				}
+
+				req.AssertCompileAndExecute()
+			})
+		})
+
 		t.Run("Add", func(t *testing.T) {
 			t.Run("Float", func(t *testing.T) {
 				t.Parallel()
