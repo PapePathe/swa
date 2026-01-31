@@ -414,6 +414,8 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 		loadedValue = g.Ctx.Builder.CreateLoad(entry.Address.AllocatedType(), *entry.Address, "")
 	}
 
+	node.SwaType = entry.DeclaredType
+
 	g.setLastResult(
 		&CompilerResult{
 			Value:            &loadedValue,

@@ -83,6 +83,8 @@ func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInit
 		injector(g, res, fieldAddr, targetType)
 	}
 
+	node.SwaType = ast.SymbolType{Name: node.Name}
+
 	g.setLastResult(&CompilerResult{
 		Value:                  &instance,
 		StructSymbolTableEntry: structType,

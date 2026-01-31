@@ -35,6 +35,26 @@ func (l *LLVMTypeChecker) VisitArrayType(node *ast.ArrayType) error {
 
 // VisitAssignmentExpression implements [ast.CodeGenerator].
 func (l *LLVMTypeChecker) VisitAssignmentExpression(node *ast.AssignmentExpression) error {
+	asstype := node.Assignee.VisitedSwaType()
+	valType := node.Value.VisitedSwaType()
+
+	if asstype == nil {
+		return nil
+		fmt.Printf("LLVMTypeChecker VisitAssignmentExpression type of assignee is nil")
+	}
+
+	if valType == nil {
+		return nil
+		return fmt.Errorf("LLVMTypeChecker VisitAssignmentExpression type of value is nil")
+	}
+
+	if asstype != valType {
+		return fmt.Errorf(
+			"Expected assignment of %s but got %s",
+			asstype.Value().String(),
+			valType.Value().String())
+	}
+
 	return nil
 }
 
@@ -67,7 +87,7 @@ func (l *LLVMTypeChecker) VisitConditionalStatement(node *ast.ConditionalStatete
 
 // VisitExpressionStatement implements [ast.CodeGenerator].
 func (l *LLVMTypeChecker) VisitExpressionStatement(node *ast.ExpressionStatement) error {
-	return nil
+	return node.Exp.Accept(l)
 }
 
 // VisitFloatExpression implements [ast.CodeGenerator].
