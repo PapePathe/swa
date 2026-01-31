@@ -191,9 +191,10 @@ func (l *LLVMTypeChecker) VisitVarDeclaration(node *ast.VarDeclarationStatement)
 		return nil
 	}
 
+	// TODO visited swa type should not be nil
+	// All visited expressions should have the field set
 	if node.Value.VisitedSwaType() == nil {
 		return nil
-		//	return fmt.Errorf("VisitedSwaType is nil for %T", node.Value)
 	}
 
 	if node.ExplicitType != node.Value.VisitedSwaType() {

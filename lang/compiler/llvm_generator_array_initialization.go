@@ -62,10 +62,12 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 		}
 	}
 
-	node.SwaType = ast.ArrayType{
-		Underlying: node.Underlying,
-		Size:       len(node.Contents),
-	}
+	node.SwaType = node.Underlying
+
+	//	node.SwaType = ast.ArrayType{
+	//		Underlying: node.Underlying,
+	//		Size:       len(node.Contents),
+	//	}
 
 	g.setLastResult(&CompilerResult{
 		Value: &arrayPointer,
