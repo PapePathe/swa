@@ -4,8 +4,32 @@ import (
 	"testing"
 )
 
+func TestEarlyReturnStatements(t *testing.T) {
+	t.Run("1", func(t *testing.T) {
+		t.Run("Condition is true", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./conditionals/early-return/1-condition-true.english.swa",
+				ExpectedExecutionOutput: "program interrupted by early return",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+		t.Run("Condition is false", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./conditionals/early-return/1-condition-false.english.swa",
+				ExpectedExecutionOutput: "program not interrupted by early return",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+	})
+}
+
 func TestGreaterThanEquals(t *testing.T) {
 	t.Parallel()
+
 	t.Run("English", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./conditionals/greater-than-equals/source.english.swa",

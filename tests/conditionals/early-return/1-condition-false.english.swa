@@ -1,0 +1,14 @@
+dialect:english;
+
+struct Point {
+    x : float,
+}
+
+start () int {
+  let p : Point = Point{x: 10.0};
+
+  return 100 if (p.x == 10.25);
+  print("program not interrupted by early return");
+  
+  return 0; 
+}
