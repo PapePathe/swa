@@ -42,6 +42,9 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		}
 
 		val := g.getLastResult()
+
+		g.Debugf("%+v", val)
+
 		if val == nil || val.Value == nil {
 			return fmt.Errorf("failed to evaluate argument %d", i+1)
 		}
@@ -49,10 +52,16 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		param := funcVal.Params()[i]
 		paramType := param.Type()
 
+		g.Debugf("Symbol Table entry: %+v", val.SymbolTableEntry)
+
 		// Type checking
 		argType := val.Value.Type()
 		if val.SymbolTableEntry != nil && val.SymbolTableEntry.Ref != nil {
-			argType = val.SymbolTableEntry.Ref.LLVMType
+			if val.StuctPropertyValueType != nil {
+				argType = *val.StuctPropertyValueType
+			} else {
+				argType = val.SymbolTableEntry.Ref.LLVMType
+			}
 		}
 
 		if argType != paramType {
@@ -74,6 +83,9 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		}
 
 		switch arg.(type) {
+		case ast.MemberExpression:
+			load := g.Ctx.Builder.CreateLoad(argType, *val.Value, "")
+			args = append(args, load)
 		case ast.SymbolExpression:
 			if val.SymbolTableEntry.Ref != nil {
 				alloca := g.Ctx.Builder.CreateAlloca(val.SymbolTableEntry.Ref.LLVMType, "")
