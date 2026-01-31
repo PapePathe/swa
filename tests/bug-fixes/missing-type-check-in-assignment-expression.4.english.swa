@@ -1,0 +1,11 @@
+dialect:english;
+
+struct Float {
+    x: float,
+}
+
+start () int {
+  let res : float;
+  res = Float{x:1.0};
+  return 0; 
+}

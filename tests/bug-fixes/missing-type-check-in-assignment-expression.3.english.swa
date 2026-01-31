@@ -1,0 +1,7 @@
+dialect:english;
+
+start () int {
+  let res : float;
+  res = []float{1.0};
+  return 0; 
+}

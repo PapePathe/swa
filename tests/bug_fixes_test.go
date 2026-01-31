@@ -286,6 +286,48 @@ func TestBugFixes(t *testing.T) {
 		})
 	})
 
+	t.Run("missing-type-check-in-assignment-expression", func(t *testing.T) {
+		t.Run("1", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/missing-type-check-in-assignment-expression.1.english.swa",
+				ExpectedOutput: "Expected assignment of DataTypeFloat but got DataTypeString\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+
+		t.Run("2", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/missing-type-check-in-assignment-expression.2.english.swa",
+				ExpectedOutput: "Expected assignment of DataTypeFloat but got DataTypeNumber\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+
+		t.Run("3", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/missing-type-check-in-assignment-expression.3.english.swa",
+				ExpectedOutput: "Expected assignment of DataTypeFloat but got DataTypeArray\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+
+		t.Run("4", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/missing-type-check-in-assignment-expression.4.english.swa",
+				ExpectedOutput: "Expected assignment of DataTypeFloat but got DataTypeSymbol\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+	})
+
 	t.Run("99-missing-type-check-in-variable-declaration", func(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
 			req := CompileRequest{
