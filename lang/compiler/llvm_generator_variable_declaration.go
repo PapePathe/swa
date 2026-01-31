@@ -81,17 +81,17 @@ const (
 )
 
 var nodeVariableDeclarationStyles = map[reflect.Type]InitializationStyle{
-	reflect.TypeFor[ast.ArrayAccessExpression]():          StyleLoadStore,
-	reflect.TypeFor[ast.ArrayOfStructsAccessExpression](): StyleLoadStore,
-	reflect.TypeFor[ast.MemberExpression]():               StyleLoadStore,
-	reflect.TypeFor[ast.StringExpression]():               StyleDefault,
-	reflect.TypeFor[ast.NumberExpression]():               StyleDefault,
-	reflect.TypeFor[ast.FloatExpression]():                StyleDefault,
-	reflect.TypeFor[ast.FunctionCallExpression]():         StyleDefault,
-	reflect.TypeFor[ast.SymbolExpression]():               StyleDefault,
-	reflect.TypeFor[ast.BinaryExpression]():               StyleDefault,
-	reflect.TypeFor[ast.StructInitializationExpression](): StyleDirect,
-	reflect.TypeFor[ast.ArrayInitializationExpression]():  StyleDirect,
+	reflect.TypeFor[*ast.ArrayAccessExpression]():          StyleLoadStore,
+	reflect.TypeFor[*ast.ArrayOfStructsAccessExpression](): StyleLoadStore,
+	reflect.TypeFor[*ast.MemberExpression]():               StyleLoadStore,
+	reflect.TypeFor[*ast.StringExpression]():               StyleDefault,
+	reflect.TypeFor[*ast.NumberExpression]():               StyleDefault,
+	reflect.TypeFor[*ast.FloatExpression]():                StyleDefault,
+	reflect.TypeFor[*ast.FunctionCallExpression]():         StyleDefault,
+	reflect.TypeFor[*ast.SymbolExpression]():               StyleDefault,
+	reflect.TypeFor[*ast.BinaryExpression]():               StyleDefault,
+	reflect.TypeFor[*ast.StructInitializationExpression](): StyleDirect,
+	reflect.TypeFor[*ast.ArrayInitializationExpression]():  StyleDirect,
 }
 
 func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatement) error {
@@ -104,7 +104,7 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 
 	style, ok := nodeVariableDeclarationStyles[reflect.TypeOf(node.Value)]
 	if !ok {
-		return fmt.Errorf("var decl with %s not supported", node.Value)
+		return fmt.Errorf("var decl with %T not supported", node.Value)
 	}
 
 	var finalAddr *llvm.Value
@@ -124,7 +124,7 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 
 		// Logic for extracting value from an accessor
 		typ := res.Value.AllocatedType()
-		if _, ok := node.Value.(ast.ArrayOfStructsAccessExpression); ok {
+		if _, ok := node.Value.(*ast.ArrayOfStructsAccessExpression); ok {
 			typ = *res.StuctPropertyValueType
 		}
 		loadedVal := g.Ctx.Builder.CreateLoad(typ, *res.Value, "tmp.load")
@@ -189,7 +189,7 @@ func (g *LLVMGenerator) finalizeSymbol(
 		return err
 	}
 
-	if _, ok := node.Value.(ast.ArrayInitializationExpression); ok {
+	if _, ok := node.Value.(*ast.ArrayInitializationExpression); ok {
 		return g.Ctx.AddArraySymbol(node.Name, res.ArraySymbolTableEntry)
 	}
 

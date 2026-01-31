@@ -16,7 +16,7 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 	g.Debugf("VisitMemberExpression %s.%s", node.Object, node.Property)
 
 	switch objectType := node.Object.(type) {
-	case ast.SymbolExpression:
+	case *ast.SymbolExpression:
 		err, varDef := g.Ctx.FindSymbol(objectType.Value)
 		if err != nil {
 			return fmt.Errorf("variable %s is not defined", objectType.Value)
@@ -57,7 +57,7 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 		g.setLastResult(result)
 
 		return nil
-	case ast.ArrayOfStructsAccessExpression:
+	case *ast.ArrayOfStructsAccessExpression:
 		err := node.Object.Accept(g)
 		if err != nil {
 			return err
@@ -96,13 +96,13 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 		g.setLastResult(result)
 
 		return nil
-	case ast.MemberExpression:
+	case *ast.MemberExpression:
 		err := node.Object.Accept(g)
 		if err != nil {
 			return err
 		}
 
-		prop, _ := node.Property.(ast.SymbolExpression)
+		prop, _ := node.Property.(*ast.SymbolExpression)
 		result := g.getLastResult()
 
 		propIndex, err := g.resolveStructAccess(result.SymbolTableEntry.Ref, prop.Value)

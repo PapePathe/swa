@@ -14,7 +14,7 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 
 	g.Debugf("%s", node.Name)
 
-	name, ok := node.Name.(ast.SymbolExpression)
+	name, ok := node.Name.(*ast.SymbolExpression)
 	if !ok {
 		return fmt.Errorf("FunctionCallExpression: name is not a symbol")
 	}
@@ -97,12 +97,12 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		}
 
 		switch arg.(type) {
-		case ast.MemberExpression, ast.ArrayAccessExpression,
-			ast.ArrayOfStructsAccessExpression:
+		case *ast.MemberExpression, *ast.ArrayAccessExpression,
+			*ast.ArrayOfStructsAccessExpression:
 			load := g.Ctx.Builder.CreateLoad(argType, *val.Value, "")
 			args = append(args, load)
 
-		case ast.SymbolExpression:
+		case *ast.SymbolExpression:
 			if val.SymbolTableEntry.Ref != nil {
 				alloca := g.Ctx.Builder.CreateAlloca(val.SymbolTableEntry.Ref.LLVMType, "")
 				g.Ctx.Builder.CreateStore(*val.Value, alloca)
@@ -119,8 +119,8 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 
 			args = append(args, *val.Value)
 
-		case ast.FloatExpression, ast.NumberExpression,
-			ast.StringExpression, ast.BinaryExpression, ast.FunctionCallExpression:
+		case *ast.FloatExpression, *ast.NumberExpression,
+			*ast.StringExpression, *ast.BinaryExpression, *ast.FunctionCallExpression:
 			args = append(args, *val.Value)
 		default:
 			return fmt.Errorf("Type %T not supported as function call argument", arg)

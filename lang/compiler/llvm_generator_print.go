@@ -30,6 +30,8 @@ func (g *LLVMGenerator) VisitPrintStatement(node *ast.PrintStatetement) error {
 
 		extractor, ok := printableValueExtractors[reflect.TypeOf(expr)]
 		if !ok {
+			// TODO this is a developer error
+			// We should inform the user that it's not his fault
 			g.NotImplemented(fmt.Sprintf("VisitPrintStatement unimplemented for %T", expr))
 
 			continue
@@ -60,17 +62,17 @@ func (g *LLVMGenerator) printfFunctionType() llvm.Type {
 
 var printableValueExtractors = map[reflect.Type]PrintableValueExtractor{
 	// Accessors: These return pointers/addresses and MUST be loaded
-	reflect.TypeFor[ast.MemberExpression]():               extractWithStructType,
-	reflect.TypeFor[ast.ArrayOfStructsAccessExpression](): extractWithStructType,
-	reflect.TypeFor[ast.ArrayAccessExpression]():          extractWithArrayType,
+	reflect.TypeFor[*ast.MemberExpression]():               extractWithStructType,
+	reflect.TypeFor[*ast.ArrayOfStructsAccessExpression](): extractWithStructType,
+	reflect.TypeFor[*ast.ArrayAccessExpression]():          extractWithArrayType,
 
 	// Directs: These already hold the value in the result
-	reflect.TypeFor[ast.FunctionCallExpression](): extractDirect,
-	reflect.TypeFor[ast.StringExpression]():       extractDirect,
-	reflect.TypeFor[ast.NumberExpression]():       extractDirect,
-	reflect.TypeFor[ast.FloatExpression]():        extractDirect,
-	reflect.TypeFor[ast.BinaryExpression]():       extractDirect,
-	reflect.TypeFor[ast.SymbolExpression]():       extractDirect,
+	reflect.TypeFor[*ast.FunctionCallExpression](): extractDirect,
+	reflect.TypeFor[*ast.StringExpression]():       extractDirect,
+	reflect.TypeFor[*ast.NumberExpression]():       extractDirect,
+	reflect.TypeFor[*ast.FloatExpression]():        extractDirect,
+	reflect.TypeFor[*ast.BinaryExpression]():       extractDirect,
+	reflect.TypeFor[*ast.SymbolExpression]():       extractDirect,
 }
 
 func extractDirect(g *LLVMGenerator, res *CompilerResult) llvm.Value {

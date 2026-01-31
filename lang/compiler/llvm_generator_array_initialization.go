@@ -15,11 +15,11 @@ type ElementInjector func(
 ) (error, *StructSymbolTableEntry)
 
 var ArrayInitializationExpressionInjectors = map[reflect.Type]ElementInjector{
-	reflect.TypeFor[ast.SymbolExpression]():               injectSymbol,
-	reflect.TypeFor[ast.NumberExpression]():               injectLiteral,
-	reflect.TypeFor[ast.FloatExpression]():                injectLiteral,
-	reflect.TypeFor[ast.StringExpression]():               injectLiteral,
-	reflect.TypeFor[ast.StructInitializationExpression](): injectStruct,
+	reflect.TypeFor[*ast.SymbolExpression]():               injectSymbol,
+	reflect.TypeFor[*ast.NumberExpression]():               injectLiteral,
+	reflect.TypeFor[*ast.FloatExpression]():                injectLiteral,
+	reflect.TypeFor[*ast.StringExpression]():               injectLiteral,
+	reflect.TypeFor[*ast.StructInitializationExpression](): injectStruct,
 }
 
 func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitializationExpression) error {
@@ -120,7 +120,7 @@ func injectSymbol(g *LLVMGenerator, expr ast.Expression, targetAddr llvm.Value) 
 }
 
 func injectStruct(g *LLVMGenerator, expr ast.Expression, targetAddr llvm.Value) (error, *StructSymbolTableEntry) {
-	node, _ := expr.(ast.StructInitializationExpression)
+	node, _ := expr.(*ast.StructInitializationExpression)
 
 	err := node.Accept(g)
 	if err != nil {

@@ -75,6 +75,7 @@ func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInit
 
 		injector, ok := structInjectors[reflect.TypeOf(expr)]
 		if !ok {
+			// TODO this is a developer error and the user should be informed
 			return fmt.Errorf("struct field initialization unimplemented for %T", expr)
 		}
 
@@ -98,15 +99,15 @@ type StructInitializationExpressionPropertyInjector func(
 )
 
 var structInjectors = map[reflect.Type]StructInitializationExpressionPropertyInjector{
-	reflect.TypeFor[ast.NumberExpression]():               injectDirectly,
-	reflect.TypeFor[ast.FloatExpression]():                injectDirectly,
-	reflect.TypeFor[ast.StringExpression]():               injectDirectly,
-	reflect.TypeFor[ast.BinaryExpression]():               injectDirectly,
-	reflect.TypeFor[ast.MemberExpression]():               injectDirectly,
-	reflect.TypeFor[ast.SymbolExpression]():               injectWithArrayDecay,
-	reflect.TypeFor[ast.ArrayInitializationExpression]():  injectArrayLiteral,
-	reflect.TypeFor[ast.ArrayAccessExpression]():          injectArrayAccess,
-	reflect.TypeFor[ast.StructInitializationExpression](): injectNestedStruct,
+	reflect.TypeFor[*ast.NumberExpression]():               injectDirectly,
+	reflect.TypeFor[*ast.FloatExpression]():                injectDirectly,
+	reflect.TypeFor[*ast.StringExpression]():               injectDirectly,
+	reflect.TypeFor[ast.BinaryExpression]():                injectDirectly,
+	reflect.TypeFor[ast.MemberExpression]():                injectDirectly,
+	reflect.TypeFor[*ast.SymbolExpression]():               injectWithArrayDecay,
+	reflect.TypeFor[*ast.ArrayInitializationExpression]():  injectArrayLiteral,
+	reflect.TypeFor[*ast.ArrayAccessExpression]():          injectArrayAccess,
+	reflect.TypeFor[*ast.StructInitializationExpression](): injectNestedStruct,
 }
 
 func injectNestedStruct(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {

@@ -32,7 +32,7 @@ func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStr
 		"",
 	)
 
-	propName, ok := node.Property.(ast.SymbolExpression)
+	propName, ok := node.Property.(*ast.SymbolExpression)
 	if !ok {
 		g.NotImplemented(fmt.Sprintf("Type %s not supported in ArrayOfStructsAccessExpression", node.Property))
 	}
@@ -115,7 +115,7 @@ func (g *LLVMGenerator) resolveArrayOfStructsBase(nameNode ast.Node) (error, *Sy
 	g.Debugf("%s", nameNode)
 
 	switch typednode := nameNode.(type) {
-	case ast.ArrayOfStructsAccessExpression:
+	case *ast.ArrayOfStructsAccessExpression:
 		g.Debugf("processing ast.ArrayOfStructsAccessExpression")
 
 		err := typednode.Accept(g)
@@ -136,7 +136,7 @@ func (g *LLVMGenerator) resolveArrayOfStructsBase(nameNode ast.Node) (error, *Sy
 			lastres.ArraySymbolTableEntry.UnderlyingTypeDef.Metadata.Name,
 		)
 
-		mem, _ := typednode.Property.(ast.SymbolExpression)
+		mem, _ := typednode.Property.(*ast.SymbolExpression)
 
 		propIndex, err := g.resolveStructAccess(lastres.SymbolTableEntry.Ref, mem.Value)
 		if err != nil {
@@ -170,7 +170,7 @@ func (g *LLVMGenerator) resolveArrayOfStructsBase(nameNode ast.Node) (error, *Sy
 		}
 
 		return nil, lastres.SymbolTableEntry, lastres.ArraySymbolTableEntry
-	case ast.MemberExpression:
+	case *ast.MemberExpression:
 		g.Debugf("processing ast.MemberExpression %s.%s", typednode.Object, typednode.Property)
 
 		err := typednode.Object.Accept(g)
@@ -180,7 +180,7 @@ func (g *LLVMGenerator) resolveArrayOfStructsBase(nameNode ast.Node) (error, *Sy
 
 		lastres := g.getLastResult()
 
-		propName, err := g.getProperty(&typednode)
+		propName, err := g.getProperty(typednode)
 		if err != nil {
 			return err, nil, nil
 		}
@@ -217,7 +217,7 @@ func (g *LLVMGenerator) resolveArrayOfStructsBase(nameNode ast.Node) (error, *Sy
 			Type:              propType,
 			UnderlyingTypeDef: underlyingTypeDef,
 		}
-	case ast.SymbolExpression:
+	case *ast.SymbolExpression:
 		g.Debugf("processing ast.SymbolExpression")
 
 		name := typednode.Value

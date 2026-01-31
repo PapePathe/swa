@@ -20,11 +20,11 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 	}
 
 	format := "Strings are not supported in %s of binary expression"
-	if _, ok := node.Left.(ast.StringExpression); ok {
+	if _, ok := node.Left.(*ast.StringExpression); ok {
 		return fmt.Errorf(format, "left")
 	}
 
-	if _, ok := node.Right.(ast.StringExpression); ok {
+	if _, ok := node.Right.(*ast.StringExpression); ok {
 		return fmt.Errorf(format, "right")
 	}
 

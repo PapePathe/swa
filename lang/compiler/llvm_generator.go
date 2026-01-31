@@ -63,7 +63,7 @@ func (g *LLVMGenerator) VisitAssignmentExpression(node *ast.AssignmentExpression
 	var valueToBeAssigned llvm.Value
 
 	switch node.Value.(type) {
-	case ast.ArrayAccessExpression:
+	case *ast.ArrayAccessExpression:
 		valueToBeAssigned = g.Ctx.Builder.CreateLoad(
 			compiledValue.Value.AllocatedType(),
 			*compiledValue.Value,
@@ -450,7 +450,7 @@ func (g *LLVMGenerator) VisitPrefixExpression(node *ast.PrefixExpression) error 
 }
 
 func (g *LLVMGenerator) getProperty(expr *ast.MemberExpression) (string, error) {
-	prop, ok := expr.Property.(ast.SymbolExpression)
+	prop, ok := expr.Property.(*ast.SymbolExpression)
 	if !ok {
 		return "", fmt.Errorf("struct property should be a symbol")
 	}
@@ -460,19 +460,19 @@ func (g *LLVMGenerator) getProperty(expr *ast.MemberExpression) (string, error) 
 
 func (g *LLVMGenerator) prepareReturnValue(expr ast.Expression, res *CompilerResult) (llvm.Value, error) {
 	switch expr.(type) {
-	case ast.ArrayAccessExpression:
+	case *ast.ArrayAccessExpression:
 		return g.Ctx.Builder.CreateLoad((*g.Ctx.Context).Int32Type(), *res.Value, ""), nil
-	case ast.MemberExpression:
+	case *ast.MemberExpression:
 		return g.Ctx.Builder.CreateLoad(*res.StuctPropertyValueType, *res.Value, ""), nil
-	case ast.StructInitializationExpression:
+	case *ast.StructInitializationExpression:
 		return g.Ctx.Builder.CreateLoad(res.Value.AllocatedType(), *res.Value, ""), nil
-	case ast.StringExpression:
+	case *ast.StringExpression:
 		alloc := g.Ctx.Builder.CreateAlloca(res.Value.Type(), "")
 		g.Ctx.Builder.CreateStore(*res.Value, alloc)
 
 		return alloc, nil
-	case ast.SymbolExpression, ast.BinaryExpression, ast.FunctionCallExpression,
-		ast.NumberExpression, ast.FloatExpression:
+	case *ast.SymbolExpression, *ast.BinaryExpression, *ast.FunctionCallExpression,
+		*ast.NumberExpression, *ast.FloatExpression:
 		return *res.Value, nil
 	default:
 		key := "VisitReturnStatement.UnsupportedExpression"

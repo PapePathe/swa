@@ -62,7 +62,7 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 	var entry *ArraySymbolTableEntry
 
 	switch typedExpr := expr.Name.(type) {
-	case ast.ArrayOfStructsAccessExpression:
+	case *ast.ArrayOfStructsAccessExpression:
 		g.Debugf("array access expr (%d) %s ", expr.Tokens[0].Line, expr.Name)
 
 		err := expr.Name.Accept(g)
@@ -72,7 +72,7 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 
 		lastesult := g.getLastResult()
 
-		symbol, _ := typedExpr.Property.(ast.SymbolExpression)
+		symbol, _ := typedExpr.Property.(*ast.SymbolExpression)
 
 		embed, _ := lastesult.SymbolTableEntry.Ref.ArrayEmbeds[symbol.Value]
 
@@ -100,8 +100,8 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 		array.Ref = embed.UnderlyingTypeDef
 		entry = &embed
 
-	case ast.SymbolExpression:
-		varName, _ := expr.Name.(ast.SymbolExpression)
+	case *ast.SymbolExpression:
+		varName, _ := expr.Name.(*ast.SymbolExpression)
 
 		err, arrayEntry := g.Ctx.FindSymbol(varName.Value)
 		if err != nil {
@@ -122,7 +122,7 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 		entry = arraySymEntry
 
 		name = varName.Value
-	case ast.MemberExpression:
+	case *ast.MemberExpression:
 		err := expr.Name.Accept(g)
 		if err != nil {
 			return err, nil, nil, nil
@@ -138,8 +138,8 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 			return fmt.Errorf("ArrayAccessExpression Missing SymbolTableEntry"), nil, nil, nil
 		}
 
-		propExpr, _ := expr.Name.(ast.MemberExpression)
-		propSym, _ := propExpr.Property.(ast.SymbolExpression)
+		propExpr, _ := expr.Name.(*ast.MemberExpression)
+		propSym, _ := propExpr.Property.(*ast.SymbolExpression)
 
 		if val.SymbolTableEntry.Ref == nil {
 			format := "ArrayAccessExpression property %s is not an array"
@@ -194,8 +194,8 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 	var indices []llvm.Value
 
 	switch expr.Index.(type) {
-	case ast.NumberExpression:
-		idx, _ := expr.Index.(ast.NumberExpression)
+	case *ast.NumberExpression:
+		idx, _ := expr.Index.(*ast.NumberExpression)
 
 		if int(idx.Value) < 0 {
 			key := "ArrayAccessExpression.AccessedIndexIsNotANumber"
@@ -212,7 +212,7 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 		indices = []llvm.Value{
 			llvm.ConstInt((*g.Ctx.Context).Int32Type(), uint64(idx.Value), false),
 		}
-	case ast.SymbolExpression, ast.BinaryExpression, ast.MemberExpression:
+	case *ast.SymbolExpression, *ast.BinaryExpression, *ast.MemberExpression:
 		err := expr.Index.Accept(g)
 		if err != nil {
 			return err, nil, nil, nil
