@@ -139,7 +139,15 @@ func TestFunctions(t *testing.T) {
 			})
 
 			t.Run("Function call expression", func(t *testing.T) {
-				// TODO
+				t.Parallel()
+
+				req := CompileRequest{
+					InputPath:               "./functions/pass-function-call-as-param.swa",
+					ExpectedExecutionOutput: "10.25 + 4.75 = 15.00",
+					T:                       t,
+				}
+
+				req.AssertCompileAndExecute()
 			})
 
 			t.Run("Array initialization expression", func(t *testing.T) {

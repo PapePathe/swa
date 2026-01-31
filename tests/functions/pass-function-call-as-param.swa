@@ -1,0 +1,17 @@
+dialect:english;
+
+func add(first: float, last: float) float {
+  return first + last;
+}
+
+
+func makef() float {
+  return 10.25;
+}
+
+
+start () int {
+  let res : float = add(makef(), 4.75);
+  print("10.25 + 4.75 = %.2f", res);
+  return 0; 
+}
