@@ -53,6 +53,7 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		paramType := param.Type()
 
 		g.Debugf("Symbol Table entry: %+v", val.SymbolTableEntry)
+		g.Debugf("array symbol Table entry: %+v", val.ArraySymbolTableEntry)
 
 		// Type checking
 		argType := val.Value.Type()
@@ -62,6 +63,10 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 			} else {
 				argType = val.SymbolTableEntry.Ref.LLVMType
 			}
+		}
+
+		if val.ArraySymbolTableEntry != nil {
+			argType = val.ArraySymbolTableEntry.UnderlyingType
 		}
 
 		if argType != paramType {
@@ -83,7 +88,7 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		}
 
 		switch arg.(type) {
-		case ast.MemberExpression:
+		case ast.MemberExpression, ast.ArrayAccessExpression:
 			load := g.Ctx.Builder.CreateLoad(argType, *val.Value, "")
 			args = append(args, load)
 		case ast.SymbolExpression:
