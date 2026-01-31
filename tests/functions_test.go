@@ -98,6 +98,33 @@ func TestFunctions(t *testing.T) {
 
 				req.AssertCompileAndExecute()
 			})
+
+			t.Run("Array access expression", func(t *testing.T) {
+				t.Parallel()
+				req := CompileRequest{
+					InputPath:               "./functions/pass-member-expression-as-param.swa",
+					ExpectedExecutionOutput: "10.25 + 4.75 = 15.00",
+					T:                       t,
+				}
+
+				req.AssertCompileAndExecute()
+			})
+
+			t.Run("Array of structs access expression", func(t *testing.T) {
+				// TODO
+			})
+
+			t.Run("Function call expression", func(t *testing.T) {
+				// TODO
+			})
+
+			t.Run("Array initialization expression", func(t *testing.T) {
+				// TODO
+			})
+
+			t.Run("Struct initialization expression", func(t *testing.T) {
+				// TODO
+			})
 		})
 
 		t.Run("Add", func(t *testing.T) {
