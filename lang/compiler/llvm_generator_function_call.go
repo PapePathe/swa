@@ -120,7 +120,7 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 			args = append(args, *val.Value)
 
 		case ast.FloatExpression, ast.NumberExpression,
-			ast.StringExpression, ast.BinaryExpression:
+			ast.StringExpression, ast.BinaryExpression, ast.FunctionCallExpression:
 			args = append(args, *val.Value)
 		default:
 			return fmt.Errorf("Type %T not supported as function call argument", arg)
