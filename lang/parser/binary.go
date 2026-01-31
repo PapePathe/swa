@@ -22,5 +22,5 @@ func ParseBinaryExpression(p *Parser, left ast.Expression, bp BindingPower) (ast
 	expr.Right = right
 	expr.Tokens = append(expr.Tokens, right.TokenStream()...)
 
-	return expr, nil
+	return &expr, nil
 }

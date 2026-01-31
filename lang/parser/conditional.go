@@ -61,5 +61,5 @@ func ParseConditionalExpression(p *Parser) (ast.Statement, error) {
 		stmt.Tokens = append(stmt.Tokens, failBlock.TokenStream()...)
 	}
 
-	return stmt, nil
+	return &stmt, nil
 }

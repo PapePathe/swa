@@ -29,5 +29,5 @@ func ParsePrintStatement(p *Parser) (ast.Statement, error) {
 	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.CloseParen))
 	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.SemiColon))
 
-	return stmt, nil
+	return &stmt, nil
 }

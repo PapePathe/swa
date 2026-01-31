@@ -31,5 +31,5 @@ func ParseWhileStatement(p *Parser) (ast.Statement, error) {
 	stmt.Body = block
 	stmt.Tokens = append(stmt.Tokens, block.TokenStream()...)
 
-	return stmt, nil
+	return &stmt, nil
 }

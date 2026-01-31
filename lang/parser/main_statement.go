@@ -21,5 +21,5 @@ func ParseMainStatement(p *Parser) (ast.Statement, error) {
 	ms.Body = body
 	ms.Tokens = append(ms.Tokens, body.TokenStream()...)
 
-	return ms, nil
+	return &ms, nil
 }

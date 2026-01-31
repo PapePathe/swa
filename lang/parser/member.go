@@ -9,13 +9,10 @@ import (
 
 func ParseMemberCallExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
 	switch left.(type) {
-	case ast.ArrayAccessExpression:
+	case *ast.ArrayAccessExpression:
 		return parseArrayOfStructsAccessExpression(p, left, bp)
-	case ast.SymbolExpression:
-		return parseMemberExpression(p, left, bp)
-	case ast.MemberExpression:
-		return parseMemberExpression(p, left, bp)
-	case ast.ArrayOfStructsAccessExpression:
+	case *ast.SymbolExpression, *ast.MemberExpression,
+		*ast.ArrayOfStructsAccessExpression:
 		return parseMemberExpression(p, left, bp)
 	default:
 		return nil, fmt.Errorf("ParseMemberCallExpression expression %s not suppported", left)
@@ -37,7 +34,7 @@ func parseMemberExpression(p *Parser, left ast.Expression, bp BindingPower) (ast
 	expr.Property = _member
 	expr.Tokens = append(expr.Tokens, _member.TokenStream()...)
 
-	return expr, nil
+	return &expr, nil
 }
 
 func parseArrayOfStructsAccessExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
@@ -45,7 +42,7 @@ func parseArrayOfStructsAccessExpression(p *Parser, left ast.Expression, bp Bind
 	p.currentExpression = &expr
 	expr.Tokens = append(expr.Tokens, left.TokenStream()...)
 	expr.Tokens = append(expr.Tokens, p.expect(lexer.Dot))
-	arr, _ := left.(ast.ArrayAccessExpression)
+	arr, _ := left.(*ast.ArrayAccessExpression)
 	expr.Name = arr.Name
 	expr.Index = arr.Index
 
@@ -57,5 +54,5 @@ func parseArrayOfStructsAccessExpression(p *Parser, left ast.Expression, bp Bind
 	expr.Property = _member
 	expr.Tokens = append(expr.Tokens, _member.TokenStream()...)
 
-	return expr, nil
+	return &expr, nil
 }

@@ -29,15 +29,15 @@ func ParseReturnStatement(p *Parser) (ast.Statement, error) {
 
 		cond.Condition = value
 		cond.Success = ast.BlockStatement{
-			Body: []ast.Statement{stmt},
+			Body: []ast.Statement{&stmt},
 		}
 		p.expect(lexer.CloseParen)
 		p.expect(lexer.SemiColon)
 
-		return cond, nil
+		return &cond, nil
 	}
 
 	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.SemiColon))
 
-	return stmt, nil
+	return &stmt, nil
 }

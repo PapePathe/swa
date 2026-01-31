@@ -21,5 +21,5 @@ func ParseAssignmentExpression(p *Parser, left ast.Expression, bp BindingPower) 
 	expr.Value = rightHandSide
 	expr.Tokens = append(expr.Tokens, rightHandSide.TokenStream()...)
 
-	return expr, nil
+	return &expr, nil
 }

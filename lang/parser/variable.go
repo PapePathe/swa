@@ -48,5 +48,5 @@ func ParseVarDeclarationStatement(p *Parser) (ast.Statement, error) {
 	stmt.Value = assigedValue
 	stmt.Name = variableName
 
-	return stmt, nil
+	return &stmt, nil
 }

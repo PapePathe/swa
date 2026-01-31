@@ -31,7 +31,7 @@ func ParseStatement(p *Parser) (ast.Statement, error) {
 	stmt.Tokens = append(stmt.Tokens, expression.TokenStream()...)
 	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.SemiColon))
 
-	return stmt, nil
+	return &stmt, nil
 }
 
 func ParseStructDeclarationStatement(p *Parser) (ast.Statement, error) {
@@ -70,5 +70,5 @@ func ParseStructDeclarationStatement(p *Parser) (ast.Statement, error) {
 
 	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.CloseCurly))
 
-	return stmt, nil
+	return &stmt, nil
 }

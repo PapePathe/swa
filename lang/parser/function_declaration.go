@@ -62,7 +62,7 @@ func ParseFunctionDeclaration(p *Parser) (ast.Statement, error) {
 		funDecl.Body = body
 	}
 
-	return funDecl, nil
+	return &funDecl, nil
 }
 
 func ParseFunctionCall(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
@@ -88,5 +88,5 @@ func ParseFunctionCall(p *Parser, left ast.Expression, bp BindingPower) (ast.Exp
 	expr.Tokens = append(expr.Tokens, p.expect(lexer.CloseParen))
 	expr.Name = left
 
-	return expr, nil
+	return &expr, nil
 }

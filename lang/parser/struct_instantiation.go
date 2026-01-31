@@ -9,7 +9,7 @@ import (
 func ParseStructInstantiationExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
 	sInitExpr := ast.StructInitializationExpression{}
 	p.currentExpression = &sInitExpr
-	tok := helpers.ExpectType[ast.SymbolExpression](left)
+	tok := helpers.ExpectType[*ast.SymbolExpression](left)
 	sInitExpr.Name = tok.Value
 
 	sInitExpr.Tokens = append(sInitExpr.Tokens, left.TokenStream()...)
@@ -39,5 +39,5 @@ func ParseStructInstantiationExpression(p *Parser, left ast.Expression, bp Bindi
 
 	p.currentExpression = nil
 
-	return sInitExpr, nil
+	return &sInitExpr, nil
 }
