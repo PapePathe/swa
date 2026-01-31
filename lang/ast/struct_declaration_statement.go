@@ -15,20 +15,20 @@ type StructDeclarationStatement struct {
 
 var _ Statement = (*StructDeclarationStatement)(nil)
 
-func (sd StructDeclarationStatement) PropertyIndex(name string) (error, int) {
-	for propIndex, propName := range sd.Properties {
+func (stmt StructDeclarationStatement) PropertyIndex(name string) (error, int) {
+	for propIndex, propName := range stmt.Properties {
 		if propName == name {
 			return nil, propIndex
 		}
 	}
 
-	return fmt.Errorf("Property with name (%s) does not exist on struct %s", name, sd.Name), 0
+	return fmt.Errorf("Property with name (%s) does not exist on struct %s", name, stmt.Name), 0
 }
 
-func (sd StructDeclarationStatement) Accept(g CodeGenerator) error {
-	return g.VisitStructDeclaration(&sd)
+func (stmt *StructDeclarationStatement) Accept(g CodeGenerator) error {
+	return g.VisitStructDeclaration(stmt)
 }
 
-func (expr StructDeclarationStatement) TokenStream() []lexer.Token {
-	return expr.Tokens
+func (stmt StructDeclarationStatement) TokenStream() []lexer.Token {
+	return stmt.Tokens
 }

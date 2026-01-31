@@ -16,8 +16,8 @@ type BinaryExpression struct {
 
 var _ Expression = (*BinaryExpression)(nil)
 
-func (expr BinaryExpression) Accept(g CodeGenerator) error {
-	return g.VisitBinaryExpression(&expr)
+func (expr *BinaryExpression) Accept(g CodeGenerator) error {
+	return g.VisitBinaryExpression(expr)
 }
 
 func (expr BinaryExpression) String() string {

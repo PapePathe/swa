@@ -19,8 +19,8 @@ func (e NumberExpression) String() string {
 	return fmt.Sprintf("%d", e.Value)
 }
 
-func (expr NumberExpression) Accept(g CodeGenerator) error {
-	return g.VisitNumberExpression(&expr)
+func (expr *NumberExpression) Accept(g CodeGenerator) error {
+	return g.VisitNumberExpression(expr)
 }
 
 func (expr NumberExpression) TokenStream() []lexer.Token {

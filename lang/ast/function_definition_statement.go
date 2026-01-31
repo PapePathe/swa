@@ -20,10 +20,10 @@ type FuncDeclStatement struct {
 
 var _ Statement = (*FuncDeclStatement)(nil)
 
-func (fd FuncDeclStatement) Accept(g CodeGenerator) error {
-	return g.VisitFunctionDefinition(&fd)
+func (stmt *FuncDeclStatement) Accept(g CodeGenerator) error {
+	return g.VisitFunctionDefinition(stmt)
 }
 
-func (expr FuncDeclStatement) TokenStream() []lexer.Token {
-	return expr.Tokens
+func (stmt FuncDeclStatement) TokenStream() []lexer.Token {
+	return stmt.Tokens
 }

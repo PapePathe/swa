@@ -4,6 +4,9 @@ import (
 	"swahili/lang/lexer"
 )
 
+// TODO we should support simpler
+// print statements like:
+// print("Your int valus is {symbolName}");
 type PrintStatetement struct {
 	Values []Expression
 	Tokens []lexer.Token
@@ -11,10 +14,10 @@ type PrintStatetement struct {
 
 var _ Statement = (*PrintStatetement)(nil)
 
-func (ps PrintStatetement) Accept(g CodeGenerator) error {
-	return g.VisitPrintStatement(&ps)
+func (stmt *PrintStatetement) Accept(g CodeGenerator) error {
+	return g.VisitPrintStatement(stmt)
 }
 
-func (expr PrintStatetement) TokenStream() []lexer.Token {
-	return expr.Tokens
+func (stmt PrintStatetement) TokenStream() []lexer.Token {
+	return stmt.Tokens
 }

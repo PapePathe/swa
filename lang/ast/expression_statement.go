@@ -13,8 +13,8 @@ type ExpressionStatement struct {
 
 var _ Statement = (*ExpressionStatement)(nil)
 
-func (es ExpressionStatement) Accept(g CodeGenerator) error {
-	return g.VisitExpressionStatement(&es)
+func (expr *ExpressionStatement) Accept(g CodeGenerator) error {
+	return g.VisitExpressionStatement(expr)
 }
 
 func (expr ExpressionStatement) TokenStream() []lexer.Token {

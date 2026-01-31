@@ -9,10 +9,10 @@ type ReturnStatement struct {
 	Tokens []lexer.Token
 }
 
-func (rs ReturnStatement) Accept(g CodeGenerator) error {
-	return g.VisitReturnStatement(&rs)
+func (stmt *ReturnStatement) Accept(g CodeGenerator) error {
+	return g.VisitReturnStatement(stmt)
 }
 
-func (expr ReturnStatement) TokenStream() []lexer.Token {
-	return expr.Tokens
+func (stmt ReturnStatement) TokenStream() []lexer.Token {
+	return stmt.Tokens
 }

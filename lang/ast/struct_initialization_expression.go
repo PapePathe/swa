@@ -21,8 +21,8 @@ type StructItemValue struct {
 	Value    *llvm.Value
 }
 
-func (expr StructInitializationExpression) Accept(g CodeGenerator) error {
-	return g.VisitStructInitializationExpression(&expr)
+func (expr *StructInitializationExpression) Accept(g CodeGenerator) error {
+	return g.VisitStructInitializationExpression(expr)
 }
 
 func (expr StructInitializationExpression) TokenStream() []lexer.Token {

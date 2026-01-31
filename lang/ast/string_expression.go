@@ -17,8 +17,8 @@ func (expr StringExpression) String() string {
 	return expr.Value
 }
 
-func (expr StringExpression) Accept(g CodeGenerator) error {
-	return g.VisitStringExpression(&expr)
+func (expr *StringExpression) Accept(g CodeGenerator) error {
+	return g.VisitStringExpression(expr)
 }
 
 func (expr StringExpression) TokenStream() []lexer.Token {

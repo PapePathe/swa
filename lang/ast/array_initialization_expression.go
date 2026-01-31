@@ -13,8 +13,8 @@ type ArrayInitializationExpression struct {
 
 var _ Expression = (*ArrayInitializationExpression)(nil)
 
-func (expr ArrayInitializationExpression) Accept(g CodeGenerator) error {
-	return g.VisitArrayInitializationExpression(&expr)
+func (expr *ArrayInitializationExpression) Accept(g CodeGenerator) error {
+	return g.VisitArrayInitializationExpression(expr)
 }
 
 func (expr ArrayInitializationExpression) TokenStream() []lexer.Token {

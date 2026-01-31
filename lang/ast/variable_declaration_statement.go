@@ -19,10 +19,10 @@ type VarDeclarationStatement struct {
 
 var _ Statement = (*VarDeclarationStatement)(nil)
 
-func (expr VarDeclarationStatement) Accept(g CodeGenerator) error {
-	return g.VisitVarDeclaration(&expr)
+func (stmt *VarDeclarationStatement) Accept(g CodeGenerator) error {
+	return g.VisitVarDeclaration(stmt)
 }
 
-func (expr VarDeclarationStatement) TokenStream() []lexer.Token {
-	return expr.Tokens
+func (stmt VarDeclarationStatement) TokenStream() []lexer.Token {
+	return stmt.Tokens
 }

@@ -9,10 +9,10 @@ type MainStatement struct {
 	Tokens []lexer.Token
 }
 
-func (ms MainStatement) Accept(g CodeGenerator) error {
-	return g.VisitMainStatement(&ms)
+func (stmt *MainStatement) Accept(g CodeGenerator) error {
+	return g.VisitMainStatement(stmt)
 }
 
-func (expr MainStatement) TokenStream() []lexer.Token {
-	return expr.Tokens
+func (stmt MainStatement) TokenStream() []lexer.Token {
+	return stmt.Tokens
 }

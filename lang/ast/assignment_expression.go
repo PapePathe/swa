@@ -23,8 +23,8 @@ func (expr AssignmentExpression) String() string {
 	return fmt.Sprintf("%s %s %s", expr.Assignee, expr.Operator.Value, expr.Value)
 }
 
-func (expr AssignmentExpression) Accept(g CodeGenerator) error {
-	return g.VisitAssignmentExpression(&expr)
+func (expr *AssignmentExpression) Accept(g CodeGenerator) error {
+	return g.VisitAssignmentExpression(expr)
 }
 
 func (expr AssignmentExpression) TokenStream() []lexer.Token {

@@ -13,8 +13,8 @@ type FunctionCallExpression struct {
 
 var _ Expression = (*FunctionCallExpression)(nil)
 
-func (expr FunctionCallExpression) Accept(g CodeGenerator) error {
-	return g.VisitFunctionCall(&expr)
+func (expr *FunctionCallExpression) Accept(g CodeGenerator) error {
+	return g.VisitFunctionCall(expr)
 }
 
 func (expr FunctionCallExpression) TokenStream() []lexer.Token {

@@ -13,10 +13,10 @@ type BlockStatement struct {
 
 var _ Statement = (*BlockStatement)(nil)
 
-func (bs BlockStatement) Accept(g CodeGenerator) error {
-	return g.VisitBlockStatement(&bs)
+func (stmt *BlockStatement) Accept(g CodeGenerator) error {
+	return g.VisitBlockStatement(stmt)
 }
 
-func (expr BlockStatement) TokenStream() []lexer.Token {
-	return expr.Tokens
+func (stmt BlockStatement) TokenStream() []lexer.Token {
+	return stmt.Tokens
 }

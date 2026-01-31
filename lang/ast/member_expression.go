@@ -15,8 +15,8 @@ type MemberExpression struct {
 
 var _ Expression = (*MemberExpression)(nil)
 
-func (expr MemberExpression) Accept(g CodeGenerator) error {
-	return g.VisitMemberExpression(&expr)
+func (expr *MemberExpression) Accept(g CodeGenerator) error {
+	return g.VisitMemberExpression(expr)
 }
 
 func (expr MemberExpression) TokenStream() []lexer.Token {

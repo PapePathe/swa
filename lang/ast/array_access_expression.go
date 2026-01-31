@@ -13,8 +13,8 @@ type ArrayAccessExpression struct {
 
 var _ Expression = (*ArrayAccessExpression)(nil)
 
-func (expr ArrayAccessExpression) Accept(g CodeGenerator) error {
-	return g.VisitArrayAccessExpression(&expr)
+func (expr *ArrayAccessExpression) Accept(g CodeGenerator) error {
+	return g.VisitArrayAccessExpression(expr)
 }
 
 func (expr ArrayAccessExpression) TokenStream() []lexer.Token {

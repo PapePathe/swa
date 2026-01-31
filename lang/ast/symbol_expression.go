@@ -17,8 +17,8 @@ func (e SymbolExpression) String() string {
 	return e.Value
 }
 
-func (expr SymbolExpression) Accept(g CodeGenerator) error {
-	return g.VisitSymbolExpression(&expr)
+func (expr *SymbolExpression) Accept(g CodeGenerator) error {
+	return g.VisitSymbolExpression(expr)
 }
 
 func (expr SymbolExpression) TokenStream() []lexer.Token {

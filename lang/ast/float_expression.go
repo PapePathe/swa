@@ -19,8 +19,8 @@ func (e FloatExpression) String() string {
 	return fmt.Sprintf("%f", e.Value)
 }
 
-func (expr FloatExpression) Accept(g CodeGenerator) error {
-	return g.VisitFloatExpression(&expr)
+func (expr *FloatExpression) Accept(g CodeGenerator) error {
+	return g.VisitFloatExpression(expr)
 }
 
 func (expr FloatExpression) TokenStream() []lexer.Token {

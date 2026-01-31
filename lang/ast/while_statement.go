@@ -12,10 +12,10 @@ type WhileStatement struct {
 	Tokens    []lexer.Token
 }
 
-func (ws WhileStatement) Accept(g CodeGenerator) error {
-	return g.VisitWhileStatement(&ws)
+func (stmt *WhileStatement) Accept(g CodeGenerator) error {
+	return g.VisitWhileStatement(stmt)
 }
 
-func (expr WhileStatement) TokenStream() []lexer.Token {
-	return expr.Tokens
+func (stmt WhileStatement) TokenStream() []lexer.Token {
+	return stmt.Tokens
 }

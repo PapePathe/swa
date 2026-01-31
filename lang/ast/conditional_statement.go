@@ -13,10 +13,10 @@ type ConditionalStatetement struct {
 
 var _ Statement = (*ConditionalStatetement)(nil)
 
-func (cs ConditionalStatetement) Accept(g CodeGenerator) error {
-	return g.VisitConditionalStatement(&cs)
+func (stmt *ConditionalStatetement) Accept(g CodeGenerator) error {
+	return g.VisitConditionalStatement(stmt)
 }
 
-func (expr ConditionalStatetement) TokenStream() []lexer.Token {
-	return expr.Tokens
+func (stmt ConditionalStatetement) TokenStream() []lexer.Token {
+	return stmt.Tokens
 }

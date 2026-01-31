@@ -13,8 +13,8 @@ type ArrayOfStructsAccessExpression struct {
 	SwaType  Type
 }
 
-func (expr ArrayOfStructsAccessExpression) Accept(g CodeGenerator) error {
-	return g.VisitArrayOfStructsAccessExpression(&expr)
+func (expr *ArrayOfStructsAccessExpression) Accept(g CodeGenerator) error {
+	return g.VisitArrayOfStructsAccessExpression(expr)
 }
 
 func (expr ArrayOfStructsAccessExpression) TokenStream() []lexer.Token {
