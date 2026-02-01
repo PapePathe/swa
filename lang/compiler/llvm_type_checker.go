@@ -49,10 +49,12 @@ func (l *LLVMTypeChecker) VisitAssignmentExpression(node *ast.AssignmentExpressi
 	}
 
 	if asstype != valType {
-		return fmt.Errorf(
-			"Expected assignment of %s but got %s",
+		key := "LLVMTypeChecker.VisitAssignmentExpression.UnexpectedValue"
+		return l.ctx.Dialect.Error(
+			key,
 			asstype.Value().String(),
-			valType.Value().String())
+			valType.Value().String(),
+		)
 	}
 
 	return nil
@@ -198,11 +200,10 @@ func (l *LLVMTypeChecker) VisitVarDeclaration(node *ast.VarDeclarationStatement)
 	}
 
 	if node.ExplicitType != node.Value.VisitedSwaType() {
-		return fmt.Errorf(
-			"expected %s but got %s",
+		key := "LLVMTypeChecker.VisitVarDeclaration.UnexpectedValue"
+		return l.ctx.Dialect.Error(key,
 			node.ExplicitType.Value().String(),
-			node.Value.VisitedSwaType().Value().String(),
-		)
+			node.Value.VisitedSwaType().Value().String())
 	}
 
 	return nil
