@@ -16,7 +16,9 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 
 	name, ok := node.Name.(*ast.SymbolExpression)
 	if !ok {
-		return fmt.Errorf("FunctionCallExpression: name is not a symbol")
+		key := "LLVMGenerator.VisitFunctionCall.NameIsNotASymbol"
+
+		return g.Ctx.Dialect.Error(key)
 	}
 
 	err, funcType := g.Ctx.FindFuncSymbol(name.Value)
@@ -26,11 +28,15 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 
 	funcVal := g.Ctx.Module.NamedFunction(name.Value)
 	if funcVal.IsNil() {
-		return fmt.Errorf("function %s does not exist", name.Value)
+		key := "LLVMGenerator.VisitFunctionCall.DoesNotExist"
+
+		return g.Ctx.Dialect.Error(key, name.Value)
 	}
 
 	if funcVal.ParamsCount() != len(node.Args) {
-		return fmt.Errorf("function %s expect %d arguments but was given %d", name.Value, funcVal.ParamsCount(), len(node.Args))
+		key := "LLVMGenerator.VisitFunctionCall.ArgsAndParamsCountAreDifferent"
+
+		return g.Ctx.Dialect.Error(key, name.Value, funcVal.ParamsCount(), len(node.Args))
 	}
 
 	args := []llvm.Value{}
@@ -46,7 +52,9 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		g.Debugf("%+v", val)
 
 		if val == nil || val.Value == nil {
-			return fmt.Errorf("failed to evaluate argument %d", i+1)
+			key := "LLVMGenerator.VisitFunctionCall.FailedToEvaluate"
+
+			return g.Ctx.Dialect.Error(key, i+1)
 		}
 
 		param := funcVal.Params()[i]
@@ -70,8 +78,9 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 
 			if argType.TypeKind() == llvm.StructTypeKind {
 				if val.StuctPropertyValueType == nil {
-					msg := "Struct property value type should be set -- Also cannot index array item that is a struct"
-					return fmt.Errorf(msg)
+					key := "LLVMGenerator.VisitFunctionCall.StructPropertyValueTypeIsNil"
+
+					return g.Ctx.Dialect.Error(key)
 				}
 
 				argType = *val.StuctPropertyValueType
@@ -79,11 +88,8 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		}
 
 		if argType != paramType {
-			err := fmt.Errorf(
-				"expected argument of type %s but got %s",
-				g.formatLLVMType(paramType),
-				g.formatLLVMType(argType),
-			)
+			key := "LLVMGenerator.VisitFunctionCall.UnexpectedArgumentType"
+			err := g.Ctx.Dialect.Error(key, g.formatLLVMType(paramType), g.formatLLVMType(argType))
 
 			if paramType.TypeKind() == llvm.IntegerTypeKind && argType.TypeKind() == llvm.PointerTypeKind {
 				return err
@@ -123,7 +129,9 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 			*ast.StringExpression, *ast.BinaryExpression, *ast.FunctionCallExpression:
 			args = append(args, *val.Value)
 		default:
-			return fmt.Errorf("Type %T not supported as function call argument", arg)
+			key := "LLVMGenerator.VisitFunctionCall.UnsupportedType"
+
+			return g.Ctx.Dialect.Error(key, arg)
 		}
 	}
 

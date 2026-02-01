@@ -19,11 +19,15 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 	case *ast.SymbolExpression:
 		err, varDef := g.Ctx.FindSymbol(objectType.Value)
 		if err != nil {
-			return fmt.Errorf("variable %s is not defined", objectType.Value)
+			key := "LLVMGenerator.VisitMemberExpression.NotDefined"
+
+			return g.Ctx.Dialect.Error(key, objectType.Value)
 		}
 
 		if varDef.Ref == nil {
-			return fmt.Errorf("variable %s is not a struct instance", objectType.Value)
+			key := "LLVMGenerator.VisitMemberExpression.NotAStructInstance"
+
+			return g.Ctx.Dialect.Error(key, objectType.Value)
 		}
 
 		propName, err := g.getProperty(node)
@@ -114,9 +118,9 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 
 		if propIndex > len(result.SymbolTableEntry.Ref.PropertyTypes) ||
 			len(result.SymbolTableEntry.Ref.PropertyTypes) == 0 {
-			format := "Property named %s does not exist at index %d"
+			key := "LLVMGenerator.VisitMemberExpression.PropertyNotFound"
 
-			return fmt.Errorf(format, prop.Value, propIndex)
+			return g.Ctx.Dialect.Error(key, prop.Value, propIndex)
 		}
 
 		propType := result.SymbolTableEntry.Ref.PropertyTypes[propIndex]

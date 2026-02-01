@@ -1,7 +1,6 @@
 package compiler
 
 import (
-	"fmt"
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 
@@ -19,20 +18,22 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 		return err
 	}
 
-	format := "Strings are not supported in %s of binary expression"
+	key := "LLVMGenerator.VisitBinaryExpression.StringsAreNotSupported"
+
 	if _, ok := node.Left.(*ast.StringExpression); ok {
-		return fmt.Errorf(format, "left")
+		return g.Ctx.Dialect.Error(key, "left")
 	}
 
 	if _, ok := node.Right.(*ast.StringExpression); ok {
-		return fmt.Errorf(format, "right")
+		return g.Ctx.Dialect.Error(key, "right")
 	}
 
 	leftRes := g.getLastResult()
 
 	if leftRes.SymbolTableEntry != nil &&
 		leftRes.SymbolTableEntry.DeclaredType.Value() == ast.DataTypeString {
-		return fmt.Errorf(format, "symbol left")
+
+		return g.Ctx.Dialect.Error(key, "symbol left")
 	}
 
 	leftVal := g.extractRValue(leftRes)
@@ -44,14 +45,16 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 	rightRes := g.getLastResult()
 	if rightRes.SymbolTableEntry != nil &&
 		rightRes.SymbolTableEntry.DeclaredType.Value() == ast.DataTypeString {
-		return fmt.Errorf(format, "symbol right")
+		return g.Ctx.Dialect.Error(key, "symbol right")
 	}
 
 	rightVal := g.extractRValue(rightRes)
 
 	finalLeft, finalRight, err := g.coerceOperands(leftVal, rightVal)
 	if err != nil {
-		return fmt.Errorf("type mismatch at %v: %w", node.TokenStream(), err)
+		key := "LLVMGenerator.VisitBinaryExpression.TypeMismatch"
+
+		return g.Ctx.Dialect.Error(key, node.TokenStream(), err)
 	}
 
 	err, res := g.handleBinaryOp(node.Operator.Kind, finalLeft, finalRight)
@@ -120,7 +123,9 @@ func (g *LLVMGenerator) coerceOperands(left, right llvm.Value) (llvm.Value, llvm
 			g.Ctx.Builder.CreateIntCast(right, targetType, "r.ext"), nil
 	}
 
-	return left, right, fmt.Errorf("cannot coerce %s and %s", lk, rk)
+	key := "LLVMGenerator.VisitBinaryExpression.CannotCoerceType"
+
+	return left, right, g.Ctx.Dialect.Error(key, lk, rk)
 }
 
 func (g *LLVMGenerator) isFloat(k llvm.TypeKind) bool {
@@ -172,7 +177,9 @@ func (g *LLVMGenerator) handlePrefixNot(val llvm.Value) llvm.Value {
 func (g *LLVMGenerator) handleBinaryOp(kind lexer.TokenKind, l, r llvm.Value) (error, *CompilerResult) {
 	handler, ok := binaryOpHandlers[kind]
 	if !ok {
-		return fmt.Errorf("Binary expressions : unsupported operator <%s>", kind), nil
+		key := "LLVMGenerator.VisitBinaryExpression.UnsupportedOperator"
+
+		return g.Ctx.Dialect.Error(key, kind), nil
 	}
 
 	res := handler(g, l, r)

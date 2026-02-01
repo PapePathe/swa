@@ -14,7 +14,9 @@ func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInit
 	defer g.logger.Restore(old)
 
 	if !g.Ctx.InsideFunction {
-		return fmt.Errorf("struct initialization should happen inside a function")
+		key := "LLVMGenerator.VisitStructInitializationExpression.NotInsideFunction"
+
+		return g.Ctx.Dialect.Error(key)
 	}
 
 	err, structType := g.Ctx.FindStructSymbol(node.Name)
@@ -55,7 +57,7 @@ func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInit
 		g.Debugf("property index: %d", propIndex)
 
 		if propIndex >= len(node.Values) {
-			return fmt.Errorf("All struct properties must be initialized")
+			return g.Ctx.Dialect.Error("All struct properties must be initialized")
 		}
 
 		expr := node.Values[propIndex]
@@ -76,7 +78,9 @@ func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInit
 		injector, ok := structInjectors[reflect.TypeOf(expr)]
 		if !ok {
 			// TODO this is a developer error and the user should be informed
-			return fmt.Errorf("struct field initialization unimplemented for %T", expr)
+			key := "LLVMGenerator.VisitStructInitializationExpression.Unimplemented"
+
+			return g.Ctx.Dialect.Error(key, expr)
 		}
 
 		targetType := structType.PropertyTypes[propIndex]

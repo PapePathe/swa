@@ -454,7 +454,9 @@ func (g *LLVMGenerator) VisitPrefixExpression(node *ast.PrefixExpression) error 
 func (g *LLVMGenerator) getProperty(expr *ast.MemberExpression) (string, error) {
 	prop, ok := expr.Property.(*ast.SymbolExpression)
 	if !ok {
-		return "", fmt.Errorf("struct property should be a symbol")
+		key := "LLVMGenerator.getProperty.NotASymbol"
+
+		return "", g.Ctx.Dialect.Error(key)
 	}
 
 	return prop.Value, nil
@@ -492,7 +494,9 @@ func (g *LLVMGenerator) resolveGepIndices(indexNode ast.Node) (error, []llvm.Val
 
 	res := g.getLastResult()
 	if res == nil {
-		return fmt.Errorf("failed to evaluate index expression"), nil
+		key := "LLVMGenerator.resolveGepIndices.FailedToEvaluate"
+
+		return g.Ctx.Dialect.Error(key), nil
 	}
 
 	idxVal := *res.Value

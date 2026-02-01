@@ -1,7 +1,6 @@
 package compiler
 
 import (
-	"fmt"
 	"swahili/lang/ast"
 
 	"tinygo.org/x/go-llvm"
@@ -94,13 +93,13 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 
 				err := g.Ctx.AddArraySymbol(name, eType.aEntry)
 				if err != nil {
-					return fmt.Errorf("failed to add parameter %s to arrays symbol table: %w", name, err)
+					return err
 				}
 			}
 
 			err = g.Ctx.AddSymbol(name, &entry)
 			if err != nil {
-				return fmt.Errorf("failed to add parameter %s to symbol table: %w", name, err)
+				return err
 			}
 		}
 
@@ -189,7 +188,9 @@ func (g *LLVMGenerator) extractType(ctx *CompilerCtx, t ast.Type) (error, extrac
 
 		return nil, etype
 	default:
-		return fmt.Errorf("FuncDeclStatement argument type %v not supported", t), extractedType{}
+		key := "LLVMGenerator.VisitFunctionDefinition.UnsupportedArgumentType"
+
+		return g.Ctx.Dialect.Error(key, t), extractedType{}
 	}
 }
 

@@ -43,9 +43,9 @@ func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStr
 	if err != nil {
 		g.Debugf("prop %s not found", propName.Value)
 
-		format := "property (%s) not found in struct %s"
+		key := "LLVMGenerator.VisitArrayOfStructsAccessExpression.PropertyNotFound"
 
-		return fmt.Errorf(format, propName.Value, array.Ref.Metadata.Name)
+		return g.Ctx.Dialect.Error(key, propName.Value, array.Ref.Metadata.Name)
 	}
 
 	structPtr := g.Ctx.Builder.CreateStructGEP(
@@ -234,6 +234,8 @@ func (g *LLVMGenerator) resolveArrayOfStructsBase(nameNode ast.Node) (error, *Sy
 
 		return nil, symEntry, arrEntry
 	default:
-		return fmt.Errorf("ArrayOfStructsAccessExpression not implemented for %T", typednode), nil, nil
+		key := "LLVMGenerator.VisitArrayOfStructsAccessExpression.NotImplementedFor"
+
+		return g.Ctx.Dialect.Error(key, typednode), nil, nil
 	}
 }

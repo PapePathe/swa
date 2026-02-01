@@ -17,7 +17,9 @@ func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) e
 	g.Debugf(node.Name)
 
 	if g.Ctx.SymbolExistsInCurrentScope(node.Name) {
-		return fmt.Errorf("variable %s is already defined", node.Name)
+		key := "LLVMGenerator.VisitVarDeclaration.AlreadyExisits"
+
+		return g.Ctx.Dialect.Error(key, node.Name)
 	}
 
 	switch node.Value {
@@ -104,7 +106,9 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 
 	style, ok := nodeVariableDeclarationStyles[reflect.TypeOf(node.Value)]
 	if !ok {
-		return fmt.Errorf("var decl with %T not supported", node.Value)
+		key := "LLVMGenerator.VisitVarDeclaration.UnsupportedInitializerType"
+
+		return g.Ctx.Dialect.Error(key, node.Value)
 	}
 
 	var finalAddr *llvm.Value
@@ -112,14 +116,18 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 	switch style {
 	case StyleDirect:
 		if !g.Ctx.InsideFunction {
-			return fmt.Errorf("global var decl with %T not supported", node.Value)
+			key := "LLVMGenerator.VisitVarDeclaration.UnsupportedTypeAsGlobal"
+
+			return g.Ctx.Dialect.Error(key, node.Value)
 		}
 
 		finalAddr = res.Value
 
 	case StyleLoadStore:
 		if !g.Ctx.InsideFunction {
-			return fmt.Errorf("global var decl with %T not supported", node.Value)
+			key := "LLVMGenerator.VisitVarDeclaration.NotInsideFunction"
+
+			return g.Ctx.Dialect.Error(key, node.Value)
 		}
 
 		// Logic for extracting value from an accessor

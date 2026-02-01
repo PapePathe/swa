@@ -27,7 +27,9 @@ func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpressi
 	}
 
 	if entry.UnderlyingType.IsNil() {
-		return fmt.Errorf("underlying type not set")
+		key := "LLVMGenerator.VisitArrayAccessExpression.UnderlyingTypeNotSet"
+
+		return g.Ctx.Dialect.Error(key)
 	}
 
 	itemPtr := g.Ctx.Builder.CreateInBoundsGEP(
@@ -114,6 +116,7 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 
 		err, arraySymEntry := g.Ctx.FindArraySymbol(varName.Value)
 		if err != nil {
+
 			key := "ArrayAccessExpression.NotFoundInArraySymbolTable"
 
 			return g.Ctx.Dialect.Error(key, varName.Value), nil, nil, nil
@@ -135,16 +138,18 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 		var isPointerType bool = false
 
 		if val.SymbolTableEntry == nil && val.SymbolTableEntry.Ref == nil {
-			return fmt.Errorf("ArrayAccessExpression Missing SymbolTableEntry"), nil, nil, nil
+			key := "LLVMGenerator.VisitArrayAccessExpression.MissingSymbolTableEntry"
+
+			return g.Ctx.Dialect.Error(key), nil, nil, nil
 		}
 
 		propExpr, _ := expr.Name.(*ast.MemberExpression)
 		propSym, _ := propExpr.Property.(*ast.SymbolExpression)
 
 		if val.SymbolTableEntry.Ref == nil {
-			format := "ArrayAccessExpression property %s is not an array"
+			key := "LLVMGenerator.VisitArrayAccessExpression.PropertyIsnotAnArray"
 
-			return fmt.Errorf(format, propSym.Value), nil, nil, nil
+			return g.Ctx.Dialect.Error(key, propSym.Value), nil, nil, nil
 		}
 
 		propIndex, err := g.resolveStructAccess(val.SymbolTableEntry.Ref, propSym.Value)
@@ -167,7 +172,9 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 		case ast.ArrayType:
 			elementsCount = coltype.Size
 		default:
-			err := fmt.Errorf("Property %s is not an array", propSym.Value)
+			key := "LLVMGenerator.VisitArrayAccessExpression.PropertyIsnotAnArray"
+			err := g.Ctx.Dialect.Error(key, propSym.Value)
+
 			return err, nil, nil, nil
 		}
 
@@ -186,7 +193,8 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 			ElementsCount:  elementsCount,
 		}
 	default:
-		err := fmt.Errorf("ArrayAccessExpression not implemented for %T", expr.Name)
+		key := "LLVMGenerator.VisitArrayAccessExpression.NotImplementedFor"
+		err := g.Ctx.Dialect.Error(key, expr.Name)
 
 		return err, nil, nil, nil
 	}
@@ -241,7 +249,10 @@ func (g *LLVMGenerator) resolveStructAccess(
 ) (int, error) {
 	err, propIndex := structType.Metadata.PropertyIndex(propName)
 	if err != nil {
-		return 0, fmt.Errorf("struct %s has no field %s", structType.Metadata.Name, propName)
+		key := "LLVMGenerator.VisitArrayAccessExpression.FieldDoesNotExistInStruct"
+
+		return 0, g.Ctx.Dialect.Error(key, structType.Metadata.Name, propName)
 	}
 	return propIndex, nil
+
 }

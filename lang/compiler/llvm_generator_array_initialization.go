@@ -1,7 +1,6 @@
 package compiler
 
 import (
-	"fmt"
 	"reflect"
 	"swahili/lang/ast"
 
@@ -28,7 +27,9 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 	defer g.logger.Restore(old)
 
 	if !g.Ctx.InsideFunction {
-		return fmt.Errorf("array initialization should happen inside a function")
+		key := "LLVMGenerator.VisitArrayInitializationExpression.NotInsideFunction"
+
+		return g.Ctx.Dialect.Error(key)
 	}
 
 	err := node.Underlying.Accept(g)
@@ -49,7 +50,9 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 
 		injector, ok := ArrayInitializationExpressionInjectors[reflect.TypeOf(expr)]
 		if !ok {
-			return fmt.Errorf("unsupported array initialization element: %T", expr)
+			key := "LLVMGenerator.VisitArrayInitializationExpression.UnsupportedElement"
+
+			return g.Ctx.Dialect.Error(key, expr)
 		}
 
 		err, sEntry := injector(g, expr, itemGep)
@@ -63,11 +66,6 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 	}
 
 	node.SwaType = node.Underlying
-
-	//	node.SwaType = ast.ArrayType{
-	//		Underlying: node.Underlying,
-	//		Size:       len(node.Contents),
-	//	}
 
 	g.setLastResult(&CompilerResult{
 		Value: &arrayPointer,
