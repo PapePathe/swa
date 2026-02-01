@@ -53,10 +53,14 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 			StuctPropertyValueType: &propType,
 		}
 
+		swatype := result.SymbolTableEntry.Ref.Metadata.Types[propIndex]
+
 		if propType.TypeKind() == llvm.StructTypeKind {
 			prop, _ := varDef.Ref.Embeds[propName]
 			result.SymbolTableEntry.Ref = &prop
 		}
+
+		node.SwaType = swatype
 
 		g.setLastResult(result)
 
@@ -131,12 +135,16 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 			StuctPropertyValueType: &propType,
 		}
 
+		swatype := result.SymbolTableEntry.Ref.Metadata.Types[propIndex]
+
 		if propType.TypeKind() == llvm.StructTypeKind {
 			sEntry, ok := result.SymbolTableEntry.Ref.Embeds[prop.Value]
 			if ok {
 				result.SymbolTableEntry.Ref = &sEntry
 			}
 		}
+
+		node.SwaType = swatype
 
 		g.setLastResult(finalresult)
 

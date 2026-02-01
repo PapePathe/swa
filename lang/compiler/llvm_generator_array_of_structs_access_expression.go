@@ -71,6 +71,8 @@ func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStr
 		array.Ref = arrayEntry.UnderlyingTypeDef
 	}
 
+	node.SwaType = array.Ref.Metadata.Types[propIndex]
+
 	res := &CompilerResult{
 		Value:                  &structPtr,
 		SymbolTableEntry:       array,
