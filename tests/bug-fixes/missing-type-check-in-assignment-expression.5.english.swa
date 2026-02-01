@@ -1,0 +1,9 @@
+dialect:english;
+
+struct Point { x: int, }
+
+start () int {
+  let res : Point;
+  res.x = 1.0;
+  return 0; 
+}

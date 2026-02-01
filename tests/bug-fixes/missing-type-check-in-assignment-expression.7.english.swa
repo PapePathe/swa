@@ -1,0 +1,10 @@
+dialect:english;
+
+struct Coordinate{ x: int, y: int, }
+struct Place { c: Coordinate, Around: [100]Coordinate, }
+
+start () int {
+  let res : Place;
+  res.Around[1].x = 1.0;
+  return 0; 
+}

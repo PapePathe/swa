@@ -326,6 +326,36 @@ func TestBugFixes(t *testing.T) {
 
 			assert.Error(t, req.Compile())
 		})
+
+		t.Run("5", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/missing-type-check-in-assignment-expression.5.english.swa",
+				ExpectedOutput: "Expected assignment of DataTypeNumber but got DataTypeFloat\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+
+		t.Run("6", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/missing-type-check-in-assignment-expression.6.english.swa",
+				ExpectedOutput: "Expected assignment of DataTypeNumber but got DataTypeFloat\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+
+		t.Run("7", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/missing-type-check-in-assignment-expression.7.english.swa",
+				ExpectedOutput: "Expected assignment of DataTypeNumber but got DataTypeFloat\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
 	})
 
 	t.Run("99-missing-type-check-in-variable-declaration", func(t *testing.T) {

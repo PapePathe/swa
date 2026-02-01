@@ -1,0 +1,10 @@
+dialect:english;
+
+struct Coordinate{ x: int, y: int, }
+struct Place { c: Coordinate, }
+
+start () int {
+  let res : Place;
+  res.c.x = 1.0;
+  return 0; 
+}
