@@ -3,8 +3,6 @@ package ast
 import (
 	"fmt"
 	"os"
-
-	"tinygo.org/x/go-llvm"
 )
 
 type DataType int
@@ -171,10 +169,6 @@ var _ Type = (*VoidType)(nil)
 
 func (VoidType) Value() DataType {
 	return DataTypeVoid
-}
-
-func (VoidType) LLVMType(ctx *CompilerCtx) (error, llvm.Type) {
-	return nil, llvm.GlobalContext().VoidType()
 }
 
 func (typ VoidType) Accept(g CodeGenerator) error {
