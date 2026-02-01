@@ -116,5 +116,7 @@ func (m English) translations() map[string]string {
 		"LLVMGenerator.resolveGepIndices.FailedToEvaluate": "failed to evaluate index expression",
 
 		"LLVMGenerator.getProperty.NotASymbol": "struct property should be a symbol",
+
+		"LLVMGenerator.ZeroOfArrayType.TooBigForZeroInitializer": "ArraySize (%d) too big for zero value initialization, max is %d",
 	}
 }
