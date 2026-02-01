@@ -1,7 +1,6 @@
 package compiler
 
 import (
-	"fmt"
 	"swahili/lang/ast"
 )
 
@@ -40,12 +39,10 @@ func (l *LLVMTypeChecker) VisitAssignmentExpression(node *ast.AssignmentExpressi
 
 	if asstype == nil {
 		return nil
-		fmt.Printf("LLVMTypeChecker VisitAssignmentExpression type of assignee is nil")
 	}
 
 	if valType == nil {
 		return nil
-		return fmt.Errorf("LLVMTypeChecker VisitAssignmentExpression type of value is nil")
 	}
 
 	if asstype != valType {
