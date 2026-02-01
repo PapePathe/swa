@@ -1,0 +1,9 @@
+dialect:english;
+
+struct Coordinate{ x: int, y: int, }
+struct Place { c: Coordinate, Around: [10000]Coordinate, }
+
+start () int {
+  let res : Place;
+  return 0; 
+}

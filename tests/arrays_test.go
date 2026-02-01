@@ -283,6 +283,18 @@ func TestArrayZeroValues(t *testing.T) {
 			"- [3]Dimension with zero value\n(Index: 0) Length: 0.00 Height: 0\n(Index: 1) Length: 0.00 Height: 0\n(Index: 2) Length: 0.00 Height: 0\n",
 		)
 	})
+
+	t.Run("Size Too large", func(t *testing.T) {
+		t.Parallel()
+
+		req := CompileRequest{
+			InputPath:      "./arrays/zero-values/size-limits.swa",
+			ExpectedOutput: "ArraySize (10000) too big for zero value initialization, max is 1000\n",
+			T:              t,
+		}
+
+		assert.Error(t, req.Compile())
+	})
 }
 
 func TestArrayAccessWithSymbolExpression(t *testing.T) {
