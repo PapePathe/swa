@@ -92,9 +92,9 @@ func NewCompilerContext(
 
 func (ctx CompilerCtx) UpdateStructSymbol(name string, value *StructSymbolTableEntry) error {
 	if _, exists := ctx.structSymbolTable[name]; !exists {
-		format := "struct named %s cannot be updated since it does not exist in symbol table"
+		key := "CompilerCtx.UpdateStructSymbol.StructDoesNotExist"
 
-		return fmt.Errorf(format, name)
+		return ctx.Dialect.Error(key, name)
 	}
 
 	ctx.structSymbolTable[name] = *value
@@ -104,7 +104,9 @@ func (ctx CompilerCtx) UpdateStructSymbol(name string, value *StructSymbolTableE
 
 func (ctx CompilerCtx) AddStructSymbol(name string, value *StructSymbolTableEntry) error {
 	if _, exists := ctx.structSymbolTable[name]; exists {
-		return fmt.Errorf("struct named %s already exists in symbol table", name)
+		key := "CompilerCtx.AddStructSymbol.StructAlreadyExist"
+
+		return ctx.Dialect.Error(key, name)
 	}
 
 	ctx.structSymbolTable[name] = *value
@@ -117,7 +119,9 @@ func (ctx CompilerCtx) FindStructSymbol(name string) (error, *StructSymbolTableE
 
 	if !exists {
 		if ctx.parent == nil {
-			return fmt.Errorf("struct named %s does not exist in symbol table", name), nil
+			key := "CompilerCtx.FindStructSymbol.StructDoesNotExist"
+
+			return ctx.Dialect.Error(key, name), nil
 		}
 
 		return ctx.parent.FindStructSymbol(name)
@@ -128,7 +132,8 @@ func (ctx CompilerCtx) FindStructSymbol(name string) (error, *StructSymbolTableE
 
 func (ctx CompilerCtx) AddArraySymbol(name string, value *ArraySymbolTableEntry) error {
 	if _, exists := ctx.arraysSymbolTable[name]; exists {
-		return fmt.Errorf("array named %s already exists in symbol table", name)
+		key := "CompilerCtx.AddArraySymbol.AlreadyExisits"
+		return ctx.Dialect.Error(key, name)
 	}
 
 	ctx.arraysSymbolTable[name] = *value
@@ -141,7 +146,9 @@ func (ctx CompilerCtx) FindArraySymbol(name string) (error, *ArraySymbolTableEnt
 
 	if !exists {
 		if ctx.parent == nil {
-			return fmt.Errorf("array named %s does not exist in symbol table", name), nil
+			key := "CompilerCtx.FindArraySymbol.DoesNotExist"
+
+			return ctx.Dialect.Error(key, name), nil
 		}
 
 		return ctx.parent.FindArraySymbol(name)
@@ -152,7 +159,9 @@ func (ctx CompilerCtx) FindArraySymbol(name string) (error, *ArraySymbolTableEnt
 
 func (ctx CompilerCtx) AddFuncSymbol(name string, value *llvm.Type) error {
 	if _, exists := ctx.funcSymbolTable[name]; exists {
-		return fmt.Errorf("function named %s already exists in symbol table", name)
+		key := "CompilerCtx.AddFuncSymbol.AlreadyExisits"
+
+		return ctx.Dialect.Error(key, name)
 	}
 
 	ctx.funcSymbolTable[name] = *value
@@ -171,7 +180,9 @@ func (ctx CompilerCtx) FindFuncSymbol(name string) (error, *llvm.Type) {
 
 	if !exists {
 		if ctx.parent == nil {
-			return fmt.Errorf("function named %s does not exist in symbol table", name), nil
+			key := "CompilerCtx.FindFuncSymbol.DoesNotExist"
+
+			return ctx.Dialect.Error(key, name), nil
 		}
 
 		return ctx.parent.FindFuncSymbol(name)
@@ -182,7 +193,9 @@ func (ctx CompilerCtx) FindFuncSymbol(name string) (error, *llvm.Type) {
 
 func (ctx CompilerCtx) AddSymbol(name string, value *SymbolTableEntry) error {
 	if _, exists := ctx.symbolTable[name]; exists {
-		return fmt.Errorf("variable named %s already exists in symbol table", name)
+		key := "CompilerCtx.AddSymbol.AlreadyExisits"
+
+		return ctx.Dialect.Error(key, name)
 	}
 
 	ctx.symbolTable[name] = *value
@@ -195,7 +208,9 @@ func (ctx CompilerCtx) FindSymbol(name string) (error, *SymbolTableEntry) {
 
 	if !exists {
 		if ctx.parent == nil {
-			return fmt.Errorf("variable named %s does not exist in symbol table", name), nil
+			key := "CompilerCtx.FindSymbol.DoesNotExist"
+
+			return ctx.Dialect.Error(key, name), nil
 		}
 
 		return ctx.parent.FindSymbol(name)
