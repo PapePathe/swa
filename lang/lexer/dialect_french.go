@@ -76,5 +76,46 @@ func (m French) translations() map[string]string {
 		"CompilerCtx.AddFuncSymbol.AlreadyExisits":          "function named %s already exists in symbol table",
 		"CompilerCtx.AddSymbol.AlreadyExisits":              "variable named %s already exists in symbol table",
 		"CompilerCtx.FindSymbol.DoesNotExist":               "variable named %s does not exist in symbol table",
+
+		"LLVMGenerator.VisitArrayAccessExpression.FieldDoesNotExistInStruct": "struct %s has no field %s",
+		"LLVMGenerator.VisitArrayAccessExpression.UnderlyingTypeNotSet":      "underlying type not set",
+		"LLVMGenerator.VisitArrayAccessExpression.MissingSymbolTableEntry":   "ArrayAccessExpression Missing SymbolTableEntry",
+		"LLVMGenerator.VisitArrayAccessExpression.PropertyIsnotAnArray":      "ArrayAccessExpression property %s is not an array",
+		"LLVMGenerator.VisitArrayAccessExpression.NotImplementedFor":         "ArrayAccessExpression not implemented for %T",
+
+		"LLVMGenerator.VisitArrayInitializationExpression.NotInsideFunction":  "array initialization should happen inside a function",
+		"LLVMGenerator.VisitArrayInitializationExpression.UnsupportedElement": "unsupported array initialization element: %T",
+		"LLVMGenerator.VisitArrayOfStructsAccessExpression.NotImplementedFor": "ArrayOfStructsAccessExpression not implemented for %T",
+		"LLVMGenerator.VisitArrayOfStructsAccessExpression.PropertyNotFound":  "property (%s) not found in struct %s",
+
+		"LLVMGenerator.VisitVarDeclaration.NotInsideFunction":          "global var decl with %T not supported",
+		"LLVMGenerator.VisitVarDeclaration.AlreadyExisits":             "variable %s is already defined",
+		"LLVMGenerator.VisitVarDeclaration.UnsupportedInitializerType": "var decl with %T not supported",
+		"LLVMGenerator.VisitVarDeclaration.UnsupportedTypeAsGlobal":    "global var decl with %T not supported",
+
+		"LLVMGenerator.VisitBinaryExpression.StringsAreNotSupported": "Strings are not supported in %s of binary expression",
+		"LLVMGenerator.VisitBinaryExpression.TypeMismatch":           "type mismatch at %v: %w",
+		"LLVMGenerator.VisitBinaryExpression.CannotCoerceType":       "cannot coerce %s and %s",
+		"LLVMGenerator.VisitBinaryExpression.UnsupportedOperator":    "Binary expressions : unsupported operator <%s>",
+
+		"LLVMGenerator.VisitFunctionCall.UnsupportedType":                "Type %T not supported as function call argument",
+		"LLVMGenerator.VisitFunctionCall.DoesNotExist":                   "function %s does not exist",
+		"LLVMGenerator.VisitFunctionCall.ArgsAndParamsCountAreDifferent": "function %s expect %d arguments but was given %d",
+		"LLVMGenerator.VisitFunctionCall.NameIsNotASymbol":               "FunctionCallExpression: name is not a symbol",
+		"LLVMGenerator.VisitFunctionCall.FailedToEvaluate":               "failed to evaluate argument %d",
+		"LLVMGenerator.VisitFunctionCall.StructPropertyValueTypeIsNil":   "Struct property value type should be set -- Also cannot index array item that is a struct",
+		"LLVMGenerator.VisitFunctionCall.UnexpectedArgumentType":         "expected argument of type %s but got %s",
+
+		"LLVMGenerator.VisitFunctionDefinition.UnsupportedArgumentType": "FuncDeclStatement argument type %v not supported",
+
+		"LLVMGenerator.VisitMemberExpression.PropertyNotFound":   "Property named %s does not exist at index %d",
+		"LLVMGenerator.VisitMemberExpression.NotDefined":         "variable %s is not defined",
+		"LLVMGenerator.VisitMemberExpression.NotAStructInstance": "variable %s is not a struct instance",
+
+		"LLVMGenerator.VisitStructInitializationExpression.Unimplemented": "struct field initialization unimplemented for %T",
+
+		"LLVMGenerator.resolveGepIndices.FailedToEvaluate": "failed to evaluate index expression",
+
+		"LLVMGenerator.getProperty.NotASymbol": "struct property should be a symbol",
 	}
 }
