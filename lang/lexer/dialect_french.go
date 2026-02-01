@@ -58,5 +58,23 @@ func (m French) translations() map[string]string {
 
 		"NumberExpression.LessThanMinInt32":    "%d est plus petit que la valeur minimale pour un entier de 32 bits",
 		"NumberExpression.GreaterThanMaxInt32": "%d est plus grand que la valeur maximale pour un entier de 32 bits",
+
+		"VisitStructDeclaration.SelfPointerReferenceNotAllowed": "struct with pointer reference to self not supported, property: %s",
+		"VisitStructDeclaration.SelfReferenceNotAllowed":        "struct with reference to self not supported, property: %s",
+
+		"VisitSymbolExpression.UnsupportedTypeAsGlobal": "Unsupported datatype %s in global",
+		"VisitPrefixExpression.OperatorNotSupported":    "PrefixExpression: operator %s not supported",
+
+		"LLVMTypeChecker.VisitVarDeclaration.UnexpectedValue":       "expected %s but got %s",
+		"LLVMTypeChecker.VisitAssignmentExpression.UnexpectedValue": "Expected assignment of %s but got %s",
+
+		"CompilerCtx.UpdateStructSymbol.StructDoesNotExist": "struct named %s cannot be updated since it does not exist in symbol table",
+		"CompilerCtx.AddStructSymbol.StructAlreadyExist":    "struct named %s already exists in symbol table",
+		"CompilerCtx.FindStructSymbol.StructDoesNotExist":   "struct named %s does not exist in symbol table",
+		"CompilerCtx.AddArraySymbol.AlreadyExisits":         "array named %s already exists in symbol table",
+		"CompilerCtx.FindArraySymbol.DoesNotExist":          "array named %s does not exist in symbol table",
+		"CompilerCtx.AddFuncSymbol.AlreadyExisits":          "function named %s already exists in symbol table",
+		"CompilerCtx.AddSymbol.AlreadyExisits":              "variable named %s already exists in symbol table",
+		"CompilerCtx.FindSymbol.DoesNotExist":               "variable named %s does not exist in symbol table",
 	}
 }

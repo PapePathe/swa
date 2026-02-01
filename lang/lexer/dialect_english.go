@@ -48,18 +48,31 @@ func (m English) Error(key string, args ...any) error {
 
 func (m English) translations() map[string]string {
 	return map[string]string{
-		"ArrayAccessExpression.NameNotASymbol":                      "The expression %v is not a correct variable name",
-		"ArrayAccessExpression.NotFoundInSymbolTable":               "The variable %s does not exist in symbol table",
-		"ArrayAccessExpression.AccessedIndexIsNotANumber":           "Only numbers are supported as array index, current: (%s)",
-		"ArrayAccessExpression.NotFoundInArraySymbolTable":          "Array (%s) does not exist in symbol table",
-		"ArrayAccessExpression.IndexOutOfBounds":                    "Element at index (%s) does not exist in array (%s)",
-		"NumberExpression.LessThanMinInt32":                         "%d is smaller than min value for int32",
-		"NumberExpression.GreaterThanMaxInt32":                      "%d is greater than max value for int32",
-		"VisitStructDeclaration.SelfPointerReferenceNotAllowed":     "struct with pointer reference to self not supported, property: %s",
-		"VisitStructDeclaration.SelfReferenceNotAllowed":            "struct with reference to self not supported, property: %s",
-		"VisitSymbolExpression.UnsupportedTypeAsGlobal":             "Unsupported datatype %s in global",
-		"VisitPrefixExpression.OperatorNotSupported":                "PrefixExpression: operator %s not supported",
+		"ArrayAccessExpression.NameNotASymbol":             "The expression %v is not a correct variable name",
+		"ArrayAccessExpression.NotFoundInSymbolTable":      "The variable %s does not exist in symbol table",
+		"ArrayAccessExpression.AccessedIndexIsNotANumber":  "Only numbers are supported as array index, current: (%s)",
+		"ArrayAccessExpression.NotFoundInArraySymbolTable": "Array (%s) does not exist in symbol table",
+		"ArrayAccessExpression.IndexOutOfBounds":           "Element at index (%s) does not exist in array (%s)",
+
+		"NumberExpression.LessThanMinInt32":    "%d is smaller than min value for int32",
+		"NumberExpression.GreaterThanMaxInt32": "%d is greater than max value for int32",
+
+		"VisitStructDeclaration.SelfPointerReferenceNotAllowed": "struct with pointer reference to self not supported, property: %s",
+		"VisitStructDeclaration.SelfReferenceNotAllowed":        "struct with reference to self not supported, property: %s",
+
+		"VisitSymbolExpression.UnsupportedTypeAsGlobal": "Unsupported datatype %s in global",
+		"VisitPrefixExpression.OperatorNotSupported":    "PrefixExpression: operator %s not supported",
+
 		"LLVMTypeChecker.VisitVarDeclaration.UnexpectedValue":       "expected %s but got %s",
 		"LLVMTypeChecker.VisitAssignmentExpression.UnexpectedValue": "Expected assignment of %s but got %s",
+
+		"CompilerCtx.UpdateStructSymbol.StructDoesNotExist": "struct named %s cannot be updated since it does not exist in symbol table",
+		"CompilerCtx.AddStructSymbol.StructAlreadyExist":    "struct named %s already exists in symbol table",
+		"CompilerCtx.FindStructSymbol.StructDoesNotExist":   "struct named %s does not exist in symbol table",
+		"CompilerCtx.AddArraySymbol.AlreadyExisits":         "array named %s already exists in symbol table",
+		"CompilerCtx.FindArraySymbol.DoesNotExist":          "array named %s does not exist in symbol table",
+		"CompilerCtx.AddFuncSymbol.AlreadyExisits":          "function named %s already exists in symbol table",
+		"CompilerCtx.AddSymbol.AlreadyExisits":              "variable named %s already exists in symbol table",
+		"CompilerCtx.FindSymbol.DoesNotExist":               "variable named %s does not exist in symbol table",
 	}
 }
