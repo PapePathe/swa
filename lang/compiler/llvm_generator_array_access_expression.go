@@ -116,15 +116,22 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 
 		err, arraySymEntry := g.Ctx.FindArraySymbol(varName.Value)
 		if err != nil {
-
 			key := "ArrayAccessExpression.NotFoundInArraySymbolTable"
 
 			return g.Ctx.Dialect.Error(key, varName.Value), nil, nil, nil
 		}
 
 		entry = arraySymEntry
-
 		name = varName.Value
+
+		arrtyp, ok := arrayEntry.DeclaredType.(ast.ArrayType)
+		if !ok {
+			key := "ArrayAccessExpression.DeclaredTypeIsNotArray"
+
+			return g.Ctx.Dialect.Error(key), nil, nil, nil
+		}
+		expr.SwaType = arrtyp.Underlying
+
 	case *ast.MemberExpression:
 		err := expr.Name.Accept(g)
 		if err != nil {
@@ -159,6 +166,8 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 
 		astType := val.SymbolTableEntry.Ref.Metadata.Types[propIndex]
 
+		expr.SwaType = astType
+
 		err = astType.Accept(g)
 		if err != nil {
 			return err, nil, nil, nil
@@ -171,6 +180,7 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 			isPointerType = true
 		case ast.ArrayType:
 			elementsCount = coltype.Size
+			expr.SwaType = coltype.Underlying
 		default:
 			key := "LLVMGenerator.VisitArrayAccessExpression.PropertyIsnotAnArray"
 			err := g.Ctx.Dialect.Error(key, propSym.Value)
@@ -253,6 +263,6 @@ func (g *LLVMGenerator) resolveStructAccess(
 
 		return 0, g.Ctx.Dialect.Error(key, structType.Metadata.Name, propName)
 	}
-	return propIndex, nil
 
+	return propIndex, nil
 }

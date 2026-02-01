@@ -24,6 +24,8 @@ func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) e
 
 	switch node.Value {
 	case nil:
+		g.Debugf("Initializing with Zero Value")
+
 		err := node.ExplicitType.Accept(g)
 		if err != nil {
 			return err
@@ -67,6 +69,8 @@ func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) e
 				return err
 			}
 		}
+
+		g.Debugf("Initializing with Zero Value finished")
 
 		return nil
 	default:

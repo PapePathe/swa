@@ -56,6 +56,7 @@ func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStr
 	)
 
 	proptype := array.Ref.PropertyTypes[propIndex]
+	swatype := array.Ref.Metadata.Types[propIndex]
 
 	if proptype.TypeKind() == llvm.StructTypeKind {
 		nestedstruct, _ := array.Ref.Embeds[propName.Value]
@@ -71,7 +72,7 @@ func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStr
 		array.Ref = arrayEntry.UnderlyingTypeDef
 	}
 
-	node.SwaType = array.Ref.Metadata.Types[propIndex]
+	node.SwaType = swatype
 
 	res := &CompilerResult{
 		Value:                  &structPtr,
