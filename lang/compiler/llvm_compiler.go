@@ -68,6 +68,10 @@ func (c *LLVMCompiler) Run() error {
 		os.Exit(1)
 	}
 
+	if c.context.Debugging {
+		fmt.Println("Started llir compilation")
+	}
+
 	llc := findCommand("llc-19", "llc")
 	cmd := exec.Command(llc, c.llirFileName(), "-o", c.asmFileName())
 	cmd.Stdout = os.Stdout
@@ -76,6 +80,10 @@ func (c *LLVMCompiler) Run() error {
 	err = cmd.Run()
 	if err != nil {
 		return fmt.Errorf("Error compiling IR %w", err)
+	}
+
+	if c.context.Debugging {
+		fmt.Println("Finished llir compilation")
 	}
 
 	clang := findCommand("clang-19", "clang")
