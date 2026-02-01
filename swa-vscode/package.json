@@ -1,0 +1,34 @@
+{
+    "name": "swa-vscode",
+    "displayName": "Swa Language Support",
+    "description": "Syntax highlighting and language support for the Swa programming language.",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.75.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "swa",
+                "aliases": [
+                    "Swa",
+                    "swa"
+                ],
+                "extensions": [
+                    ".swa"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "swa",
+                "scopeName": "source.swa",
+                "path": "./syntaxes/swa.tmLanguage.json"
+            }
+        ]
+    }
+}
