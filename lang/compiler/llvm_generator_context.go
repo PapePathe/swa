@@ -42,6 +42,11 @@ type ArraySymbolTableEntry struct {
 	ElementsCount     int
 }
 
+type FuncDetails struct {
+	meta   *ast.FuncDeclStatement
+	lltype llvm.Type
+}
+
 type CompilerCtx struct {
 	parent            *CompilerCtx
 	Context           *llvm.Context
@@ -51,7 +56,7 @@ type CompilerCtx struct {
 	symbolTable       map[string]SymbolTableEntry
 	structSymbolTable map[string]StructSymbolTableEntry
 	arraysSymbolTable map[string]ArraySymbolTableEntry
-	funcSymbolTable   map[string]llvm.Type
+	funcSymbolTable   map[string]FuncDetails
 	Debugging         bool
 	InsideFunction    bool
 }
@@ -79,7 +84,7 @@ func NewCompilerContext(
 		Debugging:         debugging,
 		symbolTable:       map[string]SymbolTableEntry{},
 		structSymbolTable: map[string]StructSymbolTableEntry{},
-		funcSymbolTable:   map[string]llvm.Type{},
+		funcSymbolTable:   map[string]FuncDetails{},
 		arraysSymbolTable: map[string]ArraySymbolTableEntry{},
 	}
 
@@ -157,14 +162,14 @@ func (ctx CompilerCtx) FindArraySymbol(name string) (error, *ArraySymbolTableEnt
 	return nil, &entry
 }
 
-func (ctx CompilerCtx) AddFuncSymbol(name string, value *llvm.Type) error {
+func (ctx CompilerCtx) AddFuncSymbol(name string, value *llvm.Type, meta *ast.FuncDeclStatement) error {
 	if _, exists := ctx.funcSymbolTable[name]; exists {
 		key := "CompilerCtx.AddFuncSymbol.AlreadyExisits"
 
 		return ctx.Dialect.Error(key, name)
 	}
 
-	ctx.funcSymbolTable[name] = *value
+	ctx.funcSymbolTable[name] = FuncDetails{lltype: *value, meta: meta}
 
 	return nil
 }
@@ -175,7 +180,7 @@ func (ctx CompilerCtx) SymbolExistsInCurrentScope(name string) bool {
 	return exists
 }
 
-func (ctx CompilerCtx) FindFuncSymbol(name string) (error, *llvm.Type) {
+func (ctx CompilerCtx) FindFuncSymbol(name string) (error, *FuncDetails) {
 	entry, exists := ctx.funcSymbolTable[name]
 
 	if !exists {
