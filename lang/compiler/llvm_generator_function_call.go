@@ -39,6 +39,7 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		return g.Ctx.Dialect.Error(key, name.Value, funcVal.ParamsCount(), len(node.Args))
 	}
 
+	node.SwaType = funcType.meta.ReturnType
 	args := []llvm.Value{}
 
 	for i, arg := range node.Args {
@@ -135,7 +136,7 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		}
 	}
 
-	val := g.Ctx.Builder.CreateCall(*funcType, funcVal, args, "")
+	val := g.Ctx.Builder.CreateCall(funcType.lltype, funcVal, args, "")
 
 	g.setLastResult(&CompilerResult{Value: &val})
 

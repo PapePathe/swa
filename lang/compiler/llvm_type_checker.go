@@ -43,8 +43,7 @@ func (l *LLVMTypeChecker) VisitAssignmentExpression(node *ast.AssignmentExpressi
 	}
 
 	if valType == nil {
-		return nil
-		//	return fmt.Errorf("LLVMTypeChecker VisitAssignmentExpression type of value is nil")
+		return fmt.Errorf("LLVMTypeChecker VisitAssignmentExpression type of value is nil")
 	}
 
 	if asstype != valType {
