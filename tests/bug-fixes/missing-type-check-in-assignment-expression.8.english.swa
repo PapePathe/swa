@@ -1,0 +1,11 @@
+dialect:english;
+
+func multiply(first : float, last: float) int {
+  return first * last;
+}
+
+start() int {
+  let m : float = 0.0;
+  m = multiply(10.02, 5.05);
+  return 0; 
+}
