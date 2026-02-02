@@ -42,7 +42,7 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 	newfuncType := llvm.FunctionType(typetoReturn, params, node.ArgsVariadic)
 	newFunc := llvm.AddFunction(*g.Ctx.Module, node.Name, newfuncType)
 
-	err = oldCtx.AddFuncSymbol(node.Name, &newfuncType)
+	err = oldCtx.AddFuncSymbol(node.Name, &newfuncType, node)
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,6 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 			name := node.Args[i].Name
 			p.SetName(name)
 
-			// Create alloca for the parameter to support address taking and array indexing
 			var entry SymbolTableEntry
 
 			switch argType.(type) {
