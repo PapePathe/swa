@@ -53,6 +53,7 @@ var tks = map[TokenKind]string{
 	TypeInt64:          "TYPE_INT_64",
 	TypeFloat:          "TYPE_FLOAT",
 	TypeString:         "TYPE_STRING",
+	TypeError:          "TYPE_ERROR",
 	Variadic:           "VARIADIC",
 }
 
@@ -165,4 +166,5 @@ const (
 	Modulo
 
 	Variadic
+	TypeError
 )

@@ -44,6 +44,7 @@ func (m Wolof) Reserved() map[string]TokenKind {
 		"lëmm":      TypeInt,
 		"lëmm64":    TypeInt64,
 		"ay_araf":   TypeString,
+		"njumte":    TypeError,
 		// TODO: find  translation for variadic
 		"variadique": Variadic,
 	}

@@ -14,6 +14,7 @@ func TestReservedMalinke(t *testing.T) {
 		"let":    Let,
 		"const":  Const,
 		"fèndo":  TypeInt,
+		"erreur": TypeError,
 	}
 
 	malinke := Malinke{}

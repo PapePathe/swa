@@ -32,6 +32,7 @@ func (m French) Reserved() map[string]TokenKind {
 		"entier":     TypeInt,
 		"entier64":   TypeInt64,
 		"chaine":     TypeString,
+		"erreur":     TypeError,
 		"variadique": Variadic,
 	}
 }

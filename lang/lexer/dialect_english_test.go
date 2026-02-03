@@ -11,6 +11,7 @@ func TestReservedEnglish(t *testing.T) {
 		"const":    Const,
 		"dialect":  DialectDeclaration,
 		"else":     KeywordElse,
+		"error":    TypeError,
 		"float":    TypeFloat,
 		"func":     Function,
 		"if":       KeywordIf,

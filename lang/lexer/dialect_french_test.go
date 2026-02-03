@@ -16,6 +16,7 @@ func TestReservedFrench(t *testing.T) {
 		"dialecte":   DialectDeclaration,
 		"entier":     TypeInt,
 		"entier64":   TypeInt64,
+		"erreur":     TypeError,
 		"fonction":   Function,
 		"retourner":  Return,
 		"si":         KeywordIf,
