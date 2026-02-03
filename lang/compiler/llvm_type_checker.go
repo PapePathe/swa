@@ -85,6 +85,11 @@ func (l *LLVMTypeChecker) VisitConditionalStatement(node *ast.ConditionalStatete
 	return nil
 }
 
+// VisitErrorExpression implements [ast.CodeGenerator].
+func (l *LLVMTypeChecker) VisitErrorExpression(node *ast.ErrorExpression) error {
+	return nil
+}
+
 // VisitExpressionStatement implements [ast.CodeGenerator].
 func (l *LLVMTypeChecker) VisitExpressionStatement(node *ast.ExpressionStatement) error {
 	return node.Exp.Accept(l)
@@ -161,9 +166,11 @@ func (l *LLVMTypeChecker) VisitStringExpression(node *ast.StringExpression) erro
 }
 
 // VisitStringType implements [ast.CodeGenerator].
-func (l *LLVMTypeChecker) VisitStringType(node *ast.StringType) error {
-	return nil
-}
+func (l *LLVMTypeChecker) VisitStringType(node *ast.StringType) error { return nil }
+
+func (l *LLVMTypeChecker) VisitErrorType(node *ast.ErrorType) error { return nil }
+
+func (l *LLVMTypeChecker) VisitTupleType(node *ast.TupleType) error { return nil }
 
 // VisitStructDeclaration implements [ast.CodeGenerator].
 func (l *LLVMTypeChecker) VisitStructDeclaration(node *ast.StructDeclarationStatement) error {
@@ -182,6 +189,16 @@ func (l *LLVMTypeChecker) VisitSymbolExpression(node *ast.SymbolExpression) erro
 
 // VisitSymbolType implements [ast.CodeGenerator].
 func (l *LLVMTypeChecker) VisitSymbolType(node *ast.SymbolType) error {
+	return nil
+}
+
+// VisitTupleExpression implements [ast.CodeGenerator].
+func (l *LLVMTypeChecker) VisitTupleExpression(node *ast.TupleExpression) error {
+	return nil
+}
+
+// VisitTupleAssignmentExpression implements [ast.CodeGenerator].
+func (l *LLVMTypeChecker) VisitTupleAssignmentExpression(node *ast.TupleAssignmentExpression) error {
 	return nil
 }
 
@@ -222,10 +239,11 @@ func (l *LLVMTypeChecker) ZeroOfArrayType(node *ast.ArrayType) error {
 	return nil
 }
 
+// ZeroOfErrorType implements [ast.CodeGenerator].
+func (l *LLVMTypeChecker) ZeroOfErrorType(node *ast.ErrorType) error { return nil }
+
 // ZeroOfFloatType implements [ast.CodeGenerator].
-func (l *LLVMTypeChecker) ZeroOfFloatType(node *ast.FloatType) error {
-	return nil
-}
+func (l *LLVMTypeChecker) ZeroOfFloatType(node *ast.FloatType) error { return nil }
 
 // ZeroOfNumber64Type implements [ast.CodeGenerator].
 func (l *LLVMTypeChecker) ZeroOfNumber64Type(node *ast.Number64Type) error {
@@ -254,6 +272,10 @@ func (l *LLVMTypeChecker) ZeroOfSymbolType(node *ast.SymbolType) error {
 
 // ZeroOfVoidType implements [ast.CodeGenerator].
 func (l *LLVMTypeChecker) ZeroOfVoidType(node *ast.VoidType) error {
+	return nil
+}
+
+func (l *LLVMTypeChecker) ZeroOfTupleType(node *ast.TupleType) error {
 	return nil
 }
 

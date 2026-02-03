@@ -485,6 +485,42 @@ func (g *LLVMGenerator) prepareReturnValue(expr ast.Expression, res *CompilerRes
 	}
 }
 
+func (g *LLVMGenerator) VisitTupleAssignmentExpression(node *ast.TupleAssignmentExpression) error {
+	// 1. Evaluate RHS
+	if err := node.Value.Accept(g); err != nil {
+		return err
+	}
+	rhsRes := g.getLastResult()
+	if rhsRes == nil || rhsRes.Value == nil {
+		return fmt.Errorf("RHS of tuple assignment evaluated to nil")
+	}
+	rhsVal := *rhsRes.Value
+
+	// 2. Iterate Assignees
+	for i, expr := range node.Assignees.Expressions {
+		// Extract value at index i
+		elemVal := g.Ctx.Builder.CreateExtractValue(rhsVal, i, "")
+
+		// Store into assignee
+		switch a := expr.(type) {
+		case *ast.SymbolExpression:
+			err, entry := g.Ctx.FindSymbol(a.Value)
+			if err != nil {
+				return err
+			}
+
+			if entry.Address == nil {
+				return fmt.Errorf("cannot assign to symbol %s which has no address", a.Value)
+			}
+
+			g.Ctx.Builder.CreateStore(elemVal, *entry.Address)
+		default:
+			return fmt.Errorf("Unsupported assignee type in tuple assignment: %T", a)
+		}
+	}
+	return nil
+}
+
 // resolveGepIndices prepares the indices for a CreateGEP call.
 // It ensures the first index is 0 (dereference) and the second is the evaluated index.
 func (g *LLVMGenerator) resolveGepIndices(indexNode ast.Node) (error, []llvm.Value) {

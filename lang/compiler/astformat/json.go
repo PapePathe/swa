@@ -34,7 +34,15 @@ func (j *Json) ZeroOfNumberType(node *ast.NumberType) error {
 
 // ZeroOfPointerType implements [ast.CodeGenerator].
 func (j *Json) ZeroOfPointerType(node *ast.PointerType) error {
-	panic("unimplemented")
+	return nil
+}
+
+func (j *Json) ZeroOfErrorType(node *ast.ErrorType) error {
+	return nil
+}
+
+func (j *Json) ZeroOfTupleType(node *ast.TupleType) error {
+	return nil
 }
 
 // ZeroOfStringType implements [ast.CodeGenerator].
@@ -133,6 +141,45 @@ func (j *Json) VisitAssignmentExpression(node *ast.AssignmentExpression) error {
 
 	res := make(map[string]any)
 	res["AssignmentExpression"] = m
+
+	j.setLastResult(res)
+
+	return nil
+}
+
+// VisitTupleExpression implements [ast.CodeGenerator].
+func (j *Json) VisitTupleExpression(node *ast.TupleExpression) error {
+	m := make(map[string]any)
+	m["Expressions"] = visitValuesArray(j, node.Expressions)
+
+	res := make(map[string]any)
+	res["TupleExpression"] = m
+
+	j.setLastResult(res)
+
+	return nil
+}
+
+// VisitErrorExpression implements [ast.CodeGenerator].
+func (j *Json) VisitErrorExpression(node *ast.ErrorExpression) error {
+	res := make(map[string]any)
+	res["ErrorExpression"] = nil // Error expressions typically don't have a value to format
+
+	j.setLastResult(res)
+
+	return nil
+}
+
+// VisitTupleAssignmentExpression implements [ast.CodeGenerator].
+func (j *Json) VisitTupleAssignmentExpression(node *ast.TupleAssignmentExpression) error {
+	m := make(map[string]any)
+	_ = node.Assignees.Accept(j)
+	m["Assignees"] = j.getLastResult()
+	_ = node.Value.Accept(j)
+	m["Value"] = j.getLastResult()
+
+	res := make(map[string]any)
+	res["TupleAssignmentExpression"] = m
 
 	j.setLastResult(res)
 
@@ -456,6 +503,27 @@ func (j *Json) VisitSymbolType(node *ast.SymbolType) error {
 
 	j.setLastResult(res)
 
+	return nil
+}
+
+func (j *Json) VisitErrorType(node *ast.ErrorType) error {
+	res := make(map[string]any)
+	res["ErrorType"] = node.Value().String()
+	j.setLastResult(res)
+	return nil
+}
+
+func (j *Json) VisitTupleType(node *ast.TupleType) error {
+	m := make(map[string]any)
+	types := []map[string]any{}
+	for _, t := range node.Types {
+		_ = t.Accept(j)
+		types = append(types, j.getLastResult())
+	}
+	m["Types"] = types
+	res := make(map[string]any)
+	res["TupleType"] = m
+	j.setLastResult(res)
 	return nil
 }
 
