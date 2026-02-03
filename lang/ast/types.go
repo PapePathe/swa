@@ -10,27 +10,27 @@ type DataType int
 func (dt DataType) String() string {
 	switch dt {
 	case DataTypeString:
-		return "DataTypeString"
+		return "String"
 	case DataTypeIntType:
-		return "DataTypeIntType"
+		return "IntType"
 	case DataTypeNumber:
-		return "DataTypeNumber"
+		return "Number"
 	case DataTypeNumber64:
-		return "DataTypeNumber64 bits"
+		return "Number64"
 	case DataTypeFloat:
-		return "DataTypeFloat"
+		return "Float"
 	case DataTypeArray:
-		return "DataTypeArray"
+		return "Array"
 	case DataTypeError:
-		return "DataTypeError"
+		return "Error"
 	case DataTypeTuple:
-		return "DataTypeTuple"
+		return "Tuple"
 	case DataTypeSymbol:
-		return "DataTypeSymbol"
+		return "Symbol"
 	case DataTypePointer:
-		return "DataTypePointer"
+		return "Pointer"
 	case DataTypeVoid:
-		return "DataTypeVoid"
+		return "Void"
 	default:
 		fmt.Printf("Unmatched data type %d", dt)
 		os.Exit(1)
