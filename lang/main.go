@@ -20,7 +20,7 @@ func main() {
 	parseCmd.Flags().
 		StringP("source", "s", "", "location of the file containing the source code")
 	parseCmd.Flags().
-		StringP("output", "o", "json", "output format of the tokenizer (json | yaml | toml)")
+		StringP("output", "o", "json", "output format of the tokenizer (json | tree)")
 
 	if err := parseCmd.MarkFlagRequired("source"); err != nil {
 		fmt.Println(err)
@@ -156,6 +156,7 @@ var parseCmd = &cobra.Command{
 	Short: "Parse the source code",
 	Run: func(cmd *cobra.Command, _ []string) {
 		source, _ := cmd.Flags().GetString("source")
+		output, _ := cmd.Flags().GetString("output")
 
 		bytes, err := os.ReadFile(source)
 		if err != nil {
@@ -171,20 +172,32 @@ var parseCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		jf := astformat.NewJsonFormatter()
-		err = st.Accept(jf)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+		if output == "tree" {
+			dw := astformat.NewTreeDrawer(os.Stdout)
+			err = st.Accept(dw)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 		}
 
-		res := jf.Element
-		result, err := json.MarshalIndent(res, " ", "  ")
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+		if output == "json" {
 
-		fmt.Println(string(result))
+			jf := astformat.NewJsonFormatter()
+			err = st.Accept(jf)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
+			res := jf.Element
+			result, err := json.MarshalIndent(res, " ", "  ")
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
+			fmt.Println(string(result))
+		}
 	},
 }
