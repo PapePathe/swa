@@ -39,11 +39,25 @@ func ParseFunctionDeclaration(p *Parser) (ast.Statement, error) {
 	}
 
 	funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.CloseParen))
-
 	curentToken := p.currentToken()
 
 	if curentToken.Kind == lexer.SemiColon || curentToken.Kind == lexer.OpenCurly { // void return type
 		funDecl.ReturnType = ast.VoidType{}
+	} else if curentToken.Kind == lexer.OpenParen {
+		// Multiple return values: (type1, type2)
+		funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.OpenParen))
+		var types []ast.Type
+		for p.hasTokens() && p.currentToken().Kind != lexer.CloseParen {
+			retType, toks := parseType(p, DefaultBindingPower)
+			types = append(types, retType)
+			funDecl.Tokens = append(funDecl.Tokens, toks...)
+
+			if p.currentToken().Kind == lexer.Comma {
+				funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.Comma))
+			}
+		}
+		funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.CloseParen))
+		funDecl.ReturnType = &ast.TupleType{Types: types}
 	} else {
 		returnType, tokens := parseType(p, DefaultBindingPower)
 		funDecl.ReturnType = returnType

@@ -10,13 +10,30 @@ func ParseReturnStatement(p *Parser) (ast.Statement, error) {
 	p.currentStatement = &stmt
 	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.Return))
 
-	value, err := parseExpression(p, DefaultBindingPower)
-	if err != nil {
-		return nil, err
+	var expressions []ast.Expression
+	for p.hasTokens() && p.currentToken().Kind != lexer.SemiColon && p.currentToken().Kind != lexer.KeywordIf {
+		value, err := parseExpression(p, DefaultBindingPower)
+		if err != nil {
+			return nil, err
+		}
+		expressions = append(expressions, value)
+		stmt.Tokens = append(stmt.Tokens, value.TokenStream()...)
+
+		if p.currentToken().Kind == lexer.Comma {
+			stmt.Tokens = append(stmt.Tokens, p.expect(lexer.Comma))
+		} else {
+			break
+		}
 	}
 
-	stmt.Value = value
-	stmt.Tokens = append(stmt.Tokens, value.TokenStream()...)
+	if len(expressions) == 0 {
+		// return; (void)
+		stmt.Value = nil
+	} else if len(expressions) == 1 {
+		stmt.Value = expressions[0]
+	} else {
+		stmt.Value = &ast.TupleExpression{Expressions: expressions}
+	}
 
 	if p.currentToken().Kind == lexer.KeywordIf {
 		cond := ast.ConditionalStatetement{}
