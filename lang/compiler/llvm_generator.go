@@ -476,7 +476,7 @@ func (g *LLVMGenerator) prepareReturnValue(expr ast.Expression, res *CompilerRes
 
 		return alloc, nil
 	case *ast.SymbolExpression, *ast.BinaryExpression, *ast.FunctionCallExpression,
-		*ast.NumberExpression, *ast.FloatExpression:
+		*ast.NumberExpression, *ast.FloatExpression, *ast.TupleExpression, *ast.ErrorExpression:
 		return *res.Value, nil
 	default:
 		key := "VisitReturnStatement.UnsupportedExpression"
