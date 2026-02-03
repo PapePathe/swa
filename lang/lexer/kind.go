@@ -55,6 +55,7 @@ var tks = map[TokenKind]string{
 	TypeString:         "TYPE_STRING",
 	TypeError:          "TYPE_ERROR",
 	Variadic:           "VARIADIC",
+	Zero:               "ZERO_OF",
 }
 
 // String s a string representation of the TokenKind.
@@ -167,4 +168,5 @@ const (
 
 	Variadic
 	TypeError
+	Zero
 )
