@@ -24,6 +24,11 @@ type LLVMGenerator struct {
 	logger         *Logger
 }
 
+// VisitZeroExpression implements [ast.CodeGenerator].
+func (g *LLVMGenerator) VisitZeroExpression(node *ast.ZeroExpression) error {
+	panic("unimplemented")
+}
+
 var _ ast.CodeGenerator = (*LLVMGenerator)(nil)
 
 func NewLLVMGenerator(ctx *CompilerCtx) *LLVMGenerator {

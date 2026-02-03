@@ -12,6 +12,8 @@ type TreeDrawer struct {
 	isLast []bool
 }
 
+var _ ast.CodeGenerator = (*TreeDrawer)(nil)
+
 func NewTreeDrawer(w io.Writer) *TreeDrawer {
 	return &TreeDrawer{
 		w: w,
@@ -378,7 +380,11 @@ func (t *TreeDrawer) VisitVoidType(node *ast.VoidType) error {
 	return nil
 }
 
-// Zero values (not really needed for tree drawing but required by interface)
+func (t *TreeDrawer) VisitZeroExpression(node *ast.ZeroExpression) error {
+	t.writeLine("ZeroExpression")
+
+	return t.visitType(node.T, true)
+}
 
 func (t *TreeDrawer) ZeroOfSymbolType(node *ast.SymbolType) error     { return nil }
 func (t *TreeDrawer) ZeroOfTupleType(node *ast.TupleType) error       { return nil }

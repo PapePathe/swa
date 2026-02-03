@@ -8,6 +8,13 @@ type Json struct {
 	Element map[string]any
 }
 
+var _ ast.CodeGenerator = (*Json)(nil)
+
+// VisitZeroExpression implements [ast.CodeGenerator].
+func (j *Json) VisitZeroExpression(node *ast.ZeroExpression) error {
+	panic("unimplemented")
+}
+
 func NewJsonFormatter() *Json {
 	return &Json{Element: map[string]any{}}
 }
@@ -611,5 +618,3 @@ func visitStatementsArray(j *Json, arr []ast.Statement) []map[string]any {
 
 	return values
 }
-
-var _ ast.CodeGenerator = (*Json)(nil)
