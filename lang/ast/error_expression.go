@@ -5,6 +5,7 @@ import (
 )
 
 type ErrorExpression struct {
+	Exp    Expression
 	Tokens []lexer.Token
 }
 
