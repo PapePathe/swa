@@ -26,5 +26,6 @@ func (m Malinke) Reserved() map[string]TokenKind {
 		"const":  Const,
 		"fèndo":  TypeInt,
 		"erreur": TypeError,
+		"zero":   Zero,
 	}
 }

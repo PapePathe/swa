@@ -47,6 +47,7 @@ func (m Wolof) Reserved() map[string]TokenKind {
 		"njumte":    TypeError,
 		// TODO: find  translation for variadic
 		"variadique": Variadic,
+		"zero":       Zero,
 	}
 }
 

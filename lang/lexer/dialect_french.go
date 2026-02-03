@@ -34,6 +34,7 @@ func (m French) Reserved() map[string]TokenKind {
 		"chaine":     TypeString,
 		"erreur":     TypeError,
 		"variadique": Variadic,
+		"zero":       Zero,
 	}
 }
 
