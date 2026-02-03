@@ -105,6 +105,7 @@ func (m English) translations() map[string]string {
 		"LLVMGenerator.VisitFunctionCall.StructPropertyValueTypeIsNil":   "Struct property value type should be set -- Also cannot index array item that is a struct",
 		"LLVMGenerator.VisitFunctionCall.UnexpectedArgumentType":         "expected argument of type %s but got %s",
 
+		"VisitReturnStatement.UnsupportedExpression":                    "VisitReturnStatement: Unsupported expression type %T",
 		"LLVMGenerator.VisitFunctionDefinition.UnsupportedArgumentType": "FuncDeclStatement argument type %v not supported",
 
 		"LLVMGenerator.VisitMemberExpression.PropertyNotFound":   "Property named %s does not exist at index %d",
