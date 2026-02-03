@@ -69,8 +69,6 @@ func (t *TreeDrawer) visitType(typ ast.Type, last bool) error {
 	return err
 }
 
-// Statements
-
 func (t *TreeDrawer) VisitBlockStatement(node *ast.BlockStatement) error {
 	t.writeLine("BlockStatement")
 	for i, stmt := range node.Body {
@@ -205,6 +203,9 @@ func (t *TreeDrawer) VisitTupleAssignmentExpression(node *ast.TupleAssignmentExp
 
 func (t *TreeDrawer) VisitErrorExpression(node *ast.ErrorExpression) error {
 	t.writeLine("ErrorExpression")
+	if err := t.visitChild(node.Exp, false); err != nil {
+		return err
+	}
 	return nil
 }
 
