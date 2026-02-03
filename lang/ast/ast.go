@@ -65,8 +65,11 @@ type ExpressionsCodeGenerator interface {
 	VisitFloatExpression(node *FloatExpression) error
 	VisitSymbolExpression(node *SymbolExpression) error
 	VisitAssignmentExpression(node *AssignmentExpression) error
-	VisitArrayAccessExpression(node *ArrayAccessExpression) error
+	VisitTupleExpression(node *TupleExpression) error
+	VisitTupleAssignmentExpression(node *TupleAssignmentExpression) error
+	VisitErrorExpression(node *ErrorExpression) error
 	VisitMemberExpression(node *MemberExpression) error
+	VisitArrayAccessExpression(node *ArrayAccessExpression) error
 	VisitStructInitializationExpression(node *StructInitializationExpression) error
 	VisitArrayInitializationExpression(node *ArrayInitializationExpression) error
 	VisitArrayOfStructsAccessExpression(node *ArrayOfStructsAccessExpression) error
@@ -75,9 +78,11 @@ type ExpressionsCodeGenerator interface {
 
 type TypeVisitor interface {
 	VisitSymbolType(node *SymbolType) error
+	VisitTupleType(node *TupleType) error
 	VisitNumberType(node *NumberType) error
 	VisitNumber64Type(node *Number64Type) error
 	VisitFloatType(node *FloatType) error
+	VisitErrorType(node *ErrorType) error
 	VisitPointerType(node *PointerType) error
 	VisitStringType(node *StringType) error
 	VisitArrayType(node *ArrayType) error
@@ -86,9 +91,11 @@ type TypeVisitor interface {
 
 type ZeroValueVisitor interface {
 	ZeroOfSymbolType(node *SymbolType) error
+	ZeroOfTupleType(node *TupleType) error
 	ZeroOfNumberType(node *NumberType) error
 	ZeroOfNumber64Type(node *Number64Type) error
 	ZeroOfFloatType(node *FloatType) error
+	ZeroOfErrorType(node *ErrorType) error
 	ZeroOfPointerType(node *PointerType) error
 	ZeroOfStringType(node *StringType) error
 	ZeroOfArrayType(node *ArrayType) error

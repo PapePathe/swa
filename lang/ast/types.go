@@ -21,6 +21,10 @@ func (dt DataType) String() string {
 		return "DataTypeFloat"
 	case DataTypeArray:
 		return "DataTypeArray"
+	case DataTypeError:
+		return "DataTypeError"
+	case DataTypeTuple:
+		return "DataTypeTuple"
 	case DataTypeSymbol:
 		return "DataTypeSymbol"
 	case DataTypePointer:
@@ -46,6 +50,8 @@ const (
 	DataTypeSymbol
 	DataTypePointer
 	DataTypeVoid
+	DataTypeError
+	DataTypeTuple
 )
 
 type SymbolType struct {
@@ -190,4 +196,21 @@ func (Number64Type) Value() DataType {
 
 func (typ Number64Type) Accept(g CodeGenerator) error {
 	return g.VisitNumber64Type(&typ)
+}
+
+type ErrorType struct{}
+
+// AcceptZero implements [Type].
+func (typ ErrorType) AcceptZero(g CodeGenerator) error {
+	return g.ZeroOfErrorType(&typ)
+}
+
+var _ Type = (*ErrorType)(nil)
+
+func (ErrorType) Value() DataType {
+	return DataTypeError
+}
+
+func (typ ErrorType) Accept(g CodeGenerator) error {
+	return g.VisitErrorType(&typ)
 }
