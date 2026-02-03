@@ -1,0 +1,11 @@
+dialect:english;
+func mixed() (int, float) {
+    return 1, 2.5;
+}
+start() int {
+    let i: int = 0;
+    let f: float = 0.0;
+    (i, f) = mixed();
+    print("i=%d, f=%.1f\n", i, f);
+    return 0;
+}

@@ -1,0 +1,21 @@
+dialect:english;
+
+func check_value(v: int) (int, error) {
+    if (v < 0) {
+        return 0, error;
+    }
+    return v, 0;
+}
+
+start() int {
+    let val: int = 0;
+    let err: error;
+    
+    (val, err) = check_value(10);
+    print("val: %d, err: %d\n", val, err);
+    
+    (val, err) = check_value(-1);
+    print("val: %d, err: %d\n", val, err);
+    
+    return 0;
+}

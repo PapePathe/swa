@@ -1,0 +1,13 @@
+dialect:english;
+
+func get_coordinates() (int, int) {
+    return 10, 20;
+}
+
+start() int {
+    let x: int = 0;
+    let y: int = 0;
+    (x, y) = get_coordinates();
+    print("x: %d, y: %d\n", x, y);
+    return 0;
+}

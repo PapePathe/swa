@@ -1,0 +1,17 @@
+dialect:english;
+func split(n: int) (int, int) {
+    if (n == 0) {
+        return 0, 0;
+    }
+    let a: int = 0;
+    let b: int = 0;
+    (a, b) = split(n - 1);
+    return a + 1, b + 2;
+}
+start() int {
+    let x: int = 0;
+    let y: int = 0;
+    (x, y) = split(5);
+    print("x=%d, y=%d\n", x, y);
+    return 0;
+}

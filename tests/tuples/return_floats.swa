@@ -1,0 +1,13 @@
+dialect:english;
+
+func get_vector() (float, float) {
+    return 1.5, 2.5;
+}
+
+start() int {
+    let x: float = 0.0;
+    let y: float = 0.0;
+    (x, y) = get_vector();
+    print("x: %.1f, y: %.1f\n", x, y);
+    return 0;
+}
