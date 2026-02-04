@@ -25,6 +25,7 @@ func TestReservedFrench(t *testing.T) {
 		"tantque":    KeywordWhile,
 		"variable":   Let,
 		"variadique": Variadic,
+		"zero":       Zero,
 	}
 
 	French := French{}
