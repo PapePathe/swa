@@ -26,7 +26,7 @@ type LLVMGenerator struct {
 
 // VisitZeroExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitZeroExpression(node *ast.ZeroExpression) error {
-	panic("unimplemented")
+	return node.T.AcceptZero(g)
 }
 
 var _ ast.CodeGenerator = (*LLVMGenerator)(nil)

@@ -59,5 +59,6 @@ func (g *LLVMGenerator) VisitTupleType(node *ast.TupleType) error {
 }
 
 func (g *LLVMGenerator) ZeroOfTupleType(node *ast.TupleType) error {
+	// TODO this should not be nil
 	return nil
 }

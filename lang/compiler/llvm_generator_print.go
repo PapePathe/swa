@@ -72,7 +72,19 @@ var printableValueExtractors = map[reflect.Type]PrintableValueExtractor{
 	reflect.TypeFor[*ast.NumberExpression]():       extractDirect,
 	reflect.TypeFor[*ast.FloatExpression]():        extractDirect,
 	reflect.TypeFor[*ast.BinaryExpression]():       extractDirect,
-	reflect.TypeFor[*ast.SymbolExpression]():       extractDirect,
+	reflect.TypeFor[*ast.SymbolExpression]():       extractSymbol,
+}
+
+func extractSymbol(g *LLVMGenerator, res *CompilerResult) llvm.Value {
+	_, ok := res.SymbolTableEntry.DeclaredType.(ast.ErrorType)
+
+	g.Debugf("IS ErrorType %v", ok)
+
+	if ok {
+		return *res.SymbolTableEntry.Address
+	}
+
+	return *res.Value
 }
 
 func extractDirect(g *LLVMGenerator, res *CompilerResult) llvm.Value {
