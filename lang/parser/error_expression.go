@@ -8,8 +8,7 @@ import (
 func ParseErrorExpression(p *Parser) (ast.Expression, error) {
 	expr := ast.ErrorExpression{}
 	p.currentExpression = &expr
-	tok := p.expect(lexer.TypeError)
-	expr.Tokens = append(expr.Tokens, tok)
+	expr.Tokens = append(expr.Tokens, p.expect(lexer.TypeError))
 	expr.Tokens = append(expr.Tokens, p.expect(lexer.OpenParen))
 
 	vexpr, err := parseExpression(p, DefaultBindingPower)
