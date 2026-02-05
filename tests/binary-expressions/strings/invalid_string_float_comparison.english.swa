@@ -1,0 +1,12 @@
+dialect:english;
+
+start() int {
+    string s = "hello";
+    float f = 3.14;
+    
+    if (s == f) {
+        print("Should not compile");
+    }
+    
+    return 0;
+}

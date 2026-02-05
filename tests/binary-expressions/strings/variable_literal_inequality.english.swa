@@ -1,0 +1,12 @@
+dialect:english;
+
+start() int {
+    let s1 : string = "hello";
+
+    if (s1 != "world") {
+        print("Passed");
+    } else {
+        print("Failed");
+    }
+    return 0;
+}

@@ -1,7 +1,0 @@
-dialect:english;
-
-start() int {
-  let x : string = "";
-  let concat : string =  1 + x;
-  return 0;
-}

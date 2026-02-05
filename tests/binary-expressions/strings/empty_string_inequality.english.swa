@@ -1,0 +1,13 @@
+dialect:english;
+
+start() int {
+    let s4 : string = "";
+    let s1 : string = "hello";
+
+    if (s4 != s1) {
+        print("Passed");
+    } else {
+        print("Failed");
+    }
+    return 0;
+}

@@ -1,0 +1,10 @@
+dialect:english;
+
+start() int {
+    if ("a" == "a") {
+        print("Passed");
+    } else {
+        print("Failed");
+    }
+    return 0;
+}
