@@ -290,7 +290,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/missing-type-check-in-assignment-expression.1.english.swa",
-				ExpectedOutput: "Expected assignment of DataTypeFloat but got DataTypeString\n",
+				ExpectedOutput: "Expected assignment of Float but got String\n",
 				T:              t,
 			}
 
@@ -300,7 +300,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("2", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/missing-type-check-in-assignment-expression.2.english.swa",
-				ExpectedOutput: "Expected assignment of DataTypeFloat but got DataTypeNumber\n",
+				ExpectedOutput: "Expected assignment of Float but got Number\n",
 				T:              t,
 			}
 
@@ -310,7 +310,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("3", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/missing-type-check-in-assignment-expression.3.english.swa",
-				ExpectedOutput: "Expected assignment of DataTypeFloat but got DataTypeArray\n",
+				ExpectedOutput: "Expected assignment of Float but got Array\n",
 				T:              t,
 			}
 
@@ -320,7 +320,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("4", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/missing-type-check-in-assignment-expression.4.english.swa",
-				ExpectedOutput: "Expected assignment of DataTypeFloat but got DataTypeSymbol\n",
+				ExpectedOutput: "Expected assignment of Float but got Symbol\n",
 				T:              t,
 			}
 
@@ -330,7 +330,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("5", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/missing-type-check-in-assignment-expression.5.english.swa",
-				ExpectedOutput: "Expected assignment of DataTypeNumber but got DataTypeFloat\n",
+				ExpectedOutput: "Expected assignment of Number but got Float\n",
 				T:              t,
 			}
 
@@ -340,7 +340,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("6", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/missing-type-check-in-assignment-expression.6.english.swa",
-				ExpectedOutput: "Expected assignment of DataTypeNumber but got DataTypeFloat\n",
+				ExpectedOutput: "Expected assignment of Number but got Float\n",
 				T:              t,
 			}
 
@@ -350,7 +350,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("7", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/missing-type-check-in-assignment-expression.7.english.swa",
-				ExpectedOutput: "Expected assignment of DataTypeNumber but got DataTypeFloat\n",
+				ExpectedOutput: "Expected assignment of Number but got Float\n",
 				T:              t,
 			}
 
@@ -360,7 +360,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("8", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/missing-type-check-in-assignment-expression.8.english.swa",
-				ExpectedOutput: "Expected assignment of DataTypeFloat but got DataTypeNumber\n",
+				ExpectedOutput: "Expected assignment of Float but got Number\n",
 				T:              t,
 			}
 
@@ -372,7 +372,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.1.swa",
-				ExpectedOutput: "expected DataTypeString but got DataTypeFloat\n",
+				ExpectedOutput: "expected String but got Float\n",
 				T:              t,
 			}
 
@@ -382,7 +382,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("2", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.2.swa",
-				ExpectedOutput: "expected DataTypeString but got DataTypeNumber\n",
+				ExpectedOutput: "expected String but got Number\n",
 				T:              t,
 			}
 
@@ -404,7 +404,7 @@ func TestBugFixes(t *testing.T) {
 		//	t.Run("4", func(t *testing.T) {
 		//		req := CompileRequest{
 		//			InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.4.swa",
-		//			ExpectedOutput: "expected DataTypeNumber got pointer of %!v(PANIC=String method: unreachable)\n",
+		//			ExpectedOutput: "expected Number got pointer of %!v(PANIC=String method: unreachable)\n",
 		//			T:              t,
 		//		}
 
@@ -414,7 +414,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("5", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.5.swa",
-				ExpectedOutput: "expected DataTypeNumber but got DataTypeFloat\n",
+				ExpectedOutput: "expected Number but got Float\n",
 				T:              t,
 			}
 
@@ -424,7 +424,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("6", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/99-missing-type-check-in-variable-declaration.english.6.swa",
-				ExpectedOutput: "expected DataTypeNumber but got DataTypeString\n",
+				ExpectedOutput: "expected Number but got String\n",
 				T:              t,
 			}
 
