@@ -2,7 +2,7 @@ dialect:english;
 
 func check_value(v: int) (int, error) {
     if (v < 0) {
-        return 0, error;
+        return 0, error("error: value is negative");
     }
     return v, 0;
 }
