@@ -18,37 +18,35 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 		return err
 	}
 
-	key := "LLVMGenerator.VisitBinaryExpression.StringsAreNotSupported"
-
-	if _, ok := node.Left.(*ast.StringExpression); ok {
-		return g.Ctx.Dialect.Error(key, "left")
-	}
-
-	if _, ok := node.Right.(*ast.StringExpression); ok {
-		return g.Ctx.Dialect.Error(key, "right")
-	}
-
 	leftRes := g.getLastResult()
-
-	if leftRes.SymbolTableEntry != nil &&
-		leftRes.SymbolTableEntry.DeclaredType.Value() == ast.DataTypeString {
-
-		return g.Ctx.Dialect.Error(key, "symbol left")
+	// For strings, don't call extractRValue - they're already values (pointers)
+	var leftVal llvm.Value
+	if leftRes.SwaType != nil {
+		if _, ok := leftRes.SwaType.(ast.StringType); ok {
+			leftVal = *leftRes.Value
+		} else {
+			leftVal = g.extractRValue(leftRes)
+		}
+	} else {
+		leftVal = g.extractRValue(leftRes)
 	}
-
-	leftVal := g.extractRValue(leftRes)
 
 	if err := node.Right.Accept(g); err != nil {
 		return err
 	}
 
 	rightRes := g.getLastResult()
-	if rightRes.SymbolTableEntry != nil &&
-		rightRes.SymbolTableEntry.DeclaredType.Value() == ast.DataTypeString {
-		return g.Ctx.Dialect.Error(key, "symbol right")
+	// For strings, don't call extractRValue - they're already values (pointers)
+	var rightVal llvm.Value
+	if rightRes.SwaType != nil {
+		if _, ok := rightRes.SwaType.(ast.StringType); ok {
+			rightVal = *rightRes.Value
+		} else {
+			rightVal = g.extractRValue(rightRes)
+		}
+	} else {
+		rightVal = g.extractRValue(rightRes)
 	}
-
-	rightVal := g.extractRValue(rightRes)
 
 	finalLeft, finalRight, err := g.coerceOperands(leftVal, rightVal)
 	if err != nil {
@@ -86,10 +84,9 @@ func (g *LLVMGenerator) extractRValue(res *CompilerResult) llvm.Value {
 		}
 	case res.StuctPropertyValueType != nil:
 		loadType = *res.StuctPropertyValueType
-	case !val.Type().ElementType().IsNil():
-		loadType = val.Type().ElementType()
 	default:
-		// If it's a pointer to a pointer or a raw pointer we can't dereference, return as is
+		// For values without metadata, we can't safely determine the load type
+		// Return the value as-is to avoid crashes with opaque pointers
 		return val
 	}
 
@@ -266,6 +263,11 @@ func (g *LLVMGenerator) handleLessThanEquals(l, r llvm.Value) llvm.Value {
 }
 
 func (g *LLVMGenerator) handleEquals(l, r llvm.Value) llvm.Value {
+	if l.Type().TypeKind() == llvm.PointerTypeKind && r.Type().TypeKind() == llvm.PointerTypeKind {
+		// String comparison using strcmp
+		return g.stringCompare(l, r, llvm.IntEQ)
+	}
+
 	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
 		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
 		return g.Ctx.Builder.CreateFCmp(llvm.FloatOEQ, l, r, "")
@@ -274,9 +276,31 @@ func (g *LLVMGenerator) handleEquals(l, r llvm.Value) llvm.Value {
 }
 
 func (g *LLVMGenerator) handleNotEquals(l, r llvm.Value) llvm.Value {
+	if l.Type().TypeKind() == llvm.PointerTypeKind && r.Type().TypeKind() == llvm.PointerTypeKind {
+		// String comparison using strcmp
+		return g.stringCompare(l, r, llvm.IntNE)
+	}
+
 	if l.Type().TypeKind() == llvm.FloatTypeKind || l.Type().TypeKind() == llvm.DoubleTypeKind ||
 		r.Type().TypeKind() == llvm.FloatTypeKind || r.Type().TypeKind() == llvm.DoubleTypeKind {
 		return g.Ctx.Builder.CreateFCmp(llvm.FloatONE, l, r, "")
 	}
+
 	return g.Ctx.Builder.CreateICmp(llvm.IntNE, l, r, "")
+}
+
+func (g *LLVMGenerator) stringCompare(l, r llvm.Value, mode llvm.IntPredicate) llvm.Value {
+	strcmp := g.Ctx.Module.NamedFunction("strcmp")
+
+	// Create the function type for strcmp: int strcmp(char*, char*)
+	strcmpArgTypes := []llvm.Type{
+		llvm.PointerType(g.Ctx.Context.Int8Type(), 0),
+		llvm.PointerType(g.Ctx.Context.Int8Type(), 0),
+	}
+	strcmpFuncType := llvm.FunctionType(g.Ctx.Context.Int32Type(), strcmpArgTypes, false)
+
+	args := []llvm.Value{l, r}
+	res := g.Ctx.Builder.CreateCall(strcmpFuncType, strcmp, args, "strcmp.res")
+	zero := llvm.ConstInt(g.Ctx.Context.Int32Type(), 0, false)
+	return g.Ctx.Builder.CreateICmp(mode, res, zero, "strcmp.cmp")
 }

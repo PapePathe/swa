@@ -18,6 +18,8 @@ type CompilerResult struct {
 	StructSymbolTableEntry *StructSymbolTableEntry
 	// Some expressions return a value that will be added to the arrays symbol table
 	ArraySymbolTableEntry *ArraySymbolTableEntry
+	// The Swa type of this value
+	SwaType ast.Type
 }
 type StructSymbolTableEntry struct {
 	LLVMType      llvm.Type

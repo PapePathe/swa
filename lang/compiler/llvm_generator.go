@@ -249,13 +249,13 @@ func (g *LLVMGenerator) VisitStringExpression(node *ast.StringExpression) error 
 
 	if !g.Ctx.InsideFunction {
 		value := llvm.ConstString(node.Value, true)
-		g.setLastResult(&CompilerResult{Value: &value})
+		g.setLastResult(&CompilerResult{Value: &value, SwaType: ast.StringType{}})
 
 		return nil
 	}
 
 	valuePtr := g.Ctx.Builder.CreateGlobalStringPtr(node.Value, "")
-	res := CompilerResult{Value: &valuePtr}
+	res := CompilerResult{Value: &valuePtr, SwaType: ast.StringType{}}
 
 	node.SwaType = ast.StringType{}
 

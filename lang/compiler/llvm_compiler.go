@@ -48,6 +48,14 @@ func (c *LLVMCompiler) Run() error {
 	printfFunc := llvm.AddFunction(*c.context.Module, "printf", printfFuncType)
 	printfFunc.SetLinkage(llvm.ExternalLinkage)
 
+	strcmpArgTypes := []llvm.Type{
+		llvm.PointerType(c.context.Context.Int8Type(), 0),
+		llvm.PointerType(c.context.Context.Int8Type(), 0),
+	}
+	strcmpFuncType := llvm.FunctionType(c.context.Context.Int32Type(), strcmpArgTypes, false)
+	strcmpFunc := llvm.AddFunction(*c.context.Module, "strcmp", strcmpFuncType)
+	strcmpFunc.SetLinkage(llvm.ExternalLinkage)
+
 	for _, v := range c.passes {
 		err := c.req.Tree.Accept(v)
 		if err != nil {
