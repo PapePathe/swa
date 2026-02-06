@@ -2,9 +2,9 @@ dialect:english;
 
 func check_value(v: int) (int, error) {
     if (v < 0) {
-        return 0, error("error: value is negative");
+        return 0, error("value is negative");
     }
-    return v, 0;
+    return v, zero(error);
 }
 
 start() int {
@@ -12,10 +12,10 @@ start() int {
     let err: error;
     
     (val, err) = check_value(10);
-    print("val: %d, err: %d\n", val, err);
+    print("val: %d, err: %s\n", val, err);
     
     (val, err) = check_value(-1);
-    print("val: %d, err: %d\n", val, err);
+    print("val: %d, err: %s\n", val, err);
     
     return 0;
 }

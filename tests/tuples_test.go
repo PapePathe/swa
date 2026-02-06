@@ -29,7 +29,7 @@ func TestTupleReturns(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{
 			InputPath:               "./tuples/return_error.swa",
-			ExpectedExecutionOutput: "val: 10, err: 0\nval: 0, err: 1\n",
+			ExpectedExecutionOutput: "val: 10, err: \nval: 0, err: value is negative\n",
 			T:                       t,
 		}
 		req.AssertCompileAndExecute()

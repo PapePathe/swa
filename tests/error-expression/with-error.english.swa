@@ -1,0 +1,22 @@
+dialect:english;
+
+func divide(a: int, b: int) (int, error) {
+    if (b == 0) {
+        return 0, error("dividend is zero"); 
+    }
+    return a / b, zero(error); 
+}
+
+start() int {
+    let res: int = 0;
+    let err: error;
+    (res, err) = divide(100, 0);
+
+     if(err != zero(error)) {
+       print("Division by zero error %s", err);
+       return 0;
+     }
+
+    print("%d\n", res);
+    return 0;
+}
