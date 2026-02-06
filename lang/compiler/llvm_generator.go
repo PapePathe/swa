@@ -506,7 +506,7 @@ func (g *LLVMGenerator) VisitTupleAssignmentExpression(node *ast.TupleAssignment
 
 		// Store into assignee
 		switch a := expr.(type) {
-		case *ast.MemberExpression:
+		case *ast.MemberExpression, *ast.ArrayAccessExpression:
 			err := expr.Accept(g)
 			if err != nil {
 				return err
