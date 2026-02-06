@@ -1,6 +1,7 @@
 package compiler
 
 import (
+	"reflect"
 	"swahili/lang/ast"
 
 	"tinygo.org/x/go-llvm"
@@ -124,10 +125,19 @@ func (g *LLVMGenerator) ZeroOfPointerType(node *ast.PointerType) error {
 
 // ZeroOfStringType implements [ast.CodeGenerator].
 func (g *LLVMGenerator) ZeroOfStringType(node *ast.StringType) error {
+	cache, ok := g.zeroValues[reflect.TypeFor[ast.StringType]()]
+	if ok {
+		g.setLastResult(cache)
+
+		return nil
+	}
+
 	zero := g.Ctx.Builder.CreateGlobalStringPtr("", "")
 	res := &CompilerResult{Value: &zero}
 
 	g.setLastResult(res)
+
+	g.zeroValues[reflect.TypeFor[ast.StringType]()] = res
 
 	return nil
 }
@@ -168,10 +178,19 @@ func (g *LLVMGenerator) ZeroOfSymbolType(node *ast.SymbolType) error {
 }
 
 func (g *LLVMGenerator) ZeroOfErrorType(node *ast.ErrorType) error {
+	cache, ok := g.zeroValues[reflect.TypeFor[ast.ErrorType]()]
+	if ok {
+		g.setLastResult(cache)
+
+		return nil
+	}
+
 	zero := g.Ctx.Builder.CreateGlobalStringPtr("", "")
 	res := &CompilerResult{Value: &zero}
 
 	g.setLastResult(res)
+
+	g.zeroValues[reflect.TypeFor[ast.ErrorType]()] = res
 
 	return nil
 }

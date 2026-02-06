@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"reflect"
 	"swahili/lang/ast"
 
 	"tinygo.org/x/go-llvm"
@@ -21,6 +22,7 @@ type LLVMGenerator struct {
 	Ctx            *CompilerCtx
 	lastResult     *CompilerResult
 	lastTypeResult *CompilerResultType
+	zeroValues     map[reflect.Type]*CompilerResult
 	logger         *Logger
 }
 
@@ -29,7 +31,11 @@ var _ ast.CodeGenerator = (*LLVMGenerator)(nil)
 func NewLLVMGenerator(ctx *CompilerCtx) *LLVMGenerator {
 	logger := NewLogger("LLVM")
 
-	return &LLVMGenerator{Ctx: ctx, logger: logger}
+	return &LLVMGenerator{
+		Ctx:        ctx,
+		logger:     logger,
+		zeroValues: map[reflect.Type]*CompilerResult{},
+	}
 }
 
 func (g *LLVMGenerator) Debugf(format string, args ...any) {
