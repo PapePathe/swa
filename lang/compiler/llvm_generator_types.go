@@ -133,6 +133,10 @@ func (g *LLVMGenerator) VisitVoidType(node *ast.VoidType) error {
 }
 
 func (g *LLVMGenerator) VisitErrorType(node *ast.ErrorType) error {
+	old := g.logger.Step("ErrorType")
+
+	defer g.logger.Restore(old)
+
 	g.setLastTypeVisitResult(&CompilerResultType{
 		Type:    llvm.PointerType(llvm.GlobalContext().Int8Type(), 0),
 		SubType: llvm.GlobalContext().Int8Type(),

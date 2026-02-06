@@ -482,6 +482,16 @@ func (g *LLVMGenerator) VisitTupleAssignmentExpression(node *ast.TupleAssignment
 		return err
 	}
 
+	typ, ok := node.Value.VisitedSwaType().(*ast.TupleType)
+	if ok {
+		l1 := len(typ.Types)
+		l2 := len(node.Assignees.Expressions)
+
+		if l1 != l2 {
+			return fmt.Errorf("length of tuples does not match expected %d got %d", l1, l2)
+		}
+	}
+
 	rhsRes := g.getLastResult()
 	if rhsRes == nil || rhsRes.Value == nil {
 		return fmt.Errorf("RHS of tuple assignment evaluated to nil")
@@ -515,6 +525,8 @@ func (g *LLVMGenerator) VisitTupleAssignmentExpression(node *ast.TupleAssignment
 
 				return fmt.Errorf(format, a.Value)
 			}
+
+			a.SwaType = entry.DeclaredType
 
 			g.Ctx.Builder.CreateStore(elemVal, *entry.Address)
 		default:

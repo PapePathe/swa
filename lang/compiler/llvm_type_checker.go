@@ -91,6 +91,26 @@ func (l *LLVMTypeChecker) VisitStructInitializationExpression(node *ast.StructIn
 }
 
 func (l *LLVMTypeChecker) VisitTupleAssignmentExpression(node *ast.TupleAssignmentExpression) error {
+	valuestyp, ok := node.Value.VisitedSwaType().(*ast.TupleType)
+	if !ok {
+		return fmt.Errorf("Value is not a tuple")
+	}
+
+	assigneestyp, ok := node.Assignees.VisitedSwaType().(*ast.TupleType)
+	if !ok {
+		return fmt.Errorf("Assignee is not a tuple")
+	}
+
+	for i, typ := range valuestyp.Types {
+		itemtyp := assigneestyp.Types[i]
+
+		if itemtyp != typ {
+			return fmt.Errorf(
+				"Values mismatch in tuple expected %s got %s at index %d",
+				typ.Value().String(), itemtyp.Value().String(), i)
+		}
+	}
+
 	return nil
 }
 func (l *LLVMTypeChecker) VisitArrayAccessExpression(node *ast.ArrayAccessExpression) error {
