@@ -503,10 +503,10 @@ func (g *LLVMGenerator) VisitTupleAssignmentExpression(node *ast.TupleAssignment
 			}
 
 			if entry.Address == nil {
-				return fmt.Errorf("cannot assign to symbol %s which has no address", a.Value)
-			}
+				format := "cannot assign to symbol %s which has no address"
 
-			g.Debugf("Extracted value %v", elemVal)
+				return fmt.Errorf(format, a.Value)
+			}
 
 			g.Ctx.Builder.CreateStore(elemVal, *entry.Address)
 		default:

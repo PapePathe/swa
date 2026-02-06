@@ -81,7 +81,11 @@ func extractSymbol(g *LLVMGenerator, res *CompilerResult) llvm.Value {
 	g.Debugf("IS ErrorType %v", ok)
 
 	if ok {
-		return *res.SymbolTableEntry.Address
+		return g.Ctx.Builder.CreateLoad(
+			res.SymbolTableEntry.Address.Type(),
+			*res.SymbolTableEntry.Address,
+			"print.array.load",
+		)
 	}
 
 	return *res.Value
