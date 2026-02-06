@@ -3,6 +3,8 @@ package ast
 import (
 	"fmt"
 	"os"
+	"strings"
+	"swahili/lang/lexer"
 )
 
 type DataType int
@@ -213,4 +215,43 @@ func (ErrorType) Value() DataType {
 
 func (typ ErrorType) Accept(g CodeGenerator) error {
 	return g.VisitErrorType(&typ)
+}
+
+type TupleType struct {
+	Types  []Type
+	Tokens []lexer.Token
+}
+
+var _ Type = (*TupleType)(nil)
+
+func (t TupleType) Value() DataType {
+	return DataTypeTuple
+}
+
+func (t *TupleType) Accept(g CodeGenerator) error {
+	return g.VisitTupleType(t)
+}
+
+func (t *TupleType) AcceptZero(g CodeGenerator) error {
+	return g.ZeroOfTupleType(t)
+}
+
+func (t *TupleType) String() string {
+	sb := strings.Builder{}
+	lminus := len(t.Types) - 1
+
+	sb.WriteString(t.Value().String())
+	sb.WriteString("(")
+
+	for i, typ := range t.Types {
+		sb.WriteString(typ.Value().String())
+
+		if i < lminus {
+			sb.WriteString(",")
+		}
+	}
+
+	sb.WriteString(")")
+
+	return sb.String()
 }
