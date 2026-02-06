@@ -496,6 +496,14 @@ func (g *LLVMGenerator) VisitTupleAssignmentExpression(node *ast.TupleAssignment
 
 		// Store into assignee
 		switch a := expr.(type) {
+		case *ast.MemberExpression:
+			err := expr.Accept(g)
+			if err != nil {
+				return err
+			}
+
+			res := g.getLastResult()
+			g.Ctx.Builder.CreateStore(elemVal, *res.SymbolTableEntry.Address)
 		case *ast.SymbolExpression:
 			err, entry := g.Ctx.FindSymbol(a.Value)
 			if err != nil {
