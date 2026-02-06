@@ -107,7 +107,7 @@ func (m English) translations() map[string]string {
 		"LLVMGenerator.VisitFunctionCall.UnexpectedArgumentType":         "expected argument of type %s but got %s",
 
 		"VisitReturnStatement.UnsupportedExpression":                    "VisitReturnStatement: Unsupported expression type %T",
-		"LLVMGenerator.VisitFunctionDefinition.UnsupportedArgumentType": "FuncDeclStatement argument type %v not supported",
+		"LLVMGenerator.VisitFunctionDefinition.UnsupportedArgumentType": "FuncDeclStatement argument type %T not supported",
 
 		"LLVMGenerator.VisitMemberExpression.PropertyNotFound":   "Property named %s does not exist at index %d",
 		"LLVMGenerator.VisitMemberExpression.NotDefined":         "variable %s is not defined",
