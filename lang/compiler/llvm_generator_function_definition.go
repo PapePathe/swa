@@ -129,7 +129,8 @@ func (g *LLVMGenerator) extractType(ctx *CompilerCtx, t ast.Type) (error, extrac
 	compiledType := g.getLastTypeVisitResult()
 
 	switch typ := t.(type) {
-	case ast.NumberType, ast.Number64Type, ast.FloatType, ast.StringType, ast.VoidType, *ast.ErrorType, *ast.TupleType:
+	case ast.NumberType, ast.Number64Type, ast.FloatType,
+		ast.StringType, ast.VoidType, *ast.ErrorType, *ast.TupleType:
 		return nil, extractedType{typ: compiledType.Type}
 	case ast.SymbolType:
 		err, entry := ctx.FindStructSymbol(typ.Name)

@@ -158,9 +158,19 @@ func (g *LLVMGenerator) ZeroOfSymbolType(node *ast.SymbolType) error {
 
 		g.Ctx.Builder.CreateStore(*lastres.Value, fieldAddr)
 	}
-	load := g.Ctx.Builder.CreateLoad(alloc.AllocatedType(), alloc, "")
 
+	load := g.Ctx.Builder.CreateLoad(alloc.AllocatedType(), alloc, "")
 	res := &CompilerResult{Value: &load, StructSymbolTableEntry: typ.Sentry}
+
+	g.setLastResult(res)
+
+	return nil
+}
+
+func (g *LLVMGenerator) ZeroOfErrorType(node *ast.ErrorType) error {
+	zero := g.Ctx.Builder.CreateGlobalStringPtr("", "")
+	res := &CompilerResult{Value: &zero}
+
 	g.setLastResult(res)
 
 	return nil
@@ -168,5 +178,5 @@ func (g *LLVMGenerator) ZeroOfSymbolType(node *ast.SymbolType) error {
 
 // ZeroOfVoidType implements [ast.CodeGenerator].
 func (g *LLVMGenerator) ZeroOfVoidType(node *ast.VoidType) error {
-	panic("unimplemented")
+	panic("ZeroOfVoidType unimplemented")
 }

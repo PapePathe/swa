@@ -21,6 +21,7 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 	leftRes := g.getLastResult()
 	// For strings, don't call extractRValue - they're already values (pointers)
 	var leftVal llvm.Value
+
 	if leftRes.SwaType != nil {
 		if _, ok := leftRes.SwaType.(ast.StringType); ok {
 			leftVal = *leftRes.Value
@@ -38,6 +39,7 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 	rightRes := g.getLastResult()
 	// For strings, don't call extractRValue - they're already values (pointers)
 	var rightVal llvm.Value
+
 	if rightRes.SwaType != nil {
 		if _, ok := rightRes.SwaType.(ast.StringType); ok {
 			rightVal = *rightRes.Value

@@ -15,13 +15,16 @@ func (g *LLVMGenerator) VisitTupleExpression(node *ast.TupleExpression) error {
 		if err := expr.Accept(g); err != nil {
 			return err
 		}
+
 		res := g.getLastResult()
 		if res == nil {
 			return fmt.Errorf("Tuple expr element %d returned nil result", i)
 		}
+
 		if res.Value == nil {
 			return fmt.Errorf("Tuple expr element %d returned result with nil Value", i)
 		}
+
 		values = append(values, *res.Value)
 		types = append(types, res.Value.Type())
 	}
@@ -41,20 +44,21 @@ func (g *LLVMGenerator) VisitTupleExpression(node *ast.TupleExpression) error {
 
 func (g *LLVMGenerator) VisitTupleType(node *ast.TupleType) error {
 	// A tuple type in LLVM is a struct containing all types.
-	var llvmTypes []llvm.Type
+	llvmTypes := []llvm.Type{}
 	for _, typ := range node.Types {
 		err := typ.Accept(g)
 		if err != nil {
 			return err
 		}
+
 		llvmTypes = append(llvmTypes, g.getLastTypeVisitResult().Type)
 	}
 
 	structType := g.Ctx.Context.StructType(llvmTypes, false)
-	res := CompilerResultType{
-		Type: structType,
-	}
+	res := CompilerResultType{Type: structType}
+
 	g.setLastTypeVisitResult(&res)
+
 	return nil
 }
 

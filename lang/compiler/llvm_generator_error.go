@@ -2,8 +2,6 @@ package compiler
 
 import (
 	"swahili/lang/ast"
-
-	"tinygo.org/x/go-llvm"
 )
 
 func (g *LLVMGenerator) VisitErrorExpression(node *ast.ErrorExpression) error {
@@ -14,11 +12,10 @@ func (g *LLVMGenerator) VisitErrorExpression(node *ast.ErrorExpression) error {
 
 	lastres := g.getLastResult()
 
-	g.Debugf("VisitErrorExpression %+v", lastres)
+	g.Debugf("VisitErrorExpression %v", lastres)
 
-	val := llvm.ConstInt(g.Ctx.Context.Int32Type(), 1, false)
 	res := &CompilerResult{
-		Value: &val,
+		Value: lastres.Value,
 		SymbolTableEntry: &SymbolTableEntry{
 			Address:      lastres.Value,
 			DeclaredType: ast.ErrorType{},
@@ -26,23 +23,6 @@ func (g *LLVMGenerator) VisitErrorExpression(node *ast.ErrorExpression) error {
 	}
 
 	g.setLastResult(res)
-
-	return nil
-}
-
-func (g *LLVMGenerator) VisitErrorType(node *ast.ErrorType) error {
-	res := CompilerResultType{
-		Type: g.Ctx.Context.Int32Type(),
-	}
-	g.setLastTypeVisitResult(&res)
-	return nil
-}
-
-func (g *LLVMGenerator) ZeroOfErrorType(node *ast.ErrorType) error {
-	val := llvm.ConstInt(g.Ctx.Context.Int32Type(), 0, false)
-	g.setLastResult(&CompilerResult{
-		Value: &val,
-	})
 
 	return nil
 }

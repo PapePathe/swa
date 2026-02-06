@@ -131,3 +131,12 @@ func (g *LLVMGenerator) VisitVoidType(node *ast.VoidType) error {
 
 	return nil
 }
+
+func (g *LLVMGenerator) VisitErrorType(node *ast.ErrorType) error {
+	g.setLastTypeVisitResult(&CompilerResultType{
+		Type:    llvm.PointerType(llvm.GlobalContext().Int8Type(), 0),
+		SubType: llvm.GlobalContext().Int8Type(),
+	})
+
+	return nil
+}
