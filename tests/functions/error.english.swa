@@ -1,0 +1,23 @@
+dialect:english;
+
+func divide(a: int, b: int) error {
+    if (b == 0) {
+        return error("dividend is zero"); 
+    }
+    return zero(error); 
+}
+
+start() int {
+    let err: error = divide(100, 0);
+
+    if(err != zero(error)) {
+      print("Division by zero error (%s)\n", err);
+    }
+
+    err = divide(100, 10);
+    if(err == zero(error)) {
+      print("No division error");
+    }
+
+    return 0;
+}

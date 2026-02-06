@@ -7,6 +7,19 @@ import (
 )
 
 func TestFunctions(t *testing.T) {
+	t.Run("Function that returns only error", func(t *testing.T) {
+		t.Run("english", func(t *testing.T) {
+			t.Parallel()
+			req := CompileRequest{
+				InputPath:               "./functions/error.english.swa",
+				ExpectedExecutionOutput: "Division by zero error (dividend is zero)\nNo division error",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+	})
+
 	t.Run("Declare external function", func(t *testing.T) {
 		t.Run("english", func(t *testing.T) {
 			t.Parallel()
