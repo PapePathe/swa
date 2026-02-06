@@ -64,4 +64,14 @@ func TestTupleReturns(t *testing.T) {
 		}
 		req.AssertCompileAndExecute()
 	})
+
+	t.Run("Assign to member expression", func(t *testing.T) {
+		t.Parallel()
+		req := CompileRequest{
+			InputPath:               "./tuples/assign-to-member-expression.swa",
+			ExpectedExecutionOutput: "p.div = 4",
+			T:                       t,
+		}
+		req.AssertCompileAndExecute()
+	})
 }

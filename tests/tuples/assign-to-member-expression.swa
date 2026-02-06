@@ -1,0 +1,28 @@
+dialect:english;
+
+func divmod(a: int, b: int) (int, error) {
+  if (b == 0) {
+    return 0, error("dividend is zero"); 
+  }
+
+  return  a / b, zero(error); 
+}
+
+struct Result {
+  div: int,
+}
+
+start() int {
+  let p : Result;
+  let err: error;
+   (p.div, err) = divmod(100, 25);
+
+  if(err != zero(error)) {
+    print("Division by zero error (%s)", err);
+    return -1;
+  }
+
+  print("p.div = %d", p.div);
+
+  return 0;
+}
