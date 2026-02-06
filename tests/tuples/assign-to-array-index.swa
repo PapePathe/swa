@@ -1,0 +1,10 @@
+dialect:english;
+
+start() int {
+  let tab : [2]int;
+  (tab[0], tab[1]) = (15, 150);
+
+  print("tab[0]=%d, tab[1]=%d\n", tab[0], tab[1]);
+
+  return 0;
+}

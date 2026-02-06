@@ -78,6 +78,16 @@ func TestTupleReturns(t *testing.T) {
 		req.AssertCompileAndExecute()
 	})
 
+	t.Run("Assign to array access expression", func(t *testing.T) {
+		t.Parallel()
+		req := CompileRequest{
+			InputPath:               "./tuples/assign-to-array-index.swa",
+			ExpectedExecutionOutput: "tab[0]=15, tab[1]=150\n",
+			T:                       t,
+		}
+		req.AssertCompileAndExecute()
+	})
+
 	t.Run("Assign to member expression", func(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{
