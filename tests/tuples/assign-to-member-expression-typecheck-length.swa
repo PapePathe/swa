@@ -8,6 +8,8 @@ func divmod(a: int, b: int) (int, int, error) {
     let div : int = a / b;
     let mod: int = a % b;
 
+    print("div: %d, mod: %d\n", div, mod);
+
     return div, mod, zero(error); 
 }
 
@@ -21,8 +23,8 @@ start() int {
   let err: error;
   let div : int;
   let mod: int;
-   (p.div, p.mod, err) = divmod(100, 23);
 
+  (p.div, p.mod, err, div) = divmod(100, 23);
   if(err != zero(error)) {
     print("Division by zero error (%s)", err);
     return -1;

@@ -1,0 +1,9 @@
+dialect:english;
+start() int {
+    let a: int = 10;
+    let b: int = 20;
+    print("Before: a=%d, b=%d\n", a, b);
+    (a) = (b, a);
+    print("After: a=%d, b=%d\n", a, b);
+    return 0;
+}

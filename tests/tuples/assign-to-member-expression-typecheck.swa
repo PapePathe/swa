@@ -21,7 +21,7 @@ start() int {
   let err: error;
   let div : int;
   let mod: int;
-   (p.div, p.mod, err) = divmod(100, 23);
+   (err, p.div, p.mod) = divmod(100, 23);
 
   if(err != zero(error)) {
     print("Division by zero error (%s)", err);
