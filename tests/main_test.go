@@ -14,7 +14,7 @@ import (
 type CompileRequest struct {
 	InputPath  string
 	OutputPath string
-	// The expected output after the program is compiled
+	// The expected output after the program is compiled or parsed
 	ExpectedOutput string
 	// The expected output when the program is executed on the host machine
 	ExpectedExecutionOutput string
@@ -26,19 +26,30 @@ func NewSuccessfulCompileRequest(t *testing.T, input string, output string) {
 	req.AssertCompileAndExecute()
 }
 
+func (cr *CompileRequest) Parse(format string) error {
+	cr.T.Helper()
+
+	cmd := exec.Command("./swa", "parse", "-s", cr.InputPath, "-o", format)
+	output, err := cmd.CombinedOutput()
+
+	if cr.ExpectedOutput != string(output) {
+		cr.T.Fatalf(
+			"Parser error want: %s, has: %s \n Source file %s",
+			fmt.Sprintf("%q", cr.ExpectedOutput),
+			fmt.Sprintf("%q", string(output)),
+			cr.InputPath,
+		)
+	}
+
+	return err
+}
+
 func (cr *CompileRequest) Compile() error {
 	cr.T.Helper()
 
 	cr.OutputPath = uuid.New().String()
 
-	var experimental string
-
-	exp := os.Getenv("SWA_EXPERIMENTAL")
-	if exp != "" {
-		experimental = "--experimental"
-	}
-
-	cmd := exec.Command("./swa", "compile", "-s", cr.InputPath, "-o", cr.OutputPath, experimental)
+	cmd := exec.Command("./swa", "compile", "-s", cr.InputPath, "-o", cr.OutputPath)
 	output, err := cmd.CombinedOutput()
 
 	if cr.ExpectedOutput != string(output) {
@@ -49,6 +60,7 @@ func (cr *CompileRequest) Compile() error {
 			cr.InputPath,
 		)
 	}
+
 	return err
 }
 
@@ -73,7 +85,7 @@ func (cr *CompileRequest) RunProgram() error {
 func (cr *CompileRequest) AssertCompileAndExecute() {
 	if err := cr.Compile(); err != nil {
 		sb := strings.Builder{}
-		sb.WriteString(fmt.Sprintf("Compiler error (%s)\n Source file %s", err, cr.InputPath))
+		fmt.Fprintf(&sb, "Compiler error (%s)\n Source file %s", err, cr.InputPath)
 
 		data, err := os.ReadFile(fmt.Sprintf("%s.ll", cr.OutputPath))
 		if err == nil {
@@ -89,7 +101,6 @@ func (cr *CompileRequest) AssertCompileAndExecute() {
 	if err := cr.RunProgram(); err != nil {
 		cr.T.Fatalf("Runtime error (%s)", err)
 	}
-
 }
 
 func (cr *CompileRequest) Cleanup() {
