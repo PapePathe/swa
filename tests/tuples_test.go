@@ -69,7 +69,7 @@ func TestTupleReturns(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{
 			InputPath:               "./tuples/assign-to-member-expression.swa",
-			ExpectedExecutionOutput: "p.div = 4",
+			ExpectedExecutionOutput: "p.div = 4, p.mod = 8",
 			T:                       t,
 		}
 		req.AssertCompileAndExecute()

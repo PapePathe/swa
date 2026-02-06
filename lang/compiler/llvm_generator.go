@@ -503,7 +503,7 @@ func (g *LLVMGenerator) VisitTupleAssignmentExpression(node *ast.TupleAssignment
 			}
 
 			res := g.getLastResult()
-			g.Ctx.Builder.CreateStore(elemVal, *res.SymbolTableEntry.Address)
+			g.Ctx.Builder.CreateStore(elemVal, *res.Value)
 		case *ast.SymbolExpression:
 			err, entry := g.Ctx.FindSymbol(a.Value)
 			if err != nil {
