@@ -1,0 +1,14 @@
+dialect:english;
+
+struct Grid {
+  p: [2]int,
+}
+
+start() int {
+  let g: Grid;
+  (g.p[0], g.p[1]) = (15, 150);
+
+  print("tab[0]=%d, tab[1]=%d\n", g.p[0], g.p[1]);
+
+  return 0;
+}

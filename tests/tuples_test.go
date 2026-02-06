@@ -88,6 +88,26 @@ func TestTupleReturns(t *testing.T) {
 		req.AssertCompileAndExecute()
 	})
 
+	t.Run("Assign to array access expression in struct", func(t *testing.T) {
+		t.Parallel()
+		req := CompileRequest{
+			InputPath:               "./tuples/assign-to-array-index-in-struct.swa",
+			ExpectedExecutionOutput: "tab[0]=15, tab[1]=150\n",
+			T:                       t,
+		}
+		req.AssertCompileAndExecute()
+	})
+
+	t.Run("Assign to array of structs access", func(t *testing.T) {
+		t.Parallel()
+		req := CompileRequest{
+			InputPath:               "./tuples/assign-to-array-of-structs-index.swa",
+			ExpectedExecutionOutput: "tab[0]=15, tab[1]=150\n",
+			T:                       t,
+		}
+		req.AssertCompileAndExecute()
+	})
+
 	t.Run("Assign to member expression", func(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{

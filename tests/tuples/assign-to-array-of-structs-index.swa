@@ -1,0 +1,18 @@
+dialect:english;
+
+struct Point {
+  x : int,
+}
+
+struct Grid {
+  p: [2]Point,
+}
+
+start() int {
+  let g: Grid;
+  (g.p[0].x, g.p[1].x) = (15, 150);
+
+  print("tab[0]=%d, tab[1]=%d\n", g.p[0].x, g.p[1].x);
+
+  return 0;
+}
