@@ -81,7 +81,7 @@ func calculateBookValue(asset: FixedAsset, currentQ: int) float {
 // 3. SIMULATION & REPORTING ENGINE
 // ---------------------------------------------------------
 
-func runQuarter(state: *BusinessState, assets: [2]FixedAsset, qNum: int) AllHandsReport {
+func runQuarter(rep: *AllHandsReport, state: *BusinessState, assets: [2]FixedAsset, qNum: int) int {
     // 3 months of activity
     let rev: float = state.MonthlySaaSRevenue * 3.0;
     let opex: float = state.MonthlyPayroll * 3.0;
@@ -94,20 +94,16 @@ func runQuarter(state: *BusinessState, assets: [2]FixedAsset, qNum: int) AllHand
         i = i + 1;
     }
 
-    let report: AllHandsReport = AllHandsReport{
-        TotalRevenue: rev,
-        TotalExpenses: opex + totalDep,
-        NetIncome: rev - (opex + totalDep),
-        Depreciation: totalDep
-    };
-
+    rep.TotalRevenue  = rev;
+    rep.TotalExpenses = opex + totalDep;
+    rep.NetIncome     = rev - (opex + totalDep);
+    rep.Depreciation  = totalDep;
     // Cash movement (Depreciation is added back for cash balance)
     state.BankBalance = state.BankBalance + (rev - opex);
-    
     // Apply growth for next quarter
     state.MonthlySaaSRevenue = state.MonthlySaaSRevenue * state.GrowthRate;
 
-    return report;
+    return 0;
 }
 
 func generateStatements(state: BusinessState, report: AllHandsReport, assets: [2]FixedAsset, qNum: int) int {
@@ -133,11 +129,11 @@ func generateStatements(state: BusinessState, report: AllHandsReport, assets: [2
     };
 
     // 3. Print Output
-    print("--- QUARTER %d FINANCIAL STATEMENTS ---", qNum);
-    print("  P&L: Rev: %.2f | Exp: %.2f | Net: %.2f", report.TotalRevenue, report.TotalExpenses, report.NetIncome);
-    print("  B/S: Cash: %.2f | Assets: %.2f | Equity: %.2f", bs.Cash, bs.AssetBookValue, bs.Equity);
-    print("  C/F: Op. Cash Flow: %.2f | Closing Cash: %.2f", cf.OperatingCash, cf.Closing);
-    print("----------------------------------------");
+    print("--- QUARTER %d FINANCIAL STATEMENTS ---\n", qNum);
+    print("  P&L: Rev: %.2f | Exp: %.2f | Net: %.2f\n", report.TotalRevenue, report.TotalExpenses, report.NetIncome);
+    print("  B/S: Cash: %.2f | Assets: %.2f | Equity: %.2f\n", bs.Cash, bs.AssetBookValue, bs.Equity);
+    print("  C/F: Op. Cash Flow: %.2f | Closing Cash: %.2f\n", cf.OperatingCash, cf.Closing);
+    print("----------------------------------------\n");
     
     return 0;
 }
@@ -147,7 +143,7 @@ func generateStatements(state: BusinessState, report: AllHandsReport, assets: [2
 // ---------------------------------------------------------
 
 start() int {
-    print("INITIALIZING ENTERPRISE ACCOUNTING SUITE...");
+    print("INITIALIZING ENTERPRISE ACCOUNTING SUITE...\n");
 
     // Setup persistent business state
     let myCorp: BusinessState = BusinessState{
@@ -162,7 +158,7 @@ start() int {
     // Setup Capital Assets
     let assets: [2]FixedAsset = [2]FixedAsset{
         FixedAsset{Description: "Mainframe", InitialCost: 120000.0, PurchaseQuarter: 1, UsefulLifeQuarters: 12},
-        FixedAsset{Description: "Fleet", InitialCost: 80000.0, PurchaseQuarter: 2, UsefulLifeQuarters: 16}
+        FixedAsset{Description: "Fleet", InitialCost: 80000.0, PurchaseQuarter: 2, UsefulLifeQuarters: 16},
     };
 
     let annualRevenue: float = 0.0;
@@ -171,7 +167,8 @@ start() int {
     // Run Fiscal Year Simulation
     let q: int = 1;
     while (q <= 4) {
-        let qReport: AllHandsReport = runQuarter(myCorp, assets, q);
+        let qReport: AllHandsReport;
+        runQuarter(qReport, myCorp, assets, q);
         
         generateStatements(myCorp, qReport, assets, q);
         
@@ -182,19 +179,19 @@ start() int {
     }
 
     // Final Annual Analysis
-    print("*****************************************");
-    print("       ANNUAL ALL-HANDS SUMMARY          ");
-    print("*****************************************");
-    print("TOTAL ANNUAL REVENUE:   $%12.2f", annualRevenue);
-    print("TOTAL ANNUAL NET PROFIT:$%12.2f", annualNet);
-    print("FINAL BANK LIQUIDITY:   $%12.2f", myCorp.BankBalance);
-    print("LOCATION:               %s", myCorp.Location.Street);
-    print("*****************************************");
+    print("*****************************************\n");
+    print("       ANNUAL ALL-HANDS SUMMARY          \n");
+    print("*****************************************\n");
+    print("TOTAL ANNUAL REVENUE:   $%12.2f\n", annualRevenue);
+    print("TOTAL ANNUAL NET PROFIT:$%12.2f\n", annualNet);
+    print("FINAL BANK LIQUIDITY:   $%12.2f\n", myCorp.BankBalance);
+    print("LOCATION:               %s\n", myCorp.Location.Street);
+    print("*****************************************\n");
 
     if (annualNet > 0.0) {
-        print("STATUS: PERFORMANCE MET. TARGETING IPO 2026.");
+        print("STATUS: PERFORMANCE MET. TARGETING IPO 2026.\n");
     } else {
-        print("STATUS: RESTRUCTURING REQUIRED.");
+        print("STATUS: RESTRUCTURING REQUIRED.\n");
     }
 
     return 0;
