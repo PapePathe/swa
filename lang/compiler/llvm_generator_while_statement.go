@@ -39,10 +39,12 @@ func (g *LLVMGenerator) VisitWhileStatement(node *ast.WhileStatement) error {
 		return err
 	}
 
+	// TODO why on earth are we doing this
 	lastBodyBlock := g.Ctx.Builder.GetInsertBlock()
+	opcode := lastBodyBlock.LastInstruction()
 
-	opcode := lastBodyBlock.LastInstruction().InstructionOpcode()
-	if lastBodyBlock.LastInstruction().IsNil() || (opcode != llvm.Ret && opcode != llvm.Br) {
+	if lastBodyBlock.LastInstruction().IsNil() ||
+		(!opcode.IsNil() && opcode.InstructionOpcode() != llvm.Ret && opcode.InstructionOpcode() != llvm.Br) {
 		g.Ctx.Builder.CreateBr(whileConditionBlock)
 	}
 
