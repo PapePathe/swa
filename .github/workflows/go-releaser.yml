@@ -91,7 +91,8 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           choco install llvm --version=19.1.0 -y --allow-downgrade --force
-          "C:/Program Files/LLVM/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          New-Item -ItemType SymbolicLink -Path "C:\LLVM" -Target "C:\Program Files\LLVM"
+          "C:/LLVM/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           "CC=clang" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "CXX=clang++" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
@@ -105,11 +106,12 @@ jobs:
           export PATH=$PATH:$(go env GOPATH)/bin
           cd lang
           if command -v llvm-config >/dev/null 2>&1; then
-            INCDIR=$(llvm-config --includedir)
+            INCDIR=$(llvm-config --includedir | sed 's/\\/\//g')
+            LIBDIR=$(llvm-config --libdir | sed 's/\\/\//g')
             export CGO_CFLAGS="-I$INCDIR $(llvm-config --cflags | sed 's/\\/\//g')"
             export CGO_CPPFLAGS="-I$INCDIR $(llvm-config --cppflags | sed 's/\\/\//g')"
             export CGO_CXXFLAGS="-I$INCDIR $(llvm-config --cxxflags | sed 's/\\/\//g')"
-            export CGO_LDFLAGS="-L$(llvm-config --libdir) $(llvm-config --ldflags --libs all --system-libs | sed 's/\\/\//g')"
+            export CGO_LDFLAGS="-L$LIBDIR $(llvm-config --ldflags --libs all --system-libs | sed 's/\\/\//g')"
           fi
           goreleaser build --snapshot --clean --single-target
         env:

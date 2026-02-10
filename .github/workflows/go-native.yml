@@ -12,24 +12,14 @@ jobs:
         include:
           - os: ubuntu-latest
             name: Ubuntu
-          - os: macos-latest
-            name: macOS
           - os: windows-latest
             name: Windows
-# TODO: Add Fedora back when we figure out the llvm19 issue
-#     - os: ubuntu-latest
-#       container: fedora:latest
-#       name: Fedora (RPM)
-# TODO: Add Arch Linux back when we figure out the llvm19 issue
-# /github/home/go/pkg/mod/tinygo.org/x/go-llvm@v0.0.0-20250119132755-9dca92dfb4f9/ir.go:931:52: could not determine what C.LLVMConstMul refers to
-#   /github/home/go/pkg/mod/tinygo.org/x/go-llvm@v0.0.0-20250119132755-9dca92dfb4f9/ir.go:932:52: could not determine what C.LLVMConstNSWMul refers to
-# /github/home/go/pkg/mod/tinygo.org/x/go-llvm@v0.0.0-20250119132755-9dca92dfb4f9/ir.go:933:52: could not determine what C.LLVMConstNUWMul refers to
-# /github/home/go/pkg/mod/tinygo.org/x/go-llvm@v0.0.0-20250119132755-9dca92dfb4f9/ir.go:352:38: could not determine what C.LLVMLandingPadCatch refers to
-# /github/home/go/pkg/mod/tinygo.org/x/go-llvm@v0.0.0-20250119132755-9dca92dfb4f9/ir.go:79:22: could not determine what C.LLVMLandingPadClauseTy refers to
-# /github/home/go/pkg/mod/tinygo.org/x/go-llvm@v0.0.0-20250119132755-9dca92dfb4f9/ir.go:353:38: could not determine what C.LLVMLandingPadFilter refers to
-#  - os: ubuntu-latest
-#    container: archlinux:latest
-#    name: Arch Linux
+          - os: ubuntu-latest
+            container: fedora:latest
+            name: Fedora (RPM)
+          - os: ubuntu-latest
+            container: archlinux:latest
+            name: Arch Linux
           - os: ubuntu-latest
             container: alpine:latest
             name: Alpine Linux
@@ -92,7 +82,8 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           choco install llvm --version=19.1.0 -y --allow-downgrade --force
-          "C:/Program Files/LLVM/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          New-Item -ItemType SymbolicLink -Path "C:\LLVM" -Target "C:\Program Files\LLVM"
+          "C:/LLVM/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           "CC=clang" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "CXX=clang++" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
@@ -104,11 +95,12 @@ jobs:
         shell: bash
         run: |
           if command -v llvm-config >/dev/null 2>&1; then
-            INCDIR=$(llvm-config --includedir)
+            INCDIR=$(llvm-config --includedir | sed 's/\\/\//g')
+            LIBDIR=$(llvm-config --libdir | sed 's/\\/\//g')
             export CGO_CFLAGS="-I$INCDIR $(llvm-config --cflags | sed 's/\\/\//g')"
             export CGO_CPPFLAGS="-I$INCDIR $(llvm-config --cppflags | sed 's/\\/\//g')"
             export CGO_CXXFLAGS="-I$INCDIR $(llvm-config --cxxflags | sed 's/\\/\//g')"
-            export CGO_LDFLAGS="-L$(llvm-config --libdir) $(llvm-config --ldflags --libs all --system-libs | sed 's/\\/\//g')"
+            export CGO_LDFLAGS="-L$LIBDIR $(llvm-config --ldflags --libs all --system-libs | sed 's/\\/\//g')"
           fi
           go build -v -o ../tests/swa main.go
 
@@ -117,11 +109,12 @@ jobs:
         shell: bash
         run: |
           if command -v llvm-config >/dev/null 2>&1; then
-            INCDIR=$(llvm-config --includedir)
+            INCDIR=$(llvm-config --includedir | sed 's/\\/\//g')
+            LIBDIR=$(llvm-config --libdir | sed 's/\\/\//g')
             export CGO_CFLAGS="-I$INCDIR $(llvm-config --cflags | sed 's/\\/\//g')"
             export CGO_CPPFLAGS="-I$INCDIR $(llvm-config --cppflags | sed 's/\\/\//g')"
             export CGO_CXXFLAGS="-I$INCDIR $(llvm-config --cxxflags | sed 's/\\/\//g')"
-            export CGO_LDFLAGS="-L$(llvm-config --libdir) $(llvm-config --ldflags --libs all --system-libs | sed 's/\\/\//g')"
+            export CGO_LDFLAGS="-L$LIBDIR $(llvm-config --ldflags --libs all --system-libs | sed 's/\\/\//g')"
           fi
           go test -v -coverprofile=coverage.txt ./...
 
