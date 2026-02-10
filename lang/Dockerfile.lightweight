@@ -1,0 +1,38 @@
+# Stage 1: Build the Swa compiler binary
+FROM golang:1.22-bookworm AS builder
+
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN CGO_ENABLED=0 go build -o swa main.go
+
+# Stage 2: Final lightweight image
+FROM debian:bookworm-slim
+
+# Install only the necessary runtime dependencies: clang-19 and lld-19
+# We use the official LLVM repo for version 19
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    gnupg \
+    ca-certificates \
+    lsb-release \
+    && curl -fSsL https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor | tee /usr/share/keyrings/llvm-archive-keyring.gpg > /dev/null \
+    && echo "deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/bookworm/ llvm-toolchain-bookworm-19 main" | tee /etc/apt/sources.list.d/llvm.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        clang-19 \
+        lld-19 \
+    && apt-get purge -y --auto-remove curl gnupg lsb-release \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up environment or links if needed
+RUN ln -s /usr/bin/clang-19 /usr/bin/clang
+
+COPY --from=builder /app/swa /usr/local/bin/swa
+COPY DockerfileEntrypoint.sh /usr/local/bin/DockerfileEntrypoint.sh
+RUN chmod +x /usr/local/bin/DockerfileEntrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/DockerfileEntrypoint.sh"]

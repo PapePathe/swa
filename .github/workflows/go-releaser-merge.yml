@@ -1,0 +1,31 @@
+name: goreleaser-merge
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    needs: goreleaser # This assumes the main job is named 'goreleaser'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+      - name: Run GoReleaser Merge
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: '~> v2'
+          workdir: ./lang
+          args: continue --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

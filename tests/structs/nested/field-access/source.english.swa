@@ -25,8 +25,11 @@ start() int {
   let age: int = person.Age;
   let city: string = person.HomeAddress.City;
   let zipcode: int = person.HomeAddress.ZipCode;
-  
-  print("Name: %s, Age: %d, City: %s, ZipCode: %d", name, age, city, zipcode);
+
+  print("Name: %s, ", name);
+  print("Age: %d, ", age);
+  print("City: %s, ", city);
+  print("ZipCode: %d", zipcode);
   
   return 0;
 }

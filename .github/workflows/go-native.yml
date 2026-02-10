@@ -1,21 +1,17 @@
-name: goreleaser
-
+name: Go (Native Matrix)
 on:
+  push:
+    branches: ["master"]
   pull_request:
-
-permissions:
-  contents: write
-
+    branches: ["master"]
 jobs:
-  goreleaser:
+  build:
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
             name: Ubuntu
-          - os: macos-latest
-            name: macOS
 #          - os: windows-latest
 #            name: Windows
 #          # TODO: Re-enable Fedora, Arch, and Windows once LLVM 19 / CGO issues are resolved
@@ -30,12 +26,10 @@ jobs:
             name: Alpine Linux
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
-    name: Release (${{ matrix.name }})
+    name: Build & Test (${{ matrix.name }})
     env:
       CGO_ENABLED: 1
       GOFLAGS: -tags=llvm19
-    permissions:
-      contents: write
     steps:
       - name: Install dependencies (Linux Containers)
         if: matrix.container != ''
@@ -60,10 +54,7 @@ jobs:
           echo "CC=clang" >> "$GITHUB_ENV"
           echo "CXX=clang++" >> "$GITHUB_ENV"
 
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
       - name: Set up Go (Native Runners)
         if: matrix.container == ''
@@ -100,12 +91,10 @@ jobs:
       - name: Fix dubious ownership
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-      - name: Run GoReleaser
+      - name: Build
+        working-directory: lang
         shell: bash
         run: |
-          go install github.com/goreleaser/goreleaser/v2@latest
-          export PATH=$PATH:$(go env GOPATH)/bin
-          cd lang
           if command -v llvm-config >/dev/null 2>&1; then
             INCDIR=$(llvm-config --includedir | sed 's/\\/\//g')
             LIBDIR=$(llvm-config --libdir | sed 's/\\/\//g')
@@ -114,13 +103,23 @@ jobs:
             export CGO_CXXFLAGS="-I$INCDIR $(llvm-config --cxxflags | sed 's/\\/\//g')"
             export CGO_LDFLAGS="-L$LIBDIR $(llvm-config --ldflags --libs all --system-libs | sed 's/\\/\//g')"
           fi
-          goreleaser build --snapshot --clean --single-target
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CGO_ENABLED: 1
+          go build -v -o ../tests/swa main.go
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: swa-artifacts-${{ matrix.name }}
-          path: lang/dist/*
+      - name: Test
+        working-directory: lang
+        shell: bash
+        run: |
+          if command -v llvm-config >/dev/null 2>&1; then
+            INCDIR=$(llvm-config --includedir | sed 's/\\/\//g')
+            LIBDIR=$(llvm-config --libdir | sed 's/\\/\//g')
+            export CGO_CFLAGS="-I$INCDIR $(llvm-config --cflags | sed 's/\\/\//g')"
+            export CGO_CPPFLAGS="-I$INCDIR $(llvm-config --cppflags | sed 's/\\/\//g')"
+            export CGO_CXXFLAGS="-I$INCDIR $(llvm-config --cxxflags | sed 's/\\/\//g')"
+            export CGO_LDFLAGS="-L$LIBDIR $(llvm-config --ldflags --libs all --system-libs | sed 's/\\/\//g')"
+          fi
+          go test -v -coverprofile=coverage.txt ./...
+
+      - name: Integration Tests
+        working-directory: tests
+        shell: bash
+        run: go test ./...

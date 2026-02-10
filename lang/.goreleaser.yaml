@@ -8,19 +8,23 @@ metadata:
 before:
   hooks:
     - go mod tidy
-    - ./test.sh
+   # - ./test.sh
 
 builds:
   - env:
-      - CGO_ENABLED=0
+      - CGO_ENABLED=1
+    flags:
+      - -buildvcs=false
     goos:
       - linux
-#      - darwin
-#      - windows
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
 
 archives:
   - formats: [tar.gz]
-    # this name template makes the OS and Arch compatible with the results of `uname`.
     name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
@@ -28,10 +32,31 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
-    # use zip for windows archives
     format_overrides:
       - goos: windows
         formats: [zip]
+
+nfpms:
+  - maintainer: Pape Pathe <pathe.sene@gmail.com>
+    description: Swa Programming Language Compiler
+    homepage: https://github.com/PapePathe/swa
+    license: MIT
+    formats:
+      - deb
+      - rpm
+    dependencies:
+      - clang-19
+      - lld-19
+
+brews:
+  - name: swa
+    repository:
+      owner: PapePathe
+      name: homebrew-swa
+    homepage: https://github.com/PapePathe/swa
+    description: Swa Programming Language Compiler
+    install: |
+      bin.install "swa"
 
 changelog:
   sort: asc

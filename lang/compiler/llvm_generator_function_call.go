@@ -163,6 +163,6 @@ func (g *LLVMGenerator) formatLLVMType(t llvm.Type) string {
 		if t.TypeKind() == llvm.TypeKind(1) {
 			return "Reference"
 		}
-		return t.String()
+		return "Cannot stringify type "
 	}
 }

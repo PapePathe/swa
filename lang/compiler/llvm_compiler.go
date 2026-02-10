@@ -102,7 +102,12 @@ func (c *LLVMCompiler) Run() error {
 		return fmt.Errorf("Error durrng object creation <%w>", err)
 	}
 
-	linkCmd := exec.Command(clang, c.objectFileName(), "-o", c.executableFileName(), "-no-pie")
+	linkArgs := []string{c.objectFileName(), "-o", c.executableFileName()}
+	if c.req.Target.OperatingSystem != "darwin" {
+		linkArgs = append(linkArgs, "-no-pie")
+	}
+
+	linkCmd := exec.Command(clang, linkArgs...)
 	linkCmd.Stdout = os.Stdout
 	linkCmd.Stderr = os.Stderr
 
