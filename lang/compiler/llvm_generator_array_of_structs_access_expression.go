@@ -79,6 +79,7 @@ func (g *LLVMGenerator) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStr
 		SymbolTableEntry:       array,
 		StuctPropertyValueType: &proptype,
 		ArraySymbolTableEntry:  arrayEntry,
+		SwaType:                swatype,
 	}
 
 	debugf := "result object, value:%v, sdef: %s, adef: %s"

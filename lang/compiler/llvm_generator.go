@@ -223,7 +223,7 @@ func (g *LLVMGenerator) VisitNumberExpression(node *ast.NumberExpression) error 
 		signed,
 	)
 	node.SwaType = ast.NumberType{}
-	g.setLastResult(&CompilerResult{Value: &res})
+	g.setLastResult(&CompilerResult{Value: &res, SwaType: node.SwaType})
 
 	return nil
 }

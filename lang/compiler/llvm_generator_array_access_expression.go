@@ -45,6 +45,7 @@ func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpressi
 		Value:                 &itemPtr,
 		ArraySymbolTableEntry: entry,
 		SymbolTableEntry:      array,
+		SwaType:               node.SwaType,
 	})
 
 	return nil
