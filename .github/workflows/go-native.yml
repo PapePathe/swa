@@ -12,14 +12,15 @@ jobs:
         include:
           - os: ubuntu-latest
             name: Ubuntu
-          - os: windows-latest
-            name: Windows
-          - os: ubuntu-latest
-            container: fedora:latest
-            name: Fedora (RPM)
-          - os: ubuntu-latest
-            container: archlinux:latest
-            name: Arch Linux
+#          - os: windows-latest
+#            name: Windows
+#          # TODO: Re-enable Fedora, Arch, and Windows once LLVM 19 / CGO issues are resolved
+#          - os: ubuntu-latest
+#            container: fedora:latest
+#            name: Fedora (RPM)
+#          - os: ubuntu-latest
+#            container: archlinux:latest
+#            name: Arch Linux
           - os: ubuntu-latest
             container: alpine:latest
             name: Alpine Linux
