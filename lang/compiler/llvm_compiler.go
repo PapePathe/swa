@@ -63,17 +63,15 @@ func (c *LLVMCompiler) Run() error {
 		}
 	}
 
-	err := llvm.VerifyModule(*c.context.Module, llvm.ReturnStatusAction)
-	if err != nil {
-		c.context.Module.Dump()
-
-		return err
-	}
-
-	err = os.WriteFile(c.llirFileName(), []byte(c.context.Module.String()), FilePerm)
+	err := os.WriteFile(c.llirFileName(), []byte(c.context.Module.String()), FilePerm)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
+	}
+
+	err = llvm.VerifyModule(*c.context.Module, llvm.ReturnStatusAction)
+	if err != nil {
+		return err
 	}
 
 	if c.context.Debugging {
