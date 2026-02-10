@@ -67,6 +67,9 @@ jobs:
           echo "CC=C:\Program Files\LLVM\bin\clang.exe" >> $GITHUB_ENV
           echo "CXX=C:\Program Files\LLVM\bin\clang++.exe" >> $GITHUB_ENV
 
+      - name: Fix dubious ownership
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Build
         working-directory: lang
         run: go build -v -o ../tests/swa

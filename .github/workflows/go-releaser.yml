@@ -74,6 +74,9 @@ jobs:
           echo "CC=C:\Program Files\LLVM\bin\clang.exe" >> $GITHUB_ENV
           echo "CXX=C:\Program Files\LLVM\bin\clang++.exe" >> $GITHUB_ENV
 
+      - name: Fix dubious ownership
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
