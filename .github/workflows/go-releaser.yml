@@ -87,11 +87,14 @@ jobs:
 
       - name: Run GoReleaser
         run: |
+          go install github.com/goreleaser/goreleaser/v2@latest
+          export PATH=$PATH:$(go env GOPATH)/bin
+          cd lang
           if command -v llvm-config >/dev/null 2>&1; then
             export CGO_CFLAGS="$(llvm-config --cflags)"
             export CGO_LDFLAGS="$(llvm-config --ldflags --libs all --system-libs)"
           fi
-          goreleaser build --snapshot --clean --single-target --config ../lang/.goreleaser.yaml
+          goreleaser build --snapshot --clean --single-target
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CGO_ENABLED: 1
