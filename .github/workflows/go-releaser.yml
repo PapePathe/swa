@@ -36,11 +36,14 @@ jobs:
         if: matrix.container != ''
         run: |
           if [ -f /etc/fedora-release ]; then
-            dnf install -y clang llvm-devel go git
+            dnf install -y clang clang-devel llvm-devel go git
           elif [ -f /etc/arch-release ]; then
             pacman -Sy --noconfirm clang llvm go git
           elif [ -f /etc/alpine-release ]; then
             apk add clang19-dev llvm19-dev go git build-base
+            ln -s /usr/bin/llvm-config19 /usr/bin/llvm-config
+            echo "CC=clang-19" >> $GITHUB_ENV
+            echo "CXX=clang++-19" >> $GITHUB_ENV
           fi
 
       - name: Checkout
@@ -72,7 +75,7 @@ jobs:
       - name: Install LLVM (Native Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          choco install llvm --version=19.1.0 -y
+          choco install llvm --version=19.1.0 -y --allow-downgrade --force
           echo "C:\Program Files\LLVM\bin" >> $GITHUB_PATH
           echo "CC=C:\Program Files\LLVM\bin\clang.exe" >> $GITHUB_ENV
           echo "CXX=C:\Program Files\LLVM\bin\clang++.exe" >> $GITHUB_ENV
