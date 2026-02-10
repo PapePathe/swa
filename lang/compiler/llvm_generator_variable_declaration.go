@@ -98,6 +98,9 @@ var nodeVariableDeclarationStyles = map[reflect.Type]InitializationStyle{
 	reflect.TypeFor[*ast.BinaryExpression]():               StyleDefault,
 	reflect.TypeFor[*ast.StructInitializationExpression](): StyleDirect,
 	reflect.TypeFor[*ast.ArrayInitializationExpression]():  StyleDirect,
+	reflect.TypeFor[*ast.PrefixExpression]():               StyleDefault,
+	reflect.TypeFor[*ast.ZeroExpression]():                 StyleDefault,
+	reflect.TypeFor[*ast.ErrorExpression]():                StyleDefault,
 }
 
 func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatement) error {

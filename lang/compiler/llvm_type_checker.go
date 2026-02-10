@@ -27,7 +27,7 @@ func (l *LLVMTypeChecker) VisitAssignmentExpression(node *ast.AssignmentExpressi
 		return fmt.Errorf("LLVMTypeChecker VisitAssignmentExpression type of value is nil")
 	}
 
-	if asstype != valType {
+	if !l.areTypesEquivalent(asstype, valType) {
 		key := "LLVMTypeChecker.VisitAssignmentExpression.UnexpectedValue"
 		return l.ctx.Dialect.Error(
 			key,
@@ -73,7 +73,7 @@ func (l *LLVMTypeChecker) VisitVarDeclaration(node *ast.VarDeclarationStatement)
 		return nil
 	}
 
-	if node.ExplicitType != node.Value.VisitedSwaType() {
+	if !l.areTypesEquivalent(node.ExplicitType, node.Value.VisitedSwaType()) {
 		key := "LLVMTypeChecker.VisitVarDeclaration.UnexpectedValue"
 		return l.ctx.Dialect.Error(key,
 			node.ExplicitType.Value().String(),
@@ -104,7 +104,7 @@ func (l *LLVMTypeChecker) VisitTupleAssignmentExpression(node *ast.TupleAssignme
 	for i, typ := range valuestyp.Types {
 		itemtyp := assigneestyp.Types[i]
 
-		if itemtyp != typ {
+		if !l.areTypesEquivalent(itemtyp, typ) {
 			return fmt.Errorf(
 				"Values mismatch in tuple expected %s got %s at index %d",
 				typ.Value().String(), itemtyp.Value().String(), i)
@@ -158,3 +158,32 @@ func (l *LLVMTypeChecker) ZeroOfVoidType(node *ast.VoidType) error              
 func (l *LLVMTypeChecker) ZeroOfTupleType(node *ast.TupleType) error                 { return nil }
 func (l *LLVMTypeChecker) VisitZeroExpression(node *ast.ZeroExpression) error        { return nil }
 func (l *LLVMTypeChecker) VisitBinaryExpression(node *ast.BinaryExpression) error    { return nil }
+
+func (l *LLVMTypeChecker) areTypesEquivalent(a, b ast.Type) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+
+	if a.Value() != b.Value() {
+		return false
+	}
+
+	if a.Value() == ast.DataTypeSymbol {
+		var nameA, nameB string
+		if asym, ok := a.(*ast.SymbolType); ok {
+			nameA = asym.Name
+		} else if asym, ok := a.(ast.SymbolType); ok {
+			nameA = asym.Name
+		}
+
+		if bsym, ok := b.(*ast.SymbolType); ok {
+			nameB = bsym.Name
+		} else if bsym, ok := b.(ast.SymbolType); ok {
+			nameB = bsym.Name
+		}
+		return nameA == nameB
+	}
+
+	// For other types like ErrorType, NumberType etc, Value() equality is enough
+	return true
+}

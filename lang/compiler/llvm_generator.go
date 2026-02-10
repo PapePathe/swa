@@ -45,7 +45,16 @@ func (g *LLVMGenerator) Debugf(format string, args ...any) {
 }
 
 func (g *LLVMGenerator) VisitZeroExpression(node *ast.ZeroExpression) error {
-	return node.T.AcceptZero(g)
+	err := node.T.AcceptZero(g)
+	if err != nil {
+		return err
+	}
+
+	res := g.getLastResult()
+	res.SwaType = node.T
+	g.setLastResult(res)
+
+	return nil
 }
 
 // VisitAssignmentExpression implements [ast.CodeGenerator].
@@ -214,7 +223,7 @@ func (g *LLVMGenerator) VisitNumberExpression(node *ast.NumberExpression) error 
 		signed,
 	)
 	node.SwaType = ast.NumberType{}
-	g.setLastResult(&CompilerResult{Value: &res})
+	g.setLastResult(&CompilerResult{Value: &res, SwaType: node.SwaType})
 
 	return nil
 }
@@ -384,6 +393,7 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 			&CompilerResult{
 				Value:            &load,
 				SymbolTableEntry: entry,
+				SwaType:          entry.DeclaredType,
 			},
 		)
 
@@ -397,6 +407,7 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 			&CompilerResult{
 				Value:            &entry.Value,
 				SymbolTableEntry: entry,
+				SwaType:          entry.DeclaredType,
 			},
 		)
 
@@ -409,6 +420,7 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 			&CompilerResult{
 				Value:            entry.Address,
 				SymbolTableEntry: entry,
+				SwaType:          entry.DeclaredType,
 			},
 		)
 
@@ -430,6 +442,7 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 		&CompilerResult{
 			Value:            &loadedValue,
 			SymbolTableEntry: entry,
+			SwaType:          entry.DeclaredType,
 		},
 	)
 
@@ -456,6 +469,7 @@ func (g *LLVMGenerator) VisitPrefixExpression(node *ast.PrefixExpression) error 
 	}
 
 	val := handler(g, *res.Value)
+	node.SwaType = res.SwaType
 	g.setLastResult(&CompilerResult{Value: &val})
 
 	return nil

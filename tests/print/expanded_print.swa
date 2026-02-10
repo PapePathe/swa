@@ -1,0 +1,44 @@
+dialect:english;
+
+struct Data {
+    val: int,
+}
+
+struct Wrapper {
+    inner: Data,
+}
+
+struct Collection {
+    items: [2]Data,
+}
+
+func getConstant() int {
+    return 100;
+}
+
+start() int {
+    let d : Data = Data {
+        val: 50,
+    };
+    let w : Wrapper = Wrapper {
+        inner: d,
+    };
+    let coll : Collection = Collection {
+        items: [2]Data{Data{val: 1}, Data{val: 2}},
+    };
+    let arr : [3]int = [3]int{10,20,30};
+    let e : error = error("runtime error");
+    let x : int = 10;
+
+    print("Struct member: ", d.val, "\n");
+    print("Nested member: ", w.inner.val, "\n");
+    print("Array of structs: ", coll.items[1].val, "\n");
+    print("Array access: ", arr[1], "\n");
+    print("Function call: ", getConstant(), "\n");
+    print("Binary expr: ", 10 + 20, " ", 5 > 2, "\n");
+    print("Error type: ", e, "\n");
+    print("Prefix expr: ", -x, "\n");
+    print("Zero value: ", zero(int), "\n");
+
+    return 0;
+}
