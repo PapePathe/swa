@@ -15,8 +15,6 @@ builds:
       - CGO_ENABLED=1
     flags:
       - -buildvcs=false
-    flags:
-      - -buildvcs=false
     goos:
       - linux
       - darwin
