@@ -79,7 +79,7 @@ func (c *LLVMCompiler) Run() error {
 	}
 
 	llc := findCommand("llc-19", "llc")
-	cmd := exec.Command(llc, c.llirFileName(), "-o", c.asmFileName())
+	cmd := exec.Command(llc, c.llirFileName(), "-o", c.asmFileName(), "-relocation-model=pic")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -93,7 +93,7 @@ func (c *LLVMCompiler) Run() error {
 	}
 
 	clang := findCommand("clang-19", "clang")
-	objectCmd := exec.Command(clang, "-c", c.asmFileName(), "-o", c.objectFileName())
+	objectCmd := exec.Command(clang, "-c", c.asmFileName(), "-o", c.objectFileName(), "-fPIE")
 	objectCmd.Stdout = os.Stdout
 	objectCmd.Stderr = os.Stderr
 
@@ -103,10 +103,6 @@ func (c *LLVMCompiler) Run() error {
 	}
 
 	linkArgs := []string{c.objectFileName(), "-o", c.executableFileName()}
-	if c.req.Target.OperatingSystem != "darwin" {
-		linkArgs = append(linkArgs, "-no-pie")
-	}
-
 	linkCmd := exec.Command(clang, linkArgs...)
 	linkCmd.Stdout = os.Stdout
 	linkCmd.Stderr = os.Stderr
