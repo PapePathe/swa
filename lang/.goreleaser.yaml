@@ -8,20 +8,20 @@ metadata:
 before:
   hooks:
     - go mod tidy
-    # - ./test.sh
+   # - ./test.sh
 
 builds:
   - env:
-      - CGO_ENABLED=0
+      - CGO_ENABLED=1
     flags:
       - -buildvcs=false
     goos:
       - linux
-   #   - darwin
-   #   - windows
+      - darwin
+      - windows
     goarch:
       - amd64
-    #  - arm64
+      - arm64
 
 archives:
   - formats: [tar.gz]
