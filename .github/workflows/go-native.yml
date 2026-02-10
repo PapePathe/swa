@@ -32,14 +32,16 @@ jobs:
         if: matrix.container != ''
         run: |
           if [ -f /etc/fedora-release ]; then
-            dnf install -y clang clang-devel llvm-devel go git
+            dnf install -y clang clang-devel llvm-devel llvm-static go git gcc-c++ make libffi-devel ncurses-devel zlib-devel
           elif [ -f /etc/arch-release ]; then
             pacman -Sy --noconfirm clang llvm go git
           elif [ -f /etc/alpine-release ]; then
-            apk add clang19-dev llvm19-dev go git build-base
+            apk add clang19-dev llvm19-dev go git build-base pkgconfig
             ln -s /usr/bin/llvm-config19 /usr/bin/llvm-config
             echo "CC=clang-19" >> $GITHUB_ENV
             echo "CXX=clang++-19" >> $GITHUB_ENV
+            echo "CGO_CPPFLAGS=-I/usr/lib/llvm19/include" >> $GITHUB_ENV
+            echo "CGO_LDFLAGS=-L/usr/lib/llvm19/lib" >> $GITHUB_ENV
           fi
 
       - uses: actions/checkout@v4
