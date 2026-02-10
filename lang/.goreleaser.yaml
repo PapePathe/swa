@@ -8,11 +8,13 @@ metadata:
 before:
   hooks:
     - go mod tidy
-   # - ./test.sh
+    # - ./test.sh
 
 builds:
   - env:
       - CGO_ENABLED=0
+    flags:
+      - -buildvcs=false
     goos:
       - linux
       - darwin
