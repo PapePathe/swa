@@ -43,10 +43,8 @@ jobs:
             apk add clang19-dev llvm19-dev go git build-base pkgconfig
             ln -s /usr/bin/llvm-config19 /usr/bin/llvm-config
           fi
-          echo "CGO_CFLAGS=$(llvm-config --cflags)" >> $GITHUB_ENV
-          echo "CGO_LDFLAGS=$(llvm-config --ldflags --libs all --system-libs)" >> $GITHUB_ENV
-          echo "CC=clang" >> $GITHUB_ENV
-          echo "CXX=clang++" >> $GITHUB_ENV
+          echo "CC=clang" >> "$GITHUB_ENV"
+          echo "CXX=clang++" >> "$GITHUB_ENV"
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -65,8 +63,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang-19 llvm-19-dev lld-19
           sudo ln -s /usr/bin/llvm-config-19 /usr/bin/llvm-config
-          echo "CGO_CFLAGS=$(llvm-config --cflags)" >> $GITHUB_ENV
-          echo "CGO_LDFLAGS=$(llvm-config --ldflags --libs all --system-libs)" >> $GITHUB_ENV
 
       - name: Install LLVM (Native macOS)
         if: matrix.os == 'macos-latest'
@@ -90,12 +86,12 @@ jobs:
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          distribution: goreleaser
-          version: '~> v2'
-          workdir: ./lang
-          args: build --snapshot --clean --single-target
+        run: |
+          if command -v llvm-config >/dev/null 2>&1; then
+            export CGO_CFLAGS="$(llvm-config --cflags)"
+            export CGO_LDFLAGS="$(llvm-config --ldflags --libs all --system-libs)"
+          fi
+          goreleaser build --snapshot --clean --single-target --config ../lang/.goreleaser.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CGO_ENABLED: 1
