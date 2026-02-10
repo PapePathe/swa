@@ -73,15 +73,16 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           choco install llvm --version=19.1.0 -y --allow-downgrade --force
-          echo "C:\Program Files\LLVM\bin" >> $GITHUB_PATH
-          echo "CC=C:\Program Files\LLVM\bin\clang.exe" >> $GITHUB_ENV
-          echo "CXX=C:\Program Files\LLVM\bin\clang++.exe" >> $GITHUB_ENV
+          echo "C:/Program Files/LLVM/bin" >> $GITHUB_PATH
+          echo "CC=C:/Program Files/LLVM/bin/clang.exe" >> $GITHUB_ENV
+          echo "CXX=C:/Program Files/LLVM/bin/clang++.exe" >> $GITHUB_ENV
 
       - name: Fix dubious ownership
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Build
         working-directory: lang
+        shell: bash
         run: |
           if command -v llvm-config >/dev/null 2>&1; then
             export CGO_CFLAGS="$(llvm-config --cflags)"
@@ -93,6 +94,7 @@ jobs:
 
       - name: Test
         working-directory: lang
+        shell: bash
         run: |
           if command -v llvm-config >/dev/null 2>&1; then
             export CGO_CFLAGS="$(llvm-config --cflags)"
@@ -104,6 +106,7 @@ jobs:
 
       - name: Integration Tests
         working-directory: tests
-        run: go test ./...
+        shell: bash
+        run: go test -v ./...
         env:
           CGO_ENABLED: 1
