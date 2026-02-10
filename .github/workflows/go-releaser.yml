@@ -5,8 +5,6 @@ on:
 
 permissions:
   contents: write
-  attestations: write
-  id-token: write
 
 jobs:
   goreleaser:
@@ -120,14 +118,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CGO_ENABLED: 1
-      - uses: actions/attest-build-provenance@v3
-        with:
-          subject-checksums: ./dist/checksums.txt
-      # After GoReleaser runs, attest all the images in ./dist/digests.txt:
-      - uses: actions/attest-build-provenance@v3
-        if: startsWith(github.ref, 'refs/tags/v') # snapshots won't push docker images
-        with:
-          subject-checksums: ./dist/digests.txt
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
