@@ -1,13 +1,14 @@
 package compiler
 
 import (
+	"fmt"
 	"swahili/lang/ast"
 
 	"tinygo.org/x/go-llvm"
 )
 
 func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) error {
-	old := g.logger.Step("FunDefStmt")
+	old := g.logger.Step(fmt.Sprintf("FunDefStmt %s", node.Name))
 
 	defer g.logger.Restore(old)
 
