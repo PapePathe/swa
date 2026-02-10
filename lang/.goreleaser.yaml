@@ -17,8 +17,8 @@ builds:
       - -buildvcs=false
     goos:
       - linux
-      - darwin
-      - windows
+   #   - darwin
+   #   - windows
     goarch:
       - amd64
     #  - arm64
