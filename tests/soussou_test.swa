@@ -1,0 +1,7 @@
+khuien:soussou;
+
+sodé() konti {
+    kouicé a: konti = 42;
+    masen("A na: ", a, "\n");
+    gbilen 0;
+}
