@@ -1,0 +1,6 @@
+dialecte:français;
+
+demarrer() entier {
+  variable y: entier = -2147483649;
+  retourner 0;
+}

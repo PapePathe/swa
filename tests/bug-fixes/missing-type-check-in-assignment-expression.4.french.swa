@@ -1,0 +1,11 @@
+dialecte:français;
+
+structure Float {
+    x: decimal,
+}
+
+demarrer () entier {
+  variable res : decimal;
+  res = Float{x:1.0};
+  retourner 0; 
+}

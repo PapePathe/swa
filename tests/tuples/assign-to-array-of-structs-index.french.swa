@@ -1,0 +1,18 @@
+dialecte:français;
+
+structure Point {
+  x : entier,
+}
+
+structure Grid {
+  p: [2]Point,
+}
+
+demarrer() entier {
+  variable g: Grid;
+  (g.p[0].x, g.p[1].x) = (15, 150);
+
+  afficher("tab[0]=%d, tab[1]=%d\n", g.p[0].x, g.p[1].x);
+
+  retourner 0;
+}

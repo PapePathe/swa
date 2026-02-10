@@ -1,0 +1,24 @@
+dialecte:français;
+
+demarrer() entier {
+  variable x: entier = 5;
+  variable y: decimal = 2.5;
+
+  variable r00: decimal = x + y;
+  variable r01: decimal = y + x;
+  afficher("(x + y = %.2f, y + x = %.2f)", r00, r01);
+
+  variable r10: decimal = x * y;
+  variable r11: decimal = y * x;
+  afficher("(x * y = %.2f, y * x = %.2f)", r10, r11);
+
+  variable r20: decimal = x / y;
+  variable r21: decimal = y / x;
+  afficher("(x / y = %.2f, y / x = %.2f)", r20, r21);
+
+  variable r30: decimal = x - y;
+  variable r31: decimal = y - x;
+  afficher("(x - y = %.2f, y - x = %.2f)", r30, r31);
+
+  retourner 0;
+}

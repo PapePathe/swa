@@ -1,0 +1,25 @@
+dialecte:français;
+
+structure Dimension {
+  Length: decimal,
+  Height: entier,
+}
+
+demarrer() entier {
+
+  variable l : [3]Dimension;
+  afficher("- [3]Dimension with zero value\n");
+  afficher(
+    "(Index: 0) Length: %.2f Height: %d\n", 
+    l[0].Length,  l[0].Height
+  );
+  afficher(
+    "(Index: 1) Length: %.2f Height: %d\n", 
+    l[1].Length,  l[1].Height
+  );
+  afficher(
+    "(Index: 2) Length: %.2f Height: %d\n", 
+    l[2].Length,  l[2].Height
+  );
+  retourner 0;
+}

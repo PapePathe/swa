@@ -1,0 +1,145 @@
+dialecte:français;
+
+// Define array sizes for this test case
+ variable M_MAX : entier = 2; // Size of nums1
+ variable N_MAX : entier = 4; // Size of nums2
+ variable INF : entier = 10000001; // Positive infinity sentinel (larger than max constraint 10^6)
+ variable NEG_INF : entier = -10000001; // Negative infinity sentinel
+ 
+ // Helper function to find the maximum of two integers
+ fonction getMaxInt(a: entier, b: entier) entier {
+   si (a > b) {
+     retourner a;
+   }
+   retourner b;
+ }
+ 
+ // Helper function to find the minimum of two integers
+ fonction getMinInt(a: entier, b: entier) entier {
+   si (a < b) {
+     retourner a;
+   }
+   retourner b;
+ }
+ 
+ // ------------------------------------
+ // Core function implementing O(log(m+n)) Binary Search
+ // ------------------------------------
+ fonction findMedianSortedArrays(nums1: [2]entier, nums2: [4]entier, m: entier, n: entier) decimal {
+   // We assume m <= n, ensuring binary search is on the smaller array (nums1).
+   // If m > n, a swap is required, but SWA does not support generics/pointer swaps easily.
+   // The caller must ensure the shorter array is passed as nums1.
+   
+   variable low : entier = 0;
+   variable high : entier = m;
+   variable total_len : entier = m + n;
+   variable half_len : entier = (total_len + 1) / 2;
+   
+   variable maxLeftX : entier = 0;
+   variable minRightX : entier = 0;
+   variable maxLeftY : entier = 0;
+   variable minRightY : entier = 0;
+   
+   variable partitionX : entier = 0;
+   variable partitionY : entier = 0;
+   
+   variable result_median : decimal = 0.0;
+   
+   tantque (low <= high) {
+     // 1. Determine partition points using Binary Search
+     partitionX = (low + high) / 2;
+     partitionY = half_len - partitionX;
+     
+     // 2. Determine boundary values (maxLeftX, minRightX, maxLeftY, minRightY)
+     
+     // Get maxLeftX (element before partitionX)
+     si (partitionX == 0) {
+       maxLeftX = NEG_INF;
+     } sinon {
+       maxLeftX = nums1[partitionX - 1];
+     }
+     
+     // Get minRightX (element at partitionX)
+     si (partitionX == m) {
+       minRightX = INF;
+     } sinon {
+       minRightX = nums1[partitionX];
+     }
+ 
+     // Get maxLeftY (element before partitionY)
+     si (partitionY == 0) {
+       maxLeftY = NEG_INF;
+     } sinon {
+       maxLeftY = nums2[partitionY - 1];
+     }
+     
+     // Get minRightY (element at partitionY)
+     si (partitionY == n) {
+       minRightY = INF;
+     } sinon {
+       minRightY = nums2[partitionY];
+     }
+     
+     // 3. Check for correct partition: maxLeft <= minRight
+     si (maxLeftX <= minRightY) {
+       si (maxLeftY <= minRightX) {
+         // --- Found the correct partition! ---
+         
+         // Calculate the maximum of the left side (MaxLeft)
+         variable maxLeft : entier = getMaxInt(maxLeftX, maxLeftY);
+         
+         // If total length is Odd, MaxLeft is the median
+         si ((total_len % 2) == 1) {
+           result_median = maxLeft;
+           retourner result_median;
+         } sinon {
+           // If total length is Even, median is (MaxLeft + MinRight) / 2
+           
+           // Calculate the minimum of the right side (MinRight)
+           variable minRight : entier = getMinInt(minRightX, minRightY);
+           
+           // Must perform addition and division using decimal arithmetic
+           variable temp_sum : decimal = maxLeft + minRight;
+           result_median = temp_sum / 2.0;
+           retourner result_median;
+         }
+       } sinon {
+         // maxLeftY > minRightX: PartitionX is too small (move right)
+         low = partitionX + 1;
+       }
+     } sinon {
+       // maxLeftX > minRightY: PartitionX is too large (move left)
+       high = partitionX - 1;
+     }
+   }
+   
+   // Fallback (should not be reached)
+   retourner 0.0;
+ }
+ 
+ // ------------------------------------
+ // MAIN EXECUTION
+ // ------------------------------------
+ demarrer() entier {
+   variable result : decimal = 0.0;
+   
+   // Example 2: nums1 = [1, 2], nums2 = [3, 4, 5, 6] -> Merged: [1, 2, 3, 4, 5, 6]. Median = (3 + 4) / 2 = 3.5
+   variable arr1_a: [2]entier = [2]entier{ 1, 2 };
+   variable arr2_a: [4]entier = [4]entier{ 3, 4, 5, 6 };
+   
+   // Call function, ensuring shorter array is first: m=2, n=4
+   result = findMedianSortedArrays(arr1_a, arr2_a, 2, 4); 
+   afficher("Median for [1,2], [3,4,5,6] (m=2, n=4) = %f", result); 
+ 
+   // Example for an Odd Total Length: nums1 = [1], nums2 = [2, 3, 4, 5] -> Merged: [1, 2, 3, 4, 5]. Median = 3.0
+   // Note: We'll pad the 1-element array to fit the [2]entier constraint, using INF as padding
+   variable arr1_b: [2]entier = [2]entier{ 1, INF }; 
+   variable arr2_b: [4]entier = [4]entier{ 2, 3, 4, 5 };
+   
+   // Call function with actual sizes: m=1, n=4. Total size=5. Half_len=3.
+   // The logic inside must handle the INF padding correctly via the size check (m=1).
+   result = findMedianSortedArrays(arr1_b, arr2_b, 1, 4); 
+   afficher("Median for [1], [2,3,4,5] (m=1, n=4) = %f", result); 
+ 
+   retourner 0; 
+ }

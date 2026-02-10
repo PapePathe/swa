@@ -1,0 +1,22 @@
+dialecte:français;
+
+structure Data {
+  ptr: *entier,
+  value: entier,
+}
+
+// TODO: structure should be passed as a value here
+fonction processData(d: *Data) entier {
+  retourner d.ptr[0] + d.ptr[1] + d.ptr[2] + d.value;
+}
+
+demarrer() entier {
+  variable d : Data = Data{
+    ptr: [3]entier{10, 20, 30},
+    value: 5,
+  };
+
+  variable result: entier = processData(d);
+  afficher("Result: %d", result);
+  retourner 0;
+}

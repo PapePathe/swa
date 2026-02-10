@@ -1,0 +1,13 @@
+dialecte:français;
+
+fonction get_vector() (decimal, decimal) {
+    retourner 1.5, 2.5;
+}
+
+demarrer() entier {
+    variable x: decimal = 0.0;
+    variable y: decimal = 0.0;
+    (x, y) = get_vector();
+    afficher("x: %.1f, y: %.1f\n", x, y);
+    retourner 0;
+}

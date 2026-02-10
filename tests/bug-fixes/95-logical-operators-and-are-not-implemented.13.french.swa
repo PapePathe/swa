@@ -1,0 +1,13 @@
+dialecte:français;
+
+demarrer() entier {
+  variable a: entier = 5;
+  variable x: decimal = 2.5;
+  
+  si (a > 3 && x == 2.5 || 1 == 1) {
+    afficher("a > 3 && x == 2.5 || 1 == 1 evaluates to vrai");
+  } sinon {
+    afficher("implementation erreur");
+  }
+  retourner 0;
+}

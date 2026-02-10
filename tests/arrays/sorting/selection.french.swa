@@ -1,0 +1,53 @@
+dialecte:français;
+
+fonction selection_sort(list: [10]entier) entier {
+  variable N: entier = 10;
+  variable i: entier = 0;
+  variable j: entier = 0;
+  variable min_idx: entier = 0;
+  
+  // Outer loop: move the boundary of the unsorted subarray
+  tantque (i < (N - 1)) {
+    min_idx = i;
+    j = i + 1;
+    
+    // Inner loop: find the minimum element in the unsorted subarray
+    tantque (j < N) {
+      si (list[j] < list[min_idx]) {
+        min_idx = j;
+      }
+      j = j + 1;
+    }
+    
+    // Swap the found minimum element with the first element of the unsorted subarray
+    si (min_idx != i) {
+      variable temp: entier = list[i];
+      list[i] = list[min_idx];
+      list[min_idx] = temp;
+    }
+    
+    i = i + 1;
+  }
+  retourner 0;
+}
+
+fonction print_array_4(list: [10]entier) entier {
+  variable N: entier = 10;
+  variable i: entier = 0;
+  afficher("Sorted Array: ");
+  tantque (i < N) {
+    afficher("%d ", list[i]);
+    i = i + 1;
+  }
+  afficher("\n");
+  retourner 0;
+}
+
+demarrer() entier {
+  variable numbers: [10]entier = [10]entier{77, 10, 5, 22, 11, 90, 8, 64, 34, 25};
+  
+  selection_sort(numbers);
+  print_array_4(numbers);
+  
+  retourner 0;
+}

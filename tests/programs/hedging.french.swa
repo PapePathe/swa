@@ -1,0 +1,131 @@
+dialecte:français;
+// ---------------------------------------------------------
+// DATA STRUCTURES
+// ---------------------------------------------------------
+
+structure Currency {
+    Code: chaine,
+    CurrentRate: decimal,    // Rate relative to USD
+    Volatility: decimal,     // 0.0 to 1.0
+    InterestRate: decimal,
+}
+
+structure Exposure {
+    CurrencyCode: chaine,
+    Amount: decimal,         // Amount in local currency
+    RiskLevel: entier,        // 1 (Low) to 5 (High)
+}
+
+structure HedgeStrategy {
+    Name: chaine,
+    Efficiency: decimal,     // How much of the risk is covered
+    CostBasis: decimal,      // Operational cost
+}
+
+structure Portfolio {
+    Owner: chaine,
+    Exposures: [4]Exposure,
+    Count: entier,
+    TotalValueUSD: decimal,
+}
+
+// ---------------------------------------------------------
+// STRATEGY CALCULATIONS
+// ---------------------------------------------------------
+
+fonction calculateForwardHedge(amount: decimal, rate: decimal, efficiency: decimal) decimal {
+    // Math Coercion Test: decimal * decimal * decimal
+    retourner (amount * rate) * efficiency;
+}
+
+fonction calculateOptionHedge(amount: decimal, rate: decimal, vol: decimal) decimal {
+    // Complex Math: Uses volatility to discount the hedge value
+    variable baseValue: decimal = amount * rate;
+    variable discount: decimal = 1.0 - (vol * 0.5);
+    retourner baseValue * discount;
+}
+
+// ---------------------------------------------------------
+// ENGINE LOGIC
+// ---------------------------------------------------------
+
+fonction findCurrency(code: chaine, market: [3]Currency) *Currency {
+    variable i: entier = 0;
+    tantque (i < 3) {
+        si (market[i].Code == code) {
+            retourner market[i];
+        }
+        i = i + 1;
+    }
+    retourner market[0]; // Default to first (usually USD)
+}
+
+fonction processPortfolio(p: *Portfolio, market: [3]Currency) entier {
+    afficher("--- Processing Portfolio for: %s ---", p.Owner);
+    
+    variable i: entier = 0;
+    p.TotalValueUSD = 0.0;
+
+    tantque (i < p.Count) {
+        // Nested Array Access: p -> Exposures[i]
+        variable exp: Exposure = p.Exposures[i];
+        variable curr: *Currency = findCurrency(exp.CurrencyCode, market);
+        
+        variable rawValue: decimal = exp.Amount * curr.CurrentRate;
+        variable hedgedValue: decimal = 0.0;
+
+        // Dynamic Strategy Selection
+        si (curr.Volatility > 0.15 || exp.RiskLevel > 3) {
+            afficher("  [Strategy] Using Option Hedge for %s", exp.CurrencyCode);
+            hedgedValue = calculateOptionHedge(exp.Amount, curr.CurrentRate, curr.Volatility);
+        } sinon {
+            afficher("  [Strategy] Using Forward Hedge for %s", exp.CurrencyCode);
+            hedgedValue = calculateForwardHedge(exp.Amount, curr.CurrentRate, 0.98);
+        }
+
+        afficher("  Exposure: %.2f %s | Raw USD: %.2f | Hedged USD: %.2f", 
+            exp.Amount, exp.CurrencyCode, rawValue, hedgedValue);
+            
+        p.TotalValueUSD = p.TotalValueUSD + hedgedValue;
+        i = i + 1;
+    }
+
+    retourner 0;
+}
+
+// ---------------------------------------------------------
+// START
+// ---------------------------------------------------------
+
+demarrer() entier {
+    // 1. Setup Market Data
+    variable market: [3]Currency = [3]Currency{
+        Currency{Code: "EUR", CurrentRate: 1.10, Volatility: 0.05, InterestRate: 0.03},
+        Currency{Code: "GBP", CurrentRate: 1.25, Volatility: 0.08, InterestRate: 0.04},
+        Currency{Code: "JPY", CurrentRate: 0.0067, Volatility: 0.22, InterestRate: 0.001}
+    };
+
+    // 2. Initialize Portfolio with nested Exposures
+    // Tests Struct-in-Struct initialization and array literals
+    variable myPortfolio: Portfolio = Portfolio{
+        Owner: "Global Corp Assets",
+        Count: 3,
+        Exposures: [4]Exposure{
+            Exposure{CurrencyCode: "EUR", Amount: 100000.0, RiskLevel: 2},
+            Exposure{CurrencyCode: "GBP", Amount: 50000.0, RiskLevel: 1},
+            Exposure{CurrencyCode: "JPY", Amount: 15000000.0, RiskLevel: 5},
+            Exposure{CurrencyCode: "USD", Amount: 0.0, RiskLevel: 0} // Null entry
+        },
+        TotalValueUSD: 0.0
+    };
+
+    // 3. Run the Engine
+    // Passing a pointer to a structure to test pointer decay logic
+    processPortfolio(myPortfolio, market);
+
+    afficher("---------------------------------------");
+    afficher("Final Portfolio Hedged Value: $%.2f USD", myPortfolio.TotalValueUSD);
+    afficher("---------------------------------------");
+
+    retourner 0;
+}

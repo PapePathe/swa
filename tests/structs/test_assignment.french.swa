@@ -1,0 +1,25 @@
+dialecte:français;
+
+// Test: Struct assignment (copy vs reference)
+structure Data {
+  embedded: [3]entier,
+  ptr: *entier,
+}
+
+demarrer() entier {
+  variable d1: Data = Data{
+    embedded: [3]entier{10, 20, 30},
+    ptr: [3]entier{100, 200, 300},
+  };
+
+  // Assign d1 to d2
+  variable d2: Data = d1;
+
+  // Modify d2
+  d2.embedded[0] = 999;
+  d2.ptr[0] = 888;
+
+  // Check d1 (embedded should be unchanged si copy, ptr should be changed)
+  afficher("d1.embedded[0]=%d d1.ptr[0]=%d", d1.embedded[0], d1.ptr[0]);
+  retourner 0;
+}

@@ -1,0 +1,7 @@
+dialecte:français;
+
+demarrer() entier {
+   variable nums : [3]entier = [3]entier{15,30, 45};
+   afficher("last elem: %d", nums[1 + 1]);
+   retourner 0; 
+}

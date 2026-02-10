@@ -1,0 +1,21 @@
+dialecte:français;
+
+// Test 6: Returning structure with embedded array from function
+structure Data {
+  arr: [3]entier,
+  value: entier,
+}
+
+fonction createData() Data {
+  retourner Data{
+    arr: [3]entier{100, 200, 300},
+    value: 42,
+  };
+}
+
+demarrer() entier {
+  variable d: Data = createData();
+  afficher("arr[0]=%d arr[1]=%d arr[2]=%d value=%d", 
+        d.arr[0], d.arr[1], d.arr[2], d.value);
+  retourner 0;
+}

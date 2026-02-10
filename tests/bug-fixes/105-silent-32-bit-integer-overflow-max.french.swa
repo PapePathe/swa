@@ -1,0 +1,6 @@
+dialecte:français;
+
+demarrer() entier {
+  variable x: entier = 2147483648;
+  retourner 0;
+}

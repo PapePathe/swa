@@ -1,0 +1,3 @@
+dialecte:français;
+
+variable BITS:[2]entier = [2]entier{0,1};

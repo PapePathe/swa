@@ -1,0 +1,12 @@
+laak:wolof;
+
+tambali() lëmm {
+  // TODO find keyword for TypeFloat
+  dencukaay idx : decimal;
+  wanel("zero value: %f ", idx);
+
+  idx = 100.0;
+  wanel("assigned value: %f", idx);
+
+  deloko 0;
+}

@@ -1,0 +1,17 @@
+dialecte:français;
+fonction split(n: entier) (entier, entier) {
+    si (n == 0) {
+        retourner 0, 0;
+    }
+    variable a: entier = 0;
+    variable b: entier = 0;
+    (a, b) = split(n - 1);
+    retourner a + 1, b + 2;
+}
+demarrer() entier {
+    variable x: entier = 0;
+    variable y: entier = 0;
+    (x, y) = split(5);
+    afficher("x=%d, y=%d\n", x, y);
+    retourner 0;
+}

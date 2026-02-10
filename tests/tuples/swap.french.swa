@@ -1,0 +1,9 @@
+dialecte:français;
+demarrer() entier {
+    variable a: entier = 10;
+    variable b: entier = 20;
+    afficher("Before: a=%d, b=%d\n", a, b);
+    (a, b) = (b, a);
+    afficher("After: a=%d, b=%d\n", a, b);
+    retourner 0;
+}

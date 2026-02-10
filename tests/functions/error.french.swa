@@ -1,0 +1,23 @@
+dialecte:français;
+
+fonction divide(a: entier, b: entier) erreur {
+    si (b == 0) {
+        retourner erreur("dividend is zero"); 
+    }
+    retourner zero(erreur); 
+}
+
+demarrer() entier {
+    variable err: erreur = divide(100, 0);
+
+    si(err != zero(erreur)) {
+      afficher("Division by zero erreur (%s)\n", err);
+    }
+
+    err = divide(100, 10);
+    si(err == zero(erreur)) {
+      afficher("No division erreur");
+    }
+
+    retourner 0;
+}

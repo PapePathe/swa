@@ -1,0 +1,10 @@
+dialecte:français;
+
+demarrer() entier {
+    si ("" == "") {
+        afficher("Passed");
+    } sinon {
+        afficher("Failed");
+    }
+    retourner 0;
+}

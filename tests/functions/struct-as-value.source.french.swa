@@ -1,0 +1,40 @@
+dialecte:français;
+
+structure Person {
+  Age:     entier,
+  Height:  decimal,
+  Name:    chaine,
+}
+
+fonction changeAgeOfCopy(person: Person) entier {
+  person.Age = person.Age + 20;
+  person.Age = 20 + person.Age;
+ 
+
+  retourner person.Age;
+}
+
+fonction changeNameOfCopy(person: Person) chaine {
+  person.Name = "Pathe SENE";
+
+  retourner person.Name;
+}
+
+fonction changHeightOfCopy(person: Person) decimal {
+  person.Height= 1.80;
+
+  retourner person.Height;
+}
+
+demarrer() entier {
+  variable p : Person = Person{ Age: 0, Height: 0.0, Name: "Pathe", };
+  variable myAge : entier = changeAgeOfCopy(p);
+  variable myHeight : decimal = changHeightOfCopy(p);
+  variable myName: chaine = changeNameOfCopy(p);
+ 
+  afficher("age: %d, age of copy: %d\n", p.Age, myAge);
+  afficher("height: %.2f, height of copy: %.2f\n", p.Height, myHeight);
+  afficher("name: %s, name of copy: %s\n", p.Name, myName);
+
+  retourner 0; 
+}

@@ -1,0 +1,1338 @@
+dialecte:français;
+
+// ==================== FOUNDATIONAL STRUCTURES ====================
+
+structure DynArray {
+  Size: entier,
+  Capacity: entier,
+  Data: *entier,
+}
+
+structure IPAddress {
+  address: [4]entier,  // IPv4 as 4 integers 0-255
+  port: entier,
+}
+
+structure Socket {
+  fd: entier,
+  family: entier,
+  type: entier,
+  protocol: entier,
+  local_addr: IPAddress,
+  remote_addr: IPAddress,
+  state: entier,
+  recv_buffer: [1024]entier,
+  send_buffer: [1024]entier,
+  recv_idx: entier,
+  send_idx: entier,
+  recv_count: entier,
+  send_count: entier,
+  seq_num: entier,
+  ack_num: entier,
+}
+
+structure TCPHeader {
+  source_port: entier,
+  dest_port: entier,
+  sequence: entier,
+  ack_number: entier,
+  data_offset: entier,
+  flags: entier,
+  window: entier,
+  checksum: entier,
+  urgent_pointer: entier,
+}
+
+structure Connection {
+  socket: Socket,
+  last_activity: entier,
+  bytes_sent: entier,
+  bytes_received: entier,
+  is_active: entier,
+}
+
+structure ConnectionManager {
+  connections: [100]Connection,
+  connection_count: entier,
+  max_connections: entier,
+}
+
+structure Person {
+  Age: entier,
+  Height: decimal,
+  Name: chaine,
+}
+
+structure NetworkConfig {
+  mtu: entier,
+  window_size: entier,
+  timeout: entier,
+  max_retries: entier,
+}
+
+// ==================== CONSTANTS ====================
+
+// TCP States
+variable TCP_CLOSED: entier = 0;
+variable TCP_LISTEN: entier = 1;
+variable TCP_SYN_SENT: entier = 2;
+variable TCP_SYN_RCVD: entier = 3;
+variable TCP_ESTABLISHED: entier = 4;
+variable TCP_FIN_WAIT_1: entier = 5;
+variable TCP_FIN_WAIT_2: entier = 6;
+variable TCP_CLOSE_WAIT: entier = 7;
+variable TCP_CLOSING: entier = 8;
+variable TCP_LAST_ACK: entier = 9;
+variable TCP_TIME_WAIT: entier = 10;
+
+// TCP Flags
+variable TCP_FLAG_FIN: entier = 1;
+variable TCP_FLAG_SYN: entier = 2;
+variable TCP_FLAG_RST: entier = 3;
+variable TCP_FLAG_PSH: entier = 4;
+variable TCP_FLAG_ACK: entier = 5;
+variable TCP_FLAG_URG: entier = 6;
+
+// Protocol Numbers
+variable IPPROTO_TCP: entier = 6;
+variable IPPROTO_UDP: entier = 17;
+variable IPPROTO_ICMP: entier = 1;
+
+// Socket Types
+variable SOCK_STREAM: entier = 1;
+variable SOCK_DGRAM: entier = 2;
+
+// Address Families
+variable AF_INET: entier = 2;
+
+// Port Ranges
+variable PORT_MIN: entier = 1;
+variable PORT_MAX: entier = 65535;
+variable WELL_KNOWN_PORT_MAX: entier = 1023;
+
+// Buffer Sizes
+variable MAX_PACKET_SIZE: entier = 1500;
+variable TCP_HEADER_SIZE: entier = 20;
+variable IP_HEADER_SIZE: entier = 20;
+
+// ==================== DYNAMIC ARRAY IMPLEMENTATION ====================
+
+fonction push_dyn_array(arr: DynArray, value: entier) entier {
+  si (arr.Size >= arr.Capacity) {
+    afficher("Error: Array capacity exceeded (max ", arr.Capacity, ")");
+    retourner -1;
+  }
+  arr.Data[arr.Size] = value;
+  arr.Size = arr.Size + 1;
+  retourner arr.Size;
+}
+
+fonction get_dyn_array(arr: DynArray, index: entier) entier {
+  si (index < 0 || index >= arr.Size) {
+    afficher("Error: Index ", index, " out of bounds (size: ", arr.Size, ")");
+    retourner -1;
+  }
+  retourner arr.Data[index];
+}
+
+fonction set_dyn_array(arr: DynArray, index: entier, value: entier) entier {
+  si (index < 0 || index >= arr.Size) {
+    afficher("Error: Index ", index, " out of bounds (size: ", arr.Size, ")");
+    retourner -1;
+  }
+  arr.Data[index] = value;
+  retourner value;
+}
+
+fonction print_dyn_array(arr: DynArray) entier {
+  afficher("DynArray (Size: ", arr.Size, ", Capacity: ", arr.Capacity, "):");
+  variable i: entier = 0;
+  tantque (i < arr.Size) {
+    afficher("  [", i, "]: ", arr.Data[i]);
+    i = i + 1;
+  }
+  retourner 0;
+}
+
+// ==================== NETWORK UTILITIES ====================
+
+fonction htons(port: entier) entier {
+  // Convert host byte order to network byte order
+  si (port < 0 || port > 65535) {
+    afficher("Error: Invalid port ", port);
+    retourner 0;
+  }
+  variable low_byte: entier = port % 256;
+  variable high_byte: entier = port / 256;
+  retourner low_byte * 256 + high_byte;
+}
+
+fonction ntohs(port: entier) entier {
+  // Convert network byte order to host byte order
+  retourner htons(port);  // Symmetric operation
+}
+
+fonction htonl(value: entier) entier {
+  // Convert 32-bit host to network byte order
+  variable byte1: entier = value % 256;
+  variable byte2: entier = (value / 256) % 256;
+  variable byte3: entier = (value / 65536) % 256;
+  variable byte4: entier = value / 16777216;
+  
+  retourner byte1 * 16777216 + byte2 * 65536 + byte3 * 256 + byte4;
+}
+
+fonction ntohl(value: entier) entier {
+  // Convert 32-bit network to host byte order
+  retourner htonl(value);  // Symmetric operation
+}
+
+fonction ip_to_string(ip: [4]entier) chaine {
+  // Convert IP to chaine "a.b.c.d"
+  variable part1: chaine = int_to_string(ip[0]);
+  variable part2: chaine = int_to_string(ip[1]);
+  variable part3: chaine = int_to_string(ip[2]);
+  variable part4: chaine = int_to_string(ip[3]);
+  
+  retourner part1 + "." + part2 + "." + part3 + "." + part4;
+}
+
+fonction string_to_ip(ip_str: chaine) [4]entier {
+  variable ip: [4]entier = [4]entier{0, 0, 0, 0};
+  variable parts: [4]chaine = [4]chaine{"", "", "", ""};
+  variable part_idx: entier = 0;
+  variable char_idx: entier = 0;
+  
+  // Parse IP chaine
+  tantque (char_idx < ip_str.length && part_idx < 4) {
+    variable ch: chaine = ip_str[char_idx];
+    si (ch == ".") {
+      part_idx = part_idx + 1;
+    } sinon {
+      parts[part_idx] = parts[part_idx] + ch;
+    }
+    char_idx = char_idx + 1;
+  }
+  
+  // Convert to integers
+  ip[0] = string_to_int(parts[0]);
+  ip[1] = string_to_int(parts[1]);
+  ip[2] = string_to_int(parts[2]);
+  ip[3] = string_to_int(parts[3]);
+  
+  // Validate each octet
+  si (ip[0] < 0 || ip[0] > 255 || ip[1] < 0 || ip[1] > 255 ||
+      ip[2] < 0 || ip[2] > 255 || ip[3] < 0 || ip[3] > 255) {
+    afficher("Warning: Invalid IP address octet");
+  }
+  
+  retourner ip;
+}
+
+fonction int_to_string(num: entier) chaine {
+  si (num == 0) { retourner "0"; }
+  si (num < 0) {
+    retourner "-" + int_to_string(0 - num);
+  }
+  
+  variable result: chaine = "";
+  variable temp: entier = num;
+  variable digits: [20]entier = [20]entier{0};
+  variable digit_count: entier = 0;
+  
+  // Extract digits
+  tantque (temp > 0) {
+    digits[digit_count] = temp % 10;
+    temp = temp / 10;
+    digit_count = digit_count + 1;
+  }
+  
+  // Build chaine
+  variable i: entier = digit_count - 1;
+  tantque (i >= 0) {
+    si (digits[i] == 0) { result = result + "0"; }
+    si (digits[i] == 1) { result = result + "1"; }
+    si (digits[i] == 2) { result = result + "2"; }
+    si (digits[i] == 3) { result = result + "3"; }
+    si (digits[i] == 4) { result = result + "4"; }
+    si (digits[i] == 5) { result = result + "5"; }
+    si (digits[i] == 6) { result = result + "6"; }
+    si (digits[i] == 7) { result = result + "7"; }
+    si (digits[i] == 8) { result = result + "8"; }
+    si (digits[i] == 9) { result = result + "9"; }
+    i = i - 1;
+  }
+  
+  retourner result;
+}
+
+fonction string_to_int(str: chaine) entier {
+  variable result: entier = 0;
+  variable i: entier = 0;
+  variable is_negative: entier = 0;
+  
+  // Check for negative sign
+  si (str.length > 0 && str[0] == "-") {
+    is_negative = 1;
+    i = 1;
+  }
+  
+  tantque (i < str.length) {
+    variable ch: chaine = str[i];
+    variable digit: entier = 0;
+    
+    si (ch == "0") { digit = 0; }
+    si (ch == "1") { digit = 1; }
+    si (ch == "2") { digit = 2; }
+    si (ch == "3") { digit = 3; }
+    si (ch == "4") { digit = 4; }
+    si (ch == "5") { digit = 5; }
+    si (ch == "6") { digit = 6; }
+    si (ch == "7") { digit = 7; }
+    si (ch == "8") { digit = 8; }
+    si (ch == "9") { digit = 9; }
+    
+    result = result * 10 + digit;
+    i = i + 1;
+  }
+  
+  si (is_negative == 1) {
+    result = 0 - result;
+  }
+  
+  retourner result;
+}
+
+fonction calculate_checksum(data: [1500]entier, length: entier) entier {
+  // Simplified checksum calculation
+  variable sum: entier = 0;
+  variable i: entier = 0;
+  
+  tantque (i < length) {
+    sum = sum + data[i];
+    i = i + 1;
+  }
+  
+  // Keep within 16-bit range
+  tantque (sum > 65535) {
+    sum = sum - 65536;
+  }
+  
+  retourner 65535 - sum;
+}
+
+fonction validate_port(port: entier) entier {
+  si (port < PORT_MIN || port > PORT_MAX) {
+    afficher("Error: Port ", port, " out of range (1-65535)");
+    retourner -1;
+  }
+  retourner 0;
+}
+
+fonction validate_ip(ip: [4]entier) entier {
+  si (ip[0] < 0 || ip[0] > 255 || ip[1] < 0 || ip[1] > 255 ||
+      ip[2] < 0 || ip[2] > 255 || ip[3] < 0 || ip[3] > 255) {
+    afficher("Error: Invalid IP address octet");
+    retourner -1;
+  }
+  retourner 0;
+}
+
+// ==================== SOCKET API ====================
+
+fonction create_socket(domain: entier, type: entier, protocol: entier) Socket {
+  // Create new socket
+  variable sock: Socket = Socket{
+    fd: -1,
+    family: domain,
+    type: type,
+    protocol: protocol,
+    local_addr: IPAddress{address: [4]entier{0,0,0,0}, port: 0},
+    remote_addr: IPAddress{address: [4]entier{0,0,0,0}, port: 0},
+    state: TCP_CLOSED,
+    recv_buffer: [1024]entier{0},
+    send_buffer: [1024]entier{0},
+    recv_idx: 0,
+    send_idx: 0,
+    recv_count: 0,
+    send_count: 0,
+    seq_num: 0,
+    ack_num: 0,
+  };
+  
+  // Validate parameters
+  si (domain != AF_INET) {
+    afficher("Error: Only AF_INET (IPv4) supported");
+    retourner sock;
+  }
+  
+  si (type != SOCK_STREAM && type != SOCK_DGRAM) {
+    afficher("Error: Invalid socket type");
+    retourner sock;
+  }
+  
+  // Assign file descriptor
+  variable next_fd: entier = 3;  // Start after stdin/stdout/stderr
+  sock.fd = next_fd;
+  next_fd = next_fd + 1;
+  
+  afficher("Socket created: fd=", sock.fd, ", type=", type);
+  retourner sock;
+}
+
+fonction bind_socket(sock: *Socket, addr: IPAddress) entier {
+  si (sock.state != TCP_CLOSED) {
+    afficher("Error: Socket must be in CLOSED state to bind");
+    retourner -1;
+  }
+  
+  si (validate_ip(addr.address) < 0) {
+    retourner -1;
+  }
+  
+  si (validate_port(addr.port) < 0) {
+    retourner -1;
+  }
+  
+  sock.local_addr = addr;
+  afficher("Socket bound to ", ip_to_string(addr.address), ":", addr.port);
+  
+  retourner 0;
+}
+
+fonction listen_socket(sock: *Socket, backlog: entier) entier {
+  si (sock.state != TCP_CLOSED) {
+    afficher("Error: Socket must be in CLOSED state to listen");
+    retourner -1;
+  }
+  
+  si (backlog <= 0) {
+    afficher("Error: Invalid backlog size");
+    retourner -1;
+  }
+  
+  sock.state = TCP_LISTEN;
+  afficher("Listening on ", ip_to_string(sock.local_addr.address), ":", 
+        sock.local_addr.port, ", backlog=", backlog);
+  
+  retourner 0;
+}
+
+fonction accept_connection(sock: *Socket) Socket {
+  si (sock.state != TCP_LISTEN) {
+    afficher("Error: Socket not listening");
+    retourner Socket{fd: -1};
+  }
+  
+  // Simulate accepting a connection
+  variable next_client_port: entier = 50000;
+  
+  variable client_sock: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  client_sock.local_addr = sock.local_addr;
+  client_sock.remote_addr = IPAddress{
+    address: [4]entier{192, 168, 1, 100},
+    port: next_client_port
+  };
+  next_client_port = next_client_port + 1;
+  
+  client_sock.state = TCP_ESTABLISHED;
+  client_sock.seq_num = 1000;  // Initial sequence number
+  client_sock.ack_num = 0;
+  
+  afficher("Accepted connection from ", 
+        ip_to_string(client_sock.remote_addr.address), ":",
+        client_sock.remote_addr.port);
+  
+  retourner client_sock;
+}
+
+fonction connect_socket(sock: *Socket, addr: IPAddress) entier {
+  si (sock.state != TCP_CLOSED) {
+    afficher("Error: Socket must be in CLOSED state to connect");
+    retourner -1;
+  }
+  
+  si (validate_ip(addr.address) < 0) {
+    retourner -1;
+  }
+  
+  si (validate_port(addr.port) < 0) {
+    retourner -1;
+  }
+  
+  sock.remote_addr = addr;
+  sock.state = TCP_SYN_SENT;
+  sock.seq_num = 2000;  // Initial sequence number
+  
+  afficher("Connecting to ", ip_to_string(addr.address), ":", addr.port);
+  afficher("Sending SYN (seq=", sock.seq_num, ")");
+  
+  // Simulate three-way handshake
+  sock.seq_num = sock.seq_num + 1;  // SYN consumes one sequence number
+  sock.state = TCP_ESTABLISHED;
+  
+  afficher("Connection established");
+  retourner 0;
+}
+
+fonction send_tcp_data(sock: *Socket, data: [1024]entier, length: entier) entier {
+  si (sock.state != TCP_ESTABLISHED) {
+    afficher("Error: Socket not connected");
+    retourner -1;
+  }
+  
+  si (length <= 0 || length > 1024) {
+    afficher("Error: Invalid data length");
+    retourner -1;
+  }
+  
+  // Build TCP packet
+  variable packet: [1500]entier = [1500]entier{0};
+  variable packet_idx: entier = 0;
+  
+  // Build header (simplified)
+  packet[packet_idx] = htons(sock.local_addr.port); packet_idx = packet_idx + 1;
+  packet[packet_idx] = htons(sock.remote_addr.port); packet_idx = packet_idx + 1;
+  packet[packet_idx] = htonl(sock.seq_num); packet_idx = packet_idx + 1;
+  packet[packet_idx] = htonl(sock.ack_num); packet_idx = packet_idx + 1;
+  packet[packet_idx] = (5 * 16) + 0;  // Data offset (5 * 4 = 20 bytes)
+  packet_idx = packet_idx + 1;
+  packet[packet_idx] = TCP_FLAG_PSH + TCP_FLAG_ACK; packet_idx = packet_idx + 1;
+  packet[packet_idx] = htons(8192);  // Window size
+  packet_idx = packet_idx + 1;
+  packet[packet_idx] = 0;  // Checksum placeholder
+  packet_idx = packet_idx + 1;
+  packet[packet_idx] = 0;  // Urgent pointer
+  packet_idx = packet_idx + 1;
+  
+  // Copy data
+  variable i: entier = 0;
+  tantque (i < length) {
+    sock.send_buffer[sock.send_idx] = data[i];
+    sock.send_idx = sock.send_idx + 1;
+    sock.send_count = sock.send_count + 1;
+    packet[packet_idx] = data[i];
+    packet_idx = packet_idx + 1;
+    i = i + 1;
+  }
+  
+  // Update sequence number
+  sock.seq_num = sock.seq_num + length;
+  
+  // Calculate checksum
+  variable checksum: entier = calculate_checksum(packet, packet_idx);
+  packet[16] = checksum % 256;
+  packet[17] = checksum / 256;
+  
+  afficher("Sent ", length, " bytes to ", 
+        ip_to_string(sock.remote_addr.address), ":", 
+        sock.remote_addr.port, " (seq=", sock.seq_num - length, ")");
+  
+  retourner length;
+}
+
+fonction receive_tcp_data(sock: *Socket, buffer: [1024]entier, max_length: entier) entier {
+  si (sock.state != TCP_ESTABLISHED) {
+    afficher("Error: Socket not connected");
+    retourner -1;
+  }
+  
+  si (max_length <= 0) {
+    afficher("Error: Invalid buffer size");
+    retourner -1;
+  }
+  
+  // Simulate receiving data
+  variable simulated_data: [50]entier = [50]entier{
+    72, 101, 108, 108, 111, 44, 32, 84, 67, 80, 32, 87, 111, 114, 108, 100, 33, 10,
+    84, 104, 105, 115, 32, 105, 115, 32, 97, 32, 116, 101, 115, 116, 32, 109, 101,
+    115, 115, 97, 103, 101, 46, 10, 69, 110, 100, 32, 111, 102, 32, 100
+  };
+  
+  variable to_receive: entier = 20;
+  si (to_receive > max_length) {
+    to_receive = max_length;
+  }
+  
+  variable received: entier = 0;
+  tantque (received < to_receive) {
+    buffer[received] = simulated_data[received];
+    sock.recv_buffer[sock.recv_idx] = simulated_data[received];
+    sock.recv_idx = sock.recv_idx + 1;
+    sock.recv_count = sock.recv_count + 1;
+    received = received + 1;
+  }
+  
+  // Update acknowledgment number
+  sock.ack_num = sock.ack_num + received;
+  
+  si (received > 0) {
+    afficher("Received ", received, " bytes from ", 
+          ip_to_string(sock.remote_addr.address), ":", 
+          sock.remote_addr.port, " (ack=", sock.ack_num, ")");
+  }
+  
+  retourner received;
+}
+
+fonction close_socket(sock: *Socket) entier {
+  afficher("Closing socket fd=", sock.fd);
+  
+  si (sock.state == TCP_ESTABLISHED) {
+    afficher("Sending FIN packet");
+    sock.state = TCP_FIN_WAIT_1;
+    
+    // Simulate FIN-ACK exchange
+    sock.state = TCP_TIME_WAIT;
+    afficher("Connection in TIME_WAIT state");
+    
+    // Simulate 2MSL wait
+    afficher("Waiting for 2MSL...");
+  }
+  
+  sock.state = TCP_CLOSED;
+  sock.fd = -1;
+  
+  afficher("Socket closed");
+  retourner 0;
+}
+
+// ==================== TCP STATE MACHINE ====================
+
+fonction process_tcp_event(sock: *Socket, event_type: entier, event_data: entier) entier {
+  variable old_state: entier = sock.state;
+  variable action: entier = 0;
+  
+  afficher("TCP State: ", get_state_name(old_state), " -> Event: ", 
+        get_event_name(event_type));
+  
+  si (old_state == TCP_LISTEN && event_type == TCP_FLAG_SYN) {
+    sock.state = TCP_SYN_RCVD;
+    sock.seq_num = 3000;  // Initial server sequence
+    action = 1;  // Send SYN-ACK
+  }
+  si (old_state == TCP_SYN_RCVD && event_type == TCP_FLAG_ACK) {
+    sock.state = TCP_ESTABLISHED;
+    action = 0;  // Connection established
+  }
+  si (old_state == TCP_SYN_SENT && event_type == TCP_FLAG_SYN) {
+    sock.state = TCP_SYN_RCVD;
+    action = 1;  // Send SYN-ACK
+  }
+  si (old_state == TCP_SYN_SENT && event_type == TCP_FLAG_ACK) {
+    sock.state = TCP_ESTABLISHED;
+    action = 0;
+  }
+  si (old_state == TCP_ESTABLISHED && event_type == TCP_FLAG_FIN) {
+    sock.state = TCP_CLOSE_WAIT;
+    action = 2;  // Send ACK for FIN
+  }
+  si (old_state == TCP_CLOSE_WAIT) {
+    sock.state = TCP_LAST_ACK;
+    action = 3;  // Send FIN
+  }
+  si (old_state == TCP_LAST_ACK && event_type == TCP_FLAG_ACK) {
+    sock.state = TCP_CLOSED;
+    action = 0;
+  }
+  si (old_state == TCP_FIN_WAIT_1 && event_type == TCP_FLAG_ACK) {
+    sock.state = TCP_FIN_WAIT_2;
+    action = 0;
+  }
+  si (old_state == TCP_FIN_WAIT_2 && event_type == TCP_FLAG_FIN) {
+    sock.state = TCP_TIME_WAIT;
+    action = 2;  // Send ACK for FIN
+  }
+  si (old_state == TCP_TIME_WAIT) {
+    // Timeout occurred
+    sock.state = TCP_CLOSED;
+    action = 0;
+  }
+  sinon {
+    afficher("Warning: Unhandled state transition");
+    action = -1;
+  }
+  
+  afficher("New State: ", get_state_name(sock.state), ", Action: ", action);
+  retourner action;
+}
+
+fonction get_state_name(state: entier) chaine {
+  si (state == TCP_CLOSED)     { retourner "CLOSED"; }
+  si (state == TCP_LISTEN)     { retourner "LISTEN";}
+  si (state == TCP_SYN_SENT)   { retourner "SYN_SENT";}
+  si (state == TCP_SYN_RCVD)   { retourner "SYN_RCVD";}
+  si (state == TCP_ESTABLISHED){ retourner "ESTABLISHED";}
+  si (state == TCP_FIN_WAIT_1) { retourner "FIN_WAIT_1";}
+  si (state == TCP_FIN_WAIT_2) { retourner "FIN_WAIT_2";}
+  si (state == TCP_CLOSE_WAIT) { retourner "CLOSE_WAIT";}
+  si (state == TCP_CLOSING)    { retourner "CLOSING";}
+  si (state == TCP_LAST_ACK)   { retourner "LAST_ACK";}
+  si (state == TCP_TIME_WAIT)  { retourner "TIME_WAIT";}
+  retourner "UNKNOWN";
+}
+
+fonction get_event_name(event: entier) chaine {
+  si (event == TCP_FLAG_FIN) { retourner "FIN";}
+  si (event == TCP_FLAG_SYN) { retourner "SYN";}
+  si (event == TCP_FLAG_RST) { retourner "RST";}
+  si (event == TCP_FLAG_PSH) { retourner "PSH";}
+  si (event == TCP_FLAG_ACK) { retourner "ACK";}
+  si (event == TCP_FLAG_URG) { retourner "URG";}
+  retourner "UNKNOWN";
+}
+
+// ==================== CONNECTION MANAGER ====================
+
+fonction create_connection_manager(max_conns: entier) ConnectionManager {
+  variable manager: ConnectionManager = ConnectionManager{
+    connections: [100]Connection{},
+    connection_count: 0,
+    max_connections: max_conns,
+  };
+  
+  // Initialize all connections as inactive
+  variable i: entier = 0;
+  tantque (i < 100) {
+    manager.connections[i] = Connection{
+      socket: Socket{fd: -1},
+      last_activity: 0,
+      bytes_sent: 0,
+      bytes_received: 0,
+      is_active: 0,
+    };
+    i = i + 1;
+  }
+  
+  afficher("Connection manager created (max=", max_conns, ")");
+  retourner manager;
+}
+
+fonction add_connection(manager: *ConnectionManager, sock: Socket) entier {
+  si (manager.connection_count >= manager.max_connections) {
+    afficher("Error: Connection limit reached (", manager.max_connections, ")");
+    retourner -1;
+  }
+  
+  // Find first inactive slot
+  variable i: entier = 0;
+  tantque (i < manager.max_connections) {
+    si (manager.connections[i].is_active == 0) {
+      manager.connections[i] = Connection{
+        socket: sock,
+        last_activity: 0,  // Would be timestamp
+        bytes_sent: 0,
+        bytes_received: 0,
+        is_active: 1,
+      };
+      manager.connection_count = manager.connection_count + 1;
+      
+      afficher("Connection added at index ", i, " (total: ", 
+            manager.connection_count, ")");
+      retourner i;
+    }
+    i = i + 1;
+  }
+  
+  retourner -1;
+}
+
+fonction remove_connection(manager: *ConnectionManager, conn_index: entier) entier {
+  si (conn_index < 0 || conn_index >= manager.max_connections) {
+    afficher("Error: Invalid connection index");
+    retourner -1;
+  }
+  
+  si (manager.connections[conn_index].is_active == 0) {
+    afficher("Error: Connection not active");
+    retourner -1;
+  }
+  
+  // Close the socket
+  close_socket(manager.connections[conn_index].socket);
+  
+  // Mark as inactive
+  manager.connections[conn_index].is_active = 0;
+  manager.connection_count = manager.connection_count - 1;
+  
+  afficher("Connection removed from index ", conn_index, " (remaining: ",
+        manager.connection_count, ")");
+  
+  retourner 0;
+}
+
+fonction find_connection_by_fd(manager: ConnectionManager, fd: entier) entier {
+  variable i: entier = 0;
+  tantque (i < manager.max_connections) {
+    si (manager.connections[i].is_active == 1 && 
+        manager.connections[i].socket.fd == fd) {
+      retourner i;
+    }
+    i = i + 1;
+  }
+  retourner -1;
+}
+
+fonction update_connection_stats(manager: *ConnectionManager, conn_index: entier, 
+                            sent: entier, received: entier) {
+  si (conn_index < 0 || conn_index >= manager.max_connections) {
+    // TODO how do we explicityly retourner from a functi
+   // retourner;
+  }
+  
+  manager.connections[conn_index].bytes_sent = 
+    manager.connections[conn_index].bytes_sent + sent;
+  manager.connections[conn_index].bytes_received = 
+    manager.connections[conn_index].bytes_received + received;
+  manager.connections[conn_index].last_activity = 0;  // Would update timestamp
+}
+
+fonction print_connection_stats(manager: ConnectionManager) {
+  afficher("");
+  afficher("=== CONNECTION STATISTICS ===");
+  afficher("Active connections: ", manager.connection_count, "/", 
+        manager.max_connections);
+  afficher("");
+  afficher("ID  FD  Remote Address       State        Sent     Recv");
+  afficher("--------------------------------------------------------");
+  
+  variable i: entier = 0;
+  variable active_count: entier = 0;
+  tantque (i < manager.max_connections && active_count < manager.connection_count) {
+    si (manager.connections[i].is_active == 1) {
+      variable conn: Connection = manager.connections[i];
+      variable state_name: chaine = get_state_name(conn.socket.state);
+      
+      afficher(i, "  ", conn.socket.fd, "  ",
+            ip_to_string(conn.socket.remote_addr.address), ":",
+            conn.socket.remote_addr.port, "  ",
+            state_name, "  ",
+            conn.bytes_sent, "  ",
+            conn.bytes_received);
+      active_count = active_count + 1;
+    }
+    i = i + 1;
+  }
+}
+
+// ==================== TCP SERVER IMPLEMENTATION ====================
+
+fonction start_tcp_server(bind_ip: chaine, port: entier, max_clients: entier) entier {
+  afficher("");
+  afficher("=== STARTING TCP SERVER ===");
+  afficher("Binding to: ", bind_ip, ":", port);
+  afficher("Max clients: ", max_clients);
+  
+  // Create server socket
+  variable server_socket: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  si (server_socket.fd < 0) {
+    afficher("Failed to create server socket");
+    retourner -1;
+  }
+  
+  // Bind to address
+  variable bind_addr: IPAddress = IPAddress{
+    address: string_to_ip(bind_ip),
+    port: htons(port)
+  };
+  
+  si (bind_socket(server_socket, bind_addr) < 0) {
+    afficher("Failed to bind socket");
+    retourner -1;
+  }
+  
+  // Start listening
+  si (listen_socket(server_socket, max_clients) < 0) {
+    afficher("Failed to listen");
+    retourner -1;
+  }
+  
+  // Create connection manager
+  variable conn_manager: ConnectionManager = create_connection_manager(max_clients);
+  
+  afficher("Server ready. Accepting connections...");
+  
+  // Accept and handle connections
+  variable client_count: entier = 0;
+  tantque (client_count < 3) {  // Demo: handle 3 clients
+    afficher("");
+    afficher("Waiting for client ", client_count + 1, "...");
+    
+    variable client_socket: Socket = accept_connection(server_socket);
+    si (client_socket.fd < 0) {
+      afficher("Failed to accept connection");
+      continue;
+    }
+    
+    // Add to connection manager
+    variable conn_idx: entier = add_connection(conn_manager, client_socket);
+    si (conn_idx < 0) {
+      afficher("Failed to add connection to manager");
+      close_socket(client_socket);
+      continue;
+    }
+    
+    // Handle client
+    afficher("Handling client connection");
+    
+    // Send welcome message
+    variable welcome_data: [256]entier = [256]entier{0};
+    welcome_data[0] = 87;   // W
+    welcome_data[1] = 101;  // e
+    welcome_data[2] = 108;  // l
+    welcome_data[3] = 99;   // c
+    welcome_data[4] = 111;  // o
+    welcome_data[5] = 109;  // m
+    welcome_data[6] = 101;  // e
+    welcome_data[7] = 32;   // space
+    welcome_data[8] = 116;  // t
+    welcome_data[9] = 111;  // o
+    welcome_data[10] = 32;  // space
+    welcome_data[11] = 84;  // T
+    welcome_data[12] = 67;  // C
+    welcome_data[13] = 80;  // P
+    welcome_data[14] = 32;  // space
+    welcome_data[15] = 83;  // S
+    welcome_data[16] = 101; // e
+    welcome_data[17] = 114; // r
+    welcome_data[18] = 118; // v
+    welcome_data[19] = 101; // e
+    welcome_data[20] = 114; // r
+    welcome_data[21] = 33;  // !
+    welcome_data[22] = 10;  // \n
+    
+    variable sent: entier = send_tcp_data(client_socket, welcome_data, 23);
+    update_connection_stats(conn_manager, conn_idx, sent, 0);
+    
+    // Receive data
+    variable recv_buffer: [1024]entier = [1024]entier{0};
+    variable received: entier = receive_tcp_data(client_socket, recv_buffer, 1024);
+    update_connection_stats(conn_manager, conn_idx, 0, received);
+    
+    si (received > 0) {
+      afficher("Received ", received, " bytes from client");
+      
+      // Echo back
+      variable echo_sent: entier = send_tcp_data(client_socket, recv_buffer, received);
+      update_connection_stats(conn_manager, conn_idx, echo_sent, 0);
+    }
+    
+    // Close client connection
+    remove_connection(conn_manager, conn_idx);
+    
+    client_count = client_count + 1;
+  }
+  
+  // Show final statistics
+  print_connection_stats(conn_manager);
+  
+  // Close server socket
+  close_socket(server_socket);
+  
+  afficher("");
+  afficher("Server shutdown complete");
+  retourner 0;
+}
+
+// ==================== TCP CLIENT IMPLEMENTATION ====================
+
+fonction start_tcp_client(server_ip: chaine, server_port: entier) entier {
+  afficher("");
+  afficher("=== STARTING TCP CLIENT ===");
+  afficher("Connecting to: ", server_ip, ":", server_port);
+  
+  // Create client socket
+  variable client_socket: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  si (client_socket.fd < 0) {
+    afficher("Failed to create client socket");
+    retourner -1;
+  }
+  
+  // Connect to server
+  variable server_addr: IPAddress = IPAddress{
+    address: string_to_ip(server_ip),
+    port: htons(server_port)
+  };
+  
+  si (connect_socket(client_socket, server_addr) < 0) {
+    afficher("Failed to connect to server");
+    retourner -1;
+  }
+  
+  afficher("Connected to server");
+  
+  // Send data
+  variable message_data: [256]entier = [256]entier{0};
+  message_data[0] = 72;   // H
+  message_data[1] = 101;  // e
+  message_data[2] = 108;  // l
+  message_data[3] = 108;  // l
+  message_data[4] = 111;  // o
+  message_data[5] = 44;   // ,
+  message_data[6] = 32;   // space
+  message_data[7] = 83;   // S
+  message_data[8] = 101;  // e
+  message_data[9] = 114;  // r
+  message_data[10] = 118; // v
+  message_data[11] = 101; // e
+  message_data[12] = 114; // r
+  message_data[13] = 33;  // !
+  message_data[14] = 10;  // \n
+  
+  variable sent: entier = send_tcp_data(client_socket, message_data, 15);
+  afficher("Sent ", sent, " bytes to server");
+  
+  // Receive response
+  variable recv_buffer: [1024]entier = [1024]entier{0};
+  variable received: entier = receive_tcp_data(client_socket, recv_buffer, 1024);
+  
+  si (received > 0) {
+    afficher("Received ", received, " bytes from server:");
+    
+    // Display as text
+    variable i: entier = 0;
+    afficher("Message: \"");
+    tantque (i < received && i < 50) {
+      variable ch: entier = recv_buffer[i];
+      si (ch == 10) {
+        afficher("\\n");
+      } si (ch == 32) {
+        afficher(" ");
+      } si (ch >= 65 && ch <= 90) {
+        // Uppercase letters
+        si (ch == 65) { afficher("A");}
+         si (ch == 66){ afficher("B");}
+         si (ch == 67){ afficher("C");}
+         si (ch == 68){ afficher("D");}
+         si (ch == 69){ afficher("E");}
+         si (ch == 70){ afficher("F");}
+         si (ch == 71){ afficher("G");}
+         si (ch == 72){ afficher("H");}
+         si (ch == 73){ afficher("I");}
+         si (ch == 74){ afficher("J");}
+         si (ch == 75){ afficher("K");}
+         si (ch == 76){ afficher("L");}
+         si (ch == 77){ afficher("M");}
+         si (ch == 78){ afficher("N");}
+         si (ch == 79){ afficher("O");}
+         si (ch == 80){ afficher("P");}
+         si (ch == 81){ afficher("Q");}
+         si (ch == 82){ afficher("R");}
+         si (ch == 83){ afficher("S");}
+         si (ch == 84){ afficher("T");}
+         si (ch == 85){ afficher("U");}
+         si (ch == 86){ afficher("V");}
+         si (ch == 87){ afficher("W");}
+         si (ch == 88){ afficher("X");}
+         si (ch == 89){ afficher("Y");}
+         si (ch == 90){ afficher("Z");}
+      } si (ch >= 97 && ch <= 122) {
+        // Lowercase letters
+        si (ch == 97)  { afficher("a");}
+         si (ch == 98) { afficher("b");}
+         si (ch == 99) { afficher("c");}
+         si (ch == 100){ afficher("d");}
+         si (ch == 101){ afficher("e");}
+         si (ch == 102){ afficher("f");}
+         si (ch == 103){ afficher("g");}
+         si (ch == 104){ afficher("h");}
+         si (ch == 105){ afficher("i");}
+         si (ch == 106){ afficher("j");}
+         si (ch == 107){ afficher("k");}
+         si (ch == 108){ afficher("l");}
+         si (ch == 109){ afficher("m");}
+         si (ch == 110){ afficher("n");}
+         si (ch == 111){ afficher("o");}
+         si (ch == 112){ afficher("p");}
+         si (ch == 113){ afficher("q");}
+         si (ch == 114){ afficher("r");}
+         si (ch == 115){ afficher("s");}
+         si (ch == 116){ afficher("t");}
+         si (ch == 117){ afficher("u");}
+         si (ch == 118){ afficher("v");}
+         si (ch == 119){ afficher("w");}
+         si (ch == 120){ afficher("x");}
+         si (ch == 121){ afficher("y");}
+         si (ch == 122){ afficher("z");}
+      } sinon {
+        afficher(".");
+      }
+      i = i + 1;
+    }
+    afficher("\"");
+  }
+  
+  // Close connection
+  close_socket(client_socket);
+  
+  afficher("Client disconnected");
+  retourner 0;
+}
+
+// ==================== DEMONSTRATION FUNCTIONS ====================
+
+fonction demonstrate_tcp_handshake() {
+  afficher("");
+  afficher("=== DEMONSTRATING TCP THREE-WAY HANDSHAKE ===");
+  
+  variable client: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  variable server: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  
+  afficher("");
+  afficher("1. Client -> Server: SYN");
+  afficher("   Client state: ", get_state_name(client.state));
+  process_tcp_event(server, TCP_FLAG_SYN, 0);
+  
+  afficher("");
+  afficher("2. Server -> Client: SYN-ACK");
+  afficher("   Server state: ", get_state_name(server.state));
+  process_tcp_event(client, TCP_FLAG_SYN, 0);
+  
+  afficher("");
+  afficher("3. Client -> Server: ACK");
+  afficher("   Client state: ", get_state_name(client.state));
+  process_tcp_event(server, TCP_FLAG_ACK, 0);
+  
+  afficher("");
+  afficher("Handshake Complete!");
+  afficher("Client state: ", get_state_name(client.state));
+  afficher("Server state: ", get_state_name(server.state));
+}
+
+fonction demonstrate_connection_close() {
+  afficher("");
+  afficher("=== DEMONSTRATING TCP CONNECTION CLOSE ===");
+  
+  variable conn: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  conn.state = TCP_ESTABLISHED;
+  
+  afficher("");
+  afficher("1. Application initiates close");
+  afficher("   State: ", get_state_name(conn.state));
+  process_tcp_event(conn, 0, 0);  // Application close
+  
+  afficher("");
+  afficher("2. Send FIN, wait for ACK");
+  afficher("   State: ", get_state_name(conn.state));
+  process_tcp_event(conn, TCP_FLAG_ACK, 0);
+  
+  afficher("");
+  afficher("3. Receive FIN from other side, send ACK");
+  afficher("   State: ", get_state_name(conn.state));
+  process_tcp_event(conn, TCP_FLAG_FIN, 0);
+  
+  afficher("");
+  afficher("4. Wait 2MSL timeout");
+  afficher("   State: ", get_state_name(conn.state));
+  process_tcp_event(conn, 0, 0);  // Timeout
+  
+  afficher("");
+  afficher("Connection fully closed");
+  afficher("Final state: ", get_state_name(conn.state));
+}
+
+// ==================== INTEGRATED DEMO PROGRAM ====================
+
+demarrer() entier {
+  afficher("=================================================");
+  afficher("COMPLETE TCP/IP PROTOCOL IMPLEMENTATION");
+  afficher("=================================================");
+  
+  // Test 1: Network Utilities
+  afficher("");
+  afficher("TEST 1: NETWORK UTILITIES");
+  afficher("-------------------------");
+  
+  variable test_port: entier = 8080;
+  afficher("Port conversion test:");
+  afficher("  Original: ", test_port);
+  afficher("  Network: ", htons(test_port));
+  afficher("  Host: ", ntohs(htons(test_port)));
+  
+  variable test_ip: chaine = "192.168.1.100";
+  variable ip_array: [4]entier = string_to_ip(test_ip);
+  afficher("");
+  afficher("IP conversion test:");
+  afficher("  String: ", test_ip);
+  afficher("  Array: [", ip_array[0], ", ", ip_array[1], ", ", 
+        ip_array[2], ", ", ip_array[3], "]");
+  afficher("  Back to chaine: ", ip_to_string(ip_array));
+  
+  // Test 2: Dynamic Arrays
+  afficher("");
+  afficher("TEST 2: DYNAMIC ARRAYS");
+  afficher("----------------------");
+  
+  variable backing_array: [10]entier = [10]entier{0,0,0,0,0,0,0,0,0,0};
+  variable dyn_arr: DynArray = DynArray{
+    Size: 0,
+    Capacity: 10,
+    Data: backing_array,
+  };
+  
+  afficher("Pushing values 10-60:");
+  variable val: entier = 10;
+  tantque (val <= 60) {
+    variable result: entier = push_dyn_array(dyn_arr, val);
+    afficher("  Pushed ", val, ", size: ", result);
+    val = val + 10;
+  }
+  
+  print_dyn_array(dyn_arr);
+  
+  afficher("Accessing elements:");
+  afficher("  arr[0] = ", get_dyn_array(dyn_arr, 0));
+  afficher("  arr[3] = ", get_dyn_array(dyn_arr, 3));
+  afficher("  arr[5] = ", get_dyn_array(dyn_arr, 5));
+  
+  // Test 3: TCP State Machine
+  demonstrate_tcp_handshake();
+  demonstrate_connection_close();
+  
+  // Test 4: Socket API
+  afficher("");
+  afficher("TEST 4: SOCKET API");
+  afficher("------------------");
+  
+  variable test_socket: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  afficher("Created socket fd=", test_socket.fd);
+  
+  // Test 5: Connection Manager
+  afficher("");
+  afficher("TEST 5: CONNECTION MANAGER");
+  afficher("--------------------------");
+  
+  variable manager: ConnectionManager = create_connection_manager(5);
+  
+  // Add some connections
+  variable sock1: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  sock1.remote_addr = IPAddress{address: [4]entier{192,168,1,101}, port: 12345};
+  sock1.state = TCP_ESTABLISHED;
+  
+  variable sock2: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  sock2.remote_addr = IPAddress{address: [4]entier{10,0,0,5}, port: 80};
+  sock2.state = TCP_ESTABLISHED;
+  
+  variable sock3: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  sock3.remote_addr = IPAddress{address: [4]entier{172,16,0,1}, port: 443};
+  sock3.state = TCP_ESTABLISHED;
+  
+  add_connection(manager, sock1);
+  add_connection(manager, sock2);
+  add_connection(manager, sock3);
+  
+  // Update stats
+  update_connection_stats(manager, 0, 1500, 1200);
+  update_connection_stats(manager, 1, 500, 300);
+  update_connection_stats(manager, 2, 10000, 8000);
+  
+  print_connection_stats(manager);
+  
+  // Remove a connection
+  afficher("");
+  afficher("Removing connection 1...");
+  remove_connection(manager, 1);
+  print_connection_stats(manager);
+  
+  // Test 6: Full Server-Client Simulation
+  afficher("");
+  afficher("TEST 6: SERVER-CLIENT SIMULATION");
+  afficher("--------------------------------");
+  
+  // Note: Uncomment to run full simulation
+  // start_tcp_server("0.0.0.0", 8080, 5);
+  // start_tcp_client("127.0.0.1", 8080);
+  
+  // Instead, do a mini simulation
+  afficher("");
+  afficher("Mini simulation of server-client interaction:");
+  
+  variable server_demo: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  server_demo.local_addr = IPAddress{address: [4]entier{0,0,0,0}, port: htons(8080)};
+  server_demo.state = TCP_LISTEN;
+  
+  variable client_demo: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  client_demo.remote_addr = IPAddress{address: [4]entier{127,0,0,1}, port: htons(8080)};
+  
+  afficher("Server listening on port 8080");
+  afficher("Client connecting to server...");
+  
+  // Simulate connection
+  process_tcp_event(server_demo, TCP_FLAG_SYN, 0);
+  process_tcp_event(client_demo, TCP_FLAG_SYN, 0);
+  process_tcp_event(server_demo, TCP_FLAG_ACK, 0);
+  
+  afficher("Connection established!");
+  
+  // Simulate data transfer
+  variable demo_data: [10]entier = [10]entier{72, 101, 108, 108, 111, 33, 10, 0, 0, 0};
+  afficher("Client sending 'Hello!'");
+  send_tcp_data(client_demo, demo_data, 7);
+  
+  afficher("Server receiving data...");
+  variable demo_buffer: [1024]entier = [1024]entier{0};
+  receive_tcp_data(server_demo, demo_buffer, 1024);
+  
+  // Simulate close
+  afficher("Closing connection...");
+  close_socket(client_demo);
+  close_socket(server_demo);
+  
+  // Test 7: Error Handling
+  afficher("");
+  afficher("TEST 7: ERROR HANDLING");
+  afficher("----------------------");
+  
+  variable error_sock: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  
+  // Try invalid operations
+  afficher("Testing erreur cases:");
+  afficher("1. Send on closed socket:");
+  variable dummy_data: [5]entier = [5]entier{1,2,3,4,5};
+  variable send_result: entier = send_tcp_data(error_sock, dummy_data, 5);
+  afficher("   Result: ", send_result, " (should be -1)");
+  
+  afficher("2. Bind with invalid port:");
+  variable invalid_addr: IPAddress = IPAddress{
+    address: [4]entier{0,0,0,0},
+    port: 70000  // Invalid port
+  };
+  variable bind_result: entier = bind_socket(error_sock, invalid_addr);
+  afficher("   Result: ", bind_result, " (should be -1)");
+  
+  afficher("3. Connect with invalid IP:");
+  variable invalid_ip_addr: IPAddress = IPAddress{
+    address: [4]entier{300,500,700,900},  // Invalid octets
+    port: htons(80)
+  };
+  variable connect_result: entier = connect_socket(error_sock, invalid_ip_addr);
+  afficher("   Result: ", connect_result, " (should be -1)");
+  
+  // Final summary
+  afficher("");
+  afficher("=================================================");
+  afficher("IMPLEMENTATION SUMMARY");
+  afficher("=================================================");
+  afficher("");
+  afficher("Features implemented:");
+  afficher("1. Complete TCP socket API");
+  afficher("2. TCP state machine with all states");
+  afficher("3. Connection management with statistics");
+  afficher("4. Network byte order conversion");
+  afficher("5. IP address parsing and formatting");
+  afficher("6. Dynamic array support");
+  afficher("7. Error handling and validation");
+  afficher("8. Data transfer with sequence numbers");
+  afficher("9. Checksum calculation");
+  afficher("10. Server and client implementations");
+  afficher("");
+  afficher("TCP States supported: CLOSED, LISTEN, SYN_SENT, SYN_RCVD,");
+  afficher("ESTABLISHED, FIN_WAIT_1, FIN_WAIT_2, CLOSE_WAIT,");
+  afficher("CLOSING, LAST_ACK, TIME_WAIT");
+  afficher("");
+  afficher("=================================================");
+  afficher("TCP/IP IMPLEMENTATION COMPLETE");
+  afficher("=================================================");
+  
+  retourner 0;
+}

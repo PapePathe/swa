@@ -1,0 +1,1867 @@
+dialecte:français;
+
+// ==================== KAFKA PROTOCOL CONSTANTS AND STRUCTURES ====================
+
+// API Keys (simplified)
+variable API_KEY_PRODUCE: entier = 0;
+variable API_KEY_FETCH: entier = 1;
+variable API_KEY_METADATA: entier = 2;
+variable API_KEY_HEARTBEAT: entier = 3;
+variable API_KEY_JOIN_GROUP: entier = 4;
+variable API_KEY_SYNC_GROUP: entier = 5;
+variable API_KEY_LEAVE_GROUP: entier = 6;
+
+// Error Codes
+variable ERROR_NONE: entier = 0;
+variable ERROR_UNKNOWN: entier = -1;
+variable ERROR_OFFSET_OUT_OF_RANGE: entier = 1;
+variable ERROR_CORRUPT_MESSAGE: entier = 2;
+variable ERROR_UNKNOWN_TOPIC_OR_PARTITION: entier = 3;
+variable ERROR_INVALID_FETCH_SIZE: entier = 4;
+variable ERROR_LEADER_NOT_AVAILABLE: entier = 5;
+variable ERROR_NOT_LEADER_FOR_PARTITION: entier = 6;
+variable ERROR_REQUEST_TIMED_OUT: entier = 7;
+variable ERROR_BROKER_NOT_AVAILABLE: entier = 8;
+variable ERROR_REPLICA_NOT_AVAILABLE: entier = 9;
+variable ERROR_MESSAGE_TOO_LARGE: entier = 10;
+variable ERROR_INVALID_CONFIG: entier = 17;
+variable ERROR_NOT_COORDINATOR: entier = 16;
+
+// Compression Types
+variable COMPRESSION_NONE: entier = 0;
+variable COMPRESSION_GZIP: entier = 1;
+variable COMPRESSION_SNAPPY: entier = 2;
+variable COMPRESSION_LZ4: entier = 3;
+
+// Message Flags
+variable MESSAGE_FLAG_NONE: entier = 0;
+variable MESSAGE_FLAG_COMPRESSED: entier = 1;
+
+// Offsets
+variable OFFSET_EARLIEST: entier = -2;
+variable OFFSET_LATEST: entier = -1;
+
+// Message Structure
+structure Message {
+  offset: entier,
+  timestamp: entier,
+  key: [1024]entier,
+  key_length: entier,
+  value: [8192]entier,
+  value_length: entier,
+  compression: entier,
+  checksum: entier,
+  partition: entier,
+}
+
+structure MessageBatch {
+  messages: [100]Message,
+  message_count: entier,
+  base_offset: entier,
+  partition_leader_epoch: entier,
+  magic: entier,
+  compression_type: entier,
+  timestamp_type: entier,
+  max_timestamp: entier,
+  producer_id: entier,
+  producer_epoch: entier,
+  base_sequence: entier,
+}
+
+structure TopicPartition {
+  topic: chaine,
+  partition: entier,
+  offset: entier,
+  leader_id: entier,
+}
+
+structure Record {
+  topic: chaine,
+  partition: entier,
+  offset: entier,
+  timestamp: entier,
+  key: chaine,
+  value: chaine,
+}
+
+// Kafka Request/Response Headers
+structure KafkaHeader {
+  api_key: entier,
+  api_version: entier,
+  correlation_id: entier,
+  client_id: chaine,
+}
+
+structure KafkaRequest {
+  header: KafkaHeader,
+  data: [65536]entier,  // 64KB max request size
+  length: entier,
+}
+
+structure KafkaResponse {
+  header: KafkaHeader,
+  data: [65536]entier,  // 64KB max response size
+  length: entier,
+  error_code: entier,
+}
+
+// Broker and Cluster Management
+structure Broker {
+  id: entier,
+  host: chaine,
+  port: entier,
+  rack: chaine,
+  is_alive: entier,
+}
+
+structure PartitionMetadata {
+  partition: entier,
+  leader: entier,
+  replicas: [10]entier,
+  replica_count: entier,
+  isr: [10]entier,
+  isr_count: entier,
+  error_code: entier,
+}
+
+structure TopicMetadata {
+  topic: chaine,
+  partitions: [100]PartitionMetadata,
+  partition_count: entier,
+  error_code: entier,
+}
+
+structure ClusterMetadata {
+  brokers: [100]Broker,
+  broker_count: entier,
+  topics: [100]TopicMetadata,
+  topic_count: entier,
+  controller_id: entier,
+}
+
+// Consumer Group
+structure ConsumerGroup {
+  group_id: chaine,
+  members: [100]ConsumerMember,
+  member_count: entier,
+  protocol: chaine,
+  leader_id: chaine,
+  state: entier,  // 0=Stable, 1=PreparingRebalance, 2=AwaitingSync, 3=Dead
+}
+
+structure ConsumerMember {
+  member_id: chaine,
+  client_id: chaine,
+  client_host: chaine,
+  partitions: [100]TopicPartition,
+  partition_count: entier,
+}
+
+// Producer State
+structure ProducerState {
+  producer_id: entier,
+  producer_epoch: entier,
+  sequence_numbers: [100]entier,
+  sequence_count: entier,
+}
+
+// ==================== UTILITY FUNCTIONS ====================
+
+fonction int_to_string(num: entier) chaine {
+  si (num == 0) {
+    retourner "0";
+  }
+  
+  variable result: chaine = "";
+  variable temp: entier = num;
+  variable is_negative: entier = 0;
+  
+  si (temp < 0) {
+    is_negative = 1;
+    temp = 0 - temp;
+  }
+  
+  variable done: entier = 0;
+  tantque (done == 0) {
+    si (temp == 0) {
+      done = 1;
+    } sinon {
+      variable digit: entier = temp % 10;
+      variable digit_str: chaine = "";
+      si (digit == 0) { digit_str = "0"; }
+      si (digit == 1) { digit_str = "1"; }
+      si (digit == 2) { digit_str = "2"; }
+      si (digit == 3) { digit_str = "3"; }
+      si (digit == 4) { digit_str = "4"; }
+      si (digit == 5) { digit_str = "5"; }
+      si (digit == 6) { digit_str = "6"; }
+      si (digit == 7) { digit_str = "7"; }
+      si (digit == 8) { digit_str = "8"; }
+      si (digit == 9) { digit_str = "9"; }
+      
+      result = digit_str + result;
+      temp = temp / 10;
+    }
+  }
+  
+  si (is_negative == 1) {
+    result = "-" + result;
+  }
+  
+  retourner result;
+}
+
+fonction string_to_int(str: chaine) entier {
+  variable result: entier = 0;
+  variable i: entier = 0;
+  variable is_negative: entier = 0;
+  
+  si (str.length > 0) {
+    si (str[0] == "-") {
+      is_negative = 1;
+      i = 1;
+    }
+  }
+  
+  tantque (i < str.length) {
+    variable ch: chaine = str[i];
+    variable digit: entier = 0;
+    
+    si (ch == "0") { digit = 0; }
+    si (ch == "1") { digit = 1; }
+    si (ch == "2") { digit = 2; }
+    si (ch == "3") { digit = 3; }
+    si (ch == "4") { digit = 4; }
+    si (ch == "5") { digit = 5; }
+    si (ch == "6") { digit = 6; }
+    si (ch == "7") { digit = 7; }
+    si (ch == "8") { digit = 8; }
+    si (ch == "9") { digit = 9; }
+    
+    result = result * 10 + digit;
+    i = i + 1;
+  }
+  
+  si (is_negative == 1) {
+    result = 0 - result;
+  }
+  
+  retourner result;
+}
+
+fonction ascii_to_char(code: entier) chaine {
+  si (code == 32){ retourner " ";}
+  si (code == 33){ retourner "!";}
+  si (code == 34){ retourner "sq";}
+  si (code == 35){ retourner "#";}
+  si (code == 36){ retourner "$";}
+  si (code == 37){ retourner "%";}
+  si (code == 38){ retourner "&";}
+  si (code == 39){ retourner "'";}
+  si (code == 40){ retourner "(";}
+  si (code == 41){ retourner ")";}
+  si (code == 42){ retourner "*";}
+  si (code == 43){ retourner "+";}
+  si (code == 44){ retourner ",";}
+  si (code == 45){ retourner "-";}
+  si (code == 46){ retourner ".";}
+  si (code == 47){ retourner "/";}
+  si (code == 58){ retourner ":";}
+  si (code == 59){ retourner ";";}
+  si (code == 60){ retourner "<";}
+  si (code == 61){ retourner "=";}
+  si (code == 62){ retourner ">";}
+  si (code == 63){ retourner "?";}
+  si (code == 64){ retourner "@";}
+  si (code == 91){ retourner "[";}
+  si (code == 92){ retourner "\\";}
+  si (code == 93){ retourner "]";}
+  si (code == 94){ retourner "^";}
+  si (code == 95){ retourner "_";}
+  si (code == 96){ retourner "`";}
+  si (code == 123){ retourner "{";}
+  si (code == 124){ retourner "|";}
+  si (code == 125){ retourner "}";}
+  si (code == 126){ retourner "~";}
+  
+  si (code >= 48 && code <= 57) {
+    retourner int_to_string(code - 48);
+  }
+  
+  si (code >= 65 && code <= 90) {
+    variable letter_num: entier = code - 65;
+    si (letter_num == 0) { retourner "A";}
+    si (letter_num == 1) { retourner "B";}
+    si (letter_num == 2) { retourner "C";}
+    si (letter_num == 3) { retourner "D";}
+    si (letter_num == 4) { retourner "E";}
+    si (letter_num == 5) { retourner "F";}
+    si (letter_num == 6) { retourner "G";}
+    si (letter_num == 7) { retourner "H";}
+    si (letter_num == 8) { retourner "I";}
+    si (letter_num == 9) { retourner "J";}
+    si (letter_num == 10){ retourner "K";}
+    si (letter_num == 11){ retourner "L";}
+    si (letter_num == 12){ retourner "M";}
+    si (letter_num == 13){ retourner "N";}
+    si (letter_num == 14){ retourner "O";}
+    si (letter_num == 15){ retourner "P";}
+    si (letter_num == 16){ retourner "Q";}
+    si (letter_num == 17){ retourner "R";}
+    si (letter_num == 18){ retourner "S";}
+    si (letter_num == 19){ retourner "T";}
+    si (letter_num == 20){ retourner "U";}
+    si (letter_num == 21){ retourner "V";}
+    si (letter_num == 22){ retourner "W";}
+    si (letter_num == 23){ retourner "X";}
+    si (letter_num == 24){ retourner "Y";}
+    retourner "Z";
+  }
+  
+  si (code >= 97 && code <= 122) {
+    variable letter_num: entier = code - 97;
+    si (letter_num == 0)  { retourner "a";}
+    si (letter_num == 1)  { retourner "b";}
+    si (letter_num == 2)  { retourner "c";}
+    si (letter_num == 3)  { retourner "d";}
+    si (letter_num == 4)  { retourner "e";}
+    si (letter_num == 5)  { retourner "f";}
+    si (letter_num == 6)  { retourner "g";}
+    si (letter_num == 7)  { retourner "h";}
+    si (letter_num == 8)  { retourner "i";}
+    si (letter_num == 9)  { retourner "j";}
+    si (letter_num == 10) { retourner "k";}
+    si (letter_num == 11) { retourner "l";}
+    si (letter_num == 12) { retourner "m";}
+    si (letter_num == 13) { retourner "n";}
+    si (letter_num == 14) { retourner "o";}
+    si (letter_num == 15) { retourner "p";}
+    si (letter_num == 16) { retourner "q";}
+    si (letter_num == 17) { retourner "r";}
+    si (letter_num == 18) { retourner "s";}
+    si (letter_num == 19) { retourner "t";}
+    si (letter_num == 20) { retourner "u";}
+    si (letter_num == 21) { retourner "v";}
+    si (letter_num == 22) { retourner "w";}
+    si (letter_num == 23) { retourner "x";}
+    si (letter_num == 24) { retourner "y";}
+    retourner "z";
+  }
+  
+  retourner "?";
+}
+
+fonction char_to_ascii(ch: chaine) entier {
+  si (ch == " ") { retourner 32;}
+  si (ch == "!") { retourner 33;}
+  si (ch == "sq"){ retourner 34;}
+  si (ch == "#") { retourner 35;}
+  si (ch == "$") { retourner 36;}
+  si (ch == "%") { retourner 37;}
+  si (ch == "&") { retourner 38;}
+  si (ch == "'") { retourner 39;}
+  si (ch == "(") { retourner 40;}
+  si (ch == ")") { retourner 41;}
+  si (ch == "*") { retourner 42;}
+  si (ch == "+") { retourner 43;}
+  si (ch == ",") { retourner 44;}
+  si (ch == "-") { retourner 45;}
+  si (ch == ".") { retourner 46;}
+  si (ch == "/") { retourner 47;}
+  si (ch == ":") { retourner 58;}
+  si (ch == ";") { retourner 59;}
+  si (ch == "<") { retourner 60;}
+  si (ch == "=") { retourner 61;}
+  si (ch == ">") { retourner 62;}
+  si (ch == "?") { retourner 63;}
+  si (ch == "@") { retourner 64;}
+  si (ch == "[") { retourner 91;}
+  si (ch == "\\"){ retourner 92;}
+  si (ch == "]") { retourner 93;}
+  si (ch == "^") { retourner 94;}
+  si (ch == "_") { retourner 95;}
+  si (ch == "`") { retourner 96;}
+  si (ch == "{") { retourner 123;}
+  si (ch == "|") { retourner 124;}
+  si (ch == "}") { retourner 125;}
+  si (ch == "~") { retourner 126;}
+  si (ch == "0") { retourner 48;}
+  si (ch == "1") { retourner 49;}
+  si (ch == "2") { retourner 50;}
+  si (ch == "3") { retourner 51;}
+  si (ch == "4") { retourner 52;}
+  si (ch == "5") { retourner 53;}
+  si (ch == "6") { retourner 54;}
+  si (ch == "7") { retourner 55;}
+  si (ch == "8") { retourner 56;}
+  si (ch == "9") { retourner 57;}
+  si (ch == "A"){ retourner 65;}
+  si (ch == "B"){ retourner 66;}
+  si (ch == "C"){ retourner 67;}
+  si (ch == "D"){ retourner 68;}
+  si (ch == "E"){ retourner 69;}
+  si (ch == "F"){ retourner 70;}
+  si (ch == "G"){ retourner 71;}
+  si (ch == "H"){ retourner 72;}
+  si (ch == "I"){ retourner 73;}
+  si (ch == "J"){ retourner 74;}
+  si (ch == "K"){ retourner 75;}
+  si (ch == "L"){ retourner 76;}
+  si (ch == "M"){ retourner 77;}
+  si (ch == "N"){ retourner 78;}
+  si (ch == "O"){ retourner 79;}
+  si (ch == "P"){ retourner 80;}
+  si (ch == "Q"){ retourner 81;}
+  si (ch == "R"){ retourner 82;}
+  si (ch == "S"){ retourner 83;}
+  si (ch == "T"){ retourner 84;}
+  si (ch == "U"){ retourner 85;}
+  si (ch == "V"){ retourner 86;}
+  si (ch == "W"){ retourner 87;}
+  si (ch == "X"){ retourner 88;}
+  si (ch == "Y"){ retourner 89;}
+  si (ch == "Z"){ retourner 90;}
+  si (ch == "a"){ retourner 97;}
+  si (ch == "b"){ retourner 98;}
+  si (ch == "c"){ retourner 99;}
+  si (ch == "d"){ retourner 100;}
+  si (ch == "e"){ retourner 101;}
+  si (ch == "f"){ retourner 102;}
+  si (ch == "g"){ retourner 103;}
+  si (ch == "h"){ retourner 104;}
+  si (ch == "i"){ retourner 105;}
+  si (ch == "j"){ retourner 106;}
+  si (ch == "k"){ retourner 107;}
+  si (ch == "l"){ retourner 108;}
+  si (ch == "m"){ retourner 109;}
+  si (ch == "n"){ retourner 110;}
+  si (ch == "o"){ retourner 111;}
+  si (ch == "p"){ retourner 112;}
+  si (ch == "q"){ retourner 113;}
+  si (ch == "r"){ retourner 114;}
+  si (ch == "s"){ retourner 115;}
+  si (ch == "t"){ retourner 116;}
+  si (ch == "u"){ retourner 117;}
+  si (ch == "v"){ retourner 118;}
+  si (ch == "w"){ retourner 119;}
+  si (ch == "x"){ retourner 120;}
+  si (ch == "y"){ retourner 121;}
+  si (ch == "z"){ retourner 122;}
+  
+  retourner 63; // "?"
+}
+
+fonction string_to_ascii_array(str: chaine) [8192]entier {
+  variable result: [8192]entier = [8192]entier{0};
+  variable i: entier = 0;
+  variable done: entier = 0;
+  
+  tantque (done == 0) {
+    si (i >= str.length || i >= 8192) {
+      done = 1;
+    } sinon {
+      result[i] = char_to_ascii(str[i]);
+      i = i + 1;
+    }
+  }
+  
+  retourner result;
+}
+
+fonction ascii_array_to_string(data: [8192]entier, length: entier) chaine {
+  variable result: chaine = "";
+  variable i: entier = 0;
+  variable done: entier = 0;
+  
+  tantque (done == 0) {
+    si (i >= length || i >= 8192) {
+      done = 1;
+    } sinon {
+      result = result + ascii_to_char(data[i]);
+      i = i + 1;
+    }
+  }
+  
+  retourner result;
+}
+
+fonction get_error_name(error_code: entier) chaine {
+  si (error_code == ERROR_NONE)                      { retourner "NONE";}
+  si (error_code == ERROR_UNKNOWN)                   { retourner "UNKNOWN";}
+  si (error_code == ERROR_OFFSET_OUT_OF_RANGE)       { retourner "OFFSET_OUT_OF_RANGE";}
+  si (error_code == ERROR_CORRUPT_MESSAGE)           { retourner "CORRUPT_MESSAGE";}
+  si (error_code == ERROR_UNKNOWN_TOPIC_OR_PARTITION){ retourner "UNKNOWN_TOPIC_OR_PARTITION";}
+  si (error_code == ERROR_INVALID_FETCH_SIZE)        { retourner "INVALID_FETCH_SIZE";}
+  si (error_code == ERROR_LEADER_NOT_AVAILABLE)      { retourner "LEADER_NOT_AVAILABLE";}
+  si (error_code == ERROR_NOT_LEADER_FOR_PARTITION)  { retourner "NOT_LEADER_FOR_PARTITION";}
+  si (error_code == ERROR_REQUEST_TIMED_OUT)         { retourner "REQUEST_TIMED_OUT";}
+  si (error_code == ERROR_BROKER_NOT_AVAILABLE)      { retourner "BROKER_NOT_AVAILABLE";}
+  si (error_code == ERROR_REPLICA_NOT_AVAILABLE)     { retourner "REPLICA_NOT_AVAILABLE";}
+  si (error_code == ERROR_MESSAGE_TOO_LARGE)         { retourner "MESSAGE_TOO_LARGE";}
+  si (error_code == ERROR_INVALID_CONFIG)            { retourner "INVALID_CONFIG";}
+  si (error_code == ERROR_NOT_COORDINATOR)           { retourner "NOT_COORDINATOR";}
+  retourner "UNKNOWN_ERROR_" + int_to_string(error_code);
+}
+
+fonction simple_checksum(data: [8192]entier, length: entier) entier {
+  variable sum: entier = 0;
+  variable i: entier = 0;
+  variable done: entier = 0;
+  
+  tantque (done == 0) {
+    si (i >= length) {
+      done = 1;
+    } sinon {
+      sum = sum + data[i];
+      i = i + 1;
+    }
+  }
+  
+  // Simple modulo to keep in range
+  tantque (sum > 65535) {
+    sum = sum - 65536;
+  }
+  
+  retourner sum;
+}
+
+// ==================== KAFKA WIRE PROTOCOL ====================
+
+fonction encode_kafka_header(api_key: entier, api_version: entier, correlation_id: entier, client_id: chaine) [1024]entier {
+  variable header: [1024]entier = [1024]entier{0};
+  variable idx: entier = 0;
+  
+  // API Key (int16)
+  header[idx] = api_key / 256;
+  header[idx + 1] = api_key % 256;
+  idx = idx + 2;
+  
+  // API Version (int16)
+  header[idx] = api_version / 256;
+  header[idx + 1] = api_version % 256;
+  idx = idx + 2;
+  
+  // Correlation ID (int32)
+  header[idx] = correlation_id / 16777216;
+  header[idx + 1] = (correlation_id / 65536) % 256;
+  header[idx + 2] = (correlation_id / 256) % 256;
+  header[idx + 3] = correlation_id % 256;
+  idx = idx + 4;
+  
+  // Client ID (chaine)
+  variable client_id_len: entier = client_id.length;
+  header[idx] = client_id_len / 256;
+  header[idx + 1] = client_id_len % 256;
+  idx = idx + 2;
+  
+  variable i: entier = 0;
+  variable copy_client_done: entier = 0;
+  tantque (copy_client_done == 0) {
+    si (i >= client_id_len) {
+      copy_client_done = 1;
+    } sinon {
+      header[idx] = char_to_ascii(client_id[i]);
+      idx = idx + 1;
+      i = i + 1;
+    }
+  }
+  
+  retourner header;
+}
+
+fonction decode_kafka_header(data: [65536]entier, offset: entier) KafkaHeader {
+  variable header: KafkaHeader = KafkaHeader{
+    api_key: 0,
+    api_version: 0,
+    correlation_id: 0,
+    client_id: "",
+  };
+  
+  // API Key
+  header.api_key = data[offset] * 256 + data[offset + 1];
+  
+  // API Version
+  header.api_version = data[offset + 2] * 256 + data[offset + 3];
+  
+  // Correlation ID
+  header.correlation_id = data[offset + 4] * 16777216 +
+                         data[offset + 5] * 65536 +
+                         data[offset + 6] * 256 +
+                         data[offset + 7];
+  
+  // Client ID length
+  variable client_id_len: entier = data[offset + 8] * 256 + data[offset + 9];
+  
+  // Client ID
+  variable client_id_start: entier = offset + 10;
+  variable i: entier = 0;
+  variable build_client_done: entier = 0;
+  
+  tantque (build_client_done == 0) {
+    si (i >= client_id_len) {
+      build_client_done = 1;
+    } sinon {
+      header.client_id = header.client_id + ascii_to_char(data[client_id_start + i]);
+      i = i + 1;
+    }
+  }
+  
+  retourner header;
+}
+
+fonction encode_produce_request(topics: [10]chaine, topic_count: entier, 
+                           partitions: [10]entier, partition_count: entier,
+                           messages: [100]Message, message_count: entier,
+                           correlation_id: entier, client_id: chaine) KafkaRequest {
+  variable request: KafkaRequest = KafkaRequest{
+    header: KafkaHeader{api_key: 0, api_version: 0, correlation_id: 0, client_id: ""},
+    data: [65536]entier{0},
+    length: 0,
+  };
+  
+  // Encode header
+  variable header_data: [1024]entier = encode_kafka_header(API_KEY_PRODUCE, 2, correlation_id, client_id);
+  
+  // Copy header to request
+  variable idx: entier = 0;
+  variable copy_header_done: entier = 0;
+  tantque (copy_header_done == 0) {
+    si (idx >= 1024 || header_data[idx] == 0) {
+      copy_header_done = 1;
+    } sinon {
+      request.data[idx] = header_data[idx];
+      idx = idx + 1;
+    }
+  }
+  
+  request.length = idx;
+  
+  // Transactional ID (null for now)
+  request.data[request.length] = 255;
+  request.data[request.length + 1] = 255;
+  request.length = request.length + 2;
+  
+  // ACKS (1 = leader only)
+  request.data[request.length] = 1;
+  request.length = request.length + 2;
+  
+  // Timeout (30000 ms)
+  request.data[request.length] = 0;
+  request.data[request.length + 1] = 0;
+  request.data[request.length + 2] = 117;
+  request.data[request.length + 3] = 48;
+  request.length = request.length + 4;
+  
+  // Topic array count
+  request.data[request.length] = 0;
+  request.data[request.length + 1] = topic_count;
+  request.length = request.length + 2;
+  
+  // Encode each topic
+  variable topic_idx: entier = 0;
+  variable encode_topics_done: entier = 0;
+  tantque (encode_topics_done == 0) {
+    si (topic_idx >= topic_count) {
+      encode_topics_done = 1;
+    } sinon {
+      variable topic: chaine = topics[topic_idx];
+      
+      // Topic name length
+      variable topic_len: entier = topic.length;
+      request.data[request.length] = topic_len / 256;
+      request.data[request.length + 1] = topic_len % 256;
+      request.length = request.length + 2;
+      
+      // Topic name
+      variable char_idx: entier = 0;
+      variable copy_topic_done: entier = 0;
+      tantque (copy_topic_done == 0) {
+        si (char_idx >= topic_len) {
+          copy_topic_done = 1;
+        } sinon {
+          request.data[request.length] = char_to_ascii(topic[char_idx]);
+          request.length = request.length + 1;
+          char_idx = char_idx + 1;
+        }
+      }
+      
+      // Partition array count
+      request.data[request.length] = 0;
+      request.data[request.length + 1] = partition_count;
+      request.length = request.length + 2;
+      
+      // Encode each partition
+      variable part_idx: entier = 0;
+      variable encode_parts_done: entier = 0;
+      tantque (encode_parts_done == 0) {
+        si (part_idx >= partition_count) {
+          encode_parts_done = 1;
+        } sinon {
+          // Partition ID
+          variable partition_id: entier = partitions[part_idx];
+          request.data[request.length] = partition_id / 256;
+          request.data[request.length + 1] = partition_id % 256;
+          request.length = request.length + 2;
+          
+          // Message set size (placeholder)
+          variable msg_set_size_pos: entier = request.length;
+          request.length = request.length + 4;
+          
+          // Encode messages for this partition
+          variable msg_start_pos: entier = request.length;
+          variable msg_idx: entier = 0;
+          variable encode_msgs_done: entier = 0;
+          
+          tantque (encode_msgs_done == 0) {
+            si (msg_idx >= message_count) {
+              encode_msgs_done = 1;
+            } sinon {
+              variable message: Message = messages[msg_idx];
+              
+              // Message offset (int64)
+              variable offset: entier = message.offset;
+              request.data[request.length] = offset / 16777216 / 16777216;
+              request.data[request.length + 1] = (offset / 16777216) % 256;
+              request.data[request.length + 2] = (offset / 65536) % 256;
+              request.data[request.length + 3] = (offset / 256) % 256;
+              request.data[request.length + 4] = (offset / 256) % 256;
+              request.data[request.length + 5] = (offset / 256) % 256;
+              request.data[request.length + 6] = (offset / 256) % 256;
+              request.data[request.length + 7] = offset % 256;
+              request.length = request.length + 8;
+              
+              // Message size (placeholder)
+              variable msg_size_pos: entier = request.length;
+              request.length = request.length + 4;
+              
+              // CRC (placeholder)
+              request.data[request.length] = 0;
+              request.data[request.length + 1] = 0;
+              request.data[request.length + 2] = 0;
+              request.data[request.length + 3] = 0;
+              request.length = request.length + 4;
+              
+              // Magic byte
+              request.data[request.length] = 2;
+              request.length = request.length + 1;
+              
+              // Attributes
+              request.data[request.length] = message.compression;
+              request.length = request.length + 1;
+              
+              // Timestamp
+              variable timestamp: entier = message.timestamp;
+              request.data[request.length] = timestamp / 16777216 / 16777216;
+              request.data[request.length + 1] = (timestamp / 16777216) % 256;
+              request.data[request.length + 2] = (timestamp / 65536) % 256;
+              request.data[request.length + 3] = (timestamp / 256) % 256;
+              request.data[request.length + 4] = (timestamp / 256) % 256;
+              request.data[request.length + 5] = (timestamp / 256) % 256;
+              request.data[request.length + 6] = (timestamp / 256) % 256;
+              request.data[request.length + 7] = timestamp % 256;
+              request.length = request.length + 8;
+              
+              // Key length
+              variable key_len: entier = message.key_length;
+              request.data[request.length] = key_len / 256;
+              request.data[request.length + 1] = key_len % 256;
+              request.length = request.length + 2;
+              
+              // Key
+              variable key_idx: entier = 0;
+              variable copy_key_done: entier = 0;
+              tantque (copy_key_done == 0) {
+                si (key_idx >= key_len) {
+                  copy_key_done = 1;
+                } sinon {
+                  request.data[request.length] = message.key[key_idx];
+                  request.length = request.length + 1;
+                  key_idx = key_idx + 1;
+                }
+              }
+              
+              // Value length
+              variable value_len: entier = message.value_length;
+              request.data[request.length] = value_len / 256;
+              request.data[request.length + 1] = value_len % 256;
+              request.length = request.length + 2;
+              
+              // Value
+              variable value_idx: entier = 0;
+              variable copy_value_done: entier = 0;
+              tantque (copy_value_done == 0) {
+                si (value_idx >= value_len) {
+                  copy_value_done = 1;
+                } sinon {
+                  request.data[request.length] = message.value[value_idx];
+                  request.length = request.length + 1;
+                  value_idx = value_idx + 1;
+                }
+              }
+              
+              // Calculate message size and update
+              variable msg_size: entier = request.length - msg_size_pos - 4;
+              request.data[msg_size_pos] = msg_size / 16777216;
+              request.data[msg_size_pos + 1] = (msg_size / 65536) % 256;
+              request.data[msg_size_pos + 2] = (msg_size / 256) % 256;
+              request.data[msg_size_pos + 3] = msg_size % 256;
+              
+              // Calculate CRC (simplified)
+              variable crc_data: [8192]entier = [8192]entier{0};
+              variable crc_idx: entier = 0;
+              variable copy_crc_done: entier = 0;
+              tantque (copy_crc_done == 0) {
+                si (crc_idx >= msg_size || (msg_size_pos + 4 + crc_idx) >= request.length) {
+                  copy_crc_done = 1;
+                } sinon {
+                  crc_data[crc_idx] = request.data[msg_size_pos + 4 + crc_idx];
+                  crc_idx = crc_idx + 1;
+                }
+              }
+              
+              variable checksum: entier = simple_checksum(crc_data, crc_idx);
+              request.data[msg_size_pos + 4] = checksum / 16777216;
+              request.data[msg_size_pos + 5] = (checksum / 65536) % 256;
+              request.data[msg_size_pos + 6] = (checksum / 256) % 256;
+              request.data[msg_size_pos + 7] = checksum % 256;
+              
+              msg_idx = msg_idx + 1;
+            }
+          }
+          
+          // Update message set size
+          variable msg_set_size: entier = request.length - msg_start_pos;
+          request.data[msg_set_size_pos] = msg_set_size / 16777216;
+          request.data[msg_set_size_pos + 1] = (msg_set_size / 65536) % 256;
+          request.data[msg_set_size_pos + 2] = (msg_set_size / 256) % 256;
+          request.data[msg_set_size_pos + 3] = msg_set_size % 256;
+          
+          part_idx = part_idx + 1;
+        }
+      }
+      
+      topic_idx = topic_idx + 1;
+    }
+  }
+  
+  retourner request;
+}
+
+fonction decode_produce_response(data: [65536]entier, length: entier) KafkaResponse {
+  variable response: KafkaResponse = KafkaResponse{
+    header: decode_kafka_header(data, 0),
+    data: data,
+    length: length,
+    error_code: ERROR_NONE,
+  };
+  
+  // Skip header (find where it ends)
+  variable offset: entier = 0;
+  variable client_id_len: entier = data[8] * 256 + data[9];
+  offset = 10 + client_id_len;
+  
+  // Response starts here
+  // Throttle time (skip)
+  offset = offset + 4;
+  
+  // Topic array count
+  variable topic_count: entier = data[offset] * 256 + data[offset + 1];
+  offset = offset + 2;
+  
+  // Parse topics
+  variable topic_idx: entier = 0;
+  variable parse_topics_done: entier = 0;
+  tantque (parse_topics_done == 0) {
+    si (topic_idx >= topic_count) {
+      parse_topics_done = 1;
+    } sinon {
+      // Topic name length
+      variable topic_name_len: entier = data[offset] * 256 + data[offset + 1];
+      offset = offset + 2;
+      
+      // Skip topic name
+      offset = offset + topic_name_len;
+      
+      // Partition array count
+      variable partition_count: entier = data[offset] * 256 + data[offset + 1];
+      offset = offset + 2;
+      
+      // Parse partitions
+      variable part_idx: entier = 0;
+      variable parse_parts_done: entier = 0;
+      tantque (parse_parts_done == 0) {
+        si (part_idx >= partition_count) {
+          parse_parts_done = 1;
+        } sinon {
+          // Partition ID
+          variable partition_id: entier = data[offset] * 256 + data[offset + 1];
+          offset = offset + 2;
+          
+          // Error code
+          variable error_code: entier = data[offset] * 256 + data[offset + 1];
+          offset = offset + 2;
+          
+          si (error_code != ERROR_NONE) {
+            response.error_code = error_code;
+          }
+          
+          // Base offset
+          variable base_offset: entier = data[offset] * 16777216 * 16777216 +
+                                data[offset + 1] * 16777216 +
+                                data[offset + 2] * 65536 +
+                                data[offset + 3] * 256 +
+                                data[offset + 4] * 256 +
+                                data[offset + 5] * 256 +
+                                data[offset + 6] * 256 +
+                                data[offset + 7];
+          offset = offset + 8;
+          
+          // Timestamp
+          offset = offset + 8;
+          
+          part_idx = part_idx + 1;
+        }
+      }
+      
+      topic_idx = topic_idx + 1;
+    }
+  }
+  
+  retourner response;
+}
+
+fonction encode_fetch_request(topics: [10]chaine, topic_count: entier,
+                         partitions: [10]entier, partition_count: entier,
+                         offsets: [10]entier, max_bytes: entier,
+                         correlation_id: entier, client_id: chaine) KafkaRequest {
+  variable request: KafkaRequest = KafkaRequest{
+    header: KafkaHeader{api_key: 0, api_version: 0, correlation_id: 0, client_id: ""},
+    data: [65536]entier{0},
+    length: 0,
+  };
+  
+  // Encode header
+  variable header_data: [1024]entier = encode_kafka_header(API_KEY_FETCH, 3, correlation_id, client_id);
+  
+  // Copy header to request
+  variable idx: entier = 0;
+  variable copy_header_done: entier = 0;
+  tantque (copy_header_done == 0) {
+    si (idx >= 1024 || header_data[idx] == 0) {
+      copy_header_done = 1;
+    } sinon {
+      request.data[idx] = header_data[idx];
+      idx = idx + 1;
+    }
+  }
+  
+  request.length = idx;
+  
+  // Replica ID (-1 for consumer)
+  request.data[request.length] = 255;
+  request.data[request.length + 1] = 255;
+  request.length = request.length + 4;
+  
+  // Max wait time (100 ms)
+  request.data[request.length] = 0;
+  request.data[request.length + 1] = 0;
+  request.data[request.length + 2] = 0;
+  request.data[request.length + 3] = 100;
+  request.length = request.length + 4;
+  
+  // Min bytes (1)
+  request.data[request.length] = 0;
+  request.data[request.length + 1] = 1;
+  request.length = request.length + 4;
+  
+  // Max bytes
+  request.data[request.length] = max_bytes / 16777216;
+  request.data[request.length + 1] = (max_bytes / 65536) % 256;
+  request.data[request.length + 2] = (max_bytes / 256) % 256;
+  request.data[request.length + 3] = max_bytes % 256;
+  request.length = request.length + 4;
+  
+  // Topic array count
+  request.data[request.length] = 0;
+  request.data[request.length + 1] = topic_count;
+  request.length = request.length + 2;
+  
+  // Encode each topic
+  variable topic_idx: entier = 0;
+  variable encode_topics_done: entier = 0;
+  tantque (encode_topics_done == 0) {
+    si (topic_idx >= topic_count) {
+      encode_topics_done = 1;
+    } sinon {
+      variable topic: chaine = topics[topic_idx];
+      
+      // Topic name length
+      variable topic_len: entier = topic.length;
+      request.data[request.length] = topic_len / 256;
+      request.data[request.length + 1] = topic_len % 256;
+      request.length = request.length + 2;
+      
+      // Topic name
+      variable char_idx: entier = 0;
+      variable copy_topic_done: entier = 0;
+      tantque (copy_topic_done == 0) {
+        si (char_idx >= topic_len) {
+          copy_topic_done = 1;
+        } sinon {
+          request.data[request.length] = char_to_ascii(topic[char_idx]);
+          request.length = request.length + 1;
+          char_idx = char_idx + 1;
+        }
+      }
+      
+      // Partition array count
+      request.data[request.length] = 0;
+      request.data[request.length + 1] = partition_count;
+      request.length = request.length + 2;
+      
+      // Encode each partition
+      variable part_idx: entier = 0;
+      variable encode_parts_done: entier = 0;
+      tantque (encode_parts_done == 0) {
+        si (part_idx >= partition_count) {
+          encode_parts_done = 1;
+        } sinon {
+          // Partition ID
+          variable partition_id: entier = partitions[part_idx];
+          request.data[request.length] = partition_id / 256;
+          request.data[request.length + 1] = partition_id % 256;
+          request.length = request.length + 2;
+          
+          // Current offset
+          variable current_offset: entier = offsets[part_idx];
+          request.data[request.length] = current_offset / 16777216 / 16777216;
+          request.data[request.length + 1] = (current_offset / 16777216) % 256;
+          request.data[request.length + 2] = (current_offset / 65536) % 256;
+          request.data[request.length + 3] = (current_offset / 256) % 256;
+          request.data[request.length + 4] = (current_offset / 256) % 256;
+          request.data[request.length + 5] = (current_offset / 256) % 256;
+          request.data[request.length + 6] = (current_offset / 256) % 256;
+          request.data[request.length + 7] = current_offset % 256;
+          request.length = request.length + 8;
+          
+          // Log demarrer offset (0)
+          request.data[request.length] = 0;
+          request.data[request.length + 1] = 0;
+          request.data[request.length + 2] = 0;
+          request.data[request.length + 3] = 0;
+          request.data[request.length + 4] = 0;
+          request.data[request.length + 5] = 0;
+          request.data[request.length + 6] = 0;
+          request.data[request.length + 7] = 0;
+          request.length = request.length + 8;
+          
+          // Max bytes for this partition
+          request.data[request.length] = max_bytes / 16777216;
+          request.data[request.length + 1] = (max_bytes / 65536) % 256;
+          request.data[request.length + 2] = (max_bytes / 256) % 256;
+          request.data[request.length + 3] = max_bytes % 256;
+          request.length = request.length + 4;
+          
+          part_idx = part_idx + 1;
+        }
+      }
+      
+      topic_idx = topic_idx + 1;
+    }
+  }
+  
+  retourner request;
+}
+
+fonction decode_fetch_response(data: [65536]entier, length: entier) [100]Record {
+  variable records: [100]Record = [100]Record{};
+  variable record_count: entier = 0;
+  
+  // Skip to response data
+  variable offset: entier = 0;
+  
+  // Skip header
+  variable client_id_len: entier = data[8] * 256 + data[9];
+  offset = 10 + client_id_len;
+  
+  // Throttle time
+  offset = offset + 4;
+  
+  // Topic array count
+  variable topic_count: entier = data[offset] * 256 + data[offset + 1];
+  offset = offset + 2;
+  
+  // Parse topics
+  variable topic_idx: entier = 0;
+  variable parse_topics_done: entier = 0;
+  tantque (parse_topics_done == 0) {
+    si (topic_idx >= topic_count) {
+      parse_topics_done = 1;
+    } sinon {
+      // Topic name length
+      variable topic_name_len: entier = data[offset] * 256 + data[offset + 1];
+      offset = offset + 2;
+      
+      // Topic name
+      variable topic_name: chaine = "";
+      variable char_idx: entier = 0;
+      variable build_topic_done: entier = 0;
+      tantque (build_topic_done == 0) {
+        si (char_idx >= topic_name_len) {
+          build_topic_done = 1;
+        } sinon {
+          topic_name = topic_name + ascii_to_char(data[offset]);
+          offset = offset + 1;
+          char_idx = char_idx + 1;
+        }
+      }
+      
+      // Partition array count
+      variable partition_count: entier = data[offset] * 256 + data[offset + 1];
+      offset = offset + 2;
+      
+      // Parse partitions
+      variable part_idx: entier = 0;
+      variable parse_parts_done: entier = 0;
+      tantque (parse_parts_done == 0) {
+        si (part_idx >= partition_count) {
+          parse_parts_done = 1;
+        } sinon {
+          // Partition ID
+          variable partition_id: entier = data[offset] * 256 + data[offset + 1];
+          offset = offset + 2;
+          
+          // Error code
+          variable error_code: entier = data[offset] * 256 + data[offset + 1];
+          offset = offset + 2;
+          
+          // High watermark offset
+          offset = offset + 8;
+          
+          // Last stable offset
+          offset = offset + 8;
+          
+          // Log demarrer offset
+          offset = offset + 8;
+          
+          // Aborted transactions length
+          variable aborted_len: entier = data[offset] * 256 + data[offset + 1];
+          offset = offset + 2;
+          
+          // Skip aborted transactions
+          offset = offset + aborted_len;
+          
+          // Record batch length
+          variable batch_len: entier = data[offset] * 16777216 +
+                              data[offset + 1] * 65536 +
+                              data[offset + 2] * 256 +
+                              data[offset + 3];
+          offset = offset + 4;
+          
+          si (batch_len > 0) {
+            variable batch_end: entier = offset + batch_len;
+            
+            // Parse record batch
+            tantque (offset < batch_end && record_count < 100) {
+              // Check si we have enough data for a record
+              si (offset + 50 > length) {
+                offset = batch_end;
+              } sinon {
+                // Parse a message (simplified)
+                variable message_offset: entier = offset;
+                
+                // Skip to value
+                variable value_offset: entier = offset + 40; // Approximate
+                
+                // Try to parse key and value
+                variable key_len_pos: entier = value_offset - 2;
+                variable key_len: entier = data[key_len_pos] * 256 + data[key_len_pos + 1];
+                
+                variable value_len_pos: entier = value_offset + key_len;
+                variable value_len: entier = data[value_len_pos] * 256 + data[value_len_pos + 1];
+                
+                si (key_len > 0 || value_len > 0) {
+                  // Extract key
+                  variable key_str: chaine = "";
+                  si (key_len > 0) {
+                    variable key_start: entier = value_offset;
+                    variable ki: entier = 0;
+                    variable extract_key_done: entier = 0;
+                    tantque (extract_key_done == 0) {
+                      si (ki >= key_len || key_start + ki >= length) {
+                        extract_key_done = 1;
+                      } sinon {
+                        key_str = key_str + ascii_to_char(data[key_start + ki]);
+                        ki = ki + 1;
+                      }
+                    }
+                  }
+                  
+                  // Extract value
+                  variable value_str: chaine = "";
+                  si (value_len > 0) {
+                    variable value_start: entier = value_len_pos + 2;
+                    variable vi: entier = 0;
+                    variable extract_value_done: entier = 0;
+                    tantque (extract_value_done == 0) {
+                      si (vi >= value_len || value_start + vi >= length) {
+                        extract_value_done = 1;
+                      } sinon {
+                        value_str = value_str + ascii_to_char(data[value_start + vi]);
+                        vi = vi + 1;
+                      }
+                    }
+                  }
+                  
+                  // Create record
+                  records[record_count] = Record{
+                    topic: topic_name,
+                    partition: partition_id,
+                    offset: 0, // Would be parsed from message
+                    timestamp: 0, // Would be parsed from message
+                    key: key_str,
+                    value: value_str,
+                  };
+                  record_count = record_count + 1;
+                }
+                
+                // Move to next message (simplified)
+                offset = offset + 100;
+              }
+            }
+          }
+          
+          part_idx = part_idx + 1;
+        }
+      }
+      
+      topic_idx = topic_idx + 1;
+    }
+  }
+  
+  retourner records;
+}
+
+// ==================== BROKER AND CLUSTER MANAGEMENT ====================
+
+fonction create_cluster() ClusterMetadata {
+  variable cluster: ClusterMetadata = ClusterMetadata{
+    brokers: [100]Broker{},
+    broker_count: 0,
+    topics: [100]TopicMetadata{},
+    topic_count: 0,
+    controller_id: 0,
+  };
+  
+  // Create some default brokers
+  cluster.brokers[0] = Broker{
+    id: 1,
+    host: "localhost",
+    port: 9092,
+    rack: "rack1",
+    is_alive: 1,
+  };
+  cluster.broker_count = cluster.broker_count + 1;
+  
+  cluster.brokers[1] = Broker{
+    id: 2,
+    host: "localhost",
+    port: 9093,
+    rack: "rack1",
+    is_alive: 1,
+  };
+  cluster.broker_count = cluster.broker_count + 1;
+  
+  cluster.brokers[2] = Broker{
+    id: 3,
+    host: "localhost",
+    port: 9094,
+    rack: "rack2",
+    is_alive: 1,
+  };
+  cluster.broker_count = cluster.broker_count + 1;
+  
+  cluster.controller_id = 1;
+  
+  retourner cluster;
+}
+
+fonction create_topic_metadata(cluster: *ClusterMetadata, topic_name: chaine, partition_count: entier, replication_factor: entier) entier {
+  si (cluster.topic_count >= 100) {
+    retourner ERROR_UNKNOWN;
+  }
+  
+  variable topic_meta: TopicMetadata = TopicMetadata{
+    topic: topic_name,
+    partitions: [100]PartitionMetadata{},
+    partition_count: 0,
+    error_code: ERROR_NONE,
+  };
+  
+  // Create partitions
+  variable part_idx: entier = 0;
+  variable create_parts_done: entier = 0;
+  tantque (create_parts_done == 0) {
+    si (part_idx >= partition_count) {
+      create_parts_done = 1;
+    } sinon {
+      // Simple leader assignment
+      variable leader_id: entier = (part_idx % cluster.broker_count) + 1;
+      
+      // Create replicas
+      variable replicas: [10]entier = [10]entier{0};
+      variable replica_count: entier = 0;
+      variable rep_idx: entier = 0;
+      variable assign_replicas_done: entier = 0;
+      
+      tantque (assign_replicas_done == 0) {
+        si (replica_count >= replication_factor || replica_count >= cluster.broker_count) {
+          assign_replicas_done = 1;
+        } sinon {
+          variable broker_id: entier = (part_idx + rep_idx) % cluster.broker_count + 1;
+          replicas[replica_count] = broker_id;
+          replica_count = replica_count + 1;
+          rep_idx = rep_idx + 1;
+        }
+      }
+      
+      // ISR same as replicas for now
+      variable isr: [10]entier = [10]entier{0};
+      variable isr_count: entier = replica_count;
+      variable isr_idx: entier = 0;
+      variable copy_isr_done: entier = 0;
+      
+      tantque (copy_isr_done == 0) {
+        si (isr_idx >= isr_count) {
+          copy_isr_done = 1;
+        } sinon {
+          isr[isr_idx] = replicas[isr_idx];
+          isr_idx = isr_idx + 1;
+        }
+      }
+      
+      topic_meta.partitions[part_idx] = PartitionMetadata{
+        partition: part_idx,
+        leader: leader_id,
+        replicas: replicas,
+        replica_count: replica_count,
+        isr: isr,
+        isr_count: isr_count,
+        error_code: ERROR_NONE,
+      };
+      topic_meta.partition_count = topic_meta.partition_count + 1;
+      
+      part_idx = part_idx + 1;
+    }
+  }
+  
+  cluster.topics[cluster.topic_count] = topic_meta;
+  cluster.topic_count = cluster.topic_count + 1;
+  
+  retourner ERROR_NONE;
+}
+
+fonction get_topic_metadata(cluster: ClusterMetadata, topic_name: chaine) TopicMetadata {
+  variable empty_meta: TopicMetadata = TopicMetadata{
+    topic: "",
+    partitions: [100]PartitionMetadata{},
+    partition_count: 0,
+    error_code: ERROR_UNKNOWN_TOPIC_OR_PARTITION,
+  };
+  
+  variable i: entier = 0;
+  variable search_done: entier = 0;
+  
+  tantque (search_done == 0) {
+    si (i >= cluster.topic_count) {
+      search_done = 1;
+    } sinon {
+      si (cluster.topics[i].topic == topic_name) {
+        retourner cluster.topics[i];
+      }
+      i = i + 1;
+    }
+  }
+  
+  retourner empty_meta;
+}
+
+// ==================== PRODUCER IMPLEMENTATION ====================
+
+structure Producer {
+  cluster: ClusterMetadata,
+  client_id: chaine,
+  correlation_counter: entier,
+  acks: entier,
+  timeout_ms: entier,
+  compression_type: entier,
+  batch_size: entier,
+}
+
+fonction create_producer(client_id: chaine) Producer {
+  variable producer: Producer = Producer{
+    cluster: create_cluster(),
+    client_id: client_id,
+    correlation_counter: 1,
+    acks: 1,
+    timeout_ms: 30000,
+    compression_type: COMPRESSION_NONE,
+    batch_size: 16384,
+  };
+  
+  // Create some default topics
+  create_topic_metadata(producer.cluster, "test-topic", 3, 2);
+  create_topic_metadata(producer.cluster, "events", 5, 3);
+  create_topic_metadata(producer.cluster, "logs", 1, 1);
+  
+  retourner producer;
+}
+
+fonction producer_send(producer: *Producer, topic: chaine, partition: entier, 
+                  key: chaine, value: chaine) KafkaResponse {
+  // Get topic metadata
+  variable topic_meta: TopicMetadata = get_topic_metadata(producer.cluster, topic);
+  
+  si (topic_meta.error_code != ERROR_NONE) {
+    variable error_response: KafkaResponse = KafkaResponse{
+      header: KafkaHeader{api_key: API_KEY_PRODUCE, api_version: 2, 
+                         correlation_id: producer.correlation_counter, 
+                         client_id: producer.client_id},
+      data: [65536]entier{0},
+      length: 0,
+      error_code: topic_meta.error_code,
+    };
+    producer.correlation_counter = producer.correlation_counter + 1;
+    retourner error_response;
+  }
+  
+  // Check partition exists
+  si (partition < 0 || partition >= topic_meta.partition_count) {
+    variable error_response: KafkaResponse = KafkaResponse{
+      header: KafkaHeader{api_key: API_KEY_PRODUCE, api_version: 2, 
+                         correlation_id: producer.correlation_counter, 
+                         client_id: producer.client_id},
+      data: [65536]entier{0},
+      length: 0,
+      error_code: ERROR_UNKNOWN_TOPIC_OR_PARTITION,
+    };
+    producer.correlation_counter = producer.correlation_counter + 1;
+    retourner error_response;
+  }
+  
+  // Create message
+  variable message: Message = Message{
+    offset: 0, // Will be assigned by broker
+    timestamp: 1234567890, // Would be current timestamp
+    key: string_to_ascii_array(key),
+    key_length: key.length,
+    value: string_to_ascii_array(value),
+    value_length: value.length,
+    compression: producer.compression_type,
+    checksum: 0, // Will be calculated
+    partition: partition,
+  };
+  
+  // Calculate checksum
+  variable checksum_data: [8192]entier = [8192]entier{0};
+  variable data_idx: entier = 0;
+  
+  // Copy key
+  variable key_idx: entier = 0;
+  variable copy_key_done: entier = 0;
+  tantque (copy_key_done == 0) {
+    si (key_idx >= message.key_length) {
+      copy_key_done = 1;
+    } sinon {
+      checksum_data[data_idx] = message.key[key_idx];
+      data_idx = data_idx + 1;
+      key_idx = key_idx + 1;
+    }
+  }
+  
+  // Copy value
+  variable value_idx: entier = 0;
+  variable copy_value_done: entier = 0;
+  tantque (copy_value_done == 0) {
+    si (value_idx >= message.value_length) {
+      copy_value_done = 1;
+    } sinon {
+      checksum_data[data_idx] = message.value[value_idx];
+      data_idx = data_idx + 1;
+      value_idx = value_idx + 1;
+    }
+  }
+  
+  message.checksum = simple_checksum(checksum_data, data_idx);
+  
+  // Prepare request
+  variable topics: [10]chaine = [10]chaine{topic, "", "", "", "", "", "", "", "", ""};
+  variable partitions_arr: [10]entier = [10]entier{partition, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  variable messages_arr: [100]Message = [100]Message{message};
+  
+  variable request: KafkaRequest = encode_produce_request(topics, 1, partitions_arr, 1, 
+                                                    messages_arr, 1, 
+                                                    producer.correlation_counter, 
+                                                    producer.client_id);
+  
+  // Simulate sending to broker (in real implementation, this would be network)
+  variable response: KafkaResponse = decode_produce_response(request.data, request.length);
+  
+  producer.correlation_counter = producer.correlation_counter + 1;
+  retourner response;
+}
+
+// ==================== CONSUMER IMPLEMENTATION ====================
+
+structure Consumer {
+  cluster: ClusterMetadata,
+  group_id: chaine,
+  client_id: chaine,
+  correlation_counter: entier,
+  topics: [10]chaine,
+  topic_count: entier,
+  offsets: [100]entier, // topic*partition -> offset
+  auto_offset_reset: entier, // 0=earliest, 1=latest
+  enable_auto_commit: entier,
+  fetch_min_bytes: entier,
+  fetch_max_wait_ms: entier,
+}
+
+fonction create_consumer(group_id: chaine, client_id: chaine) Consumer {
+  variable consumer: Consumer = Consumer{
+    cluster: create_cluster(),
+    group_id: group_id,
+    client_id: client_id,
+    correlation_counter: 1,
+    topics: [10]chaine{"", "", "", "", "", "", "", "", "", ""},
+    topic_count: 0,
+    offsets: [100]entier{0},
+    auto_offset_reset: 0, // earliest
+    enable_auto_commit: 1,
+    fetch_min_bytes: 1,
+    fetch_max_wait_ms: 100,
+  };
+  
+  retourner consumer;
+}
+
+fonction consumer_subscribe(consumer: *Consumer, topic: chaine) entier {
+  si (consumer.topic_count >= 10) {
+    retourner ERROR_UNKNOWN;
+  }
+  
+  consumer.topics[consumer.topic_count] = topic;
+  consumer.topic_count = consumer.topic_count + 1;
+  
+  retourner ERROR_NONE;
+}
+
+fonction consumer_poll(consumer: *Consumer, timeout_ms: entier) [100]Record {
+  variable empty_records: [100]Record = [100]Record{};
+  
+  si (consumer.topic_count == 0) {
+    retourner empty_records;
+  }
+  
+  // For each subscribed topic, fetch messages
+  variable all_records: [100]Record = [100]Record{};
+  variable total_records: entier = 0;
+  
+  variable topic_idx: entier = 0;
+  variable poll_topics_done: entier = 0;
+  
+  tantque (poll_topics_done == 0) {
+    si (topic_idx >= consumer.topic_count) {
+      poll_topics_done = 1;
+    } sinon {
+      variable topic: chaine = consumer.topics[topic_idx];
+      variable topic_meta: TopicMetadata = get_topic_metadata(consumer.cluster, topic);
+      
+      si (topic_meta.error_code == ERROR_NONE) {
+        // Fetch from all partitions
+        variable part_idx: entier = 0;
+        variable poll_parts_done: entier = 0;
+        
+        tantque (poll_parts_done == 0) {
+          si (part_idx >= topic_meta.partition_count || total_records >= 100) {
+            poll_parts_done = 1;
+          } sinon {
+            // Get current offset for this partition
+            variable offset_key: entier = topic_idx * 10 + part_idx;
+            variable current_offset: entier = consumer.offsets[offset_key];
+            
+            si (current_offset == 0 && consumer.auto_offset_reset == 1) {
+              current_offset = OFFSET_LATEST;
+            }
+            
+            // Prepare fetch request
+            variable topics_arr: [10]chaine = [10]chaine{topic, "", "", "", "", "", "", "", "", ""};
+            variable partitions_arr: [10]entier = [10]entier{part_idx, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+            variable offsets_arr: [10]entier = [10]entier{current_offset, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+            
+            variable request: KafkaRequest = encode_fetch_request(topics_arr, 1, partitions_arr, 1,
+                                                            offsets_arr, 65536,
+                                                            consumer.correlation_counter,
+                                                            consumer.client_id);
+            
+            // Simulate fetch
+            variable records: [100]Record = decode_fetch_response(request.data, request.length);
+            
+            // Process records
+            variable rec_idx: entier = 0;
+            variable process_records_done: entier = 0;
+            
+            tantque (process_records_done == 0) {
+              si (rec_idx >= 100 || records[rec_idx].topic == "") {
+                process_records_done = 1;
+              } sinon {
+                all_records[total_records] = records[rec_idx];
+                total_records = total_records + 1;
+                
+                // Update offset
+                consumer.offsets[offset_key] = consumer.offsets[offset_key] + 1;
+                
+                rec_idx = rec_idx + 1;
+              }
+            }
+            
+            consumer.correlation_counter = consumer.correlation_counter + 1;
+            part_idx = part_idx + 1;
+          }
+        }
+      }
+      
+      topic_idx = topic_idx + 1;
+    }
+  }
+  
+  retourner all_records;
+}
+
+fonction consumer_commit(consumer: *Consumer) entier {
+  // In a real implementation, this would send offset commit requests
+  // For now, just acknowledge the operation
+  retourner ERROR_NONE;
+}
+
+// ==================== TOPIC ADMINISTRATION ====================
+
+fonction create_topic(cluster: *ClusterMetadata, topic_name: chaine, 
+                 num_partitions: entier, replication_factor: entier) entier {
+  // Check si topic already exists
+  variable i: entier = 0;
+  variable check_done: entier = 0;
+  
+  tantque (check_done == 0) {
+    si (i >= cluster.topic_count) {
+      check_done = 1;
+    } sinon {
+      si (cluster.topics[i].topic == topic_name) {
+        retourner ERROR_INVALID_CONFIG; // Topic already exists
+      }
+      i = i + 1;
+    }
+  }
+  
+  // Validate parameters
+  si (num_partitions <= 0) {
+    retourner ERROR_INVALID_CONFIG;
+  }
+  
+  si (replication_factor <= 0 || replication_factor > cluster.broker_count) {
+    retourner ERROR_INVALID_CONFIG;
+  }
+  
+  // Create topic
+  retourner create_topic_metadata(cluster, topic_name, num_partitions, replication_factor);
+}
+
+fonction delete_topic(cluster: *ClusterMetadata, topic_name: chaine) entier {
+  // Find topic
+  variable topic_idx: entier = -1;
+  variable i: entier = 0;
+  variable search_done: entier = 0;
+  
+  tantque (search_done == 0) {
+    si (i >= cluster.topic_count) {
+      search_done = 1;
+    } sinon {
+      si (cluster.topics[i].topic == topic_name) {
+        topic_idx = i;
+        search_done = 1;
+      }
+      i = i + 1;
+    }
+  }
+  
+  si (topic_idx == -1) {
+    retourner ERROR_UNKNOWN_TOPIC_OR_PARTITION;
+  }
+  
+  // Shift topics array
+  variable shift_idx: entier = topic_idx;
+  variable shift_done: entier = 0;
+  
+  tantque (shift_done == 0) {
+    si (shift_idx >= cluster.topic_count - 1) {
+      shift_done = 1;
+    } sinon {
+      cluster.topics[shift_idx] = cluster.topics[shift_idx + 1];
+      shift_idx = shift_idx + 1;
+    }
+  }
+  
+  cluster.topic_count = cluster.topic_count - 1;
+  
+  retourner ERROR_NONE;
+}
+
+// ==================== MAIN TEST PROGRAM ====================
+
+demarrer() entier {
+  afficher("=========================================");
+  afficher("KAFKA-LITE PROTOCOL IMPLEMENTATION");
+  afficher("=========================================");
+  
+  afficher("");
+  afficher("TEST 1: CLUSTER INITIALIZATION");
+  afficher("------------------------------");
+  
+  variable cluster: ClusterMetadata = create_cluster();
+  afficher("Cluster created with ", cluster.broker_count, " brokers");
+  afficher("Controller ID: ", cluster.controller_id);
+  
+  variable broker_idx: entier = 0;
+  variable print_brokers_done: entier = 0;
+  tantque (print_brokers_done == 0) {
+    si (broker_idx >= cluster.broker_count) {
+      print_brokers_done = 1;
+    } sinon {
+      variable broker: Broker = cluster.brokers[broker_idx];
+      afficher("  Broker ", broker.id, ": ", broker.host, ":", broker.port, 
+            " (rack: ", broker.rack, ", alive: ", broker.is_alive, ")");
+      broker_idx = broker_idx + 1;
+    }
+  }
+  
+  afficher("");
+  afficher("TEST 2: TOPIC CREATION");
+  afficher("---------------------");
+  
+  variable create_result: entier = create_topic(cluster, "test-topic", 3, 2);
+  afficher("Create topic 'test-topic': ", get_error_name(create_result));
+  
+  create_result = create_topic(cluster, "events", 5, 3);
+  afficher("Create topic 'events': ", get_error_name(create_result));
+  
+  create_result = create_topic(cluster, "logs", 1, 1);
+  afficher("Create topic 'logs': ", get_error_name(create_result));
+  
+  afficher("");
+  afficher("Cluster now has ", cluster.topic_count, " topics");
+  
+  variable topic_idx: entier = 0;
+  variable print_topics_done: entier = 0;
+  tantque (print_topics_done == 0) {
+    si (topic_idx >= cluster.topic_count) {
+      print_topics_done = 1;
+    } sinon {
+      variable topic: TopicMetadata = cluster.topics[topic_idx];
+      afficher("  Topic '", topic.topic, "': ", topic.partition_count, " partitions");
+      
+      variable part_idx: entier = 0;
+      variable print_parts_done: entier = 0;
+      tantque (print_parts_done == 0) {
+        si (part_idx >= topic.partition_count) {
+          print_parts_done = 1;
+        } sinon {
+          variable partition: PartitionMetadata = topic.partitions[part_idx];
+          afficher("    Partition ", partition.partition, ": leader=", partition.leader);
+          
+          variable replica_str: chaine = "replicas=[";
+          variable rep_idx: entier = 0;
+          variable build_replicas_done: entier = 0;
+          tantque (build_replicas_done == 0) {
+            si (rep_idx >= partition.replica_count) {
+              build_replicas_done = 1;
+            } sinon {
+              si (rep_idx > 0) {
+                replica_str = replica_str + ",";
+              }
+              replica_str = replica_str + int_to_string(partition.replicas[rep_idx]);
+              rep_idx = rep_idx + 1;
+            }
+          }
+          replica_str = replica_str + "]";
+          afficher("      ", replica_str);
+          
+          part_idx = part_idx + 1;
+        }
+      }
+      
+      topic_idx = topic_idx + 1;
+    }
+  }
+  
+  afficher("");
+  afficher("TEST 3: PRODUCER OPERATIONS");
+  afficher("---------------------------");
+  
+  variable producer: Producer = create_producer("test-producer");
+  afficher("Producer created with client_id: ", producer.client_id);
+  
+  // Send messages
+  afficher("");
+  afficher("Sending messages to 'test-topic':");
+  
+  variable message_num: entier = 1;
+  variable send_done: entier = 0;
+  tantque (send_done == 0) {
+    si (message_num > 3) {
+      send_done = 1;
+    } sinon {
+      variable key: chaine = "key" + int_to_string(message_num);
+      variable value: chaine = "Message " + int_to_string(message_num) + " from producer";
+      
+      afficher("  Sending message ", message_num, " (key: ", key, ")");
+      variable response: KafkaResponse = producer_send(producer, "test-topic", 0, key, value);
+      
+      si (response.error_code == ERROR_NONE) {
+        afficher("    Success! Correlation ID: ", response.header.correlation_id);
+      } sinon {
+        afficher("    Error: ", get_error_name(response.error_code));
+      }
+      
+      message_num = message_num + 1;
+    }
+  }
+  
+  afficher("");
+  afficher("TEST 4: CONSUMER OPERATIONS");
+  afficher("---------------------------");
+  
+  variable consumer: Consumer = create_consumer("test-group", "test-consumer");
+  afficher("Consumer created with group_id: ", consumer.group_id);
+  
+  variable subscribe_result: entier = consumer_subscribe(consumer, "test-topic");
+  afficher("Subscribe to 'test-topic': ", get_error_name(subscribe_result));
+  
+  subscribe_result = consumer_subscribe(consumer, "events");
+  afficher("Subscribe to 'events': ", get_error_name(subscribe_result));
+  
+  afficher("");
+  afficher("Polling for messages:");
+  variable records: [100]Record = consumer_poll(consumer, 1000);
+  
+  variable record_idx: entier = 0;
+  variable print_records_done: entier = 0;
+  tantque (print_records_done == 0) {
+    si (record_idx >= 100 || records[record_idx].topic == "") {
+      print_records_done = 1;
+    } sinon {
+      variable record: Record = records[record_idx];
+    }
+  }
+
+  retourner 0;
+}

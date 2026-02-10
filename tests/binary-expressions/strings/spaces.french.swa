@@ -1,0 +1,12 @@
+dialecte:français;
+
+demarrer() entier {
+    variable s8 : chaine = "hello world";
+
+    si (s8 == "hello world") {
+        afficher("Passed");
+    } sinon {
+        afficher("Failed");
+    }
+    retourner 0;
+}

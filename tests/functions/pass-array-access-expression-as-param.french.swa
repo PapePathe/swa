@@ -1,0 +1,12 @@
+dialecte:français;
+
+fonction add(first: decimal, last: decimal) decimal {
+  retourner first + last;
+}
+
+demarrer () entier {
+  variable p : [1]decimal= [1]decimal{10.25};
+  variable res : decimal = add(p[0], 4.75);
+  afficher("10.25 + 4.75 = %.2f", res);
+  retourner 0; 
+}

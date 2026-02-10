@@ -1,0 +1,37 @@
+dialecte:français;
+
+structure Location {
+  X: entier,
+  Y: entier,
+}
+
+structure Address {
+  City: chaine,
+  ZipCode: entier,
+  Coords: Location,
+}
+
+structure Person {
+  Name: chaine,
+  Age: entier,
+  HomeAddress: Address,
+}
+
+fonction getX(p: *Person) entier {
+  retourner p.HomeAddress.Coords.X;
+}
+
+fonction setX(p: *Person, val: entier) entier {
+  p.HomeAddress.Coords.X = val;
+  retourner p.HomeAddress.Coords.X;
+}
+
+demarrer() entier {
+  variable loc: Location = Location{ X: 10, Y: 20 };
+  variable addr: Address = Address{ City: "Dakar", ZipCode: 12000, Coords: loc };
+  variable person: Person = Person{ Name: "Pathe", Age: 30, HomeAddress: addr };
+  
+  afficher("X: %d, Y: %d, getX: %d, setX: %d", person.HomeAddress.Coords.X, person.HomeAddress.Coords.Y, getX(person), setX(person, 999));
+  
+  retourner 0;
+}

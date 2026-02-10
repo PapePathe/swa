@@ -1,0 +1,16 @@
+dialecte:français;
+
+demarrer() entier {
+  variable numbers : [10]entier = [10]entier{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  variable x : entier = 0;
+
+  tantque (x < 10) {
+    si (numbers[x] % 2 == 0) {
+      afficher("%d ", x);
+    }
+
+    x = x + 1;
+  }
+
+  retourner 0;
+}

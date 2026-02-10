@@ -1,0 +1,9 @@
+dialecte:français;
+
+demarrer() entier {
+  variable j : [3]decimal;
+  afficher("- [3]decimal with zero value\n");
+  afficher("%.2f %.2f %.2f\n\n", j[1], j[1], j[2]);
+
+  retourner 0;
+}

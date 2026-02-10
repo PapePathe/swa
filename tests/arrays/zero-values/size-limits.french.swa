@@ -1,0 +1,9 @@
+dialecte:français;
+
+structure Coordinate{ x: entier, y: entier, }
+structure Place { c: Coordinate, Around: [10000]Coordinate, }
+
+demarrer () entier {
+  variable res : Place;
+  retourner 0; 
+}

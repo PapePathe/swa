@@ -1,0 +1,20 @@
+dialecte:français;
+
+// Test: Pointer lifetime (returning pointer to stack array)
+structure Data {
+  ptr: *entier,
+}
+
+fonction createData() Data {
+  variable arr: [3]entier = [3]entier{10, 20, 30};
+  retourner Data{
+    ptr: arr, // Returning pointer to stack variable 'arr'
+  };
+}
+
+demarrer() entier {
+  variable d: Data = createData();
+  // Accessing d.ptr should be unsafe si 'arr' was on stack and popped
+  afficher("ptr[0]=%d", d.ptr[0]);
+  retourner 0;
+}

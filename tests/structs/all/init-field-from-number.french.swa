@@ -1,0 +1,16 @@
+dialecte:français;
+
+structure Wrapper {
+  index: entier,
+}
+
+demarrer() entier {
+  variable idx : entier = 1000;
+  variable w: Wrapper = Wrapper{
+    index: idx,
+  };
+
+  afficher("%d", w.index);
+  
+  retourner 0;
+}

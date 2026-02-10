@@ -1,0 +1,25 @@
+dialecte:français;
+
+demarrer() entier {
+  variable numbers: [5]entier = [5]entier{1, 2, 3, 4, 5};
+
+  si(numbers[0] == 1) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Integer array access [0] failed");
+  }
+
+  si(numbers[2] == 3) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Integer array access [2] failed");
+  }
+
+  si(numbers[4] == 5) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Integer array access [4] failed");
+  }
+
+  retourner 0;
+}
