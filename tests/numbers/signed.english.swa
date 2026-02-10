@@ -11,7 +11,7 @@ start() int {
   let zzzzz : int = x % y;
 
   print(
-    "x+y: %d, x*y: %d, x-y: %d, x/y: %d, x%y: %d", 
+    "x+y: %d, x*y: %d, x-y: %d, x/y: %d, x%%y: %d", 
     z, zz, zzz zzzz zzzzz
   );
   

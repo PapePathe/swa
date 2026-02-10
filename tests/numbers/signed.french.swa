@@ -11,7 +11,7 @@ demarrer() entier {
   variable zzzzz : entier = x % y;
 
   afficher(
-    "x+y: %d, x*y: %d, x-y: %d, x/y: %d, x%y: %d", 
+    "x+y: %d, x*y: %d, x-y: %d, x/y: %d, x%%y: %d", 
     z, zz, zzz zzzz zzzzz
   );
   
