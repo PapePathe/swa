@@ -37,10 +37,13 @@ jobs:
           elif [ -f /etc/arch-release ]; then
             pacman -Sy --noconfirm clang llvm go git base-devel pkgconf
           elif [ -f /etc/alpine-release ]; then
-            apk add bash clang19-dev llvm19-dev go git build-base pkgconfig zlib-dev ncurses-dev libffi-dev
+            apk add bash clang19 clang19-dev llvm19 llvm19-dev go git build-base pkgconfig zlib-dev ncurses-dev libffi-dev
             ln -s /usr/bin/llvm-config19 /usr/bin/llvm-config
             ln -s /usr/bin/clang-19 /usr/bin/clang
             ln -s /usr/bin/clang++-19 /usr/bin/clang++
+            ln -s /usr/bin/llc19 /usr/bin/llc-19
+            ln -s /usr/bin/opt19 /usr/bin/opt-19
+            ln -s /usr/bin/ld.lld19 /usr/bin/ld.lld-19
             # Symlink headers to standard locations for CGO
             mkdir -p /usr/local/include
             ln -s /usr/lib/llvm19/include/llvm /usr/local/include/llvm
