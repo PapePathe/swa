@@ -98,6 +98,10 @@ func NewCompilerContext(
 }
 
 func (ctx CompilerCtx) UpdateStructSymbol(name string, value *StructSymbolTableEntry) error {
+	if ctx.parent != nil {
+		return ctx.parent.UpdateStructSymbol(name, value)
+	}
+
 	if _, exists := ctx.structSymbolTable[name]; !exists {
 		key := "CompilerCtx.UpdateStructSymbol.StructDoesNotExist"
 
@@ -110,6 +114,10 @@ func (ctx CompilerCtx) UpdateStructSymbol(name string, value *StructSymbolTableE
 }
 
 func (ctx CompilerCtx) AddStructSymbol(name string, value *StructSymbolTableEntry) error {
+	if ctx.parent != nil {
+		return ctx.parent.AddStructSymbol(name, value)
+	}
+
 	if _, exists := ctx.structSymbolTable[name]; exists {
 		key := "CompilerCtx.AddStructSymbol.StructAlreadyExist"
 
@@ -165,6 +173,10 @@ func (ctx CompilerCtx) FindArraySymbol(name string) (error, *ArraySymbolTableEnt
 }
 
 func (ctx CompilerCtx) AddFuncSymbol(name string, value *llvm.Type, meta *ast.FuncDeclStatement) error {
+	if ctx.parent != nil {
+		return ctx.parent.AddFuncSymbol(name, value, meta)
+	}
+
 	if _, exists := ctx.funcSymbolTable[name]; exists {
 		key := "CompilerCtx.AddFuncSymbol.AlreadyExisits"
 
