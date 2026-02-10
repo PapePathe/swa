@@ -10,6 +10,12 @@ before:
     - go mod tidy
    # - ./test.sh
 
+checksum:
+  name_template: "checksums.txt"
+
+docker_digest:
+  name_template: "digests.txt"
+
 builds:
   - env:
       - CGO_ENABLED=1
