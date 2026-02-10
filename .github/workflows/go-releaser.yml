@@ -30,6 +30,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     name: Release (${{ matrix.name }})
+    env:
+      CGO_ENABLED: 1
+      GOFLAGS: -tags=llvm19
     permissions:
       contents: write
     steps:
@@ -89,8 +92,8 @@ jobs:
         run: |
           choco install llvm --version=19.1.0 -y --allow-downgrade --force
           "C:/Program Files/LLVM/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          "CC=C:/Program Files/LLVM/bin/clang.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "CXX=C:/Program Files/LLVM/bin/clang++.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "CC=clang" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "CXX=clang++" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Fix dubious ownership
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -102,10 +105,11 @@ jobs:
           export PATH=$PATH:$(go env GOPATH)/bin
           cd lang
           if command -v llvm-config >/dev/null 2>&1; then
-            export CGO_CFLAGS="$(llvm-config --cflags | sed 's/\\/\//g')"
-            export CGO_CPPFLAGS="$(llvm-config --cppflags | sed 's/\\/\//g')"
-            export CGO_CXXFLAGS="$(llvm-config --cxxflags | sed 's/\\/\//g')"
-            export CGO_LDFLAGS="$(llvm-config --ldflags --libs all --system-libs | sed 's/\\/\//g')"
+            INCDIR=$(llvm-config --includedir)
+            export CGO_CFLAGS="-I$INCDIR $(llvm-config --cflags | sed 's/\\/\//g')"
+            export CGO_CPPFLAGS="-I$INCDIR $(llvm-config --cppflags | sed 's/\\/\//g')"
+            export CGO_CXXFLAGS="-I$INCDIR $(llvm-config --cxxflags | sed 's/\\/\//g')"
+            export CGO_LDFLAGS="-L$(llvm-config --libdir) $(llvm-config --ldflags --libs all --system-libs | sed 's/\\/\//g')"
           fi
           goreleaser build --snapshot --clean --single-target
         env:
