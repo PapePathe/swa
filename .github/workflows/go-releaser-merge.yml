@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+  attestations: write
+  id-token: write
+
 jobs:
   merge:
     runs-on: ubuntu-latest
