@@ -6,6 +6,7 @@ on:
 permissions:
   contents: write
   attestations: write
+  id-token: write
 
 jobs:
   goreleaser:
