@@ -1,0 +1,4 @@
+lakk:wolof;
+
+struct Point { x: int, y: int, }
+dencukaay p : Point = Point{x:0, y:0};

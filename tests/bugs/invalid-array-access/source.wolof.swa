@@ -1,0 +1,12 @@
+laak:wolof;
+
+structure Person {
+  age: lëmm,
+}
+
+tambali() lëmm {
+  dencukaay p: Person = Person{age: 25};
+  wanel("%d", p.age[0]);
+  deloko 0;
+}
+

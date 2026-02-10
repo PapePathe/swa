@@ -1,0 +1,15 @@
+laak:wolof;
+
+structure Data { arr: [3]lëmm, }
+
+tambali() lëmm {
+  dencukaay d1: Data = Data{ arr: [3]lëmm{1, 2, 3} };
+  dencukaay d2: Data = d1;
+
+  d2.arr[0] = 999;
+
+  wanel("%d", d2.arr[0]);
+
+  deloko 0;
+}
+

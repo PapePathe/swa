@@ -28,6 +28,28 @@ func TestFunctions(t *testing.T) {
 
 			req.AssertCompileAndExecute()
 		})
+
+		t.Run("french", func(t *testing.T) {
+			t.Parallel()
+			req := CompileRequest{
+				InputPath:               "./functions/error.french.swa",
+				ExpectedExecutionOutput: "Division by zero erreur (dividend is zero)\nNo division erreur",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("soussou", func(t *testing.T) {
+			t.Parallel()
+			req := CompileRequest{
+				InputPath:               "./functions/error.soussou.swa",
+				ExpectedExecutionOutput: "Division by zero error (dividend is zero)\nNo division error",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
 	})
 
 	t.Run("Declare external function", func(t *testing.T) {

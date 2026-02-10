@@ -1,0 +1,15 @@
+laak:wolof;
+
+structure Point {
+    x : decimal,
+}
+
+tambali () lëmm {
+  dencukaay p : Point = Point{x: 10.25};
+
+  wanel("program interrupted by early return");
+  deloko 0 sude(p.x == 10.25);
+  wanel("program not interrupted by early return");
+
+  deloko 0; 
+}
