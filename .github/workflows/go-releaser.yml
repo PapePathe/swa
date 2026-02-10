@@ -40,7 +40,7 @@ jobs:
           elif [ -f /etc/arch-release ]; then
             pacman -Sy --noconfirm clang llvm go git base-devel pkgconf
           elif [ -f /etc/alpine-release ]; then
-            apk add clang19-dev llvm19-dev go git build-base pkgconfig
+            apk add bash clang19-dev llvm19-dev go git build-base pkgconfig
             ln -s /usr/bin/llvm-config19 /usr/bin/llvm-config
             ln -s /usr/bin/clang-19 /usr/bin/clang
             ln -s /usr/bin/clang++-19 /usr/bin/clang++
