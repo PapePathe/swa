@@ -8,24 +8,50 @@ permissions:
 
 jobs:
   goreleaser:
-    container:
-      image: ghcr.io/papepathe/swa-base-container-builder:master
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
     steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v5
-      -
-        name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
-        continue-on-error: true
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          workdir: ./lang
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Install LLVM (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-19 llvm-19 lld-19
+
+      - name: Install LLVM (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install llvm@19
+          echo "CC=$(brew --prefix llvm@19)/bin/clang" >> $GITHUB_ENV
+          echo "CXX=$(brew --prefix llvm@19)/bin/clang++" >> $GITHUB_ENV
+
+      - name: Install LLVM (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install llvm --version=19.1.0 -y
+          echo "CC=C:\Program Files\LLVM\bin\clang.exe" >> $GITHUB_ENV
+          echo "CXX=C:\Program Files\LLVM\bin\clang++.exe" >> $GITHUB_ENV
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
           distribution: goreleaser
           version: '~> v2'
-          args: release --clean --snapshot
+          workdir: ./lang
+          args: release --clean --split
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CGO_ENABLED: 1
