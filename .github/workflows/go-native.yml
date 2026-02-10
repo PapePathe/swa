@@ -1,13 +1,11 @@
-name: goreleaser
-
+name: Go (Native Matrix)
 on:
+  push:
+    branches: ["master"]
   pull_request:
-
-permissions:
-  contents: write
-
+    branches: ["master"]
 jobs:
-  goreleaser:
+  build:
     strategy:
       matrix:
         include:
@@ -28,9 +26,7 @@ jobs:
             name: Alpine Linux
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
-    name: Release (${{ matrix.name }})
-    permissions:
-      contents: write
+    name: Build & Test (${{ matrix.name }})
     steps:
       - name: Install dependencies (Linux Containers)
         if: matrix.container != ''
@@ -43,10 +39,7 @@ jobs:
             apk add clang19 llvm19 go git build-base
           fi
 
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
       - name: Set up Go (Native Runners)
         if: matrix.container == ''
@@ -74,13 +67,20 @@ jobs:
           echo "CC=C:\Program Files\LLVM\bin\clang.exe" >> $GITHUB_ENV
           echo "CXX=C:\Program Files\LLVM\bin\clang++.exe" >> $GITHUB_ENV
 
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          distribution: goreleaser
-          version: '~> v2'
-          workdir: ./lang
-          args: release --clean --split
+      - name: Build
+        working-directory: lang
+        run: go build -v -o ../tests/swa
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CGO_ENABLED: 1
+
+      - name: Test
+        working-directory: lang
+        run: go test -v -coverprofile=coverage.txt ./...
+        env:
+          CGO_ENABLED: 1
+
+      - name: Integration Tests
+        working-directory: tests
+        run: go test ./...
+        env:
           CGO_ENABLED: 1
