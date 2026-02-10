@@ -2,7 +2,7 @@ khuien:soussou;
 
 sodé() konti {
   kouicé a: konti = 42;
-  kouicé b: decimal = 3.14;
+  kouicé b: desimali = 3.14;
   kouicé c: sèbèli = "hello";
 
   masen("Modern print: ", a, " ", b, " ", c, "\n");

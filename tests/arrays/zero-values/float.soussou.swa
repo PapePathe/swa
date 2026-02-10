@@ -1,7 +1,7 @@
 khuien:soussou;
 
 sodé() konti {
-  kouicé j : [3]decimal;
+  kouicé j : [3]desimali;
   masen("- [3]float with zero value\n");
   masen("%.2f %.2f %.2f\n\n", j[1], j[1], j[2]);
 

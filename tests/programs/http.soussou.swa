@@ -76,7 +76,7 @@ kouicé JSON_TYPE_OBJECT: konti = 5;
 fokhi JSONValue {
   type: konti,
   bool_value: konti,
-  number_value: decimal,
+  number_value: desimali,
   string_value: sèbèli,
   array_items: [20]JSONValue,
   array_size: konti,
@@ -173,17 +173,17 @@ wali string_to_int(str: sèbèli) konti {
   gbilen result;
 }
 
-wali float_to_string(num: decimal) sèbèli {
+wali float_to_string(num: desimali) sèbèli {
   // Simple float to string conversion
   kouicé int_part: konti = num;
-  kouicé frac_part: decimal = num - int_part;
+  kouicé frac_part: desimali = num - int_part;
   
   kouicé int_str: sèbèli = int_to_string(int_part);
   
   xa (frac_part == 0.0) {
     gbilen int_str;
   } xamuara {
-    // Convert fraction part (2 decimal places)
+    // Convert fraction part (2 desimali places)
     kouicé frac_int: konti = frac_part * 100.0;
     kouicé frac_str: sèbèli = int_to_string(frac_int);
     
@@ -1605,7 +1605,7 @@ sodé() konti {
   kouicé int_str: sèbèli = int_to_string(test_int);
   masen("Integer to string: ", test_int, " -> \"", int_str, "\"");
   
-  kouicé test_float: decimal = 123.456;
+  kouicé test_float: desimali = 123.456;
   kouicé float_str: sèbèli = float_to_string(test_float);
   masen("Float to string: ", test_float, " -> \"", float_str, "\"");
   

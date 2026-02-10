@@ -1,7 +1,7 @@
 khuien:soussou;
 
 kouicé NAME : sèbèli = "Swahili";
-kouicé PI : decimal = 3.14;
+kouicé PI : desimali = 3.14;
 kouicé SPEED_OF_LIGHT: konti = 300000;
 
 sodé() konti {

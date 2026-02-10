@@ -1,11 +1,11 @@
 khuien:soussou;
 
-wali multiply(first : decimal, last: decimal) konti {
+wali multiply(first : desimali, last: desimali) konti {
   gbilen first * last;
 }
 
 sodé() konti {
-  kouicé m : decimal = 0.0;
+  kouicé m : desimali = 0.0;
   m = multiply(10.02, 5.05);
   gbilen 0; 
 }

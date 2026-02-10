@@ -2,7 +2,7 @@ khuien:soussou;
 
 fokhi Person {
   Age:     konti,
-  Height:  decimal,
+  Height:  desimali,
   Name:    sèbèli,
 }
 
@@ -20,7 +20,7 @@ wali changeNameOfCopy(person: Person) sèbèli {
   gbilen person.Name;
 }
 
-wali changHeightOfCopy(person: Person) decimal {
+wali changHeightOfCopy(person: Person) desimali {
   person.Height= 1.80;
 
   gbilen person.Height;
@@ -29,7 +29,7 @@ wali changHeightOfCopy(person: Person) decimal {
 sodé() konti {
   kouicé p : Person = Person{ Age: 0, Height: 0.0, Name: "Pathe", };
   kouicé myAge : konti = changeAgeOfCopy(p);
-  kouicé myHeight : decimal = changHeightOfCopy(p);
+  kouicé myHeight : desimali = changHeightOfCopy(p);
   kouicé myName: sèbèli = changeNameOfCopy(p);
  
   masen("age: %d, age of copy: %d\n", p.Age, myAge);

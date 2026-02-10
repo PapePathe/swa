@@ -1,7 +1,7 @@
 khuien:soussou;
 
 sodé() konti {
-  kouicé idx : decimal;
+  kouicé idx : desimali;
   masen("zero value: %f ", idx);
 
   idx = 100.0;

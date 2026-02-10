@@ -1,9 +1,9 @@
 khuien:soussou;
 
 sodé() konti {
-  kouicé a: decimal = 10.5;
-  kouicé b: decimal = 5.5;
-  kouicé sum: decimal = a + b;
+  kouicé a: desimali = 10.5;
+  kouicé b: desimali = 5.5;
+  kouicé sum: desimali = a + b;
 
   xa(sum == 16.0) {
     masen("%s", "ok");

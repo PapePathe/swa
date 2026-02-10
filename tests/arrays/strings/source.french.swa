@@ -1,10 +1,10 @@
 dialecte:français;
 
-demarrer() entier{
-  variable tableau : [3]chaine = [3]chaine{"abc", "efg", "ijk"};
+demarrer() entier {
+  variable array : [3]chaine= [3]chaine{"abc", "efg", "ijk"};
   afficher(
     "valeurs dans le tableau: (%s),(%s),(%s)",
-    tableau[0], tableau[1], tableau[2]
+    array[0], array[1], array[2]
   );
 
   retourner 0;

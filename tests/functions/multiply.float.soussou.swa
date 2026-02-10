@@ -1,11 +1,11 @@
 khuien:soussou;
 
-wali multiplication(premierArgument : decimal, secondArgument: decimal) decimal {
+wali multiplication(premierArgument : desimali, secondArgument: desimali) desimali {
   gbilen premierArgument * secondArgument;
 }
 
 sodé() konti {
-  kouicé m : decimal = 0.0;
+  kouicé m : desimali = 0.0;
   m = multiplication(10.02, 5.05);
   masen("10.02, 5.05 = %f", m);
   gbilen 0; 

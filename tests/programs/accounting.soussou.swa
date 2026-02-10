@@ -11,50 +11,50 @@ fokhi Address {
 fokhi Transaction {
     Id: konti,
     Description: sèbèli,
-    Amount: decimal,
+    Amount: desimali,
     Category: konti,    // 1: Revenue, 2: OPEX, 3: CAPEX, 4: Payroll
 }
 
 fokhi FixedAsset {
     Description: sèbèli,
-    InitialCost: decimal,
+    InitialCost: desimali,
     PurchaseQuarter: konti,
     UsefulLifeQuarters: konti,
 }
 
 fokhi BusinessState {
     Name: sèbèli,
-    BankBalance: decimal,
-    MonthlySaaSRevenue: decimal,
-    MonthlyPayroll: decimal,
-    GrowthRate: decimal,
+    BankBalance: desimali,
+    MonthlySaaSRevenue: desimali,
+    MonthlyPayroll: desimali,
+    GrowthRate: desimali,
     Location: Address,
 }
 
 fokhi AllHandsReport {
-    TotalRevenue: decimal,
-    TotalExpenses: decimal,
-    NetIncome: decimal,
-    Depreciation: decimal,
+    TotalRevenue: desimali,
+    TotalExpenses: desimali,
+    NetIncome: desimali,
+    Depreciation: desimali,
 }
 
 fokhi BalanceSheet {
-    Cash: decimal,
-    AssetBookValue: decimal,
-    Equity: decimal,
+    Cash: desimali,
+    AssetBookValue: desimali,
+    Equity: desimali,
 }
 
 fokhi CashFlow {
-    OperatingCash: decimal,
-    NetChange: decimal,
-    Closing: decimal,
+    OperatingCash: desimali,
+    NetChange: desimali,
+    Closing: desimali,
 }
 
 // ---------------------------------------------------------
 // 2. CORE ACCOUNTING CALCULATIONS
 // ---------------------------------------------------------
 
-wali calculateDepreciation(asset: FixedAsset, currentQ: konti) decimal {
+wali calculateDepreciation(asset: FixedAsset, currentQ: konti) desimali {
     xa (currentQ < asset.PurchaseQuarter) { 
         gbilen 0.0; 
     }
@@ -66,12 +66,12 @@ wali calculateDepreciation(asset: FixedAsset, currentQ: konti) decimal {
     gbilen asset.InitialCost / asset.UsefulLifeQuarters;
 }
 
-wali calculateBookValue(asset: FixedAsset, currentQ: konti) decimal {
+wali calculateBookValue(asset: FixedAsset, currentQ: konti) desimali {
     kouicé quartersOwned: konti = currentQ - asset.PurchaseQuarter;
     xa (quartersOwned <= 0) { gbilen asset.InitialCost; }
     
-    kouicé depPerQ: decimal = asset.InitialCost / asset.UsefulLifeQuarters;
-    kouicé accumulated: decimal = depPerQ * quartersOwned;
+    kouicé depPerQ: desimali = asset.InitialCost / asset.UsefulLifeQuarters;
+    kouicé accumulated: desimali = depPerQ * quartersOwned;
     
     xa (accumulated >= asset.InitialCost) { gbilen 0.0; }
     gbilen asset.InitialCost - accumulated;
@@ -83,11 +83,11 @@ wali calculateBookValue(asset: FixedAsset, currentQ: konti) decimal {
 
 wali runQuarter(rep: *AllHandsReport, state: *BusinessState, assets: [2]FixedAsset, qNum: konti) konti {
     // 3 months of activity
-    kouicé rev: decimal = state.MonthlySaaSRevenue * 3.0;
-    kouicé opex: decimal = state.MonthlyPayroll * 3.0;
+    kouicé rev: desimali = state.MonthlySaaSRevenue * 3.0;
+    kouicé opex: desimali = state.MonthlyPayroll * 3.0;
     
     // Calculate non-cash depreciation
-    kouicé totalDep: decimal = 0.0;
+    kouicé totalDep: desimali = 0.0;
     kouicé i: konti = 0;
     be (i < 2) {
         totalDep = totalDep + calculateDepreciation(assets[i], qNum);
@@ -108,7 +108,7 @@ wali runQuarter(rep: *AllHandsReport, state: *BusinessState, assets: [2]FixedAss
 
 wali generateStatements(state: BusinessState, report: AllHandsReport, assets: [2]FixedAsset, qNum: konti) konti {
     // 1. Balance Sheet Audit
-    kouicé bookVal: decimal = 0.0;
+    kouicé bookVal: desimali = 0.0;
     kouicé i: konti = 0;
     be (i < 2) {
         bookVal = bookVal + calculateBookValue(assets[i], qNum);
@@ -161,8 +161,8 @@ sodé() konti {
         FixedAsset{Description: "Fleet", InitialCost: 80000.0, PurchaseQuarter: 2, UsefulLifeQuarters: 16},
     };
 
-    kouicé annualRevenue: decimal = 0.0;
-    kouicé annualNet: decimal = 0.0;
+    kouicé annualRevenue: desimali = 0.0;
+    kouicé annualNet: desimali = 0.0;
 
     // Run Fiscal Year Simulation
     kouicé q: konti = 1;

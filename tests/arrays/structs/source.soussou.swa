@@ -3,7 +3,7 @@ khuien:soussou;
 sodé() konti {
   fokhi Ingenieur{
     Age:            konti,
-    Taille:         decimal,
+    Taille:         desimali,
     Nom:            sèbèli,
     StackTechnique: sèbèli,
   }

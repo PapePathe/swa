@@ -5,17 +5,17 @@ khuien:soussou;
 // ---------------------------------------------------------
 
 fokhi Dimensions {
-    Length: decimal,
-    Width: decimal,
-    Height: decimal,
+    Length: desimali,
+    Width: desimali,
+    Height: desimali,
 }
 
 fokhi Item {
     SKU: sèbèli,
-    Weight: decimal,
+    Weight: desimali,
     Dim: Dimensions,
     Quantity: konti,
-    Price: decimal,
+    Price: desimali,
 }
 
 fokhi Bin {
@@ -32,13 +32,13 @@ fokhi Aisle {
 fokhi Warehouse {
     Location: sèbèli,
     Aisles: [3]Aisle,
-    Capacity: decimal,
+    Capacity: desimali,
 }
 
 fokhi Truck {
     ID: konti,
-    MaxWeight: decimal,
-    CurrentWeight: decimal,
+    MaxWeight: desimali,
+    CurrentWeight: desimali,
     IsFull: konti,
 }
 
@@ -46,15 +46,15 @@ fokhi Truck {
 // CALCULATION HELPERS
 // ---------------------------------------------------------
 
-wali calculateVolume(d: Dimensions) decimal {
+wali calculateVolume(d: Dimensions) desimali {
     gbilen d.Length * d.Width * d.Height;
 }
 
-wali calculateShippingCost(weight: decimal, distance: konti, priority: konti) decimal {
+wali calculateShippingCost(weight: desimali, distance: konti, priority: konti) desimali {
     // Math Coercion: float * int * int
-    kouicé base: decimal = weight * 0.5;
-    kouicé distCharge: decimal = distance * 0.15;
-    kouicé priorityMultiplier: decimal = 1.0;
+    kouicé base: desimali = weight * 0.5;
+    kouicé distCharge: desimali = distance * 0.15;
+    kouicé priorityMultiplier: desimali = 1.0;
     
     xa (priority == 1) {
         priorityMultiplier = 1.5;
@@ -155,7 +155,7 @@ sodé() konti {
 
     // 4. Inventory Audit Logic
     masen("--- INVENTORY AUDIT ---\n");
-    kouicé totalValue: decimal = 0.0;
+    kouicé totalValue: desimali = 0.0;
     kouicé i: konti = 0;
     be (i < 3) {
         kouicé j: konti = 0;
@@ -182,7 +182,7 @@ sodé() konti {
     loadTruck(deliveryTruck, myWarehouse.Aisles[1].Bins[5].Items[0]);
 
     // 6. Calculate Route Costs
-    kouicé shippingFee: decimal = calculateShippingCost(deliveryTruck.CurrentWeight, 250, 1);
+    kouicé shippingFee: desimali = calculateShippingCost(deliveryTruck.CurrentWeight, 250, 1);
     masen("Shipment Cost for 250km (Priority): $%.2f\n", shippingFee);
 
     masen("=== SYSTEM SHUTDOWN ===");

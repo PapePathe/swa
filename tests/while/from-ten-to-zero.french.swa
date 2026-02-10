@@ -2,7 +2,7 @@ dialecte:français;
 
 demarrer() entier {
   variable x : entier = 10;
-  tantque(x > 0) {
+  tantque (x > 0) {
     afficher("%d ", x);
 
     x = x - 1;

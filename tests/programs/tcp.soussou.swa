@@ -59,7 +59,7 @@ fokhi ConnectionManager {
 
 fokhi Person {
   Age: konti,
-  Height: decimal,
+  Height: desimali,
   Name: sèbèli,
 }
 

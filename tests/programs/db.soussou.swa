@@ -8,7 +8,7 @@ fokhi QueryOptimizerStats {
     TotalQueries: konti,
     CacheHits: konti,
     CacheMisses: konti,
-    AvgPlanningTime: decimal,
+    AvgPlanningTime: desimali,
     PlansGenerated: konti,
 }
 
@@ -25,16 +25,16 @@ fokhi CachedQueryPlan {
     Plan: QueryPlan,
     LastUsed: konti,
     UseCount: konti,
-    AvgExecutionTime: decimal,
+    AvgExecutionTime: desimali,
 }
 
 fokhi CostModel {
-    CpuCostPerRow: decimal,
-    IoCostPerPage: decimal,
-    MemoryCostPerKb: decimal,
-    NetworkCostPerKb: decimal,
-    RandomIoCost: decimal,
-    SequentialIoCost: decimal,
+    CpuCostPerRow: desimali,
+    IoCostPerPage: desimali,
+    MemoryCostPerKb: desimali,
+    NetworkCostPerKb: desimali,
+    RandomIoCost: desimali,
+    SequentialIoCost: desimali,
 }
 
 fokhi Statistics {
@@ -56,8 +56,8 @@ fokhi Histogram {
 fokhi Correlation {
     Column1: sèbèli,
     Column2: sèbèli,
-    CorrelationCoefficient: decimal,
-    Covariance: decimal,
+    CorrelationCoefficient: desimali,
+    Covariance: desimali,
 }
 
 // ========================
@@ -72,14 +72,14 @@ fokhi JoinNode {
     Condition: *JoinCondition,
     ConditionCount: konti,
     EstimatedRows: konti,
-    EstimatedCost: decimal,
+    EstimatedCost: desimali,
 }
 
 fokhi JoinCondition {
     LeftColumn: sèbèli,
     RightColumn: sèbèli,
     Operator: sèbèli,
-    Selectivity: decimal,
+    Selectivity: desimali,
 }
 
 // Nested Loop Join
@@ -647,8 +647,8 @@ wali refreshMaterializedView(view: MaterializedView, incremental: bool) {
 // ========================
 
 fokhi GeoPoint {
-    Latitude: decimal,
-    Longitude: decimal,
+    Latitude: desimali,
+    Longitude: desimali,
     SRID: konti,  // Spatial Reference System Identifier
 }
 
@@ -740,7 +740,7 @@ fokhi Posting {
     Positions: *konti,
     PositionCount: konti,
     TermFrequency: konti,
-    Weight: decimal,
+    Weight: desimali,
 }
 
 fokhi PositionalIndex {
@@ -787,12 +787,12 @@ wali rankDocuments(postings: *Posting, termCount: konti) *DocumentScore {
     be (i < termCount) {
         kouicé posting: Posting = postings[i];
         kouicé df: konti = posting.DocumentFrequency;
-        kouicé idf: decimal = log(totalDocuments / (df + 1));
+        kouicé idf: desimali = log(totalDocuments / (df + 1));
         
         kouicé j: konti = 0;
         be (j < posting.PostingCount) {
             kouicé tf: konti = posting.Postings[j].TermFrequency;
-            kouicé tfidf: decimal = tf * idf;
+            kouicé tfidf: desimali = tf * idf;
             
             // Add to document score
             kouicé docId: konti = posting.Postings[j].DocumentId;
@@ -1201,15 +1201,15 @@ wali restoreDatabase(backup: Backup, targetTime: konti) bool {
 // ========================
 
 fokhi PerformanceMetrics {
-    QueriesPerSecond: decimal,
-    TransactionsPerSecond: decimal,
-    AverageQueryLatency: decimal,
-    CacheHitRate: decimal,
-    BufferPoolHitRate: decimal,
-    LockWaitTime: decimal,
-    DeadlockRate: decimal,
-    DiskIOPs: decimal,
-    NetworkThroughput: decimal,
+    QueriesPerSecond: desimali,
+    TransactionsPerSecond: desimali,
+    AverageQueryLatency: desimali,
+    CacheHitRate: desimali,
+    BufferPoolHitRate: desimali,
+    LockWaitTime: desimali,
+    DeadlockRate: desimali,
+    DiskIOPs: desimali,
+    NetworkThroughput: desimali,
     MemoryUsage: kont64,
     ConnectionCount: konti,
 }
@@ -1217,7 +1217,7 @@ fokhi PerformanceMetrics {
 fokhi QueryMetrics {
     QueryId: konti,
     QueryText: sèbèli,
-    ExecutionTime: decimal,
+    ExecutionTime: desimali,
     RowsReturned: konti,
     RowsExamined: konti,
     SortOperations: konti,
@@ -1240,8 +1240,8 @@ fokhi Monitor {
 fokhi Alert {
     Type: konti,  // 1: WARNING, 2: CRITICAL, 3: INFO
     Message: sèbèli,
-    Threshold: decimal,
-    CurrentValue: decimal,
+    Threshold: desimali,
+    CurrentValue: desimali,
     TriggeredAt: konti,
     Acknowledged: bool,
 }
@@ -1314,7 +1314,7 @@ fokhi QueryNode {
     ChildCount: konti,
     DataSource: sèbèli,
     EstimatedRows: konti,
-    EstimatedCost: decimal,
+    EstimatedCost: desimali,
 }
 
 fokhi DataLocation {
@@ -1361,7 +1361,7 @@ fokhi MLModel {
     Parameters: *ModelParameter,
     ParameterCount: konti,
     TrainingDataQuery: sèbèli,
-    Accuracy: decimal,
+    Accuracy: desimali,
     LastTrained: konti,
     ModelData: *konti,
     ModelSize: konti,
@@ -1369,7 +1369,7 @@ fokhi MLModel {
 
 fokhi ModelParameter {
     Name: sèbèli,
-    Value: decimal,
+    Value: desimali,
     Type: sèbèli,
 }
 
@@ -1377,8 +1377,8 @@ fokhi Prediction {
     RowId: konti,
     ActualValue: konti,
     PredictedValue: konti,
-    Confidence: decimal,
-    Features: *decimal,
+    Confidence: desimali,
+    Features: *desimali,
     FeatureCount: konti,
 }
 
@@ -1387,7 +1387,7 @@ wali trainModel(model: MLModel, trainingQuery: sèbèli) MLModel {
     kouicé trainingData: QueryResult = executeQuery(trainingQuery);
     
     // Extract features and labels
-    kouicé features: *decimal = extractFeatures(trainingData);
+    kouicé features: *desimali = extractFeatures(trainingData);
     kouicé labels: *konti = extractLabels(trainingData);
     
     // Train model (simplified)
@@ -1409,8 +1409,8 @@ wali predictWithModel(model: MLModel, data: QueryResult) *Prediction {
     
     kouicé i: konti = 0;
     be (i < data.RowCount) {
-        kouicé features: *decimal = extractRowFeatures(data.Data[i]);
-        kouicé prediction: decimal = makePrediction(model, features);
+        kouicé features: *desimali = extractRowFeatures(data.Data[i]);
+        kouicé prediction: desimali = makePrediction(model, features);
         
         predictions[i] = Prediction{
             RowId: data.Data[i].RowId,
@@ -1587,7 +1587,7 @@ sodé() konti {
         ColumnDef{Name: "dept_id", Type: "int", PrimaryKey: true, NotNull: true, Indexed: false, Cardinality: 0, MinValue: 0, MaxValue: 0},
         ColumnDef{Name: "dept_name", Type: "string", PrimaryKey: false, NotNull: true, Indexed: true, Cardinality: 5, MinValue: 0, MaxValue: 0},
         ColumnDef{Name: "manager_id", Type: "int", PrimaryKey: false, NotNull: false, Indexed: true, Cardinality: 0, MinValue: 0, MaxValue: 0},
-        ColumnDef{Name: "budget", Type: "decimal", PrimaryKey: false, NotNull: true, Indexed: false, Cardinality: 0, MinValue: 0, MaxValue: 0},
+        ColumnDef{Name: "budget", Type: "desimali", PrimaryKey: false, NotNull: true, Indexed: false, Cardinality: 0, MinValue: 0, MaxValue: 0},
         ColumnDef{Name: "location", Type: "string", PrimaryKey: false, NotNull: true, Indexed: false, Cardinality: 0, MinValue: 0, MaxValue: 0},
         ColumnDef{Name: "created_date", Type: "date", PrimaryKey: false, NotNull: true, Indexed: true, Cardinality: 0, MinValue: 0, MaxValue: 0}
     };
@@ -1601,7 +1601,7 @@ sodé() konti {
         ColumnDef{Name: "project_id", Type: "int", PrimaryKey: true, NotNull: true, Indexed: false, Cardinality: 0, MinValue: 0, MaxValue: 0},
         ColumnDef{Name: "project_name", Type: "string", PrimaryKey: false, NotNull: true, Indexed: true, Cardinality: 0, MinValue: 0, MaxValue: 0},
         ColumnDef{Name: "department_id", Type: "int", PrimaryKey: false, NotNull: true, Indexed: true, Cardinality: 0, MinValue: 0, MaxValue: 0},
-        ColumnDef{Name: "budget", Type: "decimal", PrimaryKey: false, NotNull: true, Indexed: false, Cardinality: 0, MinValue: 0, MaxValue: 0},
+        ColumnDef{Name: "budget", Type: "desimali", PrimaryKey: false, NotNull: true, Indexed: false, Cardinality: 0, MinValue: 0, MaxValue: 0},
         ColumnDef{Name: "start_date", Type: "date", PrimaryKey: false, NotNull: true, Indexed: true, Cardinality: 0, MinValue: 0, MaxValue: 0},
         ColumnDef{Name: "end_date", Type: "date", PrimaryKey: false, NotNull: false, Indexed: true, Cardinality: 0, MinValue: 0, MaxValue: 0},
         ColumnDef{Name: "metadata", Type: "json", PrimaryKey: false, NotNull: false, Indexed: false, Cardinality: 0, MinValue: 0, MaxValue: 0}
@@ -1616,7 +1616,7 @@ sodé() konti {
         ColumnDef{Name: "time_id", Type: "uuid", PrimaryKey: true, NotNull: true, Indexed: false, Cardinality: 0, MinValue: 0, MaxValue: 0},
         ColumnDef{Name: "emp_id", Type: "int", PrimaryKey: false, NotNull: true, Indexed: true, Cardinality: 0, MinValue: 0, MaxValue: 0},
         ColumnDef{Name: "project_id", Type: "int", PrimaryKey: false, NotNull: true, Indexed: true, Cardinality: 0, MinValue: 0, MaxValue: 0},
-        ColumnDef{Name: "hours", Type: "decimal", PrimaryKey: false, NotNull: true, Indexed: false, Cardinality: 0, MinValue: 0, MaxValue: 0},
+        ColumnDef{Name: "hours", Type: "desimali", PrimaryKey: false, NotNull: true, Indexed: false, Cardinality: 0, MinValue: 0, MaxValue: 0},
         ColumnDef{Name: "date", Type: "date", PrimaryKey: false, NotNull: true, Indexed: true, Cardinality: 0, MinValue: 0, MaxValue: 0},
         ColumnDef{Name: "description", Type: "string", PrimaryKey: false, NotNull: false, Indexed: false, Cardinality: 0, MinValue: 0, MaxValue: 0}
     };
@@ -1792,7 +1792,7 @@ sodé() konti {
         "give_department_raise",
         []Parameter{
          Parameter{Name: "dept_id", Type: "int", Direction: 1, DefaultValue: 0},
-         Parameter{Name: "percent", Type: "decimal", Direction: 1, DefaultValue: 0},
+         Parameter{Name: "percent", Type: "desimali", Direction: 1, DefaultValue: 0},
          Parameter{Name: "employees_updated", Type: "int", Direction: 2, DefaultValue: 0}},
         3,
         "int",

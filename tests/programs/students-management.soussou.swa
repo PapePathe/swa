@@ -10,10 +10,10 @@ fokhi Address {
 }
 
 fokhi Grades {
-    Math: decimal,
-    Science: decimal,
-    History: decimal,
-    Average: decimal,
+    Math: desimali,
+    Science: desimali,
+    History: desimali,
+    Average: desimali,
 }
 
 fokhi Student {
@@ -34,9 +34,9 @@ fokhi Classroom {
 // UTILITY FUNCTIONS
 // ---------------------------------------------------------
 
-wali calculateAverage(m: decimal, s: decimal, h: decimal) decimal {
+wali calculateAverage(m: desimali, s: desimali, h: desimali) desimali {
     // Demonstrates binary expression refactor with float promotion
-    kouicé sum: decimal = m + s + h;
+    kouicé sum: desimali = m + s + h;
     gbilen sum / 3.0;
 }
 
@@ -54,9 +54,9 @@ wali printGrades(g: Grades) konti {
 // CORE LOGIC
 // ---------------------------------------------------------
 
-wali initializeStudent(id: konti, name: sèbèli, streetNum: konti, streetName: sèbèli, m: decimal, s: decimal, h: decimal) Student {
+wali initializeStudent(id: konti, name: sèbèli, streetNum: konti, streetName: sèbèli, m: desimali, s: desimali, h: desimali) Student {
     // Demonstrates Nested Struct Initialization & Default Values
-    kouicé avg: decimal = calculateAverage(m, s, h);
+    kouicé avg: desimali = calculateAverage(m, s, h);
     
     gbilen Student{
         Id: id,
@@ -76,7 +76,7 @@ wali initializeStudent(id: konti, name: sèbèli, streetNum: konti, streetName: 
     };
 }
 
-wali updateStudentPerformance(stud: *Student, m: decimal, s: decimal, h: decimal) konti {
+wali updateStudentPerformance(stud: *Student, m: desimali, s: desimali, h: desimali) konti {
     // Demonstrates Pointer Decay and Member Access via Pointer
     stud.Performance.Math = m;
     stud.Performance.Science = s;
@@ -127,7 +127,7 @@ sodé() konti {
     }
 
     // 5. Statistics Calculation (Binary Expression Casting)
-    kouicé classSum: decimal = 0.0;
+    kouicé classSum: desimali = 0.0;
     kouicé k: konti = 0;
     be (k < myClass.TotalStudents) {
         classSum = classSum + myClass.Students[k].Performance.Average;
@@ -135,7 +135,7 @@ sodé() konti {
     }
 
     // Demonstrating int/float coercion in print
-    kouicé classAvg: decimal = classSum / myClass.TotalStudents;
+    kouicé classAvg: desimali = classSum / myClass.TotalStudents;
     masen("---");
     masen("Class Average Score: %.2f", classAvg);
 

@@ -25,7 +25,7 @@ khuien:soussou;
  // ------------------------------------
  // Core function implementing O(log(m+n)) Binary Search
  // ------------------------------------
- wali findMedianSortedArrays(nums1: [2]konti, nums2: [4]konti, m: konti, n: konti) decimal {
+ wali findMedianSortedArrays(nums1: [2]konti, nums2: [4]konti, m: konti, n: konti) desimali {
    // We assume m <= n, ensuring binary search is on the smaller array (nums1).
    // If m > n, a swap is required, but SWA does not support generics/pointer swaps easily.
    // The caller must ensure the shorter array is passed as nums1.
@@ -43,7 +43,7 @@ khuien:soussou;
    kouicé partitionX : konti = 0;
    kouicé partitionY : konti = 0;
    
-   kouicé result_median : decimal = 0.0;
+   kouicé result_median : desimali = 0.0;
    
    be (low <= high) {
      // 1. Determine partition points using Binary Search
@@ -99,7 +99,7 @@ khuien:soussou;
            kouicé minRight : konti = getMinInt(minRightX, minRightY);
            
            // Must perform addition and division using float arithmetic
-           kouicé temp_sum : decimal = maxLeft + minRight;
+           kouicé temp_sum : desimali = maxLeft + minRight;
            result_median = temp_sum / 2.0;
            gbilen result_median;
          }
@@ -121,7 +121,7 @@ khuien:soussou;
  // MAIN EXECUTION
  // ------------------------------------
  sodé() konti {
-   kouicé result : decimal = 0.0;
+   kouicé result : desimali = 0.0;
    
    // Example 2: nums1 = [1, 2], nums2 = [3, 4, 5, 6] -> Merged: [1, 2, 3, 4, 5, 6]. Median = (3 + 4) / 2 = 3.5
    kouicé arr1_a: [2]konti = [2]konti{ 1, 2 };

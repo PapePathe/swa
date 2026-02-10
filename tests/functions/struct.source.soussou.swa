@@ -2,7 +2,7 @@ khuien:soussou;
 
 fokhi Person {
   Age:     konti,
-  Height:  decimal,
+  Height:  desimali,
   Name:    sèbèli,
 }
 
@@ -20,7 +20,7 @@ wali changeName(person: *Person) sèbèli {
   gbilen person.Name;
 }
 
-wali changHeight(person: *Person) decimal {
+wali changHeight(person: *Person) desimali {
   person.Height= 1.80;
 
   gbilen person.Height;
@@ -29,7 +29,7 @@ wali changHeight(person: *Person) decimal {
 sodé() konti {
   kouicé p : Person = Person{ Age: 0, Height: 0.0, Name: "Pathe", };
   kouicé myAge : konti = changeAge(p);
-  kouicé myHeight : decimal = changHeight(p);
+  kouicé myHeight : desimali = changHeight(p);
   kouicé myName: sèbèli = changeName(p);
  
   masen("age: %d, height: %.2f, name: %s", myAge, myHeight, myName);

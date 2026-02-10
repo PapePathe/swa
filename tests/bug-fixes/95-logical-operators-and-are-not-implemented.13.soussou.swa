@@ -2,7 +2,7 @@ khuien:soussou;
 
 sodé() konti {
   kouicé a: konti = 5;
-  kouicé x: decimal = 2.5;
+  kouicé x: desimali = 2.5;
   
   xa (a > 3 && x == 2.5 || 1 == 1) {
     masen("a > 3 && x == 2.5 || 1 == 1 evaluates to true");

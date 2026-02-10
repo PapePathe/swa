@@ -5,43 +5,43 @@ khuien:soussou;
 
 fokhi Currency {
     Code: sèbèli,
-    CurrentRate: decimal,    // Rate relative to USD
-    Volatility: decimal,     // 0.0 to 1.0
-    InterestRate: decimal,
+    CurrentRate: desimali,    // Rate relative to USD
+    Volatility: desimali,     // 0.0 to 1.0
+    InterestRate: desimali,
 }
 
 fokhi Exposure {
     CurrencyCode: sèbèli,
-    Amount: decimal,         // Amount in local currency
+    Amount: desimali,         // Amount in local currency
     RiskLevel: konti,        // 1 (Low) to 5 (High)
 }
 
 fokhi HedgeStrategy {
     Name: sèbèli,
-    Efficiency: decimal,     // How much of the risk is covered
-    CostBasis: decimal,      // Operational cost
+    Efficiency: desimali,     // How much of the risk is covered
+    CostBasis: desimali,      // Operational cost
 }
 
 fokhi Portfolio {
     Owner: sèbèli,
     Exposures: [4]Exposure,
     Count: konti,
-    TotalValueUSD: decimal,
+    TotalValueUSD: desimali,
 }
 
 // ---------------------------------------------------------
 // STRATEGY CALCULATIONS
 // ---------------------------------------------------------
 
-wali calculateForwardHedge(amount: decimal, rate: decimal, efficiency: decimal) decimal {
+wali calculateForwardHedge(amount: desimali, rate: desimali, efficiency: desimali) desimali {
     // Math Coercion Test: float * float * float
     gbilen (amount * rate) * efficiency;
 }
 
-wali calculateOptionHedge(amount: decimal, rate: decimal, vol: decimal) decimal {
+wali calculateOptionHedge(amount: desimali, rate: desimali, vol: desimali) desimali {
     // Complex Math: Uses volatility to discount the hedge value
-    kouicé baseValue: decimal = amount * rate;
-    kouicé discount: decimal = 1.0 - (vol * 0.5);
+    kouicé baseValue: desimali = amount * rate;
+    kouicé discount: desimali = 1.0 - (vol * 0.5);
     gbilen baseValue * discount;
 }
 
@@ -71,8 +71,8 @@ wali processPortfolio(p: *Portfolio, market: [3]Currency) konti {
         kouicé exp: Exposure = p.Exposures[i];
         kouicé curr: *Currency = findCurrency(exp.CurrencyCode, market);
         
-        kouicé rawValue: decimal = exp.Amount * curr.CurrentRate;
-        kouicé hedgedValue: decimal = 0.0;
+        kouicé rawValue: desimali = exp.Amount * curr.CurrentRate;
+        kouicé hedgedValue: desimali = 0.0;
 
         // Dynamic Strategy Selection
         xa (curr.Volatility > 0.15 || exp.RiskLevel > 3) {

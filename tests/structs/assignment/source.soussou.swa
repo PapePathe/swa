@@ -3,7 +3,7 @@ khuien:soussou;
 sodé() konti {
 	fokhi Vec {
 		x: konti,
-		y: decimal,
+		y: desimali,
 	}
 	kouicé v:Vec = Vec{x: 0, y: 0.0};
 	v.x = 100;

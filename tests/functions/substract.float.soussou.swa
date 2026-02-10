@@ -1,11 +1,11 @@
 khuien:soussou;
 
-wali soustraction(premierArgument : decimal, secondArgument: decimal) decimal {
+wali soustraction(premierArgument : desimali, secondArgument: desimali) desimali {
   gbilen premierArgument - secondArgument;
 }
 
 sodé() konti {
-  kouicé m : decimal = 0.0;
+  kouicé m : desimali = 0.0;
   m = soustraction(10.5, 5.25);
   masen("10.5 - 5.25 = %.2f", m);
   gbilen 0; 

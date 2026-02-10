@@ -1,7 +1,7 @@
 khuien:soussou;
 
 fokhi Dimension {
-  Length: decimal,
+  Length: desimali,
   Height: konti,
 }
 

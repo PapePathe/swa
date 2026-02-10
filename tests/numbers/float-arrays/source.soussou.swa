@@ -1,7 +1,7 @@
 khuien:soussou;
 
 sodé() konti {
-  kouicé numbers: [3]decimal = [3]decimal{1.1, 2.2, 3.3};
+  kouicé numbers: [3]desimali = [3]desimali{1.1, 2.2, 3.3};
 
   xa(numbers[0] == 1.1) {
     masen("%s", "ok");

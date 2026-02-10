@@ -1,8 +1,8 @@
 khuien:soussou;
 
 fokhi Dimensions {
-  Length: decimal,
-  Width:  decimal,
+  Length: desimali,
+  Width:  desimali,
   Height: konti,
   Name:   sèbèli,
 }

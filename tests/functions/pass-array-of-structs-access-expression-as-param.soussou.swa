@@ -1,18 +1,18 @@
 khuien:soussou;
 
-wali add(first: decimal, last: decimal) decimal {
+wali add(first: desimali, last: desimali) desimali {
   gbilen first + last;
 }
 
 fokhi Float{
-  v: decimal,
+  v: desimali,
 }
 
 sodé () konti {
   kouicé p : [1]Float= [1]Float{
     Float{v: 10.25},
   };
-  kouicé res : decimal = add(p[0].v, 4.75);
+  kouicé res : desimali = add(p[0].v, 4.75);
   masen("10.25 + 4.75 = %.2f", res);
   gbilen 0; 
 }

@@ -1,11 +1,11 @@
 khuien:soussou;
 
 fokhi Float {
-    x: decimal,
+    x: desimali,
 }
 
 sodé () konti {
-  kouicé res : decimal;
+  kouicé res : desimali;
   res = Float{x:1.0};
   gbilen 0; 
 }
