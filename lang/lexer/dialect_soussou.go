@@ -28,7 +28,7 @@ func (m Soussou) Reserved() map[string]TokenKind {
 		"masen":    Print,
 		"gbilen":   Return,
 		"fokhi":    Struct,
-		"decimal":  TypeFloat,
+		"desimali": TypeFloat,
 		"konti":    TypeInt,
 		"kont64":   TypeInt64,
 		"sèbèli":   TypeString,
