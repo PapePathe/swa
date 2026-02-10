@@ -16,12 +16,20 @@ jobs:
             name: macOS
           - os: windows-latest
             name: Windows
-          - os: ubuntu-latest
-            container: fedora:latest
-            name: Fedora (RPM)
-          - os: ubuntu-latest
-            container: archlinux:latest
-            name: Arch Linux
+# TODO: Add Fedora back when we figure out the llvm19 issue
+#     - os: ubuntu-latest
+#       container: fedora:latest
+#       name: Fedora (RPM)
+# TODO: Add Arch Linux back when we figure out the llvm19 issue
+# /github/home/go/pkg/mod/tinygo.org/x/go-llvm@v0.0.0-20250119132755-9dca92dfb4f9/ir.go:931:52: could not determine what C.LLVMConstMul refers to
+#   /github/home/go/pkg/mod/tinygo.org/x/go-llvm@v0.0.0-20250119132755-9dca92dfb4f9/ir.go:932:52: could not determine what C.LLVMConstNSWMul refers to
+# /github/home/go/pkg/mod/tinygo.org/x/go-llvm@v0.0.0-20250119132755-9dca92dfb4f9/ir.go:933:52: could not determine what C.LLVMConstNUWMul refers to
+# /github/home/go/pkg/mod/tinygo.org/x/go-llvm@v0.0.0-20250119132755-9dca92dfb4f9/ir.go:352:38: could not determine what C.LLVMLandingPadCatch refers to
+# /github/home/go/pkg/mod/tinygo.org/x/go-llvm@v0.0.0-20250119132755-9dca92dfb4f9/ir.go:79:22: could not determine what C.LLVMLandingPadClauseTy refers to
+# /github/home/go/pkg/mod/tinygo.org/x/go-llvm@v0.0.0-20250119132755-9dca92dfb4f9/ir.go:353:38: could not determine what C.LLVMLandingPadFilter refers to
+#  - os: ubuntu-latest
+#    container: archlinux:latest
+#    name: Arch Linux
           - os: ubuntu-latest
             container: alpine:latest
             name: Alpine Linux
