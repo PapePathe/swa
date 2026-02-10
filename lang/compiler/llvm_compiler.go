@@ -106,6 +106,7 @@ func (c *LLVMCompiler) Run() error {
 	if c.req.Target.OperatingSystem != "darwin" {
 		linkArgs = append(linkArgs, "-no-pie")
 	}
+
 	linkCmd := exec.Command(clang, linkArgs...)
 	linkCmd.Stdout = os.Stdout
 	linkCmd.Stderr = os.Stderr
