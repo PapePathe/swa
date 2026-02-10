@@ -20,6 +20,7 @@ func (g *LLVMGenerator) VisitErrorExpression(node *ast.ErrorExpression) error {
 			Address:      lastres.Value,
 			DeclaredType: ast.ErrorType{},
 		},
+		SwaType: ast.ErrorType{},
 	}
 
 	g.setLastResult(res)

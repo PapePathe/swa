@@ -71,4 +71,24 @@ func TestPrint(t *testing.T) {
 			req.AssertCompileAndExecute()
 		})
 	})
+
+	t.Run("modern print", func(t *testing.T) {
+		t.Parallel()
+
+		NewSuccessfulCompileRequest(
+			t,
+			"./print/modern_print.swa",
+			"Modern print: 42 3.140000 hello\n423.140000hello\n",
+		)
+	})
+
+	t.Run("expanded print", func(t *testing.T) {
+		t.Parallel()
+
+		NewSuccessfulCompileRequest(
+			t,
+			"./print/expanded_print.swa",
+			"Struct member: 50\nNested member: 50\nArray of structs: 2\nArray access: 20\nFunction call: 100\nBinary expr: 30 1\nError type: runtime error\nPrefix expr: -10\nZero value: 0\n",
+		)
+	})
 }

@@ -47,13 +47,13 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 
 		addr := g.Ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, baseValue, propIndex, "")
 		propType := varDef.Ref.PropertyTypes[propIndex]
+		swatype := varDef.Ref.Metadata.Types[propIndex]
 		result := &CompilerResult{
 			Value:                  &addr,
 			SymbolTableEntry:       varDef,
 			StuctPropertyValueType: &propType,
+			SwaType:                swatype,
 		}
-
-		swatype := result.SymbolTableEntry.Ref.Metadata.Types[propIndex]
 
 		if propType.TypeKind() == llvm.StructTypeKind {
 			prop, _ := varDef.Ref.Embeds[propName]
@@ -93,6 +93,7 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 			Value:                  &addr,
 			SymbolTableEntry:       lastresult.SymbolTableEntry,
 			StuctPropertyValueType: &propType,
+			SwaType:                lastresult.SymbolTableEntry.Ref.Metadata.Types[propIndex],
 		}
 
 		if propType.TypeKind() == llvm.StructTypeKind {
@@ -128,14 +129,14 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 		}
 
 		propType := result.SymbolTableEntry.Ref.PropertyTypes[propIndex]
+		swatype := result.SymbolTableEntry.Ref.Metadata.Types[propIndex]
 
 		finalresult := &CompilerResult{
 			Value:                  &addr,
 			SymbolTableEntry:       result.SymbolTableEntry,
 			StuctPropertyValueType: &propType,
+			SwaType:                swatype,
 		}
-
-		swatype := result.SymbolTableEntry.Ref.Metadata.Types[propIndex]
 
 		if propType.TypeKind() == llvm.StructTypeKind {
 			sEntry, ok := result.SymbolTableEntry.Ref.Embeds[prop.Value]
