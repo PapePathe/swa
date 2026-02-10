@@ -10,6 +10,7 @@ type PrefixExpression struct {
 	Operator        lexer.Token
 	RightExpression Expression
 	Tokens          []lexer.Token
+	SwaType         Type
 }
 
 var _ Expression = (*PrefixExpression)(nil)
@@ -27,5 +28,5 @@ func (expr PrefixExpression) TokenStream() []lexer.Token {
 }
 
 func (expr PrefixExpression) VisitedSwaType() Type {
-	panic("VisitedSwaType not implemented for PrefixExpression")
+	return expr.SwaType
 }
