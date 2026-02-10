@@ -58,25 +58,59 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 			return g.Ctx.Dialect.Error(key, i+1)
 		}
 
+		param := funcVal.Params()[i]
+		paramType := param.Type()
+
 		g.Debugf("Symbol Table entry: %+v", val.SymbolTableEntry)
 		g.Debugf("array symbol Table entry: %+v", val.ArraySymbolTableEntry)
 
+		// TODO this should be moved to the type checking pass
+		argType := val.Value.Type()
+		if val.SymbolTableEntry != nil && val.SymbolTableEntry.Ref != nil {
+			if val.StuctPropertyValueType != nil {
+				argType = *val.StuctPropertyValueType
+			} else {
+				argType = val.SymbolTableEntry.Ref.LLVMType
+			}
+		}
+
+		if val.ArraySymbolTableEntry != nil {
+			argType = val.ArraySymbolTableEntry.UnderlyingType
+
+			if argType.TypeKind() == llvm.StructTypeKind {
+				if val.StuctPropertyValueType == nil {
+					key := "LLVMGenerator.VisitFunctionCall.StructPropertyValueTypeIsNil"
+
+					return g.Ctx.Dialect.Error(key)
+				}
+
+				argType = *val.StuctPropertyValueType
+			}
+		}
+
+		if argType != paramType {
+			key := "LLVMGenerator.VisitFunctionCall.UnexpectedArgumentType"
+			err := g.Ctx.Dialect.Error(key, g.formatLLVMType(paramType), g.formatLLVMType(argType))
+
+			if paramType.TypeKind() == llvm.IntegerTypeKind && argType.TypeKind() == llvm.PointerTypeKind {
+				return err
+			}
+
+			if (argType.TypeKind() == llvm.StructTypeKind && paramType.TypeKind() == llvm.PointerTypeKind) ||
+				(argType.TypeKind() == llvm.ArrayTypeKind && paramType.TypeKind() == llvm.PointerTypeKind) {
+			} else {
+				return err
+			}
+		}
+
 		switch arg.(type) {
-		case *ast.MemberExpression:
-			load := g.Ctx.Builder.CreateLoad(*val.StuctPropertyValueType, *val.Value, "")
-			args = append(args, load)
-
-		case *ast.ArrayAccessExpression:
-			load := g.Ctx.Builder.CreateLoad(val.ArraySymbolTableEntry.UnderlyingType, *val.Value, "")
-			args = append(args, load)
-
-		case *ast.ArrayOfStructsAccessExpression:
-			load := g.Ctx.Builder.CreateLoad(*val.StuctPropertyValueType, *val.Value, "")
+		case *ast.MemberExpression, *ast.ArrayAccessExpression,
+			*ast.ArrayOfStructsAccessExpression:
+			load := g.Ctx.Builder.CreateLoad(argType, *val.Value, "")
 			args = append(args, load)
 
 		case *ast.SymbolExpression:
-			expectedtype := funcType.meta.Args[i].ArgType
-			if _, ok := expectedtype.(ast.SymbolType); ok {
+			if val.SymbolTableEntry.Ref != nil {
 				alloca := g.Ctx.Builder.CreateAlloca(val.SymbolTableEntry.Ref.LLVMType, "")
 				g.Ctx.Builder.CreateStore(*val.Value, alloca)
 				args = append(args, alloca)
@@ -84,13 +118,7 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 				break
 			}
 
-			if _, ok := expectedtype.(ast.PointerType); ok {
-				args = append(args, *val.SymbolTableEntry.Address)
-
-				break
-			}
-
-			if _, ok := expectedtype.(ast.ArrayType); ok {
+			if _, ok := val.SymbolTableEntry.DeclaredType.(ast.ArrayType); ok {
 				args = append(args, *val.SymbolTableEntry.Address)
 
 				break

@@ -140,7 +140,8 @@ func (g *LLVMGenerator) extractType(ctx *CompilerCtx, t ast.Type) (error, extrac
 		}
 
 		etyp := extractedType{
-			typ:    compiledType.Type,
+			// TODO: need to dinstinguish between passing a struct as value and as a pointer
+			typ:    llvm.PointerType(compiledType.Type, 0),
 			sEntry: entry,
 		}
 
