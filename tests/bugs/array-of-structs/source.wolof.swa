@@ -1,0 +1,9 @@
+laak:wolof;
+
+structure Point { x: lëmm, y: lëmm, }
+structure Polygon { points: [3]Point, }
+
+tambali() lëmm {
+  deloko 0;
+}
+

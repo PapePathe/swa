@@ -1,0 +1,9 @@
+BlockStatement
+└── MainStatement
+    └── BlockStatement
+        ├── VarDeclarationStatement (Name: res, Constant: false)
+        │   ├── Type: Number
+        │   └── ZeroExpression
+        │       └── Type: Number
+        └── ReturnStatement
+            └── NumberExpression (0)

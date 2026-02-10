@@ -1,0 +1,38 @@
+{
+   "BlockStatement": [
+     {
+       "MainProGram": {
+         "Body": {
+           "BlockStatement": [
+             {
+               "VarDeclarationStatement": {
+                 "ExplicitType": {
+                   "NumberType": "Number"
+                 },
+                 "IsConstant": false,
+                 "Name": "res",
+                 "Value": {
+                   "ZeroExpression": "Number"
+                 }
+               }
+             },
+             {
+               "ReturnStatement": {
+                 "Value": 0,
+                 "Tokens": [
+                   {
+                     "Value": "0",
+                     "Name": "",
+                     "Line": 6,
+                     "Column": 13
+                   }
+                 ],
+                 "SwaType": null
+               }
+             }
+           ]
+         }
+       }
+     }
+   ]
+ }

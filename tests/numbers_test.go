@@ -43,18 +43,80 @@ func TestNumberZeroValues(t *testing.T) {
 
 			req.AssertCompileAndExecute()
 		})
+
+		t.Run("French", func(t *testing.T) {
+			t.Parallel()
+
+			req := CompileRequest{
+				InputPath:               "./numbers/zero-values/float.french.swa",
+				ExpectedExecutionOutput: "zero value: 0.000000 assigned value: 100.000000",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("Soussou", func(t *testing.T) {
+			t.Parallel()
+
+			req := CompileRequest{
+				InputPath:               "./numbers/zero-values/float.soussou.swa",
+				ExpectedExecutionOutput: "zero value: 0.000000 assigned value: 100.000000",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
 	})
 
 	t.Run("Int", func(t *testing.T) {
-		t.Parallel()
+		t.Run("English", func(t *testing.T) {
+			t.Parallel()
 
-		req := CompileRequest{
-			InputPath:               "./numbers/zero-values/int.swa",
-			ExpectedExecutionOutput: "zero value: 0 assigned value: 100",
-			T:                       t,
-		}
+			req := CompileRequest{
+				InputPath:               "./numbers/zero-values/int.swa",
+				ExpectedExecutionOutput: "zero value: 0 assigned value: 100",
+				T:                       t,
+			}
 
-		req.AssertCompileAndExecute()
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("Wolof", func(t *testing.T) {
+			t.Parallel()
+
+			req := CompileRequest{
+				InputPath:               "./numbers/zero-values/int.wolof.swa",
+				ExpectedExecutionOutput: "zero value: 0 assigned value: 100",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("French", func(t *testing.T) {
+			t.Parallel()
+
+			req := CompileRequest{
+				InputPath:               "./numbers/zero-values/int.french.swa",
+				ExpectedExecutionOutput: "zero value: 0 assigned value: 100",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("Soussou", func(t *testing.T) {
+			t.Parallel()
+
+			req := CompileRequest{
+				InputPath:               "./numbers/zero-values/int.soussou.swa",
+				ExpectedExecutionOutput: "zero value: 0 assigned value: 100",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
 	})
 }
 

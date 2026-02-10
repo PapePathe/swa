@@ -1,0 +1,12 @@
+laak:wolof;
+
+tambali() lëmm {
+  dencukaay idx : lëmm;
+  wanel("zero value: %d ", idx);
+
+  idx = 100;
+  wanel("assigned value: %d", idx);
+
+  deloko 0;
+}
+

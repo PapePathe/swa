@@ -1,0 +1,16 @@
+dialect:english;
+
+structure Data {
+  arr: [3]lëmm,
+}
+
+fonction createData() Data {
+  deloko Data{
+    arr: [3]lëmm{1, 2, 3},
+  };
+}
+
+tambali() lëmm {
+  dencukaay d: Data = createData();
+  deloko 0;
+}

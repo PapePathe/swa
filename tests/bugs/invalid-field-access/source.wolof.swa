@@ -1,0 +1,8 @@
+laak:wolof;
+
+tambali() lëmm {
+  dencukaay i: int = 10;
+  wanel("%d", i.field);
+  deloko 0;
+}
+

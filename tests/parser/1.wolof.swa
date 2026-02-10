@@ -1,0 +1,8 @@
+laak:wolof;
+
+tambali() lëmm {
+  dencukaay res: lëmm = zero(lëmm);
+
+  deloko res;
+}
+
