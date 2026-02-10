@@ -3,21 +3,21 @@ dialecte:français;
 demarrer() entier {
   structure Engineer{
     Age: entier,
-    Height: decimal,
+    Taille: decimal,
     Name: chaine,
     TechStack: chaine,
   }
-
-  variable r1:Engineer = Engineer{
-   Age: 40,
-   Height: 1.80,
-   Name: "Pathe",
-   TechStack: "Ruby, Rust, Go"
+ 
+  variable r1: Engineer = Engineer{
+    Age: 40,
+    Taille: 1.80,
+    Name: "Pathe",
+    TechStack: "Ruby, Rust, Go"
   };
 
   afficher(
-    "Name: (%s), TechStack: (%s), Age: (%d), Height: (%.2f)", 
-    r1.Name, r1.TechStack, r1.Age, r1.Height
+    "Nom: (%s), Stack Technique: (%s), Age: (%d), Taille: (%.2f)", 
+    r1.Name, r1.TechStack, r1.Age, r1.Taille
   );
 
   retourner 0;
