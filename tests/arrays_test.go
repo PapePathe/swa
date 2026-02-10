@@ -17,6 +17,17 @@ func TestArrayOfStructsWithUndefinedPropertyAccess(t *testing.T) {
 
 		assert.Error(t, req.Compile())
 	})
+
+	t.Run("Soussou", func(t *testing.T) {
+		t.Parallel()
+		req := CompileRequest{
+			InputPath:      "./arrays/structs/undefined-property-access.soussou.swa",
+			ExpectedOutput: "se (Name) mu na fokhi Engineer kui\n",
+			T:              t,
+		}
+
+		assert.Error(t, req.Compile())
+	})
 }
 
 func TestArrayOfStructsWithUndefinedPropertyInitialization(t *testing.T) {
@@ -25,6 +36,17 @@ func TestArrayOfStructsWithUndefinedPropertyInitialization(t *testing.T) {
 		req := CompileRequest{
 			InputPath:      "./arrays/structs/undefined-property-initialization.french.swa",
 			ExpectedOutput: "Property with name (Name) does not exist on struct Engineer\n",
+			T:              t,
+		}
+
+		assert.Error(t, req.Compile())
+	})
+
+	t.Run("Soussou", func(t *testing.T) {
+		t.Parallel()
+		req := CompileRequest{
+			InputPath:      "./arrays/structs/undefined-property-initialization.soussou.swa",
+			ExpectedOutput: "Property with name (Name) does not exist on struct Engineer\n", // Best guess based on implementation
 			T:              t,
 		}
 
@@ -64,6 +86,18 @@ func TestArrayOfStructs(t *testing.T) {
 		expected := "(nom: Pathe, age: 40, taille: 1.80, stack: Ruby, Rust, Go) (nom: Lucien, age: 24, taille: 1.81, stack: Typescript, HTML, Css) (nom: Manel, age: 25, taille: 1.82, stack: Typescript, Ruby) (nom: Bintou, age: 28, taille: 1.83, stack: Javascript, Css, HTML) "
 		req := CompileRequest{
 			InputPath:               "./arrays/structs/source.english.swa",
+			ExpectedExecutionOutput: expected,
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+
+	t.Run("Soussou", func(t *testing.T) {
+		t.Parallel()
+		expected := "(nom: Pathe, age: 40, taille: 1.80, technos: Ruby, Rust, Go) (nom: Lucien, age: 24, taille: 1.81, technos: Typescript, HTML, Css) (nom: Manel, age: 25, taille: 1.82, technos: Typescript, Ruby) (nom: Bintou, age: 28, technos: Javascript, Css, HTML)"
+		req := CompileRequest{
+			InputPath:               "./arrays/structs/source.soussou.swa",
 			ExpectedExecutionOutput: expected,
 			T:                       t,
 		}
@@ -118,6 +152,17 @@ func TestArraysInPrintStatement(t *testing.T) {
 
 		req.AssertCompileAndExecute()
 	})
+
+	t.Run("Soussou", func(t *testing.T) {
+		t.Parallel()
+		req := CompileRequest{
+			InputPath:               "./arrays/print/source.soussou.swa",
+			ExpectedExecutionOutput: "Les valeurs dans le tableau sont: 1 2 3 4 5",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
 }
 
 func TestArrays(t *testing.T) {
@@ -135,6 +180,16 @@ func TestArrays(t *testing.T) {
 		t.Parallel()
 		req := CompileRequest{
 			InputPath: "./arrays/ok/source.english.swa",
+			T:         t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+
+	t.Run("Soussou", func(t *testing.T) {
+		t.Parallel()
+		req := CompileRequest{
+			InputPath: "./arrays/ok/source.soussou.swa",
 			T:         t,
 		}
 
@@ -166,6 +221,17 @@ func TestArrayIndexOutOfBounds(t *testing.T) {
 
 		assert.Error(t, req.Compile())
 	})
+
+	t.Run("Soussou", func(t *testing.T) {
+		t.Parallel()
+		req := CompileRequest{
+			InputPath:      "./arrays/out-of-bounds/source.soussou.swa",
+			ExpectedOutput: "Se kui (%!s(int=5)) mu na tableau (tableau) kui\n",
+			T:              t,
+		}
+
+		assert.Error(t, req.Compile())
+	})
 }
 
 func TestArrayAccessWithPrefixExpression(t *testing.T) {
@@ -185,6 +251,17 @@ func TestArrayAccessWithPrefixExpression(t *testing.T) {
 		req := CompileRequest{
 			InputPath:      "./arrays/prefix-expression/source.english.swa",
 			ExpectedOutput: "Only numbers are supported as array index, current: (-4)\n",
+			T:              t,
+		}
+
+		assert.Error(t, req.Compile())
+	})
+
+	t.Run("Soussou", func(t *testing.T) {
+		t.Parallel()
+		req := CompileRequest{
+			InputPath:      "./arrays/prefix-expression/source.soussou.swa",
+			ExpectedOutput: "Konti nan lanné tableau kui, yakosi: (-4)\n",
 			T:              t,
 		}
 

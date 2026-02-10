@@ -475,6 +475,15 @@ func TestBugFixes(t *testing.T) {
 			}
 			req.AssertCompileAndExecute()
 		})
+
+		t.Run("Soussou", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/90-function-calls-with-variables-pass-pointers-instead-of-values.soussou.swa",
+				ExpectedExecutionOutput: "z: 30",
+				T:                       t,
+			}
+			req.AssertCompileAndExecute()
+		})
 	})
 
 	t.Run("94-block-statements-do-not-create-new-scopes-shadowing-fails", func(t *testing.T) {
@@ -491,6 +500,15 @@ func TestBugFixes(t *testing.T) {
 		t.Run("French", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:               "./bug-fixes/94-block-statements-do-not-create-new-scopes-shadowing-fails.french.swa",
+				ExpectedExecutionOutput: "Inner x: 20, Outer x: 10",
+				T:                       t,
+			}
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("Soussou", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./bug-fixes/94-block-statements-do-not-create-new-scopes-shadowing-fails.soussou.swa",
 				ExpectedExecutionOutput: "Inner x: 20, Outer x: 10",
 				T:                       t,
 			}
@@ -513,6 +531,16 @@ func TestBugFixes(t *testing.T) {
 			req := CompileRequest{
 				InputPath:      "./bug-fixes/114-variable-redeclaration-allowed-in-same-scope.french.swa",
 				ExpectedOutput: "variable x is already defined\n",
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+
+		t.Run("Soussou", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      "./bug-fixes/114-variable-redeclaration-allowed-in-same-scope.soussou.swa",
+				ExpectedOutput: "variable x na na yi khorun\n",
 				T:              t,
 			}
 
@@ -545,6 +573,15 @@ func TestBugFixes(t *testing.T) {
 		t.Run("French", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath: "./bug-fixes/116-keyword-regex-patterns-lack-word-boundaries.french.swa",
+				T:         t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("Soussou", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath: "./bug-fixes/116-keyword-regex-patterns-lack-word-boundaries.soussou.swa",
 				T:         t,
 			}
 
