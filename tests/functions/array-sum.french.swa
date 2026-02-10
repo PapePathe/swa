@@ -1,0 +1,36 @@
+dialecte:français;
+
+fonction sum(list: [5]entier) entier {
+  variable ret : entier = 0;
+  variable idx: entier = 0;
+  
+  tantque(idx < 5) {
+    ret = ret + list[idx];
+    idx = idx + 1;
+  }
+
+  retourner ret;
+}
+
+fonction sumf(list: [5]decimal) decimal {
+  variable ret: decimal = 0.0;
+  variable idx: entier = 0;
+  
+  tantque(idx < 5) {
+    ret = ret + list[idx];
+    idx = idx + 1;
+  }
+
+  retourner ret;
+}
+
+demarrer () entier {
+  variable list: [5]entier = [5]entier{ 1, 2, 3, 4 , 5};
+  variable listf: [5]decimal = [5]decimal{ 1.00, 2.000, 3.000, 4.0 , 5.000000};
+  variable sum_of_list: entier = sum(list);
+  variable sum_of_listf: decimal = sumf(listf);
+
+  afficher("sum: %d, sumf: %.2f", sum_of_list, sum_of_listf);
+
+  retourner 0; 
+}

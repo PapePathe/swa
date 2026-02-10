@@ -1,0 +1,9 @@
+dialecte:français;
+
+demarrer() entier {
+  variable k : [3]chaine;
+  afficher("- [3]chaine with zero value\n");
+  afficher("'%s' '%s' '%s'\n\n", k[1], k[1], k[2]);
+
+  retourner 0;
+}

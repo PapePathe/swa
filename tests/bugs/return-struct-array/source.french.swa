@@ -1,0 +1,16 @@
+dialecte:français;
+
+structure Data {
+  arr: [3]entier,
+}
+
+fonction createData() Data {
+  retourner Data{
+    arr: [3]entier{1, 2, 3},
+  };
+}
+
+demarrer() entier {
+  variable d: Data = createData();
+  retourner 0;
+}

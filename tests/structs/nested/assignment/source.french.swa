@@ -1,0 +1,27 @@
+dialecte:français;
+
+structure Address {
+  City: chaine,
+  ZipCode: entier,
+}
+
+structure Person {
+  Name: chaine,
+  Age: entier,
+  HomeAddress: Address,
+}
+
+demarrer() entier {
+  variable addr: Address = Address{ City: "Dakar", ZipCode: 12000 };
+  variable person: Person = Person{ Name: "Pathe", Age: 30, HomeAddress: addr };
+  
+  // Test nested assignment
+  person.HomeAddress.ZipCode = 99999;
+  
+  // Test nested in expression
+  variable code: entier = person.HomeAddress.ZipCode + 1;
+  
+  afficher("City: %s, ZipCode: %d, Code+1: %d", person.HomeAddress.City, person.HomeAddress.ZipCode, code);
+  
+  retourner 0;
+}

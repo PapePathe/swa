@@ -1,0 +1,15 @@
+dialecte:français;
+
+structure Node {
+  id: entier,
+  parent: Node,
+}
+
+demarrer() entier {
+  variable node: Node = Node{id: 2, parent: Node{id: 1}};
+
+  // afficher("id: %d" node.id);
+  afficher("pid: %d" node.parent.id);
+
+  retourner 0;
+}

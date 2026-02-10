@@ -1,0 +1,9 @@
+dialecte:français;
+
+demarrer() entier {
+  variable tableau : [1]Engineer = [1]Engineer{
+    Engineer{ Age: 40, Name: "Pathe",  TechStack: "Ruby, Rust, Go" },
+  };
+
+  retourner 0;
+}

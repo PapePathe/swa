@@ -1,0 +1,9 @@
+dialecte:français;
+
+demarrer() entier {
+  variable i : [3]entier;
+  afficher("- [3]entier with zero value\n");
+  afficher("%d %d %d\n\n", i[0], i[1], i[2]);
+
+  retourner 0;
+}

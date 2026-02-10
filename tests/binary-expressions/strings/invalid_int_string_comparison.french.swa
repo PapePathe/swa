@@ -1,0 +1,12 @@
+dialecte:français;
+
+demarrer() entier {
+    entier i = 5;
+    chaine s = "hello";
+    
+    si (i != s) {
+        afficher("Should not compile");
+    }
+    
+    retourner 0;
+}

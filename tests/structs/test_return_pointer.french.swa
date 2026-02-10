@@ -1,0 +1,21 @@
+dialecte:français;
+
+// Test 7: Returning structure with pointer from function
+structure Data {
+  ptr: *entier,
+  value: entier,
+}
+
+fonction createData() Data {
+  retourner Data{
+    ptr: [3]entier{100, 200, 300},
+    value: 42,
+  };
+}
+
+demarrer() entier {
+  variable d: Data = createData();
+  afficher("ptr[0]=%d ptr[1]=%d ptr[2]=%d value=%d", 
+        d.ptr[0], d.ptr[1], d.ptr[2], d.value);
+  retourner 0;
+}

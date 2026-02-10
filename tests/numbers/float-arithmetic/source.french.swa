@@ -1,0 +1,45 @@
+dialecte:français;
+
+demarrer() entier {
+  variable a: decimal = 10.5;
+  variable b: decimal = 5.5;
+  variable sum: decimal = a + b;
+
+  si(sum == 16.0) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Float addition failed");
+  }
+
+  si(10.5 + 5.5 == 16.0) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Float literal addition failed");
+  }
+
+  si(a > b) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Float greater than failed");
+  }
+
+  si(a >= b) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Float greater than or equal failed");
+  }
+
+  si(b < a) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Float less than failed");
+  }
+
+  si(b <= a) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Float less than or equal failed");
+  }
+
+  retourner 0;
+}

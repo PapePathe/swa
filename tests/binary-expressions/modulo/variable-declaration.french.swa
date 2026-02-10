@@ -1,0 +1,10 @@
+dialecte:français;
+
+demarrer() entier {
+  variable x : entier = 4 % 3;
+  variable y : entier = 4 % 2;
+
+  afficher("x: %d, y: %d", x, y);
+
+  retourner 0;
+}

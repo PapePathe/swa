@@ -1,0 +1,11 @@
+dialecte:français;
+
+demarrer() entier {
+   variable nums : [2]entier = [2]entier{15,30};
+   variable first : entier = nums[0];
+   afficher(
+      "first elem: %d, assigned value: %d", 
+      nums[0], first
+   );
+   retourner 0; 
+}

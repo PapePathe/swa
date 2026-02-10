@@ -1,0 +1,11 @@
+dialecte:français;
+fonction mixed() (entier, decimal) {
+    retourner 1, 2.5;
+}
+demarrer() entier {
+    variable i: entier = 0;
+    variable f: decimal = 0.0;
+    (i, f) = mixed();
+    afficher("i=%d, f=%.1f\n", i, f);
+    retourner 0;
+}

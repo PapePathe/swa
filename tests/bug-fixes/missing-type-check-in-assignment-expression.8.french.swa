@@ -1,0 +1,11 @@
+dialecte:français;
+
+fonction multiply(first : decimal, last: decimal) entier {
+  retourner first * last;
+}
+
+demarrer() entier {
+  variable m : decimal = 0.0;
+  m = multiply(10.02, 5.05);
+  retourner 0; 
+}

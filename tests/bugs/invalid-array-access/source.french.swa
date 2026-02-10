@@ -1,0 +1,11 @@
+dialecte:français;
+
+structure Person {
+  age: entier,
+}
+
+demarrer() entier {
+  variable p: Person = Person{age: 25};
+  afficher("%d", p.age[0]);
+  retourner 0;
+}

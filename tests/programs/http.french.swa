@@ -1,0 +1,1631 @@
+dialecte:français;
+
+// ==================== HTTP CONSTANTS AND STRUCTURES ====================
+
+// HTTP Methods
+variable HTTP_GET: entier = 1;
+variable HTTP_POST: entier = 2;
+variable HTTP_PUT: entier = 3;
+variable HTTP_DELETE: entier = 4;
+variable HTTP_HEAD: entier = 5;
+variable HTTP_OPTIONS: entier = 6;
+variable HTTP_PATCH: entier = 7;
+
+// HTTP Versions
+variable HTTP_VERSION_1_0: entier = 10;
+variable HTTP_VERSION_1_1: entier = 11;
+variable HTTP_VERSION_2_0: entier = 20;
+
+// HTTP Status Codes
+variable HTTP_STATUS_CONTINUE: entier = 100;
+variable HTTP_STATUS_OK: entier = 200;
+variable HTTP_STATUS_CREATED: entier = 201;
+variable HTTP_STATUS_ACCEPTED: entier = 202;
+variable HTTP_STATUS_NO_CONTENT: entier = 204;
+variable HTTP_STATUS_MOVED_PERMANENTLY: entier = 301;
+variable HTTP_STATUS_FOUND: entier = 302;
+variable HTTP_STATUS_BAD_REQUEST: entier = 400;
+variable HTTP_STATUS_UNAUTHORIZED: entier = 401;
+variable HTTP_STATUS_FORBIDDEN: entier = 403;
+variable HTTP_STATUS_NOT_FOUND: entier = 404;
+variable HTTP_STATUS_METHOD_NOT_ALLOWED: entier = 405;
+variable HTTP_STATUS_INTERNAL_SERVER_ERROR: entier = 500;
+variable HTTP_STATUS_NOT_IMPLEMENTED: entier = 501;
+variable HTTP_STATUS_BAD_GATEWAY: entier = 502;
+variable HTTP_STATUS_SERVICE_UNAVAILABLE: entier = 503;
+
+// HTTP Headers
+structure HTTPHeader {
+  name: chaine,
+  value: chaine,
+}
+
+// HTTP Request Structure
+structure HTTPRequest {
+  method: entier,
+  path: chaine,
+  version: entier,
+  headers: [50]HTTPHeader,
+  header_count: entier,
+  body: [4096]entier,
+  body_length: entier,
+  query_params: [20]HTTPHeader,
+  query_param_count: entier,
+}
+
+// HTTP Response Structure
+structure HTTPResponse {
+  version: entier,
+  status_code: entier,
+  status_text: chaine,
+  headers: [50]HTTPHeader,
+  header_count: entier,
+  body: [4096]entier,
+  body_length: entier,
+}
+
+// JSON Value Types
+variable JSON_TYPE_NULL: entier = 0;
+variable JSON_TYPE_BOOL: entier = 1;
+variable JSON_TYPE_NUMBER: entier = 2;
+variable JSON_TYPE_STRING: entier = 3;
+variable JSON_TYPE_ARRAY: entier = 4;
+variable JSON_TYPE_OBJECT: entier = 5;
+
+// JSON Structure
+structure JSONValue {
+  type: entier,
+  bool_value: entier,
+  number_value: decimal,
+  string_value: chaine,
+  array_items: [20]JSONValue,
+  array_size: entier,
+  object_properties: [20]JSONProperty,
+  object_size: entier,
+}
+
+structure JSONProperty {
+  key: chaine,
+  value: JSONValue,
+}
+
+// ==================== UTILITY FUNCTIONS ====================
+
+fonction int_to_string(num: entier) chaine {
+  si (num == 0) {
+    retourner "0";
+  }
+  
+  variable result: chaine = "";
+  variable temp: entier = num;
+  variable is_negative: entier = 0;
+  
+  si (temp < 0) {
+    is_negative = 1;
+    temp = 0 - temp;
+  }
+  
+  variable done: entier = 0;
+  tantque (done == 0) {
+    si (temp == 0) {
+      done = 1;
+    } sinon {
+      variable digit: entier = temp % 10;
+      variable digit_str: chaine = "";
+      si (digit == 0) { digit_str = "0"; }
+      si (digit == 1) { digit_str = "1"; }
+      si (digit == 2) { digit_str = "2"; }
+      si (digit == 3) { digit_str = "3"; }
+      si (digit == 4) { digit_str = "4"; }
+      si (digit == 5) { digit_str = "5"; }
+      si (digit == 6) { digit_str = "6"; }
+      si (digit == 7) { digit_str = "7"; }
+      si (digit == 8) { digit_str = "8"; }
+      si (digit == 9) { digit_str = "9"; }
+      
+      result = digit_str + result;
+      temp = temp / 10;
+    }
+  }
+  
+  si (is_negative == 1) {
+    result = "-" + result;
+  }
+  
+  retourner result;
+}
+
+fonction string_to_int(str: chaine) entier {
+  variable result: entier = 0;
+  variable i: entier = 0;
+  variable is_negative: entier = 0;
+  
+  si (str.length > 0) {
+    si (str[0] == "-") {
+      is_negative = 1;
+      i = 1;
+    }
+  }
+  
+  tantque (i < str.length) {
+    variable ch: chaine = str[i];
+    variable digit: entier = 0;
+    
+    si (ch == "0") { digit = 0; }
+    si (ch == "1") { digit = 1; }
+    si (ch == "2") { digit = 2; }
+    si (ch == "3") { digit = 3; }
+    si (ch == "4") { digit = 4; }
+    si (ch == "5") { digit = 5; }
+    si (ch == "6") { digit = 6; }
+    si (ch == "7") { digit = 7; }
+    si (ch == "8") { digit = 8; }
+    si (ch == "9") { digit = 9; }
+    
+    result = result * 10 + digit;
+    i = i + 1;
+  }
+  
+  si (is_negative == 1) {
+    result = 0 - result;
+  }
+  
+  retourner result;
+}
+
+fonction float_to_string(num: decimal) chaine {
+  // Simple decimal to chaine conversion
+  variable int_part: entier = num;
+  variable frac_part: decimal = num - int_part;
+  
+  variable int_str: chaine = int_to_string(int_part);
+  
+  si (frac_part == 0.0) {
+    retourner int_str;
+  } sinon {
+    // Convert fraction part (2 decimal places)
+    variable frac_int: entier = frac_part * 100.0;
+    variable frac_str: chaine = int_to_string(frac_int);
+    
+    // Ensure 2 digits
+    si (frac_int < 10) {
+      frac_str = "0" + frac_str;
+    }
+    
+    retourner int_str + "." + frac_str;
+  }
+}
+
+fonction ascii_to_char(code: entier) chaine {
+  si (code == 32) { retourner " ";}
+  si (code == 33) { retourner "!";}
+  si (code == 34) { retourner "\"";}
+  si (code == 35) { retourner "#";}
+  si (code == 36) { retourner "$";}
+  si (code == 37) { retourner "%";}
+  si (code == 38) { retourner "&";}
+  si (code == 39) { retourner "'";}
+  si (code == 40) { retourner "(";}
+  si (code == 41) { retourner ")";}
+  si (code == 42) { retourner "*";}
+  si (code == 43) { retourner "+";}
+  si (code == 44) { retourner ",";}
+  si (code == 45) { retourner "-";}
+  si (code == 46) { retourner ".";}
+  si (code == 47) { retourner "/";}
+  si (code == 58) { retourner ":";}
+  si (code == 59) { retourner ";";}
+  si (code == 60) { retourner "<";}
+  si (code == 61) { retourner "=";}
+  si (code == 62) { retourner ">";}
+  si (code == 63) { retourner "?";}
+  si (code == 64) { retourner "@";}
+  si (code == 91) { retourner "[";}
+  si (code == 92) { retourner "\\";}
+  si (code == 93) { retourner "]";}
+  si (code == 94) { retourner "^";}
+  si (code == 95) { retourner "_";}
+  si (code == 96) { retourner "`";}
+  si (code == 123){ retourner "{";}
+  si (code == 124){ retourner "|";}
+  si (code == 125){ retourner "}";}
+  si (code == 126){ retourner "~";}
+  
+  si (code >= 48 && code <= 57) {
+    retourner int_to_string(code - 48);
+  }
+  
+  si (code >= 65 && code <= 90) {
+    variable letter_num: entier = code - 65;
+    si (letter_num == 0) { retourner "A";}
+    si (letter_num == 1) { retourner "B";}
+    si (letter_num == 2) { retourner "C";}
+    si (letter_num == 3) { retourner "D";}
+    si (letter_num == 4) { retourner "E";}
+    si (letter_num == 5) { retourner "F";}
+    si (letter_num == 6) { retourner "G";}
+    si (letter_num == 7) { retourner "H";}
+    si (letter_num == 8) { retourner "I";}
+    si (letter_num == 9) { retourner "J";}
+    si (letter_num == 10){ retourner "K";}
+    si (letter_num == 11){ retourner "L";}
+    si (letter_num == 12){ retourner "M";}
+    si (letter_num == 13){ retourner "N";}
+    si (letter_num == 14){ retourner "O";}
+    si (letter_num == 15){ retourner "P";}
+    si (letter_num == 16){ retourner "Q";}
+    si (letter_num == 17){ retourner "R";}
+    si (letter_num == 18){ retourner "S";}
+    si (letter_num == 19){ retourner "T";}
+    si (letter_num == 20){ retourner "U";}
+    si (letter_num == 21){ retourner "V";}
+    si (letter_num == 22){ retourner "W";}
+    si (letter_num == 23){ retourner "X";}
+    si (letter_num == 24){ retourner "Y";}
+    retourner "Z";
+  }
+  
+  si (code >= 97 && code <= 122) {
+    variable letter_num: entier = code - 97;
+    si (letter_num == 0) { retourner "a";}
+    si (letter_num == 1) { retourner "b";}
+    si (letter_num == 2) { retourner "c";}
+    si (letter_num == 3) { retourner "d";}
+    si (letter_num == 4) { retourner "e";}
+    si (letter_num == 5) { retourner "f";}
+    si (letter_num == 6) { retourner "g";}
+    si (letter_num == 7) { retourner "h";}
+    si (letter_num == 8) { retourner "i";}
+    si (letter_num == 9) { retourner "j";}
+    si (letter_num == 10){ retourner "k";}
+    si (letter_num == 11){ retourner "l";}
+    si (letter_num == 12){ retourner "m";}
+    si (letter_num == 13){ retourner "n";}
+    si (letter_num == 14){ retourner "o";}
+    si (letter_num == 15){ retourner "p";}
+    si (letter_num == 16){ retourner "q";}
+    si (letter_num == 17){ retourner "r";}
+    si (letter_num == 18){ retourner "s";}
+    si (letter_num == 19){ retourner "t";}
+    si (letter_num == 20){ retourner "u";}
+    si (letter_num == 21){ retourner "v";}
+    si (letter_num == 22){ retourner "w";}
+    si (letter_num == 23){ retourner "x";}
+    si (letter_num == 24){ retourner "y";}
+    retourner "z";
+  }
+  
+  retourner "?";
+}
+
+fonction char_to_ascii(ch: chaine) entier {
+  si (ch == " ") { retourner 32;}
+  si (ch == "!") { retourner 33;}
+  si (ch == "\""){ retourner 34;}
+  si (ch == "#") { retourner 35;}
+  si (ch == "$") { retourner 36;}
+  si (ch == "%") { retourner 37;}
+  si (ch == "&") { retourner 38;}
+  si (ch == "'") { retourner 39;}
+  si (ch == "(") { retourner 40;}
+  si (ch == ")") { retourner 41;}
+  si (ch == "*") { retourner 42;}
+  si (ch == "+") { retourner 43;}
+  si (ch == ",") { retourner 44;}
+  si (ch == "-") { retourner 45;}
+  si (ch == ".") { retourner 46;}
+  si (ch == "/") { retourner 47;}
+  si (ch == ":") { retourner 58;}
+  si (ch == ";") { retourner 59;}
+  si (ch == "<") { retourner 60;}
+  si (ch == "=") { retourner 61;}
+  si (ch == ">") { retourner 62;}
+  si (ch == "?") { retourner 63;}
+  si (ch == "@") { retourner 64;}
+  si (ch == "[") { retourner 91;}
+  si (ch == "\\"){ retourner 92;}
+  si (ch == "]") { retourner 93;}
+  si (ch == "^") { retourner 94;}
+  si (ch == "_") { retourner 95;}
+  si (ch == "`") { retourner 96;}
+  si (ch == "{") { retourner 123;}
+  si (ch == "|") { retourner 124;}
+  si (ch == "}") { retourner 125;}
+  si (ch == "~") { retourner 126;}
+  
+  si (ch == "0"){ retourner 48;}
+  si (ch == "1"){ retourner 49;}
+  si (ch == "2"){ retourner 50;}
+  si (ch == "3"){ retourner 51;}
+  si (ch == "4"){ retourner 52;}
+  si (ch == "5"){ retourner 53;}
+  si (ch == "6"){ retourner 54;}
+  si (ch == "7"){ retourner 55;}
+  si (ch == "8"){ retourner 56;}
+  si (ch == "9"){ retourner 57;}
+  si (ch == "A"){ retourner 65;}
+  si (ch == "B"){ retourner 66;}
+  si (ch == "C"){ retourner 67;}
+  si (ch == "D"){ retourner 68;}
+  si (ch == "E"){ retourner 69;}
+  si (ch == "F"){ retourner 70;}
+  si (ch == "G"){ retourner 71;}
+  si (ch == "H"){ retourner 72;}
+  si (ch == "I"){ retourner 73;}
+  si (ch == "J"){ retourner 74;}
+  si (ch == "K"){ retourner 75;}
+  si (ch == "L"){ retourner 76;}
+  si (ch == "M"){ retourner 77;}
+  si (ch == "N"){ retourner 78;}
+  si (ch == "O"){ retourner 79;}
+  si (ch == "P"){ retourner 80;}
+  si (ch == "Q"){ retourner 81;}
+  si (ch == "R"){ retourner 82;}
+  si (ch == "S"){ retourner 83;}
+  si (ch == "T"){ retourner 84;}
+  si (ch == "U"){ retourner 85;}
+  si (ch == "V"){ retourner 86;}
+  si (ch == "W"){ retourner 87;}
+  si (ch == "X"){ retourner 88;}
+  si (ch == "Y"){ retourner 89;}
+  si (ch == "Z"){ retourner 90;}
+  si (ch == "a"){ retourner 97;}
+  si (ch == "b"){ retourner 98;}
+  si (ch == "c"){ retourner 99;}
+  si (ch == "d"){ retourner 100;}
+  si (ch == "e"){ retourner 101;}
+  si (ch == "f"){ retourner 102;}
+  si (ch == "g"){ retourner 103;}
+  si (ch == "h"){ retourner 104;}
+  si (ch == "i"){ retourner 105;}
+  si (ch == "j"){ retourner 106;}
+  si (ch == "k"){ retourner 107;}
+  si (ch == "l"){ retourner 108;}
+  si (ch == "m"){ retourner 109;}
+  si (ch == "n"){ retourner 110;}
+  si (ch == "o"){ retourner 111;}
+  si (ch == "p"){ retourner 112;}
+  si (ch == "q"){ retourner 113;}
+  si (ch == "r"){ retourner 114;}
+  si (ch == "s"){ retourner 115;}
+  si (ch == "t"){ retourner 116;}
+  si (ch == "u"){ retourner 117;}
+  si (ch == "v"){ retourner 118;}
+  si (ch == "w"){ retourner 119;}
+  si (ch == "x"){ retourner 120;}
+  si (ch == "y"){ retourner 121;}
+  si (ch == "z"){ retourner 122;}
+  
+  retourner 63; // "?"
+}
+
+fonction string_to_ascii_array(str: chaine) [4096]entier {
+  variable result: [4096]entier = [4096]entier{0};
+  variable i: entier = 0;
+  variable done: entier = 0;
+  
+  tantque (done == 0) {
+    si (i >= str.length || i >= 4096) {
+      done = 1;
+    } sinon {
+      result[i] = char_to_ascii(str[i]);
+      i = i + 1;
+    }
+  }
+  
+  retourner result;
+}
+
+fonction ascii_array_to_string(data: [4096]entier, length: entier) chaine {
+  variable result: chaine = "";
+  variable i: entier = 0;
+  variable done: entier = 0;
+  
+  tantque (done == 0) {
+    si (i >= length || i >= 4096) {
+      done = 1;
+    } sinon {
+      result = result + ascii_to_char(data[i]);
+      i = i + 1;
+    }
+  }
+  
+  retourner result;
+}
+
+fonction get_http_method_name(method: entier) chaine {
+  si (method == HTTP_GET)    { retourner "GET";}
+  si (method == HTTP_POST)   { retourner "POST";}
+  si (method == HTTP_PUT)    { retourner "PUT";}
+  si (method == HTTP_DELETE) { retourner "DELETE";}
+  si (method == HTTP_HEAD)   { retourner "HEAD";}
+  si (method == HTTP_OPTIONS){ retourner "OPTIONS";}
+  si (method == HTTP_PATCH)  { retourner "PATCH";}
+  retourner "UNKNOWN";
+}
+
+fonction get_http_version_name(version: entier) chaine {
+  si (version == HTTP_VERSION_1_0){ retourner "HTTP/1.0";}
+  si (version == HTTP_VERSION_1_1){ retourner "HTTP/1.1";}
+  si (version == HTTP_VERSION_2_0){ retourner "HTTP/2.0";}
+  retourner "HTTP/UNKNOWN";
+}
+
+fonction get_http_status_text(status_code: entier) chaine {
+  si (status_code == HTTP_STATUS_CONTINUE)             { retourner "Continue"; }
+  si (status_code == HTTP_STATUS_OK)                   { retourner "OK";}
+  si (status_code == HTTP_STATUS_CREATED)              { retourner "Created";}
+  si (status_code == HTTP_STATUS_ACCEPTED)             { retourner "Accepted";}
+  si (status_code == HTTP_STATUS_NO_CONTENT)           { retourner "No Content";}
+  si (status_code == HTTP_STATUS_MOVED_PERMANENTLY)    { retourner "Moved Permanently";}
+  si (status_code == HTTP_STATUS_FOUND)                { retourner "Found";}
+  si (status_code == HTTP_STATUS_BAD_REQUEST)          { retourner "Bad Request";}
+  si (status_code == HTTP_STATUS_UNAUTHORIZED)         { retourner "Unauthorized";}
+  si (status_code == HTTP_STATUS_FORBIDDEN)            { retourner "Forbidden";}
+  si (status_code == HTTP_STATUS_NOT_FOUND)            { retourner "Not Found";}
+  si (status_code == HTTP_STATUS_METHOD_NOT_ALLOWED)   { retourner "Method Not Allowed";}
+  si (status_code == HTTP_STATUS_INTERNAL_SERVER_ERROR){ retourner "Internal Server Error";}
+  si (status_code == HTTP_STATUS_NOT_IMPLEMENTED)      { retourner "Not Implemented";}
+  si (status_code == HTTP_STATUS_BAD_GATEWAY)          { retourner "Bad Gateway";}
+  si (status_code == HTTP_STATUS_SERVICE_UNAVAILABLE)  { retourner "Service Unavailable";}
+  retourner "Unknown Status";
+}
+
+// ==================== HTTP PARSER ====================
+
+fonction parse_http_request(data: [4096]entier, length: entier) HTTPRequest {
+  variable request: HTTPRequest = HTTPRequest{
+    method: 0,
+    path: "",
+    version: 0,
+    headers: [50]HTTPHeader{},
+    header_count: 0,
+    body: [4096]entier{0},
+    body_length: 0,
+    query_params: [20]HTTPHeader{},
+    query_param_count: 0,
+  };
+  
+  variable i: entier = 0;
+  variable parsing_done: entier = 0;
+  variable state: entier = 0; // 0=method, 1=path, 2=version, 3=headers, 4=body
+  
+  variable current_token: chaine = "";
+  variable is_query_param: entier = 0;
+  
+  tantque (parsing_done == 0) {
+    si (i >= length) {
+      parsing_done = 1;
+    } sinon {
+      variable ch_int: entier = data[i];
+      variable ch: chaine = ascii_to_char(ch_int);
+      
+      si (state == 0) {
+        // Parse method
+        si (ch_int == 32) { // Space
+          si (current_token == "GET") {
+            request.method = HTTP_GET;
+          } sinon {
+            si (current_token == "POST") {
+              request.method = HTTP_POST;
+            } sinon {
+              si (current_token == "PUT") {
+                request.method = HTTP_PUT;
+              } sinon {
+                si (current_token == "DELETE") {
+                  request.method = HTTP_DELETE;
+                } sinon {
+                  si (current_token == "HEAD") {
+                    request.method = HTTP_HEAD;
+                  } sinon {
+                    si (current_token == "OPTIONS") {
+                      request.method = HTTP_OPTIONS;
+                    } sinon {
+                      si (current_token == "PATCH") {
+                        request.method = HTTP_PATCH;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          current_token = "";
+          state = 1;
+        } sinon {
+          current_token = current_token + ch;
+        }
+      } sinon {
+        si (state == 1) {
+          // Parse path and query parameters
+          si (ch_int == 32) { // Space
+            request.path = current_token;
+            
+            // Parse query parameters from path
+            variable query_start: entier = 0;
+            variable find_query_done: entier = 0;
+            variable j: entier = 0;
+            
+            tantque (find_query_done == 0) {
+              si (j >= request.path.length) {
+                find_query_done = 1;
+              } sinon {
+                si (request.path[j] == "?") {
+                  query_start = j + 1;
+                  find_query_done = 1;
+                }
+                j = j + 1;
+              }
+            }
+            
+            si (query_start > 0) {
+              variable actual_path: chaine = "";
+              variable k: entier = 0;
+              variable copy_path_done: entier = 0;
+              
+              tantque (copy_path_done == 0) {
+                si (k >= query_start - 1) {
+                  copy_path_done = 1;
+                } sinon {
+                  actual_path = actual_path + request.path[k];
+                  k = k + 1;
+                }
+              }
+              
+              request.path = actual_path;
+              
+              // Parse query chaine
+              variable query_str: chaine = "";
+              variable l: entier = query_start;
+              variable copy_query_done: entier = 0;
+              
+              tantque (copy_query_done == 0) {
+                si (l >= request.path.length) {
+                  copy_query_done = 1;
+                } sinon {
+                  query_str = query_str + request.path[l];
+                  l = l + 1;
+                }
+              }
+              
+              // Parse query parameters
+              variable param_name: chaine = "";
+              variable param_value: chaine = "";
+              variable in_name: entier = 1;
+              variable m: entier = 0;
+              variable parse_params_done: entier = 0;
+              
+              tantque (parse_params_done == 0) {
+                si (m >= query_str.length) {
+                  parse_params_done = 1;
+                  si (param_name != "") {
+                    request.query_params[request.query_param_count] = HTTPHeader{
+                      name: param_name,
+                      value: param_value
+                    };
+                    request.query_param_count = request.query_param_count + 1;
+                  }
+                } sinon {
+                  variable query_ch: chaine = query_str[m];
+                  
+                  si (query_ch == "=") {
+                    in_name = 0;
+                  } sinon {
+                    si (query_ch == "&") {
+                      si (param_name != "") {
+                        request.query_params[request.query_param_count] = HTTPHeader{
+                          name: param_name,
+                          value: param_value
+                        };
+                        request.query_param_count = request.query_param_count + 1;
+                      }
+                      param_name = "";
+                      param_value = "";
+                      in_name = 1;
+                    } sinon {
+                      si (in_name == 1) {
+                        param_name = param_name + query_ch;
+                      } sinon {
+                        param_value = param_value + query_ch;
+                      }
+                    }
+                  }
+                  
+                  m = m + 1;
+                }
+              }
+            }
+            
+            current_token = "";
+            state = 2;
+          } sinon {
+            current_token = current_token + ch;
+          }
+        } sinon {
+          si (state == 2) {
+            // Parse version
+            si (ch_int == 13) { // CR
+              // Check for HTTP version
+              si (current_token == "HTTP/1.0") {
+                request.version = HTTP_VERSION_1_0;
+              } sinon {
+                si (current_token == "HTTP/1.1") {
+                  request.version = HTTP_VERSION_1_1;
+                } sinon {
+                  si (current_token == "HTTP/2.0") {
+                    request.version = HTTP_VERSION_2_0;
+                  }
+                }
+              }
+              current_token = "";
+              i = i + 1; // Skip LF after CR
+              state = 3;
+            } sinon {
+              current_token = current_token + ch;
+            }
+          } sinon {
+            si (state == 3) {
+              // Parse headers
+              si (ch_int == 13) { // CR
+                i = i + 1; // Skip LF
+                
+                si (i < length && data[i] == 13) {
+                  // Double CRLF means end of headers
+                  i = i + 2; // Skip CRLF
+                  state = 4;
+                } sinon {
+                  // Parse header line
+                  variable header_line: chaine = current_token;
+                  current_token = "";
+                  
+                  variable colon_pos: entier = 0;
+                  variable find_colon_done: entier = 0;
+                  variable j: entier = 0;
+                  
+                  tantque (find_colon_done == 0) {
+                    si (j >= header_line.length) {
+                      find_colon_done = 1;
+                    } sinon {
+                      si (header_line[j] == ":") {
+                        colon_pos = j;
+                        find_colon_done = 1;
+                      }
+                      j = j + 1;
+                    }
+                  }
+                  
+                  si (colon_pos > 0) {
+                    variable header_name: chaine = "";
+                    variable header_value: chaine = "";
+                    
+                    variable k: entier = 0;
+                    variable copy_name_done: entier = 0;
+                    
+                    tantque (copy_name_done == 0) {
+                      si (k >= colon_pos) {
+                        copy_name_done = 1;
+                      } sinon {
+                        header_name = header_name + header_line[k];
+                        k = k + 1;
+                      }
+                    }
+                    
+                    // Skip colon and space
+                    variable value_start: entier = colon_pos + 1;
+                    si (value_start < header_line.length && header_line[value_start] == " ") {
+                      value_start = value_start + 1;
+                    }
+                    
+                    variable l: entier = value_start;
+                    variable copy_value_done: entier = 0;
+                    
+                    tantque (copy_value_done == 0) {
+                      si (l >= header_line.length) {
+                        copy_value_done = 1;
+                      } sinon {
+                        header_value = header_value + header_line[l];
+                        l = l + 1;
+                      }
+                    }
+                    
+                    request.headers[request.header_count] = HTTPHeader{
+                      name: header_name,
+                      value: header_value
+                    };
+                    request.header_count = request.header_count + 1;
+                  }
+                }
+              } sinon {
+                current_token = current_token + ch;
+              }
+            } sinon {
+              si (state == 4) {
+                // Parse body
+                variable body_idx: entier = 0;
+                variable copy_body_done: entier = 0;
+                
+                tantque (copy_body_done == 0) {
+                  si (i >= length || body_idx >= 4096) {
+                    copy_body_done = 1;
+                  } sinon {
+                    request.body[body_idx] = data[i];
+                    body_idx = body_idx + 1;
+                    i = i + 1;
+                  }
+                }
+                
+                request.body_length = body_idx;
+                parsing_done = 1;
+              }
+            }
+          }
+        }
+      }
+      
+      i = i + 1;
+    }
+  }
+  
+  retourner request;
+}
+
+fonction create_http_response(version: entier, status_code: entier, body: [4096]entier, body_length: entier) HTTPResponse {
+  variable response: HTTPResponse = HTTPResponse{
+    version: version,
+    status_code: status_code,
+    status_text: get_http_status_text(status_code),
+    headers: [50]HTTPHeader{},
+    header_count: 0,
+    body: body,
+    body_length: body_length,
+  };
+  
+  // Add default headers
+  response.headers[0] = HTTPHeader{
+    name: "Content-Type",
+    value: "text/plain"
+  };
+  response.header_count = response.header_count + 1;
+  
+  response.headers[1] = HTTPHeader{
+    name: "Content-Length",
+    value: int_to_string(body_length)
+  };
+  response.header_count = response.header_count + 1;
+  
+  response.headers[2] = HTTPHeader{
+    name: "Connection",
+    value: "close"
+  };
+  response.header_count = response.header_count + 1;
+  
+  retourner response;
+}
+
+fonction http_response_to_string(response: HTTPResponse) chaine {
+  variable result: chaine = "";
+  
+  // Status line
+  result = result + get_http_version_name(response.version) + " ";
+  result = result + int_to_string(response.status_code) + " ";
+  result = result + response.status_text + "\r\n";
+  
+  // Headers
+  variable i: entier = 0;
+  variable add_headers_done: entier = 0;
+  
+  tantque (add_headers_done == 0) {
+    si (i >= response.header_count) {
+      add_headers_done = 1;
+    } sinon {
+      result = result + response.headers[i].name + ": " + response.headers[i].value + "\r\n";
+      i = i + 1;
+    }
+  }
+  
+  // Empty line
+  result = result + "\r\n";
+  
+  // Body
+  variable body_str: chaine = ascii_array_to_string(response.body, response.body_length);
+  result = result + body_str;
+  
+  retourner result;
+}
+
+// ==================== JSON PARSER ====================
+
+fonction parse_json_string(data: chaine, startval: entier) JSONValue {
+  variable result: JSONValue = JSONValue{
+    type: JSON_TYPE_NULL,
+    bool_value: 0,
+    number_value: 0.0,
+    string_value: "",
+    array_items: [20]JSONValue{},
+    array_size: 0,
+    object_properties: [20]JSONProperty{},
+    object_size: 0,
+  };
+  
+  variable i: entier = startval;
+  variable parsing_done: entier = 0;
+  
+  tantque (parsing_done == 0) {
+    si (i >= data.length) {
+      parsing_done = 1;
+    } sinon {
+      variable ch: chaine = data[i];
+      
+      si (ch == " " || ch == "\t" || ch == "\n" || ch == "\r") {
+        // Skip whitespace
+        i = i + 1;
+      } sinon {
+        si (ch == "n") {
+          // null
+          si (i + 3 < data.length) {
+            si (data[i+1] == "u" && data[i+2] == "l" && data[i+3] == "l") {
+              result.type = JSON_TYPE_NULL;
+              parsing_done = 1;
+            }
+          }
+        } sinon {
+          si (ch == "t") {
+            // vrai
+            si (i + 3 < data.length) {
+              si (data[i+1] == "r" && data[i+2] == "u" && data[i+3] == "e") {
+                result.type = JSON_TYPE_BOOL;
+                result.bool_value = 1;
+                parsing_done = 1;
+              }
+            }
+          } sinon {
+            si (ch == "f") {
+              // faux
+              si (i + 4 < data.length) {
+                si (data[i+1] == "a" && data[i+2] == "l" && data[i+3] == "s" && data[i+4] == "e") {
+                  result.type = JSON_TYPE_BOOL;
+                  result.bool_value = 0;
+                  parsing_done = 1;
+                }
+              }
+            } sinon {
+              si (ch == "\"") {
+                // chaine
+                result.type = JSON_TYPE_STRING;
+                variable str_content: chaine = "";
+                i = i + 1;
+                variable string_done: entier = 0;
+                
+                tantque (string_done == 0) {
+                  si (i >= data.length) {
+                    string_done = 1;
+                  } sinon {
+                    si (data[i] == "\"") {
+                      string_done = 1;
+                      i = i + 1;
+                    } sinon {
+                      str_content = str_content + data[i];
+                      i = i + 1;
+                    }
+                  }
+                }
+                
+                result.string_value = str_content;
+                parsing_done = 1;
+              } sinon {
+                si (ch == "[") {
+                  // array
+                  result.type = JSON_TYPE_ARRAY;
+                  i = i + 1;
+                  variable array_done: entier = 0;
+                  
+                  tantque (array_done == 0) {
+                    si (i >= data.length) {
+                      array_done = 1;
+                    } sinon {
+                      variable array_ch: chaine = data[i];
+                      
+                      si (array_ch == " " || array_ch == "\t" || array_ch == "\n" || array_ch == "\r") {
+                        i = i + 1;
+                      } sinon {
+                        si (array_ch == "]") {
+                          array_done = 1;
+                          i = i + 1;
+                        } sinon {
+                          si (array_ch == ",") {
+                            i = i + 1;
+                          } sinon {
+                            variable item: JSONValue = parse_json_string(data, i);
+                            result.array_items[result.array_size] = item;
+                            result.array_size = result.array_size + 1;
+                            
+                            // Find where parsing ended
+                            variable temp_i: entier = i;
+                            variable find_end_done: entier = 0;
+                            
+                            tantque (find_end_done == 0) {
+                              si (temp_i >= data.length) {
+                                find_end_done = 1;
+                              } sinon {
+                                variable test_value: JSONValue = parse_json_string(data, temp_i);
+                                si (test_value.type != JSON_TYPE_NULL || 
+                                    (temp_i + 3 < data.length && 
+                                     data[temp_i] == "n" && 
+                                     data[temp_i+1] == "u" && 
+                                     data[temp_i+2] == "l" && 
+                                     data[temp_i+3] == "l")) {
+                                  i = temp_i;
+                                  find_end_done = 1;
+                                }
+                                temp_i = temp_i + 1;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  
+                  parsing_done = 1;
+                } sinon {
+                  si (ch == "{") {
+                    // object
+                    result.type = JSON_TYPE_OBJECT;
+                    i = i + 1;
+                    variable object_done: entier = 0;
+                    
+                    tantque (object_done == 0) {
+                      si (i >= data.length) {
+                        object_done = 1;
+                      } sinon {
+                        variable object_ch: chaine = data[i];
+                        
+                        si (object_ch == " " || object_ch == "\t" || object_ch == "\n" || object_ch == "\r") {
+                          i = i + 1;
+                        } sinon {
+                          si (object_ch == "}") {
+                            object_done = 1;
+                            i = i + 1;
+                          } sinon {
+                            si (object_ch == ",") {
+                              i = i + 1;
+                            } sinon {
+                              // Parse key
+                              variable key_value: JSONValue = parse_json_string(data, i);
+                              si (key_value.type == JSON_TYPE_STRING) {
+                                // Skip to colon
+                                variable colon_done: entier = 0;
+                                tantque (colon_done == 0) {
+                                  si (i >= data.length) {
+                                    colon_done = 1;
+                                  } sinon {
+                                    si (data[i] == ":") {
+                                      colon_done = 1;
+                                    }
+                                    i = i + 1;
+                                  }
+                                }
+                                
+                                // Parse value
+                                variable value: JSONValue = parse_json_string(data, i);
+                                
+                                result.object_properties[result.object_size] = JSONProperty{
+                                  key: key_value.string_value,
+                                  value: value
+                                };
+                                result.object_size = result.object_size + 1;
+                                
+                                // Find where parsing ended
+                                variable temp_i: entier = i;
+                                variable find_end_done: entier = 0;
+                                
+                                tantque (find_end_done == 0) {
+                                  si (temp_i >= data.length) {
+                                    find_end_done = 1;
+                                  } sinon {
+                                    variable test_value: JSONValue = parse_json_string(data, temp_i);
+                                    si (test_value.type != JSON_TYPE_NULL || 
+                                        (temp_i + 3 < data.length && 
+                                         data[temp_i] == "n" && 
+                                         data[temp_i+1] == "u" && 
+                                         data[temp_i+2] == "l" && 
+                                         data[temp_i+3] == "l")) {
+                                      i = temp_i;
+                                      find_end_done = 1;
+                                    }
+                                    temp_i = temp_i + 1;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    
+                    parsing_done = 1;
+                  } sinon {
+                    // number
+                    result.type = JSON_TYPE_NUMBER;
+                    variable num_str: chaine = "";
+                    variable number_done: entier = 0;
+                    
+                    tantque (number_done == 0) {
+                      si (i >= data.length) {
+                        number_done = 1;
+                      } sinon {
+                        variable num_ch: chaine = data[i];
+                        
+                        si ((num_ch >= "0" && num_ch <= "9") || num_ch == "." || num_ch == "-") {
+                          num_str = num_str + num_ch;
+                          i = i + 1;
+                        } sinon {
+                          number_done = 1;
+                        }
+                      }
+                    }
+                    
+                    // Simple chaine to decimal conversion
+                    variable is_negative: entier = 0;
+                    variable int_part: entier = 0;
+                    variable frac_part: entier = 0;
+                    variable in_fraction: entier = 0;
+                    variable frac_divisor: entier = 1;
+                    variable j: entier = 0;
+                    
+                    si (num_str.length > 0 && num_str[0] == "-") {
+                      is_negative = 1;
+                      j = 1;
+                    }
+                    
+                    tantque (j < num_str.length) {
+                      variable digit_ch: chaine = num_str[j];
+                      
+                      si (digit_ch == ".") {
+                        in_fraction = 1;
+                      } sinon {
+                        variable digit: entier = 0;
+                        si (digit_ch == "0") { digit = 0; }
+                        si (digit_ch == "1") { digit = 1; }
+                        si (digit_ch == "2") { digit = 2; }
+                        si (digit_ch == "3") { digit = 3; }
+                        si (digit_ch == "4") { digit = 4; }
+                        si (digit_ch == "5") { digit = 5; }
+                        si (digit_ch == "6") { digit = 6; }
+                        si (digit_ch == "7") { digit = 7; }
+                        si (digit_ch == "8") { digit = 8; }
+                        si (digit_ch == "9") { digit = 9; }
+                        
+                        si (in_fraction == 0) {
+                          int_part = int_part * 10 + digit;
+                        } sinon {
+                          frac_part = frac_part * 10 + digit;
+                          frac_divisor = frac_divisor * 10;
+                        }
+                      }
+                      
+                      j = j + 1;
+                    }
+                    
+                    result.number_value = int_part + (frac_part / frac_divisor);
+                    si (is_negative == 1) {
+                      result.number_value = 0.0 - result.number_value;
+                    }
+                    
+                    parsing_done = 1;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  retourner result;
+}
+
+fonction json_value_to_string(value: JSONValue, indent: entier) chaine {
+  variable result: chaine = "";
+  
+  si (value.type == JSON_TYPE_NULL) {
+    result = "null";
+  } sinon {
+    si (value.type == JSON_TYPE_BOOL) {
+      si (value.bool_value == 1) {
+        result = "vrai";
+      } sinon {
+        result = "faux";
+      }
+    } sinon {
+      si (value.type == JSON_TYPE_NUMBER) {
+        result = float_to_string(value.number_value);
+      } sinon {
+        si (value.type == JSON_TYPE_STRING) {
+          result = "\"" + value.string_value + "\"";
+        } sinon {
+          si (value.type == JSON_TYPE_ARRAY) {
+            result = result + "[";
+            
+            variable i: entier = 0;
+            variable array_done: entier = 0;
+            
+            tantque (array_done == 0) {
+              si (i >= value.array_size) {
+                array_done = 1;
+              } sinon {
+                si (i > 0) {
+                  result = result + ", ";
+                }
+                result = result + json_value_to_string(value.array_items[i], indent + 2);
+                i = i + 1;
+              }
+            }
+            
+            result = result + "]";
+          } sinon {
+            si (value.type == JSON_TYPE_OBJECT) {
+              result = result + "{";
+              
+              variable i: entier = 0;
+              variable object_done: entier = 0;
+              
+              tantque (object_done == 0) {
+                si (i >= value.object_size) {
+                  object_done = 1;
+                } sinon {
+                  si (i > 0) {
+                    result = result + ", ";
+                  }
+                  result = result + "\"" + value.object_properties[i].key + "\": ";
+                  result = result + json_value_to_string(value.object_properties[i].value, indent + 2);
+                  i = i + 1;
+                }
+              }
+              
+              result = result + "}";
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  retourner result;
+}
+
+// ==================== HTTP SERVER SIMULATION ====================
+
+fonction handle_http_request(request: HTTPRequest) HTTPResponse {
+  variable response_body: [4096]entier = [4096]entier{0};
+  variable body_length: entier = 0;
+  variable status_code: entier = HTTP_STATUS_OK;
+  
+  // Check path
+  si (request.path == "/") {
+    variable html: chaine = "<html><body><h1>Welcome to HTTP Server</h1><p>Try /api/json or /api/data</p></body></html>";
+    variable html_data: [4096]entier = string_to_ascii_array(html);
+    body_length = html.length;
+    
+    variable i: entier = 0;
+    variable copy_done: entier = 0;
+    
+    tantque (copy_done == 0) {
+      si (i >= body_length) {
+        copy_done = 1;
+      } sinon {
+        response_body[i] = html_data[i];
+        i = i + 1;
+      }
+    }
+    
+    variable response: HTTPResponse = create_http_response(HTTP_VERSION_1_1, status_code, response_body, body_length);
+    response.headers[0].value = "text/html";
+    retourner response;
+  } sinon {
+    si (request.path == "/api/json") {
+      // Create JSON response
+      variable json_obj: JSONValue = JSONValue{
+        type: JSON_TYPE_OBJECT,
+        bool_value: 0,
+        number_value: 0.0,
+        string_value: "",
+        array_items: [20]JSONValue{},
+        array_size: 3,
+        object_properties: [20]JSONProperty{},
+        object_size: 4,
+      };
+      
+      // Add properties
+      json_obj.object_properties[0] = JSONProperty{
+        key: "status",
+        value: JSONValue{type: JSON_TYPE_STRING, string_value: "success", bool_value: 0, number_value: 0.0, 
+                         array_items: [20]JSONValue{}, array_size: 0, 
+                         object_properties: [20]JSONProperty{}, object_size: 0}
+      };
+      
+      json_obj.object_properties[1] = JSONProperty{
+        key: "message",
+        value: JSONValue{type: JSON_TYPE_STRING, string_value: "Hello from JSON API", bool_value: 0, number_value: 0.0, 
+                         array_items: [20]JSONValue{}, array_size: 0, 
+                         object_properties: [20]JSONProperty{}, object_size: 0}
+      };
+      
+      json_obj.object_properties[2] = JSONProperty{
+        key: "count",
+        value: JSONValue{type: JSON_TYPE_NUMBER, string_value: "", bool_value: 0, number_value: 42.5, 
+                         array_items: [20]JSONValue{}, array_size: 0, 
+                         object_properties: [20]JSONProperty{}, object_size: 0}
+      };
+      
+      // Create array
+      variable items_array: JSONValue = JSONValue{
+        type: JSON_TYPE_ARRAY,
+        bool_value: 0,
+        number_value: 0.0,
+        string_value: "",
+        array_items: [20]JSONValue{},
+        array_size: 3,
+        object_properties: [20]JSONProperty{},
+        object_size: 0,
+      };
+      
+      items_array.array_items[0] = JSONValue{type: JSON_TYPE_STRING, string_value: "item1", bool_value: 0, number_value: 0.0, 
+                                            array_items: [20]JSONValue{}, array_size: 0, 
+                                            object_properties: [20]JSONProperty{}, object_size: 0};
+      items_array.array_items[1] = JSONValue{type: JSON_TYPE_NUMBER, string_value: "", bool_value: 0, number_value: 100.0, 
+                                            array_items: [20]JSONValue{}, array_size: 0, 
+                                            object_properties: [20]JSONProperty{}, object_size: 0};
+      items_array.array_items[2] = JSONValue{type: JSON_TYPE_BOOL, string_value: "", bool_value: 1, number_value: 0.0, 
+                                            array_items: [20]JSONValue{}, array_size: 0, 
+                                            object_properties: [20]JSONProperty{}, object_size: 0};
+      
+      json_obj.object_properties[3] = JSONProperty{
+        key: "items",
+        value: items_array
+      };
+      
+      variable json_str: chaine = json_value_to_string(json_obj, 0);
+      variable json_data: [4096]entier = string_to_ascii_array(json_str);
+      body_length = json_str.length;
+      
+      variable i: entier = 0;
+      variable copy_done: entier = 0;
+      
+      tantque (copy_done == 0) {
+        si (i >= body_length) {
+          copy_done = 1;
+        } sinon {
+          response_body[i] = json_data[i];
+          i = i + 1;
+        }
+      }
+      
+      variable response: HTTPResponse = create_http_response(HTTP_VERSION_1_1, status_code, response_body, body_length);
+      response.headers[0].value = "application/json";
+      retourner response;
+    } sinon {
+      si (request.path == "/api/data" && request.method == HTTP_POST) {
+        // Parse JSON from request body
+        variable body_str: chaine = ascii_array_to_string(request.body, request.body_length);
+        variable json_data: JSONValue = parse_json_string(body_str, 0);
+        
+        // Create response
+        variable response_json: JSONValue = JSONValue{
+          type: JSON_TYPE_OBJECT,
+          bool_value: 0,
+          number_value: 0.0,
+          string_value: "",
+          array_items: [20]JSONValue{},
+          array_size: 0,
+          object_properties: [20]JSONProperty{},
+          object_size: 2,
+        };
+        
+        response_json.object_properties[0] = JSONProperty{
+          key: "received",
+          value: json_data
+        };
+        
+        response_json.object_properties[1] = JSONProperty{
+          key: "processed",
+          value: JSONValue{type: JSON_TYPE_BOOL, string_value: "", bool_value: 1, number_value: 0.0, 
+                          array_items: [20]JSONValue{}, array_size: 0, 
+                          object_properties: [20]JSONProperty{}, object_size: 0}
+        };
+        
+        variable json_str: chaine = json_value_to_string(response_json, 0);
+        variable json_data_resp: [4096]entier = string_to_ascii_array(json_str);
+        body_length = json_str.length;
+        
+        variable i: entier = 0;
+        variable copy_done: entier = 0;
+        
+        tantque (copy_done == 0) {
+          si (i >= body_length) {
+            copy_done = 1;
+          } sinon {
+            response_body[i] = json_data_resp[i];
+            i = i + 1;
+          }
+        }
+        
+        variable response: HTTPResponse = create_http_response(HTTP_VERSION_1_1, status_code, response_body, body_length);
+        response.headers[0].value = "application/json";
+        retourner response;
+      } sinon {
+        // 404 Not Found
+        variable error_msg: chaine = "404 Not Found: " + request.path;
+        variable error_data: [4096]entier = string_to_ascii_array(error_msg);
+        body_length = error_msg.length;
+        
+        variable i: entier = 0;
+        variable copy_done: entier = 0;
+        
+        tantque (copy_done == 0) {
+          si (i >= body_length) {
+            copy_done = 1;
+          } sinon {
+            response_body[i] = error_data[i];
+            i = i + 1;
+          }
+        }
+        
+        retourner create_http_response(HTTP_VERSION_1_1, HTTP_STATUS_NOT_FOUND, response_body, body_length);
+      }
+    }
+  }
+}
+
+// ==================== MAIN TEST PROGRAM ====================
+
+demarrer() entier {
+  afficher("=========================================");
+  afficher("HTTP PARSER WITH JSON SUPPORT");
+  afficher("=========================================");
+  
+  afficher("");
+  afficher("TEST 1: HTTP REQUEST PARSING");
+  afficher("----------------------------");
+  
+  // Create a test HTTP request
+  variable http_request_raw: chaine = "POST /api/data?name=test&id=123 HTTP/1.1\r\n";
+  http_request_raw = http_request_raw + "Host: localhost:8080\r\n";
+  http_request_raw = http_request_raw + "Content-Type: application/json\r\n";
+  http_request_raw = http_request_raw + "Content-Length: 56\r\n";
+  http_request_raw = http_request_raw + "\r\n";
+  http_request_raw = http_request_raw + "{\"name\": \"John\", \"age\": 30, \"active\": vrai}";
+  
+  variable request_data: [4096]entier = string_to_ascii_array(http_request_raw);
+  variable request: HTTPRequest = parse_http_request(request_data, http_request_raw.length);
+  
+  afficher("Parsed HTTP Request:");
+  afficher("  Method: ", get_http_method_name(request.method));
+  afficher("  Path: ", request.path);
+  afficher("  Version: ", get_http_version_name(request.version));
+  afficher("  Headers: ", request.header_count);
+  
+  variable i: entier = 0;
+  variable print_headers_done: entier = 0;
+  
+  tantque (print_headers_done == 0) {
+    si (i >= request.header_count) {
+      print_headers_done = 1;
+    } sinon {
+      afficher("    ", request.headers[i].name, ": ", request.headers[i].value);
+      i = i + 1;
+    }
+  }
+  
+  afficher("  Query Parameters: ", request.query_param_count);
+  
+  i = 0;
+  variable print_params_done: entier = 0;
+  
+  tantque (print_params_done == 0) {
+    si (i >= request.query_param_count) {
+      print_params_done = 1;
+    } sinon {
+      afficher("    ", request.query_params[i].name, " = ", request.query_params[i].value);
+      i = i + 1;
+    }
+  }
+  
+  variable body_str: chaine = ascii_array_to_string(request.body, request.body_length);
+  afficher("  Body: ", body_str);
+  
+  afficher("");
+  afficher("TEST 2: JSON PARSING");
+  afficher("-------------------");
+  
+  variable json_str: chaine = "{\"name\": \"Alice\", \"age\": 25, \"scores\": [95, 87, 92], \"active\": vrai}";
+  afficher("JSON chaine: ", json_str);
+  
+  variable json_value: JSONValue = parse_json_string(json_str, 0);
+  afficher("Parsed JSON:");
+  afficher("  Type: ", json_value.type, " (OBJECT)");
+  afficher("  Properties: ", json_value.object_size);
+  
+  i = 0;
+  variable print_props_done: entier = 0;
+  
+  tantque (print_props_done == 0) {
+    si (i >= json_value.object_size) {
+      print_props_done = 1;
+    } sinon {
+      variable prop: JSONProperty = json_value.object_properties[i];
+      afficher("    ", prop.key, ": ", json_value_to_string(prop.value, 0));
+      i = i + 1;
+    }
+  }
+  
+  afficher("");
+  afficher("TEST 3: JSON CREATION AND SERIALIZATION");
+  afficher("---------------------------------------");
+  
+  variable new_json: JSONValue = JSONValue{
+    type: JSON_TYPE_OBJECT,
+    bool_value: 0,
+    number_value: 0.0,
+    string_value: "",
+    array_items: [20]JSONValue{},
+    array_size: 0,
+    object_properties: [20]JSONProperty{},
+    object_size: 3,
+  };
+  
+  new_json.object_properties[0] = JSONProperty{
+    key: "id",
+    value: JSONValue{type: JSON_TYPE_NUMBER, string_value: "", bool_value: 0, number_value: 1001.0, 
+                    array_items: [20]JSONValue{}, array_size: 0, 
+                    object_properties: [20]JSONProperty{}, object_size: 0}
+  };
+  
+  new_json.object_properties[1] = JSONProperty{
+    key: "name",
+    value: JSONValue{type: JSON_TYPE_STRING, string_value: "Test User", bool_value: 0, number_value: 0.0, 
+                    array_items: [20]JSONValue{}, array_size: 0, 
+                    object_properties: [20]JSONProperty{}, object_size: 0}
+  };
+  
+  variable tags_array: JSONValue = JSONValue{
+    type: JSON_TYPE_ARRAY,
+    bool_value: 0,
+    number_value: 0.0,
+    string_value: "",
+    array_items: [20]JSONValue{},
+    array_size: 3,
+    object_properties: [20]JSONProperty{},
+    object_size: 0,
+  };
+  
+  tags_array.array_items[0] = JSONValue{type: JSON_TYPE_STRING, string_value: "admin", bool_value: 0, number_value: 0.0, 
+                                       array_items: [20]JSONValue{}, array_size: 0, 
+                                       object_properties: [20]JSONProperty{}, object_size: 0};
+  tags_array.array_items[1] = JSONValue{type: JSON_TYPE_STRING, string_value: "user", bool_value: 0, number_value: 0.0, 
+                                       array_items: [20]JSONValue{}, array_size: 0, 
+                                       object_properties: [20]JSONProperty{}, object_size: 0};
+  tags_array.array_items[2] = JSONValue{type: JSON_TYPE_STRING, string_value: "tester", bool_value: 0, number_value: 0.0, 
+                                       array_items: [20]JSONValue{}, array_size: 0, 
+                                       object_properties: [20]JSONProperty{}, object_size: 0};
+  
+  new_json.object_properties[2] = JSONProperty{
+    key: "tags",
+    value: tags_array
+  };
+  
+  variable serialized_json: chaine = json_value_to_string(new_json, 0);
+  afficher("Created JSON: ", serialized_json);
+  
+  afficher("");
+  afficher("TEST 4: HTTP RESPONSE CREATION");
+  afficher("------------------------------");
+  
+  variable response_body_str: chaine = "{\"message\": \"Hello World\", \"timestamp\": 1234567890}";
+  variable response_body_data: [4096]entier = string_to_ascii_array(response_body_str);
+  
+  variable http_response: HTTPResponse = create_http_response(HTTP_VERSION_1_1, HTTP_STATUS_OK, 
+                                                        response_body_data, response_body_str.length);
+  http_response.headers[0].value = "application/json";
+  
+  variable response_str: chaine = http_response_to_string(http_response);
+  afficher("HTTP Response:");
+  afficher(response_str);
+  
+  afficher("");
+  afficher("TEST 5: HTTP SERVER SIMULATION");
+  afficher("------------------------------");
+  
+  afficher("");
+  afficher("1. Handling GET / request:");
+  variable get_request_raw: chaine = "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n";
+  variable get_request_data: [4096]entier = string_to_ascii_array(get_request_raw);
+  variable get_request: HTTPRequest = parse_http_request(get_request_data, get_request_raw.length);
+  variable get_response: HTTPResponse = handle_http_request(get_request);
+  afficher("   Status: ", get_response.status_code, " ", get_response.status_text);
+  afficher("   Content-Type: ", get_response.headers[0].value);
+  
+  afficher("");
+  afficher("2. Handling GET /api/json request:");
+  variable json_request_raw: chaine = "GET /api/json HTTP/1.1\r\nHost: localhost\r\n\r\n";
+  variable json_request_data: [4096]entier = string_to_ascii_array(json_request_raw);
+  variable json_request: HTTPRequest = parse_http_request(json_request_data, json_request_raw.length);
+  variable json_api_response: HTTPResponse = handle_http_request(json_request);
+  afficher("   Status: ", json_api_response.status_code, " ", json_api_response.status_text);
+  afficher("   Content-Type: ", json_api_response.headers[0].value);
+  
+  variable json_response_body: chaine = ascii_array_to_string(json_api_response.body, json_api_response.body_length);
+  afficher("   Body (first 100 chars): ");
+  
+  i = 0;
+  variable print_body_done: entier = 0;
+  
+  tantque (print_body_done == 0) {
+    si (i >= 100 || i >= json_response_body.length) {
+      print_body_done = 1;
+    } sinon {
+      afficher(json_response_body[i]);
+      i = i + 1;
+    }
+  }
+  afficher("");
+  
+  afficher("");
+  afficher("3. Handling POST /api/data request:");
+  variable post_request_raw: chaine = "POST /api/data HTTP/1.1\r\n";
+  post_request_raw = post_request_raw + "Host: localhost\r\n";
+  post_request_raw = post_request_raw + "Content-Type: application/json\r\n";
+  post_request_raw = post_request_raw + "Content-Length: 28\r\n";
+  post_request_raw = post_request_raw + "\r\n";
+  post_request_raw = post_request_raw + "{\"action\": \"test\", \"value\": 42}";
+  
+  variable post_request_data: [4096]entier = string_to_ascii_array(post_request_raw);
+  variable post_request: HTTPRequest = parse_http_request(post_request_data, post_request_raw.length);
+  variable post_response: HTTPResponse = handle_http_request(post_request);
+  afficher("   Status: ", post_response.status_code, " ", post_response.status_text);
+  afficher("   Content-Type: ", post_response.headers[0].value);
+  
+  variable post_response_body: chaine = ascii_array_to_string(post_response.body, post_response.body_length);
+  afficher("   Response: ", post_response_body);
+  
+  afficher("");
+  afficher("4. Handling 404 request:");
+  variable notfound_request_raw: chaine = "GET /unknown/path HTTP/1.1\r\nHost: localhost\r\n\r\n";
+  variable notfound_request_data: [4096]entier = string_to_ascii_array(notfound_request_raw);
+  variable notfound_request: HTTPRequest = parse_http_request(notfound_request_data, notfound_request_raw.length);
+  variable notfound_response: HTTPResponse = handle_http_request(notfound_request);
+  afficher("   Status: ", notfound_response.status_code, " ", notfound_response.status_text);
+  
+  afficher("");
+  afficher("TEST 6: UTILITY FUNCTIONS");
+  afficher("-------------------------");
+  
+  variable test_int: entier = -12345;
+  variable int_str: chaine = int_to_string(test_int);
+  afficher("Integer to chaine: ", test_int, " -> \"", int_str, "\"");
+  
+  variable test_float: decimal = 123.456;
+  variable float_str: chaine = float_to_string(test_float);
+  afficher("Float to chaine: ", test_float, " -> \"", float_str, "\"");
+  
+  afficher("");
+  afficher("=========================================");
+  afficher("HTTP PARSER WITH JSON SUPPORT - COMPLETE");
+  afficher("=========================================");
+  afficher("");
+  afficher("Features implemented:");
+  afficher("1. Complete HTTP/1.1 request parsing");
+  afficher("2. HTTP method support (GET, POST, PUT, DELETE, HEAD, OPTIONS, PATCH)");
+  afficher("3. Query parameter parsing");
+  afficher("4. Header parsing and management");
+  afficher("5. JSON parser with all types (null, boolean, number, chaine, array, object)");
+  afficher("6. JSON serializer");
+  afficher("7. HTTP response generation");
+  afficher("8. HTTP server simulation with routing");
+  afficher("9. Content-Type negotiation (text/html, application/json)");
+  afficher("10. Error handling (404 Not Found)");
+  afficher("11. No break statements - all loops use condition variables");
+  
+  retourner 0;
+}

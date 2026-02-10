@@ -1,0 +1,653 @@
+dialecte:français;
+
+// ==================== STRUCT DEFINITIONS ====================
+structure DynArray {
+  Size: entier,
+  Capacity: entier,
+  Data: *entier,
+}
+
+structure Person {
+  Age: entier,
+  Height: decimal,
+  Name: chaine,
+  Salary: int64,
+  IsEmployed: entier, // Using entier as boolean (0=faux, 1=vrai)
+}
+
+structure Company {
+  Name: chaine,
+  Employees: [10]Person,
+  CEO: Person,
+  Revenue: decimal,
+}
+
+structure Point {
+  x: entier,
+  y: entier,
+}
+
+structure ComplexData {
+  Id: entier,
+  Values: [5]decimal,
+  Name: chaine,
+  Next: *ComplexData,
+}
+
+// ==================== ARRAY UTILITIES ====================
+fonction push(arr: DynArray, value: entier) entier {
+  si (arr.Size >= arr.Capacity) {
+    afficher("Error: Array capacity exceeded (max %d)", arr.Capacity);
+    retourner -1;
+  }
+  arr.Data[arr.Size] = value;
+  arr.Size = arr.Size + 1;
+  retourner arr.Size;
+}
+
+fonction get(arr: DynArray, index: entier) entier {
+  si (index < 0 || index >= arr.Size) {
+    afficher("Error: Index %d out of bounds (size: %d)", index, arr.Size);
+    retourner -1;
+  }
+  retourner arr.Data[index];
+}
+
+fonction set(arr: DynArray, index: entier, value: entier) entier {
+  si (index < 0 || index >= arr.Size) {
+    afficher("Error: Index %d out of bounds (size: %d)", index, arr.Size);
+    retourner -1;
+  }
+  arr.Data[index] = value;
+  retourner value;
+}
+
+fonction print_array(arr: DynArray) entier {
+  afficher("DynArray (Size: %d, Capacity: %d):", arr.Size, arr.Capacity);
+  variable i: entier = 0;
+  tantque (i < arr.Size) {
+    afficher("  [%d]: %d", i, arr.Data[i]);
+    i = i + 1;
+  }
+  retourner 0;
+}
+
+// ==================== MATH OPERATIONS ====================
+fonction add(a: entier, b: entier) entier {
+  retourner a + b;
+}
+
+fonction addf(a: decimal, b: decimal) decimal {
+  retourner a + b;
+}
+
+fonction subtract(a: entier, b: entier) entier {
+  retourner a - b;
+}
+
+fonction multiply(a: entier, b: entier) entier {
+  retourner a * b;
+}
+
+fonction divide(a: entier, b: entier) entier {
+  si (b == 0) {
+    afficher("Error: Division by zero");
+    retourner 0;
+  }
+  retourner a / b;
+}
+
+fonction modulo(a: entier, b: entier) entier {
+  si (b == 0) {
+    afficher("Error: Modulo by zero");
+    retourner 0;
+  }
+  retourner a % b;
+}
+
+// ==================== STRING/ARRAY MANIPULATION ====================
+fonction sum_array(arr: [5]entier) entier {
+  variable total: entier = 0;
+  variable i: entier = 0;
+  tantque (i < 5) {
+    total = total + arr[i];
+    i = i + 1;
+  }
+  retourner total;
+}
+
+fonction average_array(arr: [5]decimal) decimal {
+  variable total: decimal = 0.0;
+  variable i: entier = 0;
+  tantque (i < 5) {
+    total = total + arr[i];
+    i = i + 1;
+  }
+  retourner total / 5.0;
+}
+
+fonction reverse_array(arr: [5]entier) [5]entier {
+  variable result: [5]entier = [5]entier{0, 0, 0, 0, 0};
+  variable i: entier = 0;
+  tantque (i < 5) {
+    result[4 - i] = arr[i];
+    i = i + 1;
+  }
+  retourner result;
+}
+
+// ==================== STRUCT MANIPULATION ====================
+fonction makePoint(x: entier, y: entier) Point {
+  retourner Point{x: x, y: y};
+}
+
+fonction distance(p1: Point, p2: Point) decimal {
+  variable dx: entier = p1.x - p2.x;
+  variable dy: entier = p1.y - p2.y;
+  variable dxf: decimal = dx;
+  variable dyf: decimal = dy;
+  retourner (dxf * dxf + dyf * dyf);
+}
+
+fonction birthday(person: *Person) entier {
+  person.Age = person.Age + 1;
+  afficher("%s is now %d years old!", person.Name, person.Age);
+  retourner person.Age;
+}
+
+fonction promote(person: *Person, raise: decimal) decimal {
+  person.Salary = person.Salary * (1.0 + raise / 100.0);
+  retourner person.Salary;
+}
+
+// ==================== COMPLEX DATA STRUCTURES ====================
+fonction create_linked_list() *ComplexData {
+  variable node3: ComplexData = ComplexData{
+    Id: 3,
+    Values: [5]decimal{3.1, 3.2, 3.3, 3.4, 3.5},
+    Name: "Third",
+    Next: 0, // null pointer
+  };
+  
+  variable node2: ComplexData = ComplexData{
+    Id: 2,
+    Values: [5]decimal{2.1, 2.2, 2.3, 2.4, 2.5},
+    Name: "Second",
+    Next: node3,
+  };
+  
+  variable node1: ComplexData = ComplexData{
+    Id: 1,
+    Values: [5]decimal{1.1, 1.2, 1.3, 1.4, 1.5},
+    Name: "First",
+    Next: node2,
+  };
+  
+  retourner node1;
+}
+
+fonction print_linked_list(head: *ComplexData) entier {
+  variable current: *ComplexData = head;
+  variable count: entier = 0;
+  
+  tantque (current != 0) {
+    afficher("Node %d: %s (id: %d)", count, current.Name, current.Id);
+    current = current.Next;
+    count = count + 1;
+  }
+  
+  retourner count;
+}
+
+// ==================== CONDITIONAL LOGIC TESTS ====================
+fonction test_conditionals() entier {
+  afficher("\n=== Testing Conditionals ===");
+  
+  variable a: entier = 10;
+  variable b: entier = 20;
+  variable c: decimal = 15.5;
+  variable d: decimal = 25.5;
+  
+  // Basic comparisons
+  si (a < b) {
+    afficher("a < b is vrai");
+  } sinon {
+    afficher("ERROR: a < b should be vrai");
+  }
+  
+  si (a > b) {
+    afficher("ERROR: a > b should be faux");
+  } sinon {
+    afficher("a > b is faux");
+  }
+  
+  si (c == 15.5 && d == 25.5) {
+    afficher("c == 15.5 && d == 25.5 is vrai");
+  }
+  
+  si (a == 10 || b == 100) {
+    afficher("a == 10 || b == 100 is vrai (short-circuit)");
+  }
+  
+  // Complex logical expressions
+  si ((a < b && c < d) || (a > b && c > d)) {
+    afficher("Complex expression 1 is vrai");
+  }
+  
+  si (!(a == b) && (c != d)) {
+    afficher("Complex expression 2 is vrai");
+  }
+  
+  // Nested conditionals
+  si (a > 5) {
+    si (b > 10) {
+      si (c > 0.0) {
+        afficher("Triple-nested condition is vrai");
+      }
+    }
+  }
+  
+  retourner 0;
+}
+
+// ==================== LOOP TESTS ====================
+fonction test_loops() entier {
+  afficher("\n=== Testing Loops ===");
+  
+  // While loop with array
+  variable numbers: [10]entier = [10]entier{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  variable i: entier = 0;
+  variable sum: entier = 0;
+  
+  afficher("Array elements:");
+  tantque (i < 10) {
+    afficher("  numbers[%d] = %d", i, numbers[i]);
+    sum = sum + numbers[i];
+    i = i + 1;
+  }
+  afficher("Sum of array: %d", sum);
+  
+  // Count even numbers
+  i = 0;
+  variable even_count: entier = 0;
+  tantque (i < 10) {
+    si (numbers[i] % 2 == 0) {
+      even_count = even_count + 1;
+    }
+    i = i + 1;
+  }
+  afficher("Even numbers count: %d", even_count);
+  
+  // Countdown
+  afficher("Countdown from 5:");
+  variable count: entier = 5;
+  tantque (count > 0) {
+    afficher("  %d...", count);
+    count = count - 1;
+  }
+  afficher("Blast off!");
+  
+  retourner 0;
+}
+
+// ==================== TYPE SYSTEM TESTS ====================
+fonction test_types() entier {
+  afficher("\n=== Testing Type System ===");
+  
+  // Integer types
+  variable small_int: entier = 42;
+  variable large_int: int64 = 9223372036854775807; // max int64
+  variable negative_int: entier = -2147483647;
+  
+  afficher("Integers: %d, %d, %d", small_int, large_int, negative_int);
+  
+  // Floating point
+  variable pi: decimal = 3.14159;
+  variable negative_pi: decimal = -3.14159;
+  variable large_float: decimal = 1.00000000000;
+  
+  afficher("Floats: %.5f, %.5f, %.1f", pi, negative_pi, large_float);
+  
+  // Strings
+  variable greeting: chaine = "Hello, World!";
+  variable name: chaine = "Alice";
+  variable empty: chaine = "";
+  
+  afficher("Strings: '%s', '%s', '%s'", greeting, name, empty);
+  
+  // Mixed arithmetic
+  variable int_val: entier = 10;
+  variable float_val: decimal = 2.5;
+  variable mixed_result: decimal = int_val * float_val;
+  
+  afficher("Mixed arithmetic: %d * %.1f = %.1f", int_val, float_val, mixed_result);
+  
+  retourner 0;
+}
+
+// ==================== FUNCTION TESTS ====================
+fonction test_functions() entier {
+  afficher("\n=== Testing Functions ===");
+  
+  // Test math functions
+  variable x: entier = 100;
+  variable y: entier = 25;
+  
+  afficher("Math operations on %d and %d:", x, y);
+  afficher("  Addition: %d", add(x, y));
+  afficher("  Subtraction: %d", subtract(x, y));
+  afficher("  Multiplication: %d", multiply(x, y));
+  afficher("  Division: %d", divide(x, y));
+  afficher("  Modulo: %d", modulo(x, y));
+  
+  // Test array functions
+  variable arr: [5]entier = [5]entier{1, 2, 3, 4, 5};
+  variable sum: entier = sum_array(arr);
+  variable reversed: [5]entier = reverse_array(arr);
+  
+  afficher("Array sum: %d", sum);
+  afficher("Reversed array: %d %d %d %d %d", 
+        reversed[0], reversed[1], reversed[2], reversed[3], reversed[4]);
+  
+  // Test structure functions
+  variable p1: Point = makePoint(0, 0);
+  variable p2: Point = makePoint(3, 4);
+  variable dist: decimal = distance(p1, p2);
+  
+  afficher("Distance between (%d,%d) and (%d,%d): %.2f", 
+        p1.x, p1.y, p2.x, p2.y, dist);
+  
+  retourner 0;
+}
+
+// ==================== EDGE CASE TESTS ====================
+fonction test_edge_cases() entier {
+  afficher("\n=== Testing Edge Cases ===");
+  
+  // 1. Array bounds checking
+  afficher("1. Array bounds testing:");
+  variable small_array: [3]entier = [3]entier{1, 2, 3};
+  
+  // These should all work
+  afficher("  small_array[0] = %d", small_array[0]);
+  afficher("  small_array[2] = %d", small_array[2]);
+  
+  // 2. Division by zero (handled in function)
+  afficher("\n2. Division by zero:");
+  afficher("  10 / 0 = %d", divide(10, 0));
+  
+  // 3. Integer overflow
+  afficher("\n3. Integer limits:");
+  variable max_int: entier = 2147483647;
+  variable min_int: entier = -2147483648;
+  afficher("  Max entier: %d, Min entier: %d", max_int, min_int);
+  
+  // 4. Pointer to stack variable (potentially unsafe)
+  afficher("\n4. Pointer lifetime test:");
+  structure LocalData {
+    value: entier,
+    ptr: *entier,
+  }
+  
+  variable local_arr: [2]entier = [2]entier{42, 99};
+  variable local_data: LocalData = LocalData{
+    value: 100,
+    ptr: local_arr,
+  };
+  
+  // Accessing should work tantque in scope
+  afficher("  local_data.ptr[0] = %d", local_data.ptr[0]);
+  
+  // 5. Nested scopes with variable shadowing
+  afficher("\n5. Variable shadowing:");
+  variable outer: entier = 100;
+  afficher("  Outer before inner scope: %d", outer);
+  
+  si (outer > 0) {
+    variable outer: entier = 200; // Shadows outer variable
+    afficher("  Inner scope outer: %d", outer);
+    
+    si (outer > 150) {
+      variable outer: entier = 300; // Another level of shadowing
+      afficher("  Nested inner scope outer: %d", outer);
+    }
+    
+    afficher("  Inner scope outer after nested: %d", outer);
+  }
+  
+  afficher("  Outer after inner scope: %d", outer);
+  
+  // 6. Empty tantque loop
+  afficher("\n6. Empty tantque loop:");
+  variable counter: entier = 3;
+  tantque (counter > 0) {
+    // Empty body
+    counter = counter - 1;
+  }
+  afficher("  Loop completed");
+  
+  // 7. Recursion simulation (with loop)
+  afficher("\n7. Recursion simulation (factorial):");
+  variable n: entier = 5;
+  variable factorial: entier = 1;
+  tantque (n > 0) {
+    factorial = factorial * n;
+    n = n - 1;
+  }
+  afficher("  5! = %d", factorial);
+  
+  retourner 0;
+}
+
+// ==================== REAL-WORLD SCENARIO ====================
+fonction company_simulation() entier {
+  afficher("\n=== Company Simulation ===");
+  
+  // Create company
+  variable google: Company = Company{
+    Name: "Google",
+    Employees: [10]Person{
+      Person{Age: 25, Height: 1.75, Name: "Alice", Salary: 100000, IsEmployed: 1},
+      Person{Age: 30, Height: 1.80, Name: "Bob", Salary: 120000, IsEmployed: 1},
+      Person{Age: 35, Height: 1.70, Name: "Charlie", Salary: 150000, IsEmployed: 1},
+      Person{Age: 40, Height: 1.85, Name: "Diana", Salary: 200000, IsEmployed: 1},
+      Person{Age: 28, Height: 1.65, Name: "Eve", Salary: 90000, IsEmployed: 1},
+      Person{Age: 0, Height: 0.0, Name: "", Salary: 0, IsEmployed: 0}, // Empty slot
+      Person{Age: 0, Height: 0.0, Name: "", Salary: 0, IsEmployed: 0}, // Empty slot
+      Person{Age: 0, Height: 0.0, Name: "", Salary: 0, IsEmployed: 0}, // Empty slot
+      Person{Age: 0, Height: 0.0, Name: "", Salary: 0, IsEmployed: 0}, // Empty slot
+      Person{Age: 0, Height: 0.0, Name: "", Salary: 0, IsEmployed: 0}, // Empty slot
+    },
+    CEO: Person{Age: 50, Height: 1.78, Name: "Sundar Pichai", Salary: 2000000, IsEmployed: 1},
+    Revenue: 300000000000.0, // 300 billion
+  };
+  
+  // Print company info
+  afficher("Company: %s", google.Name);
+  afficher("CEO: %s (Age: %d, Salary: %d)", google.CEO.Name, google.CEO.Age, google.CEO.Salary);
+  afficher("Revenue: %.0f", google.Revenue);
+  
+  // Calculate average employee age and salary
+  variable total_age: entier = 0;
+  variable total_salary: int64 = 0;
+  variable employee_count: entier = 0;
+  variable i: entier = 0;
+  
+  tantque (i < 10) {
+    si (google.Employees[i].IsEmployed == 1) {
+      total_age = total_age + google.Employees[i].Age;
+      total_salary = total_salary + google.Employees[i].Salary;
+      employee_count = employee_count + 1;
+    }
+    i = i + 1;
+  }
+  
+  variable avg_age: entier = total_age / employee_count;
+  variable avg_salary: int64 = total_salary / employee_count;
+  
+  afficher("Employee Count: %d", employee_count);
+  afficher("Average Age: %d", avg_age);
+  afficher("Average Salary: %d", avg_salary);
+  
+  // Give everyone a birthday and raise
+  afficher("\n--- Annual Review ---");
+  i = 0;
+  tantque (i < 10) {
+    si (google.Employees[i].IsEmployed == 1) {
+      variable old_age: entier = google.Employees[i].Age;
+      variable old_salary: int64 = google.Employees[i].Salary;
+      
+      birthday(google.Employees[i]);
+      google.Employees[i].Salary = google.Employees[i].Salary * 1.05; // 5% raise
+      
+      afficher("  %s: Age %d->%d, Salary %d->%d", 
+            google.Employees[i].Name, old_age, google.Employees[i].Age, 
+            old_salary, google.Employees[i].Salary);
+    }
+    i = i + 1;
+  }
+  
+  retourner 0;
+}
+
+// ==================== DYNAMIC ARRAY DEMO ====================
+fonction dynamic_array_demo() entier {
+  afficher("\n=== Dynamic Array Demo ===");
+  
+  // Create backing storage
+  variable backing: [20]entier = [20]entier{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  
+  // Initialize dynamic array
+  variable arr: DynArray = DynArray{
+    Size: 0,
+    Capacity: 20,
+    Data: backing,
+  };
+  
+  // Fill the array
+  afficher("Pushing values 1-15:");
+  variable i: entier = 1;
+  tantque (i <= 15) {
+    variable result: entier = push(arr, i * 10);
+    afficher("  Pushed %d, new size: %d", i * 10, result);
+    i = i + 1;
+  }
+  
+  print_array(arr);
+  
+  // Access elements
+  afficher("\nAccessing elements:");
+  afficher("  arr[0] = %d", get(arr, 0));
+  afficher("  arr[7] = %d", get(arr, 7));
+  afficher("  arr[14] = %d", get(arr, 14));
+  
+  // Test bounds checking
+  afficher("\nTesting bounds checking:");
+  afficher("  arr[-1] = %d (should be -1 erreur)", get(arr, -1));
+  afficher("  arr[20] = %d (should be -1 erreur)", get(arr, 20));
+  
+  // Modify elements
+  afficher("\nModifying elements:");
+  afficher("  Setting arr[5] to 999: %d", set(arr, 5, 999));
+  afficher("  Setting arr[10] to 888: %d", set(arr, 10, 888));
+  
+  print_array(arr);
+  
+  // Try to overflow
+  afficher("\nTesting overflow:");
+  tantque (i <= 25) {
+    variable result: entier = push(arr, i * 10);
+    si (result == -1) {
+      afficher("  Failed to push %d: capacity exceeded", i * 10);
+    } sinon {
+      afficher("  Pushed %d, new size: %d", i * 10, result);
+    }
+    i = i + 1;
+  }
+  
+  retourner 0;
+}
+
+// ==================== MAIN PROGRAM ====================
+demarrer() entier {
+  afficher("=========================================");
+  afficher("COMPREHENSIVE PROGRAM TESTING ALL FEATURES");
+  afficher("=========================================");
+  
+  // Run all test suites
+  test_conditionals();
+  test_loops();
+  test_types();
+  test_functions();
+  test_edge_cases();
+  
+  // Real-world simulations
+  company_simulation();
+  dynamic_array_demo();
+  
+  // Test linked list
+  afficher("\n=== Linked List Test ===");
+  variable head: *ComplexData = create_linked_list();
+  variable node_count: entier = print_linked_list(head);
+  afficher("Total nodes: %d", node_count);
+  
+  // Final output formatting test
+  afficher("\n=== Formatted Output Test ===");
+  afficher("%-20s | %10s | %10s", "Name", "Age", "Salary");
+  afficher("%-20s-|-%10s-|-%10s", "--------------------", "----------", "----------");
+  afficher("%-20s | %10d | %10d", "Alice", 25, 100000);
+  afficher("%-20s | %10d | %10d", "Bob", 30, 120000);
+  afficher("%-20s | %10d | %10d", "Charlie", 35, 150000);
+  
+  // Mixed type operations
+  afficher("\n=== Mixed Type Operations ===");
+  variable int_val: entier = 7;
+  variable float_val: decimal = 3.5;
+  variable result1: decimal = int_val + float_val;
+  variable result2: decimal = int_val * float_val;
+  variable result3: decimal = int_val - float_val;
+  variable result4: decimal = int_val / float_val;
+  
+  afficher("7 + 3.5 = %.2f", result1);
+  afficher("7 * 3.5 = %.2f", result2);
+  afficher("7 - 3.5 = %.2f", result3);
+  afficher("7 / 3.5 = %.2f", result4);
+  
+  // Test array of structs
+  afficher("\n=== Array of Structs ===");
+  variable points: [3]Point = [3]Point{
+    makePoint(1, 2),
+    makePoint(3, 4),
+    makePoint(5, 6)
+  };
+  
+  variable j: entier = 0;
+  tantque (j < 3) {
+    afficher("Point %d: (%d, %d)", j, points[j].x, points[j].y);
+    j = j + 1;
+  }
+  
+  // Test nested structure access
+  afficher("\n=== Nested Struct Access ===");
+  structure Container {
+    id: entier,
+    data: Person,
+    points: [2]Point,
+  }
+  
+  variable container: Container = Container{
+    id: 1,
+    data: Person{Age: 25, Height: 1.75, Name: "Nested", Salary: 50000, IsEmployed: 1},
+    points: [2]Point{makePoint(10, 20), makePoint(30, 40)},
+  };
+  
+  afficher("Container ID: %d", container.id);
+  afficher("  Person: %s, Age: %d", container.data.Name, container.data.Age);
+  afficher("  Point 0: (%d, %d)", container.points[0].x, container.points[0].y);
+  
+  afficher("\n=========================================");
+  afficher("PROGRAM COMPLETED SUCCESSFULLY");
+  afficher("=========================================");
+  
+  retourner 0;
+}

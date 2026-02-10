@@ -1,0 +1,10 @@
+dialecte:français;
+
+structure Coordinate{ x: entier, y: entier, }
+structure Place { c: Coordinate, Around: [100]Coordinate, }
+
+demarrer () entier {
+  variable res : Place;
+  res.Around[1].x = 1.0;
+  retourner 0; 
+}

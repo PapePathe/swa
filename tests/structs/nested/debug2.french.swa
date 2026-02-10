@@ -1,0 +1,32 @@
+dialecte:français;
+
+structure Address {
+  City: chaine,
+  ZipCode: entier,
+}
+
+structure Person {
+  Name: chaine,
+  Age: entier,
+  HomeAddress: Address,
+}
+
+demarrer() entier {
+  variable addr: Address = Address{
+    City: "Dakar",
+    ZipCode: 12000,
+  };
+  
+  afficher("City: %s,  ZipCode: %d", addr.City, addr.ZipCode);
+  
+  variable person: Person = Person{
+    Name: "Pathe",
+    Age: 30,
+    HomeAddress: addr,
+  };
+  
+  afficher("Name: %s", person.Name);
+  afficher("City from person: %s", person.HomeAddress.City);
+  
+  retourner 0;
+}

@@ -1,0 +1,9 @@
+dialecte:français;
+
+structure Point { x: entier, }
+
+demarrer () entier {
+  variable res : Point;
+  res.x = 1.0;
+  retourner 0; 
+}

@@ -1,0 +1,17 @@
+dialecte:français;
+
+fonction add(first: decimal, last: decimal) decimal {
+  retourner first + last;
+}
+
+
+fonction makef() decimal {
+  retourner 10.25;
+}
+
+
+demarrer () entier {
+  variable res : decimal = add(makef(), 4.75);
+  afficher("10.25 + 4.75 = %.2f", res);
+  retourner 0; 
+}

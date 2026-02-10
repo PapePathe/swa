@@ -1,0 +1,17 @@
+dialecte:français;
+
+demarrer() entier {
+  structure Person {
+    Name: chaine,
+    Age: entier,
+  }
+
+  variable people: [1]Person = [1]Person{
+    Person{Name: "Alice", Age: 30},
+  };
+
+  variable i: entier = 0;
+  afficher("Name: %s", people[i].Name);
+
+  retourner 0;
+}

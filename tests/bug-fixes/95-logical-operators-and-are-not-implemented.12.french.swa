@@ -1,0 +1,13 @@
+dialecte:français;
+
+demarrer() entier {
+  variable x: decimal = 0.5;
+  variable y: decimal = 1.5;
+  
+  si (x == 0.5 || y == 0.0) {
+    afficher("x == 0.5 || y == 0.0 evaluates to vrai");
+  } sinon {
+    afficher("implementation erreur");
+  }
+  retourner 0;
+}

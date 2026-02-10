@@ -1,0 +1,34 @@
+dialecte:français;
+
+fonction divmod(a: entier, b: entier) (entier, entier, erreur) {
+    si (b == 0) {
+        retourner 0, 0, erreur("dividend is zero"); 
+    }
+
+    variable div : entier = a / b;
+    variable mod: entier = a % b;
+
+    retourner div, mod, zero(erreur); 
+}
+
+structure Result {
+  div: entier,
+  mod: entier,
+}
+
+demarrer() entier {
+  variable p : Result;
+  variable err: erreur;
+  variable div : entier;
+  variable mod: entier;
+   (err, p.div, p.mod) = divmod(100, 23);
+
+  si(err != zero(erreur)) {
+    afficher("Division by zero erreur (%s)", err);
+    retourner -1;
+  }
+
+   afficher("p.div = %d, p.mod = %d", p.div, p.mod);
+
+  retourner 0;
+}

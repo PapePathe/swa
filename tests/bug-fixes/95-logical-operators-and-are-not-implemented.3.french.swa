@@ -1,0 +1,10 @@
+dialecte:français;
+
+demarrer() entier {
+  si (1 == 0 && 1 == 1) {
+    afficher("implementation erreur");
+  } sinon {
+    afficher("1 == 0 && 1 == 1 evaluates to faux");
+  }
+  retourner 0;
+}

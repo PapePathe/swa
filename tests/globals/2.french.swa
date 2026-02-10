@@ -1,0 +1,4 @@
+dialecte:français;
+
+structure Point { x: entier, y: entier, }
+variable p : Point = Point{x:0, y:0};

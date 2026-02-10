@@ -1,0 +1,106 @@
+dialecte:français;
+
+structure DynArray {
+  Size: entier,
+  Capacity: entier,
+  Data: *entier,
+}
+
+fonction push(arr: DynArray, value: entier) entier {
+  // si (arr.Size >= arr.Capacity) {
+  //   // Resize strategy: Double the capacity (hardcoded for now due to language limitations)
+  //   si (arr.Capacity == 10) {
+  //      variable new_data: [20]entier = [20]entier{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  //      variable i: entier = 0;
+  //      tantque (i < arr.Size) {
+  //        new_data[i+0] = arr.Data[i+0];
+  //        i = i + 1;
+  //      }
+  //      arr.Data = new_data;
+  //      arr.Capacity = 20;
+  //      afficher("Resized array to capacity 20");
+  //   }
+  // }
+
+  si (arr.Size >= arr.Capacity) {
+       afficher("Error: Array capacity exceeded (max 20 implemented)");
+       retourner -1;
+  }
+
+  arr.Data[arr.Size+0] = value;
+  arr.Size = arr.Size + 1;
+  retourner arr.Size;
+}
+
+fonction get(arr: DynArray, index: entier) entier {
+  si (index < 0) {
+    afficher("Error: Index out of bounds");
+    retourner -1;
+  }
+  si (index >= arr.Size) {
+    afficher("Error: Index out of bounds");
+    retourner -1;
+  }
+  retourner arr.Data[index+0];
+}
+
+fonction set(arr: DynArray, index: entier, value: entier) entier {
+  si (index < 0) {
+    afficher("Error: Index out of bounds");
+    retourner -1;
+  }
+  si (index >= arr.Size) {
+    afficher("Error: Index out of bounds");
+    retourner -1;
+  }
+  arr.Data[index+0] = value;
+  retourner value;
+}
+
+fonction print_array(arr: DynArray) entier {
+  afficher("Array (Size: %d, Capacity: %d):", arr.Size, arr.Capacity);
+  variable i: entier = 0;
+  tantque (i < arr.Size) {
+    afficher("[%d]: %d", i, arr.Data[i+0]);
+    i = i + 1;
+  }
+  retourner 0;
+}
+
+demarrer() entier {
+  // Allocate backing array
+  variable backing: [10]entier = [10]entier{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  
+  // Initialize dynamic array
+  variable arr: DynArray = DynArray{
+    Size: 0,
+    Capacity: 10,
+    Data: backing,
+  };
+
+  // Test push
+  push(arr, 10);
+  push(arr, 20);
+  push(arr, 30);
+
+  print_array(arr);
+
+  // Test get
+  afficher("Get index 1: %d", get(arr, 1));
+
+  // Test set
+  set(arr, 1, 99);
+  afficher("After set index 1 to 99:");
+  print_array(arr);
+
+  // Test overflow and resize
+  variable j: entier = 0;
+  tantque (j < 10) {
+    push(arr, j + 100);
+    j = j + 1;
+  }
+  afficher("After filling and resizing:");
+  print_array(arr);
+  
+  retourner 0;
+}

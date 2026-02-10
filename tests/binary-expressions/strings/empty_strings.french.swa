@@ -1,0 +1,13 @@
+dialecte:français;
+
+demarrer() entier {
+    variable s4 : chaine = "";
+    variable s5 : chaine = "";
+
+    si (s4 == s5) {
+        afficher("Passed");
+    } sinon {
+        afficher("Failed");
+    }
+    retourner 0;
+}

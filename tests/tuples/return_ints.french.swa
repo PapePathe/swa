@@ -1,0 +1,13 @@
+dialecte:français;
+
+fonction get_coordinates() (entier, entier) {
+    retourner 10, 20;
+}
+
+demarrer() entier {
+    variable x: entier = 0;
+    variable y: entier = 0;
+    (x, y) = get_coordinates();
+    afficher("x: %d, y: %d\n", x, y);
+    retourner 0;
+}

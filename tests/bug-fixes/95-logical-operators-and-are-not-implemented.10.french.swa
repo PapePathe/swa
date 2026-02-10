@@ -1,0 +1,13 @@
+dialecte:français;
+
+demarrer() entier {
+  variable a: entier = 0;
+  variable b: entier = 1;
+  
+  si (a == 0 || b == 1) {
+    afficher("a == 0 || b == 1 evaluates to vrai");
+  } sinon {
+    afficher("implementation erreur");
+  }
+  retourner 0;
+}

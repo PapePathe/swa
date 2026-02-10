@@ -1,0 +1,14 @@
+dialecte:français;
+
+demarrer() entier {
+  variable x : entier = 0;
+  variable array : [10]entier = [10]entier{5,15,25,35,45,55,65,75,85,95};
+
+  tantque (x < 10) {
+    afficher("%d ", array[x]);
+
+    x = x + 1;
+  }
+
+  retourner 0;
+}

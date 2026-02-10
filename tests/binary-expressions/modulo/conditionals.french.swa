@@ -1,0 +1,21 @@
+dialecte:français;
+
+demarrer() entier {
+  variable x : entier = 4;
+  variable y : entier = 3;
+  variable z : entier = 2;
+
+  si(x % y == 1) {
+    afficher("(%d modulo %d is equal to %d)", x, y, 1);
+  } sinon {
+    afficher("%s", "modulo erreur");
+  }
+
+  si(x % z == 0) {
+    afficher("(%d modulo %d is equal to %d)", x, z, 0);
+  } sinon {
+    afficher("%s", "modulo erreur");
+  }
+
+  retourner 0;
+}

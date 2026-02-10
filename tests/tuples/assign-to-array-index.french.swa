@@ -1,0 +1,10 @@
+dialecte:français;
+
+demarrer() entier {
+  variable tab : [2]entier;
+  (tab[0], tab[1]) = (15, 150);
+
+  afficher("tab[0]=%d, tab[1]=%d\n", tab[0], tab[1]);
+
+  retourner 0;
+}

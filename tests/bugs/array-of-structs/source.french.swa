@@ -1,0 +1,8 @@
+dialecte:français;
+
+structure Point { x: entier, y: entier, }
+structure Polygon { points: [3]Point, }
+
+demarrer() entier {
+  retourner 0;
+}

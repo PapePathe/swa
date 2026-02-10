@@ -1,0 +1,23 @@
+dialecte:français;
+
+structure Wrapper {
+  Data: *entier,
+}
+
+demarrer() entier {
+  variable backing: [10]entier = [10]entier{10, 20, 30, 0, 0, 0, 0, 0, 0, 0};
+  variable w: Wrapper = Wrapper{
+    Data: backing,
+  };
+  variable i: entier = 0;
+
+  tantque(i < 10) {
+    afficher(
+      "Backing[%d]: %d, Wrapper.Data[%d]: %d \n", 
+      i, w.Data[i], i, backing[i]
+    );
+    i = i + 1; 
+  }
+  
+  retourner 0;
+}

@@ -1,0 +1,14 @@
+dialecte:français;
+
+structure Data { arr: [3]entier, }
+
+demarrer() entier {
+  variable d1: Data = Data{ arr: [3]entier{1, 2, 3} };
+  variable d2: Data = d1;
+
+  d2.arr[0] = 999;
+
+  afficher("%d", d2.arr[0]);
+
+  retourner 0;
+}

@@ -1,0 +1,14 @@
+dialecte:français;
+
+structure Grid {
+  p: [2]entier,
+}
+
+demarrer() entier {
+  variable g: Grid;
+  (g.p[0], g.p[1]) = (15, 150);
+
+  afficher("tab[0]=%d, tab[1]=%d\n", g.p[0], g.p[1]);
+
+  retourner 0;
+}

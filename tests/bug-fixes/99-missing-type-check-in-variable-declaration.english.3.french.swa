@@ -1,0 +1,7 @@
+dialecte:français;
+
+demarrer() entier {
+  variable x: chaine = []entier{0};
+
+  retourner 0;
+}

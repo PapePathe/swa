@@ -1,0 +1,198 @@
+dialecte:français;
+// ---------------------------------------------------------
+// 1. DATA MODELS & STRUCTURES
+// ---------------------------------------------------------
+
+structure Address {
+    Street: chaine,
+    Zip: entier,
+}
+
+structure Transaction {
+    Id: entier,
+    Description: chaine,
+    Amount: decimal,
+    Category: entier,    // 1: Revenue, 2: OPEX, 3: CAPEX, 4: Payroll
+}
+
+structure FixedAsset {
+    Description: chaine,
+    InitialCost: decimal,
+    PurchaseQuarter: entier,
+    UsefulLifeQuarters: entier,
+}
+
+structure BusinessState {
+    Name: chaine,
+    BankBalance: decimal,
+    MonthlySaaSRevenue: decimal,
+    MonthlyPayroll: decimal,
+    GrowthRate: decimal,
+    Location: Address,
+}
+
+structure AllHandsReport {
+    TotalRevenue: decimal,
+    TotalExpenses: decimal,
+    NetIncome: decimal,
+    Depreciation: decimal,
+}
+
+structure BalanceSheet {
+    Cash: decimal,
+    AssetBookValue: decimal,
+    Equity: decimal,
+}
+
+structure CashFlow {
+    OperatingCash: decimal,
+    NetChange: decimal,
+    Closing: decimal,
+}
+
+// ---------------------------------------------------------
+// 2. CORE ACCOUNTING CALCULATIONS
+// ---------------------------------------------------------
+
+fonction calculateDepreciation(asset: FixedAsset, currentQ: entier) decimal {
+    si (currentQ < asset.PurchaseQuarter) { 
+        retourner 0.0; 
+    }
+    variable age: entier = currentQ - asset.PurchaseQuarter;
+    si (age >= asset.UsefulLifeQuarters) { 
+        retourner 0.0; 
+    }
+    // Straight line depreciation
+    retourner asset.InitialCost / asset.UsefulLifeQuarters;
+}
+
+fonction calculateBookValue(asset: FixedAsset, currentQ: entier) decimal {
+    variable quartersOwned: entier = currentQ - asset.PurchaseQuarter;
+    si (quartersOwned <= 0) { retourner asset.InitialCost; }
+    
+    variable depPerQ: decimal = asset.InitialCost / asset.UsefulLifeQuarters;
+    variable accumulated: decimal = depPerQ * quartersOwned;
+    
+    si (accumulated >= asset.InitialCost) { retourner 0.0; }
+    retourner asset.InitialCost - accumulated;
+}
+
+// ---------------------------------------------------------
+// 3. SIMULATION & REPORTING ENGINE
+// ---------------------------------------------------------
+
+fonction runQuarter(rep: *AllHandsReport, state: *BusinessState, assets: [2]FixedAsset, qNum: entier) entier {
+    // 3 months of activity
+    variable rev: decimal = state.MonthlySaaSRevenue * 3.0;
+    variable opex: decimal = state.MonthlyPayroll * 3.0;
+    
+    // Calculate non-cash depreciation
+    variable totalDep: decimal = 0.0;
+    variable i: entier = 0;
+    tantque (i < 2) {
+        totalDep = totalDep + calculateDepreciation(assets[i], qNum);
+        i = i + 1;
+    }
+
+    rep.TotalRevenue  = rev;
+    rep.TotalExpenses = opex + totalDep;
+    rep.NetIncome     = rev - (opex + totalDep);
+    rep.Depreciation  = totalDep;
+    // Cash movement (Depreciation is added back for cash balance)
+    state.BankBalance = state.BankBalance + (rev - opex);
+    // Apply growth for next quarter
+    state.MonthlySaaSRevenue = state.MonthlySaaSRevenue * state.GrowthRate;
+
+    retourner 0;
+}
+
+fonction generateStatements(state: BusinessState, report: AllHandsReport, assets: [2]FixedAsset, qNum: entier) entier {
+    // 1. Balance Sheet Audit
+    variable bookVal: decimal = 0.0;
+    variable i: entier = 0;
+    tantque (i < 2) {
+        bookVal = bookVal + calculateBookValue(assets[i], qNum);
+        i = i + 1;
+    }
+
+    variable bs: BalanceSheet = BalanceSheet{
+        Cash: state.BankBalance,
+        AssetBookValue: bookVal,
+        Equity: state.BankBalance + bookVal
+    };
+
+    // 2. Cash Flow Statement
+    variable cf: CashFlow = CashFlow{
+        OperatingCash: report.NetIncome + report.Depreciation,
+        NetChange: report.NetIncome + report.Depreciation,
+        Closing: state.BankBalance
+    };
+
+    // 3. Print Output
+    afficher("--- QUARTER %d FINANCIAL STATEMENTS ---\n", qNum);
+    afficher("  P&L: Rev: %.2f | Exp: %.2f | Net: %.2f\n", report.TotalRevenue, report.TotalExpenses, report.NetIncome);
+    afficher("  B/S: Cash: %.2f | Assets: %.2f | Equity: %.2f\n", bs.Cash, bs.AssetBookValue, bs.Equity);
+    afficher("  C/F: Op. Cash Flow: %.2f | Closing Cash: %.2f\n", cf.OperatingCash, cf.Closing);
+    afficher("----------------------------------------\n");
+    
+    retourner 0;
+}
+
+// ---------------------------------------------------------
+// 4. MAIN ENTRY POINT
+// ---------------------------------------------------------
+
+demarrer() entier {
+    afficher("INITIALIZING ENTERPRISE ACCOUNTING SUITE...\n");
+
+    // Setup persistent business state
+    variable myCorp: BusinessState = BusinessState{
+        Name: "TechFlow Systems",
+        BankBalance: 1000000.0,
+        MonthlySaaSRevenue: 50000.0,
+        MonthlyPayroll: 45000.0,
+        GrowthRate: 1.10,
+        Location: Address{ Street: "101 Innovation Way", Zip: 94025 }
+    };
+
+    // Setup Capital Assets
+    variable assets: [2]FixedAsset = [2]FixedAsset{
+        FixedAsset{Description: "Mainframe", InitialCost: 120000.0, PurchaseQuarter: 1, UsefulLifeQuarters: 12},
+        FixedAsset{Description: "Fleet", InitialCost: 80000.0, PurchaseQuarter: 2, UsefulLifeQuarters: 16},
+    };
+
+    variable annualRevenue: decimal = 0.0;
+    variable annualNet: decimal = 0.0;
+
+    // Run Fiscal Year Simulation
+    variable q: entier = 1;
+    tantque (q <= 4) {
+        variable qReport: AllHandsReport;
+        runQuarter(qReport, myCorp, assets, q);
+        
+        generateStatements(myCorp, qReport, assets, q);
+        
+        annualRevenue = annualRevenue + qReport.TotalRevenue;
+        annualNet = annualNet + qReport.NetIncome;
+        
+        q = q + 1;
+    }
+
+    // Final Annual Analysis
+    afficher("*****************************************\n");
+    afficher("       ANNUAL ALL-HANDS SUMMARY          \n");
+    afficher("*****************************************\n");
+    afficher("TOTAL ANNUAL REVENUE:   $%12.2f\n", annualRevenue);
+    afficher("TOTAL ANNUAL NET PROFIT:$%12.2f\n", annualNet);
+    afficher("FINAL BANK LIQUIDITY:   $%12.2f\n", myCorp.BankBalance);
+    afficher("LOCATION:               %s\n", myCorp.Location.Street);
+    afficher("*****************************************\n");
+
+    si (annualNet > 0.0) {
+        afficher("STATUS: PERFORMANCE MET. TARGETING IPO 2026.\n");
+    } sinon {
+        afficher("STATUS: RESTRUCTURING REQUIRED.\n");
+    }
+
+    retourner 0;
+}

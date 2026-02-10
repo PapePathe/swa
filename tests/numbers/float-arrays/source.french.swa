@@ -1,0 +1,25 @@
+dialecte:français;
+
+demarrer() entier {
+  variable numbers: [3]decimal = [3]decimal{1.1, 2.2, 3.3};
+
+  si(numbers[0] == 1.1) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Float array access [0] failed");
+  }
+
+  si(numbers[1] == 2.2) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Float array access [1] failed");
+  }
+
+  si(numbers[2] == 3.3) {
+    afficher("%s", "ok");
+  } sinon {
+    afficher("%s", "Float array access [2] failed");
+  }
+
+  retourner 0;
+}

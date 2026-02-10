@@ -1,0 +1,49 @@
+dialecte:français;
+
+fonction swap(list: [10]entier, i: entier, j: entier) entier {
+  variable temp: entier = list[i];
+  list[i] = list[j];
+  list[j] = temp;
+  retourner 0;
+}
+
+fonction bubble_sort(list: [10]entier) entier {
+  variable N: entier = 10;
+  variable i: entier = 0;
+  variable j: entier = 0;
+  
+  tantque (i < (N - 1)) {
+    j = 0;
+    tantque (j < (N - 1 - i)) {
+      si (list[j] > list[j + 1]) {
+        variable temp: entier = list[j];
+        list[j] = list[j + 1];
+        list[j + 1] = temp;
+      }
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  retourner 0;
+}
+
+fonction print_array(list: [10]entier) entier {
+  variable N: entier = 10;
+  variable i: entier = 0;
+  afficher("Sorted Array: ");
+  tantque (i < N) {
+    afficher("%d ", list[i]);
+    i = i + 1;
+  }
+  afficher("\n");
+  retourner 0;
+}
+
+demarrer() entier {
+  variable numbers: [10]entier = [10]entier{64, 34, 25, 12, 22, 11, 90, 8, 77, 4};
+  
+  bubble_sort(numbers);
+  print_array(numbers);
+  
+  retourner 0;
+}

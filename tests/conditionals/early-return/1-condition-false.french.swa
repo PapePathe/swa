@@ -1,0 +1,14 @@
+dialecte:français;
+
+structure Point {
+    x : decimal,
+}
+
+demarrer () entier {
+  variable p : Point = Point{x: 10.0};
+
+  retourner 100 si (p.x == 10.25);
+  afficher("program not interrupted by early retourner");
+  
+  retourner 0; 
+}

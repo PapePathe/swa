@@ -1,0 +1,11 @@
+dialecte:français;
+
+demarrer() entier {
+  variable idx : entier;
+  afficher("zero value: %d ", idx);
+
+  idx = 100;
+  afficher("assigned value: %d", idx);
+
+  retourner 0;
+}

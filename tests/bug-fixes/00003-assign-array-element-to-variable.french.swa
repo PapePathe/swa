@@ -1,0 +1,22 @@
+dialecte:français;
+
+structure Person { 
+  Age: entier, 
+}
+
+demarrer() entier {
+   variable persons: [2]Person = [2]Person{
+     Person{Age: 11}, 
+     Person{Age: 44}, 
+   };
+
+   variable first : entier = persons[0 + 0].Age;
+   afficher("(first persons's age: %d)", first);
+
+   variable x : entier = 0;
+
+   variable last: entier = persons[1].Age;
+   afficher("(last persons's age: %d)", last);
+
+   retourner 0; 
+}

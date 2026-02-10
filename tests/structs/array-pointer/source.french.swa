@@ -1,0 +1,18 @@
+dialecte:français;
+
+structure DynArray {
+  Size: entier,
+  Capacity: entier,
+  Data: *entier,
+}
+
+demarrer() entier {
+  variable a : DynArray = DynArray{
+    Size: 10,
+    Capacity: 10,
+    Data: [3]entier{100,200,300},
+  };
+
+  afficher("Hello: %'d %'d %'d", a.Data[0], a.Data[1], a.Data[2]);
+  retourner 0;
+}

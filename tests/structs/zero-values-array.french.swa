@@ -1,0 +1,21 @@
+dialecte:français;
+
+structure Point {
+  x: entier,
+  y: entier,
+}
+
+structure Path {
+  points: [1]Point,
+}
+
+demarrer() entier {
+  variable l : [2]Path;
+  afficher("- [1]Path with zero value\n");
+  afficher(
+    "x1: %d y1:%d", 
+    l[0].points[0].x, l[0].points[0].y
+  );
+
+  retourner 0;
+}

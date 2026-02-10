@@ -1,0 +1,10 @@
+dialecte:français;
+
+fonction add(a: entier, b: entier) entier {
+  retourner a + b;
+}
+
+demarrer() entier {
+  add(10, "20");
+  retourner 0;
+}

@@ -1,0 +1,10 @@
+dialecte:français;
+
+demarrer() entier {
+  variable x: entier = 42;
+  variable y: decimal = 3.14;
+  variable z: entier = 10 + 5;
+  variable w: decimal = 2.5 + 1.5;
+
+  retourner 0;
+}

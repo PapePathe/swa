@@ -1,0 +1,21 @@
+dialecte:français;
+
+fonction check_value(v: entier) (entier, erreur) {
+    si (v < 0) {
+        retourner 0, erreur("value is negative");
+    }
+    retourner v, zero(erreur);
+}
+
+demarrer() entier {
+    variable val: entier = 0;
+    variable err: erreur;
+    
+    (val, err) = check_value(10);
+    afficher("val: %d, err: %s\n", val, err);
+    
+    (val, err) = check_value(-1);
+    afficher("val: %d, err: %s\n", val, err);
+    
+    retourner 0;
+}

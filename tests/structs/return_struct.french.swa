@@ -1,0 +1,16 @@
+dialecte:français;
+
+structure Point {
+  x: entier,
+  y: entier,
+}
+
+fonction makePoint(x: entier, y: entier) Point {
+  retourner Point{x: x, y: y};
+}
+
+demarrer() entier {
+  variable p: Point = makePoint(10, 20);
+  afficher("Point: %d, %d", p.x, p.y);
+  retourner 0;
+}
