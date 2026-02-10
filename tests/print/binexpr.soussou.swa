@@ -1,0 +1,7 @@
+khuien:soussou;
+
+sodé() konti {
+  masen("%d", 1 + 1);
+
+  gbilen 0;
+}

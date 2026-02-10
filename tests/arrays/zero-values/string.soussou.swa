@@ -1,0 +1,9 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé k : [3]sèbèli;
+  masen("- [3]string with zero value\n");
+  masen("'%s' '%s' '%s'\n\n", k[1], k[1], k[2]);
+
+  gbilen 0;
+}

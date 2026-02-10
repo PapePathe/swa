@@ -1,0 +1,34 @@
+khuien:soussou;
+
+wali divmod(a: konti, b: konti) (konti, konti, foutoura) {
+    xa (b == 0) {
+        gbilen 0, 0, foutoura("dividend is zero"); 
+    }
+
+    kouicé div : konti = a / b;
+    kouicé mod: konti = a % b;
+
+    gbilen div, mod, maba(foutoura); 
+}
+
+fokhi Result {
+  div: konti,
+  mod: konti,
+}
+
+sodé() konti {
+  kouicé p : Result;
+  kouicé err: foutoura;
+  kouicé div : konti;
+  kouicé mod: konti;
+   (err, p.div, p.mod) = divmod(100, 23);
+
+  xa(err != maba(foutoura)) {
+    masen("Division by zero error (%s)", err);
+    gbilen -1;
+  }
+
+   masen("p.div = %d, p.mod = %d", p.div, p.mod);
+
+  gbilen 0;
+}

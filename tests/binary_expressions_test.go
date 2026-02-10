@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -29,12 +30,22 @@ func TestBinaryExpressionsModulo(t *testing.T) {
 
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				req := CompileRequest{
-					InputPath:               "./binary-expressions/strings/" + tt.filename,
-					T:                       t,
-					ExpectedExecutionOutput: "Passed",
-				}
-				req.AssertCompileAndExecute()
+				t.Run("English", func(t *testing.T) {
+					req := CompileRequest{
+						InputPath:               "./binary-expressions/strings/" + tt.filename,
+						T:                       t,
+						ExpectedExecutionOutput: "Passed",
+					}
+					req.AssertCompileAndExecute()
+				})
+				t.Run("Soussou", func(t *testing.T) {
+					req := CompileRequest{
+						InputPath:               "./binary-expressions/strings/" + strings.Replace(tt.filename, ".english.swa", ".soussou.swa", 1),
+						T:                       t,
+						ExpectedExecutionOutput: "Passed",
+					}
+					req.AssertCompileAndExecute()
+				})
 			})
 		}
 	})
@@ -65,6 +76,40 @@ func TestBinaryExpressionsModulo(t *testing.T) {
 		t.Run("Modulo with integer expressions", func(t *testing.T) {
 			req := CompileRequest{
 				InputPath:               "./binary-expressions/modulo/variable-declaration.english.swa",
+				T:                       t,
+				ExpectedExecutionOutput: "x: 1, y: 0",
+			}
+
+			req.AssertCompileAndExecute()
+		})
+	})
+
+	t.Run("Soussou", func(t *testing.T) {
+		t.Parallel()
+
+		t.Run("Modulo with symbol expressions", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./binary-expressions/modulo/variable-declaration-2.soussou.swa",
+				T:                       t,
+				ExpectedExecutionOutput: "v1: 0, v2: 1",
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("Modulo in conditionals", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./binary-expressions/modulo/conditionals.soussou.swa",
+				T:                       t,
+				ExpectedExecutionOutput: "(4 modulo 3 is equal to 1)(4 modulo 2 is equal to 0)",
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("Modulo with integer expressions", func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:               "./binary-expressions/modulo/variable-declaration.soussou.swa",
 				T:                       t,
 				ExpectedExecutionOutput: "x: 1, y: 0",
 			}

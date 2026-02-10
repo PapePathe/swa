@@ -1,0 +1,12 @@
+khuien:soussou;
+
+wali add(first: desimali, last: desimali) desimali {
+  gbilen first + last;
+}
+
+sodé () konti {
+  kouicé m : desimali = 0.01;
+  m = add(10.25, 4.75);
+  masen("10.25 + 4.75 = %.2f", m);
+  gbilen 0; 
+}

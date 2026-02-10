@@ -1,0 +1,131 @@
+khuien:soussou;
+// ---------------------------------------------------------
+// DATA STRUCTURES
+// ---------------------------------------------------------
+
+fokhi Currency {
+    Code: sèbèli,
+    CurrentRate: desimali,    // Rate relative to USD
+    Volatility: desimali,     // 0.0 to 1.0
+    InterestRate: desimali,
+}
+
+fokhi Exposure {
+    CurrencyCode: sèbèli,
+    Amount: desimali,         // Amount in local currency
+    RiskLevel: konti,        // 1 (Low) to 5 (High)
+}
+
+fokhi HedgeStrategy {
+    Name: sèbèli,
+    Efficiency: desimali,     // How much of the risk is covered
+    CostBasis: desimali,      // Operational cost
+}
+
+fokhi Portfolio {
+    Owner: sèbèli,
+    Exposures: [4]Exposure,
+    Count: konti,
+    TotalValueUSD: desimali,
+}
+
+// ---------------------------------------------------------
+// STRATEGY CALCULATIONS
+// ---------------------------------------------------------
+
+wali calculateForwardHedge(amount: desimali, rate: desimali, efficiency: desimali) desimali {
+    // Math Coercion Test: float * float * float
+    gbilen (amount * rate) * efficiency;
+}
+
+wali calculateOptionHedge(amount: desimali, rate: desimali, vol: desimali) desimali {
+    // Complex Math: Uses volatility to discount the hedge value
+    kouicé baseValue: desimali = amount * rate;
+    kouicé discount: desimali = 1.0 - (vol * 0.5);
+    gbilen baseValue * discount;
+}
+
+// ---------------------------------------------------------
+// ENGINE LOGIC
+// ---------------------------------------------------------
+
+wali findCurrency(code: sèbèli, market: [3]Currency) *Currency {
+    kouicé i: konti = 0;
+    be (i < 3) {
+        xa (market[i].Code == code) {
+            gbilen market[i];
+        }
+        i = i + 1;
+    }
+    gbilen market[0]; // Default to first (usually USD)
+}
+
+wali processPortfolio(p: *Portfolio, market: [3]Currency) konti {
+    masen("--- Processing Portfolio for: %s ---", p.Owner);
+    
+    kouicé i: konti = 0;
+    p.TotalValueUSD = 0.0;
+
+    be (i < p.Count) {
+        // Nested Array Access: p -> Exposures[i]
+        kouicé exp: Exposure = p.Exposures[i];
+        kouicé curr: *Currency = findCurrency(exp.CurrencyCode, market);
+        
+        kouicé rawValue: desimali = exp.Amount * curr.CurrentRate;
+        kouicé hedgedValue: desimali = 0.0;
+
+        // Dynamic Strategy Selection
+        xa (curr.Volatility > 0.15 || exp.RiskLevel > 3) {
+            masen("  [Strategy] Using Option Hedge for %s", exp.CurrencyCode);
+            hedgedValue = calculateOptionHedge(exp.Amount, curr.CurrentRate, curr.Volatility);
+        } xamuara {
+            masen("  [Strategy] Using Forward Hedge for %s", exp.CurrencyCode);
+            hedgedValue = calculateForwardHedge(exp.Amount, curr.CurrentRate, 0.98);
+        }
+
+        masen("  Exposure: %.2f %s | Raw USD: %.2f | Hedged USD: %.2f", 
+            exp.Amount, exp.CurrencyCode, rawValue, hedgedValue);
+            
+        p.TotalValueUSD = p.TotalValueUSD + hedgedValue;
+        i = i + 1;
+    }
+
+    gbilen 0;
+}
+
+// ---------------------------------------------------------
+// START
+// ---------------------------------------------------------
+
+sodé() konti {
+    // 1. Setup Market Data
+    kouicé market: [3]Currency = [3]Currency{
+        Currency{Code: "EUR", CurrentRate: 1.10, Volatility: 0.05, InterestRate: 0.03},
+        Currency{Code: "GBP", CurrentRate: 1.25, Volatility: 0.08, InterestRate: 0.04},
+        Currency{Code: "JPY", CurrentRate: 0.0067, Volatility: 0.22, InterestRate: 0.001}
+    };
+
+    // 2. Initialize Portfolio with nested Exposures
+    // Tests Struct-in-Struct initialization and array literals
+    kouicé myPortfolio: Portfolio = Portfolio{
+        Owner: "Global Corp Assets",
+        Count: 3,
+        Exposures: [4]Exposure{
+            Exposure{CurrencyCode: "EUR", Amount: 100000.0, RiskLevel: 2},
+            Exposure{CurrencyCode: "GBP", Amount: 50000.0, RiskLevel: 1},
+            Exposure{CurrencyCode: "JPY", Amount: 15000000.0, RiskLevel: 5},
+            Exposure{CurrencyCode: "USD", Amount: 0.0, RiskLevel: 0} // Null entry
+        },
+        TotalValueUSD: 0.0
+    };
+
+    // 3. Run the Engine
+    // Passing a pointer to a struct to test pointer decay logic
+    processPortfolio(myPortfolio, market);
+
+    masen("---------------------------------------");
+    masen("Final Portfolio Hedged Value: $%.2f USD", myPortfolio.TotalValueUSD);
+    masen("---------------------------------------");
+
+    gbilen 0;
+}

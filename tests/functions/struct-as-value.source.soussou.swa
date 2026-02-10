@@ -1,0 +1,40 @@
+khuien:soussou;
+
+fokhi Person {
+  Age:     konti,
+  Height:  desimali,
+  Name:    sèbèli,
+}
+
+wali changeAgeOfCopy(person: Person) konti {
+  person.Age = person.Age + 20;
+  person.Age = 20 + person.Age;
+ 
+
+  gbilen person.Age;
+}
+
+wali changeNameOfCopy(person: Person) sèbèli {
+  person.Name = "Pathe SENE";
+
+  gbilen person.Name;
+}
+
+wali changHeightOfCopy(person: Person) desimali {
+  person.Height= 1.80;
+
+  gbilen person.Height;
+}
+
+sodé() konti {
+  kouicé p : Person = Person{ Age: 0, Height: 0.0, Name: "Pathe", };
+  kouicé myAge : konti = changeAgeOfCopy(p);
+  kouicé myHeight : desimali = changHeightOfCopy(p);
+  kouicé myName: sèbèli = changeNameOfCopy(p);
+ 
+  masen("age: %d, age of copy: %d\n", p.Age, myAge);
+  masen("height: %.2f, height of copy: %.2f\n", p.Height, myHeight);
+  masen("name: %s, name of copy: %s\n", p.Name, myName);
+
+  gbilen 0; 
+}

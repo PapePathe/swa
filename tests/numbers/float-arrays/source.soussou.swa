@@ -1,0 +1,25 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé numbers: [3]desimali = [3]desimali{1.1, 2.2, 3.3};
+
+  xa(numbers[0] == 1.1) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Float array access [0] failed");
+  }
+
+  xa(numbers[1] == 2.2) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Float array access [1] failed");
+  }
+
+  xa(numbers[2] == 3.3) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Float array access [2] failed");
+  }
+
+  gbilen 0;
+}

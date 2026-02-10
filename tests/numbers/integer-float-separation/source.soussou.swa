@@ -1,0 +1,10 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé x: konti = 42;
+  kouicé y: desimali = 3.14;
+  kouicé z: konti = 10 + 5;
+  kouicé w: desimali = 2.5 + 1.5;
+
+  gbilen 0;
+}

@@ -1,0 +1,24 @@
+khuien:soussou;
+
+sodé() konti {
+  fokhi Engineer{
+    Age: konti,
+    Taille: desimali,
+    Name: sèbèli,
+    TechStack: sèbèli,
+  }
+ 
+  kouicé r1: Engineer = Engineer{
+    Age: 40,
+    Taille: 1.80,
+    Name: "Pathe",
+    TechStack: "Ruby, Rust, Go"
+  };
+
+  masen(
+    "Nom: (%s), Stack Technique: (%s), Age: (%d), Taille: (%.2f)", 
+    r1.Name, r1.TechStack, r1.Age, r1.Taille
+  );
+
+  gbilen 0;
+}

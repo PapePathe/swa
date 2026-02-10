@@ -1,0 +1,15 @@
+khuien:soussou;
+
+wali add(a: konti, b: konti) konti {
+  gbilen a + b;
+}
+
+sodé() konti {
+  kouicé x: konti = 10;
+  kouicé y: konti = 20;
+  kouicé z: konti = add(x, y);
+
+  masen("z: %d", z);
+
+  gbilen 0;
+}

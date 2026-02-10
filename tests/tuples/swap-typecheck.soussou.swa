@@ -1,0 +1,9 @@
+khuien:soussou;
+sodé() konti {
+    kouicé a: konti = 10;
+    kouicé b: konti = 20;
+    masen("Before: a=%d, b=%d\n", a, b);
+    (a) = (b, a);
+    masen("After: a=%d, b=%d\n", a, b);
+    gbilen 0;
+}

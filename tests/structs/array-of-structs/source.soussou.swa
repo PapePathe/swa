@@ -1,0 +1,25 @@
+khuien:soussou;
+
+fokhi Point {
+  x: konti,
+  y: konti,
+}
+
+fokhi Polygon {
+  points: [3]Point,
+}
+
+sodé() konti {
+  kouicé p: Polygon = Polygon{
+    points: [3]Point{
+      Point{x: 1, y: 1},
+      Point{x: 2, y: 2},
+      Point{x: 3, y: 3},
+    },
+  };
+
+  masen("p[0].x=%d p[0].y=%d\n", p.points[0].x, p.points[0].y);
+  masen("p[1].x=%d p[1].y=%d\n", p.points[1].x, p.points[1].y);
+  masen("p[2].x=%d p[2].y=%d\n", p.points[2].x, p.points[2].y);
+  gbilen 0;
+}

@@ -1,0 +1,17 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé stringer: konti = 0;
+  kouicé integer: konti = 0;
+  kouicé whilemean: konti = 0;
+  kouicé ifTodayIsMonday : konti = 0;
+  kouicé elseifTodayIsSunday: konti = 0;
+  kouicé printer : konti = 0;
+  kouicé structIsPacked : konti = 0;
+  kouicé startProgram: konti = 0;
+  kouicé returnValue : konti = 0;
+  kouicé funcType: konti = 0;
+  kouicé dialectId : konti = 0;
+  
+  gbilen 0;
+}

@@ -1,0 +1,42 @@
+khuien:soussou;
+
+fokhi Employee { 
+  ID: konti, 
+  Salary: konti, 
+}
+
+wali count_high_earners(employees: [5]Employee, threshold: konti) konti {
+  kouicé high_earner_count: konti = 0;
+  kouicé idx: konti = 0;
+  kouicé array_size: konti = 5;
+  
+  be (idx < array_size) {
+    kouicé current_salary: konti = employees[idx].Salary;
+    
+    xa (current_salary > threshold) {
+      high_earner_count = high_earner_count + 1;
+    }
+    
+    idx = idx + 1;
+  }
+  
+  gbilen high_earner_count;
+}
+
+sodé() konti {
+  kouicé THRESHOLD_CONST: konti = 50000;
+  
+  kouicé employees_array: [5]Employee = [5]Employee{
+    Employee{ID: 105, Salary: 30000}, // Below
+    Employee{ID: 101, Salary: 45000}, // Below
+    Employee{ID: 102, Salary: 60000}, // Above
+    Employee{ID: 103, Salary: 50000}, // Equal, not >
+    Employee{ID: 104, Salary: 75000}, // Above
+  };
+  
+  kouicé count: konti = count_high_earners(employees_array, THRESHOLD_CONST);
+  
+  masen("Employees with salary above %d: %d\n", THRESHOLD_CONST, count);
+  
+  gbilen 0;
+}

@@ -1,0 +1,11 @@
+khuien:soussou;
+
+fokhi Person {
+  age: konti,
+}
+
+sodé() konti {
+  kouicé p: Person = Person{age: 25};
+  masen("%d", p.age[0]);
+  gbilen 0;
+}

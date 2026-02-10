@@ -1,0 +1,18 @@
+khuien:soussou;
+
+fokhi DynArray {
+  Size: konti,
+  Capacity: konti,
+  Data: [3]konti,
+}
+
+sodé() konti {
+  kouicé a : DynArray = DynArray{
+    Size: 10,
+    Capacity: 10,
+    Data: [3]konti{100,200,300},
+  };
+
+  masen("Hello: %'d %'d %'d", a.Data[0], a.Data[1], a.Data[2]);
+  gbilen 0;
+}

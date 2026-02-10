@@ -1,0 +1,37 @@
+khuien:soussou;
+
+fokhi Location {
+  X: konti,
+  Y: konti,
+}
+
+fokhi Address {
+  City: sèbèli,
+  ZipCode: konti,
+  Coords: Location,
+}
+
+fokhi Person {
+  Name: sèbèli,
+  Age: konti,
+  HomeAddress: Address,
+}
+
+wali getX(p: *Person) konti {
+  gbilen p.HomeAddress.Coords.X;
+}
+
+wali setX(p: *Person, val: konti) konti {
+  p.HomeAddress.Coords.X = val;
+  gbilen p.HomeAddress.Coords.X;
+}
+
+sodé() konti {
+  kouicé loc: Location = Location{ X: 10, Y: 20 };
+  kouicé addr: Address = Address{ City: "Dakar", ZipCode: 12000, Coords: loc };
+  kouicé person: Person = Person{ Name: "Pathe", Age: 30, HomeAddress: addr };
+  
+  masen("X: %d, Y: %d, getX: %d, setX: %d", person.HomeAddress.Coords.X, person.HomeAddress.Coords.Y, getX(person), setX(person, 999));
+  
+  gbilen 0;
+}

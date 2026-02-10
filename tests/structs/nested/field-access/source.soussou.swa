@@ -1,0 +1,35 @@
+khuien:soussou;
+
+fokhi Address {
+  City: sèbèli,
+  ZipCode: konti,
+}
+
+fokhi Person {
+  Name: sèbèli,
+  Age: konti,
+  HomeAddress: Address,
+}
+
+sodé() konti {
+  kouicé person: Person = Person{
+    Name: "Pathe",
+    Age: 30,
+    HomeAddress: Address{
+      City: "Dakar",
+      ZipCode: 12000,
+    },
+  };
+  
+  kouicé name: sèbèli = person.Name;
+  kouicé age: konti = person.Age;
+  kouicé city: sèbèli = person.HomeAddress.City;
+  kouicé zipcode: konti = person.HomeAddress.ZipCode;
+
+  masen("Name: %s, ", name);
+  masen("Age: %d, ", age);
+  masen("City: %s, ", city);
+  masen("ZipCode: %d", zipcode);
+  
+  gbilen 0;
+}

@@ -1,0 +1,50 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé salaire_de_lucien: konti = 50000;
+  kouicé salaire_de_pathe : konti = 500000;
+
+  xa(50000 <= salaire_de_pathe) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "ImplementationError (50000 <= salaire_de_pathe)");
+  }
+
+  xa(salaire_de_pathe <= 50000) {
+    masen("%s", "ImplementationError (salaire_de_pathe <= 50000)");
+  } xamuara {
+    masen("%s", "ok");
+  }
+
+  xa(salaire_de_pathe <= 500000 ) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "ImplementationError (salaire_de_pathe <= 500000 )");
+  }
+
+  xa(500001 <= salaire_de_pathe) {
+    masen("%s", "ImplementationError (500001 <= salaire_de_pathe)");
+  } xamuara {
+    masen("%s", "ok");
+  }
+
+  xa(salaire_de_pathe <= 500001) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "ImplementationError (salaire_de_pathe <= 500001)");
+  }
+
+  xa(salaire_de_lucien <= salaire_de_pathe) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "ImplementationError (salaire_de_lucien <= salaire_de_pathe)");
+  }
+
+  xa(salaire_de_pathe <= salaire_de_lucien) {
+    masen("%s", "ImplementationError (salaire_de_pathe <= salaire_de_lucien)");
+  } xamuara {
+    masen("%s", "ok");
+  }
+
+  gbilen 0;
+}

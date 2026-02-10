@@ -1,0 +1,8 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé a : desimali = 10.005;
+  kouicé b : desimali = -10.005;
+  masen("a: %f, b: %f", a, b);
+  gbilen 0; 
+}

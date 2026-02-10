@@ -1,0 +1,20 @@
+khuien:soussou;
+
+sodé() konti {
+    kouicé x: konti = 42;
+    kouicé p: *konti = &x;
+    kouicé pp: **konti = &p;
+    
+    masen("x = %d\n", x);
+    masen("*p = %d\n", *p);
+    masen("**pp = %d\n", **pp);
+    
+    xa (**pp == 42) {
+        masen("Success: Double pointer dereference works.\n");
+    } xamuara {
+        masen("Error: Double pointer dereference failed.\n");
+        gbilen 1;
+    }
+    
+    gbilen 0;
+}

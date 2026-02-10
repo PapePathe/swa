@@ -1,0 +1,36 @@
+khuien:soussou;
+
+wali sum(list: [5]konti) konti {
+  kouicé ret : konti = 0;
+  kouicé idx: konti = 0;
+  
+  be(idx < 5) {
+    ret = ret + list[idx];
+    idx = idx + 1;
+  }
+
+  gbilen ret;
+}
+
+wali sumf(list: [5]desimali) desimali {
+  kouicé ret: desimali = 0.0;
+  kouicé idx: konti = 0;
+  
+  be(idx < 5) {
+    ret = ret + list[idx];
+    idx = idx + 1;
+  }
+
+  gbilen ret;
+}
+
+sodé () konti {
+  kouicé list: [5]konti = [5]konti{ 1, 2, 3, 4 , 5};
+  kouicé listf: [5]desimali = [5]desimali{ 1.00, 2.000, 3.000, 4.0 , 5.000000};
+  kouicé sum_of_list: konti = sum(list);
+  kouicé sum_of_listf: desimali = sumf(listf);
+
+  masen("sum: %d, sumf: %.2f", sum_of_list, sum_of_listf);
+
+  gbilen 0; 
+}

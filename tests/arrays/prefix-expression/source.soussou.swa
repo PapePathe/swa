@@ -1,0 +1,8 @@
+khuien:soussou;
+
+sodé() konti{
+  kouicé tableau : [5]konti = [5]konti{1,2,3,4,5};
+  tableau[-4] = 0;
+
+  gbilen tableau[0];
+}

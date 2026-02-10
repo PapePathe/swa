@@ -1,0 +1,19 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé salaire_de_lucien: konti = 500000;
+
+  xa(salaire_de_lucien >= 500000) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Ast BinaryExpression GreaterThanEqualsImplementationError cond: (salaire_de_lucien >= 500000)");
+  }
+
+  xa(500000 >= salaire_de_lucien ) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Ast BinaryExpression GreaterThanEqualsImplementationError cond: (500000 >= salaire_de_lucien) ");
+  }
+
+  gbilen 0;
+}

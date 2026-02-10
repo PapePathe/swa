@@ -1,0 +1,16 @@
+khuien:soussou;
+
+fokhi Point {
+  x: konti,
+  y: konti,
+}
+
+wali makePoint(x: konti, y: konti) Point {
+  gbilen Point{x: x, y: y};
+}
+
+sodé() konti {
+  kouicé p: Point = makePoint(10, 20);
+  masen("Point: %d, %d", p.x, p.y);
+  gbilen 0;
+}

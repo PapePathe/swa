@@ -1,0 +1,12 @@
+khuien:soussou;
+
+sodé() konti{
+  kouicé tableau : [5]konti = [5]konti{1,2,3,4,5};
+  tableau[0] = 0;
+  tableau[1] = 1000;
+  tableau[2] = 10000;
+  tableau[3] = 100000;
+  tableau[4] = 1000000;
+
+  gbilen tableau[0];
+}

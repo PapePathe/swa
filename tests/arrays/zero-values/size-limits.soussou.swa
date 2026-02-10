@@ -1,0 +1,9 @@
+khuien:soussou;
+
+fokhi Coordinate{ x: konti, y: konti, }
+fokhi Place { c: Coordinate, Around: [10000]Coordinate, }
+
+sodé () konti {
+  kouicé res : Place;
+  gbilen 0; 
+}

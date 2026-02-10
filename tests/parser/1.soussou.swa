@@ -1,0 +1,7 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé res: konti = maba(konti);
+
+  gbilen 0;
+}

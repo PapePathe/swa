@@ -1,0 +1,14 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé x: konti = 10;
+
+  xa(x == 10) {
+    kouicé x: konti = 20;
+    masen("Inner x: %d, ", x);
+  }
+
+  masen("Outer x: %d", x);
+
+  gbilen 0;
+}

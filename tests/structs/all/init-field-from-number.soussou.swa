@@ -1,0 +1,16 @@
+khuien:soussou;
+
+fokhi Wrapper {
+  index: konti,
+}
+
+sodé() konti {
+  kouicé idx : konti = 1000;
+  kouicé w: Wrapper = Wrapper{
+    index: idx,
+  };
+
+  masen("%d", w.index);
+  
+  gbilen 0;
+}

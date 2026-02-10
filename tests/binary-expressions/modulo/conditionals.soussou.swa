@@ -1,0 +1,21 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé x : konti = 4;
+  kouicé y : konti = 3;
+  kouicé z : konti = 2;
+
+  xa(x % y == 1) {
+    masen("(%d modulo %d is equal to %d)", x, y, 1);
+  } xamuara {
+    masen("%s", "modulo error");
+  }
+
+  xa(x % z == 0) {
+    masen("(%d modulo %d is equal to %d)", x, z, 0);
+  } xamuara {
+    masen("%s", "modulo error");
+  }
+
+  gbilen 0;
+}

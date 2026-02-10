@@ -1,0 +1,17 @@
+khuien:soussou;
+wali split(n: konti) (konti, konti) {
+    xa (n == 0) {
+        gbilen 0, 0;
+    }
+    kouicé a: konti = 0;
+    kouicé b: konti = 0;
+    (a, b) = split(n - 1);
+    gbilen a + 1, b + 2;
+}
+sodé() konti {
+    kouicé x: konti = 0;
+    kouicé y: konti = 0;
+    (x, y) = split(5);
+    masen("x=%d, y=%d\n", x, y);
+    gbilen 0;
+}

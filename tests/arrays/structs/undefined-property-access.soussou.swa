@@ -1,0 +1,15 @@
+khuien:soussou;
+
+sodé() konti {
+  fokhi Engineer{
+    Age: konti,
+  }
+
+  kouicé tableau : [1]Engineer = [1]Engineer{
+    Engineer{ Age: 40 },
+  };
+
+  masen("%d", tableau[0].Name);
+
+  gbilen 0;
+}

@@ -1,0 +1,17 @@
+khuien:soussou;
+
+sodé() konti {
+  fokhi Person {
+    Name: sèbèli,
+    Age: konti,
+  }
+
+  kouicé people: [1]Person = [1]Person{
+    Person{Name: "Alice", Age: 30},
+  };
+
+  kouicé i: konti = 0;
+  masen("Name: %s", people[i].Name);
+
+  gbilen 0;
+}

@@ -1,0 +1,13 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé a: konti = 0;
+  kouicé b: konti = 1;
+  
+  xa (a == 0 || b == 1) {
+    masen("a == 0 || b == 1 evaluates to true");
+  } xamuara {
+    masen("implementation error");
+  }
+  gbilen 0;
+}

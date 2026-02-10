@@ -1,0 +1,9 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé tableau : [1]Engineer = [1]Engineer{
+    Engineer{ Age: 40, Name: "Pathe",  TechStack: "Ruby, Rust, Go" },
+  };
+
+  gbilen 0;
+}

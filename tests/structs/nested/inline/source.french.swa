@@ -1,30 +1,30 @@
-dialect:french;
+dialecte:français;
 
-struct Adresse {
-  Ville: string,
-  CodePostal: int,
+structure Address {
+  City: chaine,
+  ZipCode: entier,
 }
 
-struct Personne {
-  Nom: string,
-  Age: int,
-  AdresseDomicile: Adresse,
+structure Person {
+  Name: chaine,
+  Age: entier,
+  HomeAddress: Address,
 }
 
-debut() int {
-  soit personne: Personne = Personne{
-    Nom: "Sene",
+demarrer() entier {
+  variable person: Person = Person{
+    Name: "Sene",
     Age: 25,
-    AdresseDomicile: Adresse{
-      Ville: "Thies",
-      CodePostal: 21000,
+    HomeAddress: Address{
+      City: "Thies",
+      ZipCode: 21000,
     },
   };
   
-  soit ville: string = personne.AdresseDomicile.Ville;
-  soit codePostal: int = personne.AdresseDomicile.CodePostal;
+  variable city: chaine = person.HomeAddress.City;
+  variable zipcode: entier = person.HomeAddress.ZipCode;
   
-  affiche("Nom: %s, Ville: %s, CodePostal: %d", personne.Nom, ville, codePostal);
+  afficher("Name: %s, City: %s, ZipCode: %d", person.Name, city, zipcode);
   
-  retour 0;
+  retourner 0;
 }

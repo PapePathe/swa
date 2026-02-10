@@ -1,0 +1,13 @@
+khuien:soussou;
+
+wali get_coordinates() (konti, konti) {
+    gbilen 10, 20;
+}
+
+sodé() konti {
+    kouicé x: konti = 0;
+    kouicé y: konti = 0;
+    (x, y) = get_coordinates();
+    masen("x: %d, y: %d\n", x, y);
+    gbilen 0;
+}

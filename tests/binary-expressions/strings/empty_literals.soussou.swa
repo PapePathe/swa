@@ -1,0 +1,10 @@
+khuien:soussou;
+
+sodé() konti {
+    xa ("" == "") {
+        masen("Passed");
+    } xamuara {
+        masen("Failed");
+    }
+    gbilen 0;
+}

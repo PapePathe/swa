@@ -1,0 +1,20 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé a: konti = -1;
+  kouicé b: konti = 10;
+
+  xa (a > b) {
+    masen("ERROR");
+  } xamuara {
+    masen("ok");
+  }
+
+  xa (a >= b) {
+    masen("ERROR");
+  } xamuara {
+    masen("ok");
+  }
+
+  gbilen 0;
+}

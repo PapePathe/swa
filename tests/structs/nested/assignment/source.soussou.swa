@@ -1,0 +1,27 @@
+khuien:soussou;
+
+fokhi Address {
+  City: sèbèli,
+  ZipCode: konti,
+}
+
+fokhi Person {
+  Name: sèbèli,
+  Age: konti,
+  HomeAddress: Address,
+}
+
+sodé() konti {
+  kouicé addr: Address = Address{ City: "Dakar", ZipCode: 12000 };
+  kouicé person: Person = Person{ Name: "Pathe", Age: 30, HomeAddress: addr };
+  
+  // Test nested assignment
+  person.HomeAddress.ZipCode = 99999;
+  
+  // Test nested in expression
+  kouicé code: konti = person.HomeAddress.ZipCode + 1;
+  
+  masen("City: %s, ZipCode: %d, Code+1: %d", person.HomeAddress.City, person.HomeAddress.ZipCode, code);
+  
+  gbilen 0;
+}

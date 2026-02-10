@@ -18,6 +18,16 @@ func TestFunctions(t *testing.T) {
 
 			req.AssertCompileAndExecute()
 		})
+		t.Run("soussou", func(t *testing.T) {
+			t.Parallel()
+			req := CompileRequest{
+				InputPath:               "./functions/error.soussou.swa",
+				ExpectedExecutionOutput: "Division by zero error (dividend is zero)\nNo division error",
+				T:                       t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
 	})
 
 	t.Run("Declare external function", func(t *testing.T) {
@@ -35,6 +45,16 @@ func TestFunctions(t *testing.T) {
 			t.Parallel()
 			req := CompileRequest{
 				InputPath: "./functions/declaration.french.swa",
+				T:         t,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+
+		t.Run("Soussou", func(t *testing.T) {
+			t.Parallel()
+			req := CompileRequest{
+				InputPath: "./functions/declaration.soussou.swa",
 				T:         t,
 			}
 
@@ -339,6 +359,31 @@ func TestFunctions(t *testing.T) {
 				}
 
 				req.AssertCompileAndExecute()
+			})
+		})
+
+		t.Run("Soussou", func(t *testing.T) {
+			t.Run("Add", func(t *testing.T) {
+				t.Run("Integer", func(t *testing.T) {
+					t.Parallel()
+					req := CompileRequest{
+						InputPath:               "./functions/add.integer.soussou.swa",
+						ExpectedExecutionOutput: "10 + 5 = 15",
+						T:                       t,
+					}
+					req.AssertCompileAndExecute()
+				})
+			})
+			t.Run("Subtract", func(t *testing.T) {
+				t.Run("Integer", func(t *testing.T) {
+					t.Parallel()
+					req := CompileRequest{
+						InputPath:               "./functions/substract.integer.soussou.swa",
+						ExpectedExecutionOutput: "10 - 5 = 5",
+						T:                       t,
+					}
+					req.AssertCompileAndExecute()
+				})
 			})
 		})
 	})

@@ -1,0 +1,10 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé x : konti = 4 % 3;
+  kouicé y : konti = 4 % 2;
+
+  masen("x: %d, y: %d", x, y);
+
+  gbilen 0;
+}

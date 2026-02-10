@@ -1,0 +1,12 @@
+khuien:soussou;
+
+wali division(premierArgument : konti, secondArgument: konti) konti {
+  gbilen premierArgument / secondArgument;
+}
+
+sodé() konti {
+  kouicé m : konti = 10;
+  m = division(10, 5);
+  masen("10 / 5 = %d", m);
+  gbilen 0; 
+}

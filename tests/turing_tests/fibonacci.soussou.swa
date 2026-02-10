@@ -1,0 +1,46 @@
+khuien:soussou;
+
+// Recursive Fibonacci
+wali fib_recursive(n: konti) konti {
+    xa (n <= 1) {
+        gbilen n;
+    }
+    gbilen fib_recursive(n - 1) + fib_recursive(n - 2);
+}
+
+// Iterative Fibonacci
+wali fib_iterative(n: konti) konti {
+    xa (n <= 1) {
+        gbilen n;
+    }
+    kouicé a: konti = 0;
+    kouicé b: konti = 1;
+    kouicé i: konti = 2;
+    be (i <= n) {
+        kouicé temp: konti = a + b;
+        a = b;
+        b = temp;
+        i = i + 1;
+    }
+    gbilen b;
+}
+
+sodé() konti {
+    masen("Testing Fibonacci implementations...\n");
+    
+    kouicé n: konti = 10;
+    kouicé res_rec: konti = fib_recursive(n);
+    kouicé res_ite: konti = fib_iterative(n);
+    
+    masen("fib_recursive(%d) = %d\n", n, res_rec);
+    masen("fib_iterative(%d) = %d\n", n, res_ite);
+    
+    xa (res_rec == res_ite) {
+        masen("Success: Both implementations match.\n");
+    } xamuara {
+        masen("Error: Implementations do not match.\n");
+        gbilen 1;
+    }
+    
+    gbilen 0;
+}

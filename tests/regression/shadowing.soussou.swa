@@ -1,0 +1,24 @@
+khuien:soussou;
+
+sodé() konti {
+    kouicé x: konti = 10;
+    masen("Outer x: %d\n", x);
+    
+    {
+        kouicé x: konti = 20;
+        masen("Inner x: %d\n", x);
+        xa (x != 20) {
+            masen("Error: Shadowing failed in inner block.\n");
+            gbilen 1;
+        }
+    }
+    
+    masen("Outer x again: %d\n", x);
+    xa (x != 10) {
+        masen("Error: Outer variable was corrupted by inner shadow.\n");
+        gbilen 1;
+    }
+    
+    masen("Success: Variable shadowing works.\n");
+    gbilen 0;
+}

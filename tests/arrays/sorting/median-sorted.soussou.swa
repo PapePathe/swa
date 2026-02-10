@@ -1,0 +1,145 @@
+khuien:soussou;
+
+// Define array sizes for this test case
+ kouicé M_MAX : konti = 2; // Size of nums1
+ kouicé N_MAX : konti = 4; // Size of nums2
+ kouicé INF : konti = 10000001; // Positive infinity sentinel (larger than max constraint 10^6)
+ kouicé NEG_INF : konti = -10000001; // Negative infinity sentinel
+ 
+ // Helper function to find the maximum of two integers
+ wali getMaxInt(a: konti, b: konti) konti {
+   xa (a > b) {
+     gbilen a;
+   }
+   gbilen b;
+ }
+ 
+ // Helper function to find the minimum of two integers
+ wali getMinInt(a: konti, b: konti) konti {
+   xa (a < b) {
+     gbilen a;
+   }
+   gbilen b;
+ }
+ 
+ // ------------------------------------
+ // Core function implementing O(log(m+n)) Binary Search
+ // ------------------------------------
+ wali findMedianSortedArrays(nums1: [2]konti, nums2: [4]konti, m: konti, n: konti) desimali {
+   // We assume m <= n, ensuring binary search is on the smaller array (nums1).
+   // If m > n, a swap is required, but SWA does not support generics/pointer swaps easily.
+   // The caller must ensure the shorter array is passed as nums1.
+   
+   kouicé low : konti = 0;
+   kouicé high : konti = m;
+   kouicé total_len : konti = m + n;
+   kouicé half_len : konti = (total_len + 1) / 2;
+   
+   kouicé maxLeftX : konti = 0;
+   kouicé minRightX : konti = 0;
+   kouicé maxLeftY : konti = 0;
+   kouicé minRightY : konti = 0;
+   
+   kouicé partitionX : konti = 0;
+   kouicé partitionY : konti = 0;
+   
+   kouicé result_median : desimali = 0.0;
+   
+   be (low <= high) {
+     // 1. Determine partition points using Binary Search
+     partitionX = (low + high) / 2;
+     partitionY = half_len - partitionX;
+     
+     // 2. Determine boundary values (maxLeftX, minRightX, maxLeftY, minRightY)
+     
+     // Get maxLeftX (element before partitionX)
+     xa (partitionX == 0) {
+       maxLeftX = NEG_INF;
+     } xamuara {
+       maxLeftX = nums1[partitionX - 1];
+     }
+     
+     // Get minRightX (element at partitionX)
+     xa (partitionX == m) {
+       minRightX = INF;
+     } xamuara {
+       minRightX = nums1[partitionX];
+     }
+ 
+     // Get maxLeftY (element before partitionY)
+     xa (partitionY == 0) {
+       maxLeftY = NEG_INF;
+     } xamuara {
+       maxLeftY = nums2[partitionY - 1];
+     }
+     
+     // Get minRightY (element at partitionY)
+     xa (partitionY == n) {
+       minRightY = INF;
+     } xamuara {
+       minRightY = nums2[partitionY];
+     }
+     
+     // 3. Check for correct partition: maxLeft <= minRight
+     xa (maxLeftX <= minRightY) {
+       xa (maxLeftY <= minRightX) {
+         // --- Found the correct partition! ---
+         
+         // Calculate the maximum of the left side (MaxLeft)
+         kouicé maxLeft : konti = getMaxInt(maxLeftX, maxLeftY);
+         
+         // If total length is Odd, MaxLeft is the median
+         xa ((total_len % 2) == 1) {
+           result_median = maxLeft;
+           gbilen result_median;
+         } xamuara {
+           // If total length is Even, median is (MaxLeft + MinRight) / 2
+           
+           // Calculate the minimum of the right side (MinRight)
+           kouicé minRight : konti = getMinInt(minRightX, minRightY);
+           
+           // Must perform addition and division using float arithmetic
+           kouicé temp_sum : desimali = maxLeft + minRight;
+           result_median = temp_sum / 2.0;
+           gbilen result_median;
+         }
+       } xamuara {
+         // maxLeftY > minRightX: PartitionX is too small (move right)
+         low = partitionX + 1;
+       }
+     } xamuara {
+       // maxLeftX > minRightY: PartitionX is too large (move left)
+       high = partitionX - 1;
+     }
+   }
+   
+   // Fallback (should not be reached)
+   gbilen 0.0;
+ }
+ 
+ // ------------------------------------
+ // MAIN EXECUTION
+ // ------------------------------------
+ sodé() konti {
+   kouicé result : desimali = 0.0;
+   
+   // Example 2: nums1 = [1, 2], nums2 = [3, 4, 5, 6] -> Merged: [1, 2, 3, 4, 5, 6]. Median = (3 + 4) / 2 = 3.5
+   kouicé arr1_a: [2]konti = [2]konti{ 1, 2 };
+   kouicé arr2_a: [4]konti = [4]konti{ 3, 4, 5, 6 };
+   
+   // Call function, ensuring shorter array is first: m=2, n=4
+   result = findMedianSortedArrays(arr1_a, arr2_a, 2, 4); 
+   masen("Median for [1,2], [3,4,5,6] (m=2, n=4) = %f", result); 
+ 
+   // Example for an Odd Total Length: nums1 = [1], nums2 = [2, 3, 4, 5] -> Merged: [1, 2, 3, 4, 5]. Median = 3.0
+   // Note: We'll pad the 1-element array to fit the [2]int constraint, using INF as padding
+   kouicé arr1_b: [2]konti = [2]konti{ 1, INF }; 
+   kouicé arr2_b: [4]konti = [4]konti{ 2, 3, 4, 5 };
+   
+   // Call function with actual sizes: m=1, n=4. Total size=5. Half_len=3.
+   // The logic inside must handle the INF padding correctly via the size check (m=1).
+   result = findMedianSortedArrays(arr1_b, arr2_b, 1, 4); 
+   masen("Median for [1], [2,3,4,5] (m=1, n=4) = %f", result); 
+ 
+   gbilen 0; 
+ }

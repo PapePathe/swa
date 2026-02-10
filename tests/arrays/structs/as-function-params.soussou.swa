@@ -1,0 +1,45 @@
+khuien:soussou;
+
+fokhi Point { 
+  X: konti, 
+  Y: konti, 
+}
+
+wali count_x_occurrences(points: [4]Point, target_x: konti) konti {
+  kouicé count: konti = 0;
+  kouicé idx: konti = 0;
+  kouicé array_size: konti = 4;
+  
+  be (idx < array_size) {
+    xa (points[idx].X == target_x) {
+      count = count + 1;
+    }
+    
+    idx = idx + 1;
+  }
+  
+  gbilen count;
+}
+
+sodé() konti {
+  kouicé points_array: [4]Point = [4]Point{
+    Point{X: 1, Y: 10}, 
+    Point{X: 5, Y: 20},
+    Point{X: 1, Y: 30}, // Match
+    Point{X: 5, Y: 40}, 
+  };
+  
+  kouicé target: konti = 1;
+  kouicé occurrences: konti = count_x_occurrences(points_array, target);
+  masen("X=%d occurs %d times, ", target, occurrences);
+
+  target = 5;
+  occurrences = count_x_occurrences(points_array, target);
+  masen("X=%d occurs %d times, ", target, occurrences);
+
+  target = 99;
+  occurrences = count_x_occurrences(points_array, target);
+  masen("X=%d occurs %d times", target, occurrences);
+  
+  gbilen 0;
+}

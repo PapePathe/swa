@@ -1,0 +1,16 @@
+khuien:soussou;
+
+fokhi Point {
+  x : desimali,
+}
+
+wali add(first: desimali, last: desimali) desimali {
+  gbilen first + last;
+}
+
+sodé () konti {
+  kouicé p : Point = Point{x: 10.25};
+  kouicé res : desimali = add(p.x, 4.75);
+  masen("10.25 + 4.75 = %.2f", res);
+  gbilen 0; 
+}

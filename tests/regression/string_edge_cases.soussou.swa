@@ -1,0 +1,18 @@
+khuien:soussou;
+
+sodé() konti {
+    kouicé s1: sèbèli = "Hello\nWorld";
+    kouicé s2: sèbèli = "Tab\tCharacter";
+    kouicé s3: sèbèli = "Quote \" inside";
+    let s4: string = "Backslash \\ inside";
+    
+    print("s1: %s\n", s1);
+    print("s2: %s\n", s2);
+    print("s3: %s\n", s3);
+    print("s4: %s\n", s4);
+    
+    let long_string: string = "This is a very long sèbèli designed to test how the compiler handles larger literals in the assembly generation phase. It should be able to handle strings that are significantly longer than short identifiers or simple messages.\n";
+    print("Long sèbèli: %s", long_string);
+    
+    gbilen 0;
+}

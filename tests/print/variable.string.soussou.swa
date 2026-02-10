@@ -1,0 +1,8 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé s : sèbèli = "french";
+  masen("contenu de la variable: %s", s);
+
+  gbilen 0; 
+}

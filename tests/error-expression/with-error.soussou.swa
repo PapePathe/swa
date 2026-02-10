@@ -1,0 +1,22 @@
+khuien:soussou;
+
+wali divide(a: konti, b: konti) (konti, foutoura) {
+    xa (b == 0) {
+        gbilen 0, foutoura("dividend is zero"); 
+    }
+    gbilen a / b, maba(foutoura); 
+}
+
+sodé() konti {
+    kouicé res: konti = 0;
+    kouicé err: foutoura;
+    (res, err) = divide(100, 0);
+
+     xa(err != maba(foutoura)) {
+       masen("Division by zero error %s", err);
+       gbilen 0;
+     }
+
+    masen("%d\n", res);
+    gbilen 0;
+}

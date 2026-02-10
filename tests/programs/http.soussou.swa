@@ -1,0 +1,1631 @@
+khuien:soussou;
+
+// ==================== HTTP CONSTANTS AND STRUCTURES ====================
+
+// HTTP Methods
+kouicé HTTP_GET: konti = 1;
+kouicé HTTP_POST: konti = 2;
+kouicé HTTP_PUT: konti = 3;
+kouicé HTTP_DELETE: konti = 4;
+kouicé HTTP_HEAD: konti = 5;
+kouicé HTTP_OPTIONS: konti = 6;
+kouicé HTTP_PATCH: konti = 7;
+
+// HTTP Versions
+kouicé HTTP_VERSION_1_0: konti = 10;
+kouicé HTTP_VERSION_1_1: konti = 11;
+kouicé HTTP_VERSION_2_0: konti = 20;
+
+// HTTP Status Codes
+kouicé HTTP_STATUS_CONTINUE: konti = 100;
+kouicé HTTP_STATUS_OK: konti = 200;
+kouicé HTTP_STATUS_CREATED: konti = 201;
+kouicé HTTP_STATUS_ACCEPTED: konti = 202;
+kouicé HTTP_STATUS_NO_CONTENT: konti = 204;
+kouicé HTTP_STATUS_MOVED_PERMANENTLY: konti = 301;
+kouicé HTTP_STATUS_FOUND: konti = 302;
+kouicé HTTP_STATUS_BAD_REQUEST: konti = 400;
+kouicé HTTP_STATUS_UNAUTHORIZED: konti = 401;
+kouicé HTTP_STATUS_FORBIDDEN: konti = 403;
+kouicé HTTP_STATUS_NOT_FOUND: konti = 404;
+kouicé HTTP_STATUS_METHOD_NOT_ALLOWED: konti = 405;
+kouicé HTTP_STATUS_INTERNAL_SERVER_ERROR: konti = 500;
+kouicé HTTP_STATUS_NOT_IMPLEMENTED: konti = 501;
+kouicé HTTP_STATUS_BAD_GATEWAY: konti = 502;
+kouicé HTTP_STATUS_SERVICE_UNAVAILABLE: konti = 503;
+
+// HTTP Headers
+fokhi HTTPHeader {
+  name: sèbèli,
+  value: sèbèli,
+}
+
+// HTTP Request Structure
+fokhi HTTPRequest {
+  method: konti,
+  path: sèbèli,
+  version: konti,
+  headers: [50]HTTPHeader,
+  header_count: konti,
+  body: [4096]konti,
+  body_length: konti,
+  query_params: [20]HTTPHeader,
+  query_param_count: konti,
+}
+
+// HTTP Response Structure
+fokhi HTTPResponse {
+  version: konti,
+  status_code: konti,
+  status_text: sèbèli,
+  headers: [50]HTTPHeader,
+  header_count: konti,
+  body: [4096]konti,
+  body_length: konti,
+}
+
+// JSON Value Types
+kouicé JSON_TYPE_NULL: konti = 0;
+kouicé JSON_TYPE_BOOL: konti = 1;
+kouicé JSON_TYPE_NUMBER: konti = 2;
+kouicé JSON_TYPE_STRING: konti = 3;
+kouicé JSON_TYPE_ARRAY: konti = 4;
+kouicé JSON_TYPE_OBJECT: konti = 5;
+
+// JSON Structure
+fokhi JSONValue {
+  type: konti,
+  bool_value: konti,
+  number_value: desimali,
+  string_value: sèbèli,
+  array_items: [20]JSONValue,
+  array_size: konti,
+  object_properties: [20]JSONProperty,
+  object_size: konti,
+}
+
+fokhi JSONProperty {
+  key: sèbèli,
+  value: JSONValue,
+}
+
+// ==================== UTILITY FUNCTIONS ====================
+
+wali int_to_string(num: konti) sèbèli {
+  xa (num == 0) {
+    gbilen "0";
+  }
+  
+  kouicé result: sèbèli = "";
+  kouicé temp: konti = num;
+  kouicé is_negative: konti = 0;
+  
+  xa (temp < 0) {
+    is_negative = 1;
+    temp = 0 - temp;
+  }
+  
+  kouicé done: konti = 0;
+  be (done == 0) {
+    xa (temp == 0) {
+      done = 1;
+    } xamuara {
+      kouicé digit: konti = temp % 10;
+      kouicé digit_str: sèbèli = "";
+      xa (digit == 0) { digit_str = "0"; }
+      xa (digit == 1) { digit_str = "1"; }
+      xa (digit == 2) { digit_str = "2"; }
+      xa (digit == 3) { digit_str = "3"; }
+      xa (digit == 4) { digit_str = "4"; }
+      xa (digit == 5) { digit_str = "5"; }
+      xa (digit == 6) { digit_str = "6"; }
+      xa (digit == 7) { digit_str = "7"; }
+      xa (digit == 8) { digit_str = "8"; }
+      xa (digit == 9) { digit_str = "9"; }
+      
+      result = digit_str + result;
+      temp = temp / 10;
+    }
+  }
+  
+  xa (is_negative == 1) {
+    result = "-" + result;
+  }
+  
+  gbilen result;
+}
+
+wali string_to_int(str: sèbèli) konti {
+  kouicé result: konti = 0;
+  kouicé i: konti = 0;
+  kouicé is_negative: konti = 0;
+  
+  xa (str.length > 0) {
+    xa (str[0] == "-") {
+      is_negative = 1;
+      i = 1;
+    }
+  }
+  
+  be (i < str.length) {
+    kouicé ch: sèbèli = str[i];
+    kouicé digit: konti = 0;
+    
+    xa (ch == "0") { digit = 0; }
+    xa (ch == "1") { digit = 1; }
+    xa (ch == "2") { digit = 2; }
+    xa (ch == "3") { digit = 3; }
+    xa (ch == "4") { digit = 4; }
+    xa (ch == "5") { digit = 5; }
+    xa (ch == "6") { digit = 6; }
+    xa (ch == "7") { digit = 7; }
+    xa (ch == "8") { digit = 8; }
+    xa (ch == "9") { digit = 9; }
+    
+    result = result * 10 + digit;
+    i = i + 1;
+  }
+  
+  xa (is_negative == 1) {
+    result = 0 - result;
+  }
+  
+  gbilen result;
+}
+
+wali float_to_string(num: desimali) sèbèli {
+  // Simple float to string conversion
+  kouicé int_part: konti = num;
+  kouicé frac_part: desimali = num - int_part;
+  
+  kouicé int_str: sèbèli = int_to_string(int_part);
+  
+  xa (frac_part == 0.0) {
+    gbilen int_str;
+  } xamuara {
+    // Convert fraction part (2 desimali places)
+    kouicé frac_int: konti = frac_part * 100.0;
+    kouicé frac_str: sèbèli = int_to_string(frac_int);
+    
+    // Ensure 2 digits
+    xa (frac_int < 10) {
+      frac_str = "0" + frac_str;
+    }
+    
+    gbilen int_str + "." + frac_str;
+  }
+}
+
+wali ascii_to_char(code: konti) sèbèli {
+  xa (code == 32) { gbilen " ";}
+  xa (code == 33) { gbilen "!";}
+  xa (code == 34) { gbilen "\"";}
+  if (code == 35) { return "#";}
+  if (code == 36) { return "$";}
+  if (code == 37) { return "%";}
+  if (code == 38) { return "&";}
+  if (code == 39) { return "'";}
+  if (code == 40) { return "(";}
+  if (code == 41) { return ")";}
+  if (code == 42) { return "*";}
+  if (code == 43) { return "+";}
+  if (code == 44) { return ",";}
+  if (code == 45) { return "-";}
+  if (code == 46) { return ".";}
+  if (code == 47) { return "/";}
+  if (code == 58) { return ":";}
+  if (code == 59) { return ";";}
+  if (code == 60) { return "<";}
+  if (code == 61) { return "=";}
+  if (code == 62) { return ">";}
+  if (code == 63) { return "?";}
+  if (code == 64) { return "@";}
+  if (code == 91) { return "[";}
+  if (code == 92) { return "\\";}
+  if (code == 93) { return "]";}
+  if (code == 94) { return "^";}
+  if (code == 95) { return "_";}
+  if (code == 96) { return "`";}
+  if (code == 123){ return "{";}
+  if (code == 124){ return "|";}
+  if (code == 125){ return "}";}
+  if (code == 126){ return "~";}
+  
+  if (code >= 48 && code <= 57) {
+    return int_to_string(code - 48);
+  }
+  
+  if (code >= 65 && code <= 90) {
+    let letter_num: int = code - 65;
+    if (letter_num == 0) { return "A";}
+    if (letter_num == 1) { return "B";}
+    if (letter_num == 2) { return "C";}
+    if (letter_num == 3) { return "D";}
+    if (letter_num == 4) { return "E";}
+    if (letter_num == 5) { return "F";}
+    if (letter_num == 6) { return "G";}
+    if (letter_num == 7) { return "H";}
+    if (letter_num == 8) { return "I";}
+    if (letter_num == 9) { return "J";}
+    if (letter_num == 10){ return "K";}
+    if (letter_num == 11){ return "L";}
+    if (letter_num == 12){ return "M";}
+    if (letter_num == 13){ return "N";}
+    if (letter_num == 14){ return "O";}
+    if (letter_num == 15){ return "P";}
+    if (letter_num == 16){ return "Q";}
+    if (letter_num == 17){ return "R";}
+    if (letter_num == 18){ return "S";}
+    if (letter_num == 19){ return "T";}
+    if (letter_num == 20){ return "U";}
+    if (letter_num == 21){ return "V";}
+    if (letter_num == 22){ return "W";}
+    if (letter_num == 23){ return "X";}
+    if (letter_num == 24){ return "Y";}
+    return "Z";
+  }
+  
+  if (code >= 97 && code <= 122) {
+    let letter_num: int = code - 97;
+    if (letter_num == 0) { return "a";}
+    if (letter_num == 1) { return "b";}
+    if (letter_num == 2) { return "c";}
+    if (letter_num == 3) { return "d";}
+    if (letter_num == 4) { return "e";}
+    if (letter_num == 5) { return "f";}
+    if (letter_num == 6) { return "g";}
+    if (letter_num == 7) { return "h";}
+    if (letter_num == 8) { return "i";}
+    if (letter_num == 9) { return "j";}
+    if (letter_num == 10){ return "k";}
+    if (letter_num == 11){ return "l";}
+    if (letter_num == 12){ return "m";}
+    if (letter_num == 13){ return "n";}
+    if (letter_num == 14){ return "o";}
+    if (letter_num == 15){ return "p";}
+    if (letter_num == 16){ return "q";}
+    if (letter_num == 17){ return "r";}
+    if (letter_num == 18){ return "s";}
+    if (letter_num == 19){ return "t";}
+    if (letter_num == 20){ return "u";}
+    if (letter_num == 21){ return "v";}
+    if (letter_num == 22){ return "w";}
+    if (letter_num == 23){ return "x";}
+    if (letter_num == 24){ return "y";}
+    return "z";
+  }
+  
+  return "?";
+}
+
+func char_to_ascii(ch: string) int {
+  if (ch == " ") { return 32;}
+  if (ch == "!") { return 33;}
+  if (ch == "\""){ gbilen 34;}
+  xa (ch == "#") { gbilen 35;}
+  xa (ch == "$") { gbilen 36;}
+  xa (ch == "%") { gbilen 37;}
+  xa (ch == "&") { gbilen 38;}
+  xa (ch == "'") { gbilen 39;}
+  xa (ch == "(") { gbilen 40;}
+  xa (ch == ")") { gbilen 41;}
+  xa (ch == "*") { gbilen 42;}
+  xa (ch == "+") { gbilen 43;}
+  xa (ch == ",") { gbilen 44;}
+  xa (ch == "-") { gbilen 45;}
+  xa (ch == ".") { gbilen 46;}
+  xa (ch == "/") { gbilen 47;}
+  xa (ch == ":") { gbilen 58;}
+  xa (ch == ";") { gbilen 59;}
+  xa (ch == "<") { gbilen 60;}
+  xa (ch == "=") { gbilen 61;}
+  xa (ch == ">") { gbilen 62;}
+  xa (ch == "?") { gbilen 63;}
+  xa (ch == "@") { gbilen 64;}
+  xa (ch == "[") { gbilen 91;}
+  xa (ch == "\\"){ gbilen 92;}
+  xa (ch == "]") { gbilen 93;}
+  xa (ch == "^") { gbilen 94;}
+  xa (ch == "_") { gbilen 95;}
+  xa (ch == "`") { gbilen 96;}
+  xa (ch == "{") { gbilen 123;}
+  xa (ch == "|") { gbilen 124;}
+  xa (ch == "}") { gbilen 125;}
+  xa (ch == "~") { gbilen 126;}
+  
+  xa (ch == "0"){ gbilen 48;}
+  xa (ch == "1"){ gbilen 49;}
+  xa (ch == "2"){ gbilen 50;}
+  xa (ch == "3"){ gbilen 51;}
+  xa (ch == "4"){ gbilen 52;}
+  xa (ch == "5"){ gbilen 53;}
+  xa (ch == "6"){ gbilen 54;}
+  xa (ch == "7"){ gbilen 55;}
+  xa (ch == "8"){ gbilen 56;}
+  xa (ch == "9"){ gbilen 57;}
+  xa (ch == "A"){ gbilen 65;}
+  xa (ch == "B"){ gbilen 66;}
+  xa (ch == "C"){ gbilen 67;}
+  xa (ch == "D"){ gbilen 68;}
+  xa (ch == "E"){ gbilen 69;}
+  xa (ch == "F"){ gbilen 70;}
+  xa (ch == "G"){ gbilen 71;}
+  xa (ch == "H"){ gbilen 72;}
+  xa (ch == "I"){ gbilen 73;}
+  xa (ch == "J"){ gbilen 74;}
+  xa (ch == "K"){ gbilen 75;}
+  xa (ch == "L"){ gbilen 76;}
+  xa (ch == "M"){ gbilen 77;}
+  xa (ch == "N"){ gbilen 78;}
+  xa (ch == "O"){ gbilen 79;}
+  xa (ch == "P"){ gbilen 80;}
+  xa (ch == "Q"){ gbilen 81;}
+  xa (ch == "R"){ gbilen 82;}
+  xa (ch == "S"){ gbilen 83;}
+  xa (ch == "T"){ gbilen 84;}
+  xa (ch == "U"){ gbilen 85;}
+  xa (ch == "V"){ gbilen 86;}
+  xa (ch == "W"){ gbilen 87;}
+  xa (ch == "X"){ gbilen 88;}
+  xa (ch == "Y"){ gbilen 89;}
+  xa (ch == "Z"){ gbilen 90;}
+  xa (ch == "a"){ gbilen 97;}
+  xa (ch == "b"){ gbilen 98;}
+  xa (ch == "c"){ gbilen 99;}
+  xa (ch == "d"){ gbilen 100;}
+  xa (ch == "e"){ gbilen 101;}
+  xa (ch == "f"){ gbilen 102;}
+  xa (ch == "g"){ gbilen 103;}
+  xa (ch == "h"){ gbilen 104;}
+  xa (ch == "i"){ gbilen 105;}
+  xa (ch == "j"){ gbilen 106;}
+  xa (ch == "k"){ gbilen 107;}
+  xa (ch == "l"){ gbilen 108;}
+  xa (ch == "m"){ gbilen 109;}
+  xa (ch == "n"){ gbilen 110;}
+  xa (ch == "o"){ gbilen 111;}
+  xa (ch == "p"){ gbilen 112;}
+  xa (ch == "q"){ gbilen 113;}
+  xa (ch == "r"){ gbilen 114;}
+  xa (ch == "s"){ gbilen 115;}
+  xa (ch == "t"){ gbilen 116;}
+  xa (ch == "u"){ gbilen 117;}
+  xa (ch == "v"){ gbilen 118;}
+  xa (ch == "w"){ gbilen 119;}
+  xa (ch == "x"){ gbilen 120;}
+  xa (ch == "y"){ gbilen 121;}
+  xa (ch == "z"){ gbilen 122;}
+  
+  gbilen 63; // "?"
+}
+
+wali string_to_ascii_array(str: sèbèli) [4096]konti {
+  kouicé result: [4096]konti = [4096]konti{0};
+  kouicé i: konti = 0;
+  kouicé done: konti = 0;
+  
+  be (done == 0) {
+    xa (i >= str.length || i >= 4096) {
+      done = 1;
+    } xamuara {
+      result[i] = char_to_ascii(str[i]);
+      i = i + 1;
+    }
+  }
+  
+  gbilen result;
+}
+
+wali ascii_array_to_string(data: [4096]konti, length: konti) sèbèli {
+  kouicé result: sèbèli = "";
+  kouicé i: konti = 0;
+  kouicé done: konti = 0;
+  
+  be (done == 0) {
+    xa (i >= length || i >= 4096) {
+      done = 1;
+    } xamuara {
+      result = result + ascii_to_char(data[i]);
+      i = i + 1;
+    }
+  }
+  
+  gbilen result;
+}
+
+wali get_http_method_name(method: konti) sèbèli {
+  xa (method == HTTP_GET)    { gbilen "GET";}
+  xa (method == HTTP_POST)   { gbilen "POST";}
+  xa (method == HTTP_PUT)    { gbilen "PUT";}
+  xa (method == HTTP_DELETE) { gbilen "DELETE";}
+  xa (method == HTTP_HEAD)   { gbilen "HEAD";}
+  xa (method == HTTP_OPTIONS){ gbilen "OPTIONS";}
+  xa (method == HTTP_PATCH)  { gbilen "PATCH";}
+  gbilen "UNKNOWN";
+}
+
+wali get_http_version_name(version: konti) sèbèli {
+  xa (version == HTTP_VERSION_1_0){ gbilen "HTTP/1.0";}
+  xa (version == HTTP_VERSION_1_1){ gbilen "HTTP/1.1";}
+  xa (version == HTTP_VERSION_2_0){ gbilen "HTTP/2.0";}
+  gbilen "HTTP/UNKNOWN";
+}
+
+wali get_http_status_text(status_code: konti) sèbèli {
+  xa (status_code == HTTP_STATUS_CONTINUE)             { gbilen "Continue"; }
+  xa (status_code == HTTP_STATUS_OK)                   { gbilen "OK";}
+  xa (status_code == HTTP_STATUS_CREATED)              { gbilen "Created";}
+  xa (status_code == HTTP_STATUS_ACCEPTED)             { gbilen "Accepted";}
+  xa (status_code == HTTP_STATUS_NO_CONTENT)           { gbilen "No Content";}
+  xa (status_code == HTTP_STATUS_MOVED_PERMANENTLY)    { gbilen "Moved Permanently";}
+  xa (status_code == HTTP_STATUS_FOUND)                { gbilen "Found";}
+  xa (status_code == HTTP_STATUS_BAD_REQUEST)          { gbilen "Bad Request";}
+  xa (status_code == HTTP_STATUS_UNAUTHORIZED)         { gbilen "Unauthorized";}
+  xa (status_code == HTTP_STATUS_FORBIDDEN)            { gbilen "Forbidden";}
+  xa (status_code == HTTP_STATUS_NOT_FOUND)            { gbilen "Not Found";}
+  xa (status_code == HTTP_STATUS_METHOD_NOT_ALLOWED)   { gbilen "Method Not Allowed";}
+  xa (status_code == HTTP_STATUS_INTERNAL_SERVER_ERROR){ gbilen "Internal Server Error";}
+  xa (status_code == HTTP_STATUS_NOT_IMPLEMENTED)      { gbilen "Not Implemented";}
+  xa (status_code == HTTP_STATUS_BAD_GATEWAY)          { gbilen "Bad Gateway";}
+  xa (status_code == HTTP_STATUS_SERVICE_UNAVAILABLE)  { gbilen "Service Unavailable";}
+  gbilen "Unknown Status";
+}
+
+// ==================== HTTP PARSER ====================
+
+wali parse_http_request(data: [4096]konti, length: konti) HTTPRequest {
+  kouicé request: HTTPRequest = HTTPRequest{
+    method: 0,
+    path: "",
+    version: 0,
+    headers: [50]HTTPHeader{},
+    header_count: 0,
+    body: [4096]konti{0},
+    body_length: 0,
+    query_params: [20]HTTPHeader{},
+    query_param_count: 0,
+  };
+  
+  kouicé i: konti = 0;
+  kouicé parsing_done: konti = 0;
+  kouicé state: konti = 0; // 0=method, 1=path, 2=version, 3=headers, 4=body
+  
+  kouicé current_token: sèbèli = "";
+  kouicé is_query_param: konti = 0;
+  
+  be (parsing_done == 0) {
+    xa (i >= length) {
+      parsing_done = 1;
+    } xamuara {
+      kouicé ch_int: konti = data[i];
+      kouicé ch: sèbèli = ascii_to_char(ch_int);
+      
+      xa (state == 0) {
+        // Parse method
+        xa (ch_int == 32) { // Space
+          xa (current_token == "GET") {
+            request.method = HTTP_GET;
+          } xamuara {
+            xa (current_token == "POST") {
+              request.method = HTTP_POST;
+            } xamuara {
+              xa (current_token == "PUT") {
+                request.method = HTTP_PUT;
+              } xamuara {
+                xa (current_token == "DELETE") {
+                  request.method = HTTP_DELETE;
+                } xamuara {
+                  xa (current_token == "HEAD") {
+                    request.method = HTTP_HEAD;
+                  } xamuara {
+                    xa (current_token == "OPTIONS") {
+                      request.method = HTTP_OPTIONS;
+                    } xamuara {
+                      xa (current_token == "PATCH") {
+                        request.method = HTTP_PATCH;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          current_token = "";
+          state = 1;
+        } xamuara {
+          current_token = current_token + ch;
+        }
+      } xamuara {
+        xa (state == 1) {
+          // Parse path and query parameters
+          xa (ch_int == 32) { // Space
+            request.path = current_token;
+            
+            // Parse query parameters from path
+            kouicé query_start: konti = 0;
+            kouicé find_query_done: konti = 0;
+            kouicé j: konti = 0;
+            
+            be (find_query_done == 0) {
+              xa (j >= request.path.length) {
+                find_query_done = 1;
+              } xamuara {
+                xa (request.path[j] == "?") {
+                  query_start = j + 1;
+                  find_query_done = 1;
+                }
+                j = j + 1;
+              }
+            }
+            
+            xa (query_start > 0) {
+              kouicé actual_path: sèbèli = "";
+              kouicé k: konti = 0;
+              kouicé copy_path_done: konti = 0;
+              
+              be (copy_path_done == 0) {
+                xa (k >= query_start - 1) {
+                  copy_path_done = 1;
+                } xamuara {
+                  actual_path = actual_path + request.path[k];
+                  k = k + 1;
+                }
+              }
+              
+              request.path = actual_path;
+              
+              // Parse query string
+              kouicé query_str: sèbèli = "";
+              kouicé l: konti = query_start;
+              kouicé copy_query_done: konti = 0;
+              
+              be (copy_query_done == 0) {
+                xa (l >= request.path.length) {
+                  copy_query_done = 1;
+                } xamuara {
+                  query_str = query_str + request.path[l];
+                  l = l + 1;
+                }
+              }
+              
+              // Parse query parameters
+              kouicé param_name: sèbèli = "";
+              kouicé param_value: sèbèli = "";
+              kouicé in_name: konti = 1;
+              kouicé m: konti = 0;
+              kouicé parse_params_done: konti = 0;
+              
+              be (parse_params_done == 0) {
+                xa (m >= query_str.length) {
+                  parse_params_done = 1;
+                  xa (param_name != "") {
+                    request.query_params[request.query_param_count] = HTTPHeader{
+                      name: param_name,
+                      value: param_value
+                    };
+                    request.query_param_count = request.query_param_count + 1;
+                  }
+                } xamuara {
+                  kouicé query_ch: sèbèli = query_str[m];
+                  
+                  xa (query_ch == "=") {
+                    in_name = 0;
+                  } xamuara {
+                    xa (query_ch == "&") {
+                      xa (param_name != "") {
+                        request.query_params[request.query_param_count] = HTTPHeader{
+                          name: param_name,
+                          value: param_value
+                        };
+                        request.query_param_count = request.query_param_count + 1;
+                      }
+                      param_name = "";
+                      param_value = "";
+                      in_name = 1;
+                    } xamuara {
+                      xa (in_name == 1) {
+                        param_name = param_name + query_ch;
+                      } xamuara {
+                        param_value = param_value + query_ch;
+                      }
+                    }
+                  }
+                  
+                  m = m + 1;
+                }
+              }
+            }
+            
+            current_token = "";
+            state = 2;
+          } xamuara {
+            current_token = current_token + ch;
+          }
+        } xamuara {
+          xa (state == 2) {
+            // Parse version
+            xa (ch_int == 13) { // CR
+              // Check for HTTP version
+              xa (current_token == "HTTP/1.0") {
+                request.version = HTTP_VERSION_1_0;
+              } xamuara {
+                xa (current_token == "HTTP/1.1") {
+                  request.version = HTTP_VERSION_1_1;
+                } xamuara {
+                  xa (current_token == "HTTP/2.0") {
+                    request.version = HTTP_VERSION_2_0;
+                  }
+                }
+              }
+              current_token = "";
+              i = i + 1; // Skip LF after CR
+              state = 3;
+            } xamuara {
+              current_token = current_token + ch;
+            }
+          } xamuara {
+            xa (state == 3) {
+              // Parse headers
+              xa (ch_int == 13) { // CR
+                i = i + 1; // Skip LF
+                
+                xa (i < length && data[i] == 13) {
+                  // Double CRLF means end of headers
+                  i = i + 2; // Skip CRLF
+                  state = 4;
+                } xamuara {
+                  // Parse header line
+                  kouicé header_line: sèbèli = current_token;
+                  current_token = "";
+                  
+                  kouicé colon_pos: konti = 0;
+                  kouicé find_colon_done: konti = 0;
+                  kouicé j: konti = 0;
+                  
+                  be (find_colon_done == 0) {
+                    xa (j >= header_line.length) {
+                      find_colon_done = 1;
+                    } xamuara {
+                      xa (header_line[j] == ":") {
+                        colon_pos = j;
+                        find_colon_done = 1;
+                      }
+                      j = j + 1;
+                    }
+                  }
+                  
+                  xa (colon_pos > 0) {
+                    kouicé header_name: sèbèli = "";
+                    kouicé header_value: sèbèli = "";
+                    
+                    kouicé k: konti = 0;
+                    kouicé copy_name_done: konti = 0;
+                    
+                    be (copy_name_done == 0) {
+                      xa (k >= colon_pos) {
+                        copy_name_done = 1;
+                      } xamuara {
+                        header_name = header_name + header_line[k];
+                        k = k + 1;
+                      }
+                    }
+                    
+                    // Skip colon and space
+                    kouicé value_start: konti = colon_pos + 1;
+                    xa (value_start < header_line.length && header_line[value_start] == " ") {
+                      value_start = value_start + 1;
+                    }
+                    
+                    kouicé l: konti = value_start;
+                    kouicé copy_value_done: konti = 0;
+                    
+                    be (copy_value_done == 0) {
+                      xa (l >= header_line.length) {
+                        copy_value_done = 1;
+                      } xamuara {
+                        header_value = header_value + header_line[l];
+                        l = l + 1;
+                      }
+                    }
+                    
+                    request.headers[request.header_count] = HTTPHeader{
+                      name: header_name,
+                      value: header_value
+                    };
+                    request.header_count = request.header_count + 1;
+                  }
+                }
+              } xamuara {
+                current_token = current_token + ch;
+              }
+            } xamuara {
+              xa (state == 4) {
+                // Parse body
+                kouicé body_idx: konti = 0;
+                kouicé copy_body_done: konti = 0;
+                
+                be (copy_body_done == 0) {
+                  xa (i >= length || body_idx >= 4096) {
+                    copy_body_done = 1;
+                  } xamuara {
+                    request.body[body_idx] = data[i];
+                    body_idx = body_idx + 1;
+                    i = i + 1;
+                  }
+                }
+                
+                request.body_length = body_idx;
+                parsing_done = 1;
+              }
+            }
+          }
+        }
+      }
+      
+      i = i + 1;
+    }
+  }
+  
+  gbilen request;
+}
+
+wali create_http_response(version: konti, status_code: konti, body: [4096]konti, body_length: konti) HTTPResponse {
+  kouicé response: HTTPResponse = HTTPResponse{
+    version: version,
+    status_code: status_code,
+    status_text: get_http_status_text(status_code),
+    headers: [50]HTTPHeader{},
+    header_count: 0,
+    body: body,
+    body_length: body_length,
+  };
+  
+  // Add default headers
+  response.headers[0] = HTTPHeader{
+    name: "Content-Type",
+    value: "text/plain"
+  };
+  response.header_count = response.header_count + 1;
+  
+  response.headers[1] = HTTPHeader{
+    name: "Content-Length",
+    value: int_to_string(body_length)
+  };
+  response.header_count = response.header_count + 1;
+  
+  response.headers[2] = HTTPHeader{
+    name: "Connection",
+    value: "close"
+  };
+  response.header_count = response.header_count + 1;
+  
+  gbilen response;
+}
+
+wali http_response_to_string(response: HTTPResponse) sèbèli {
+  kouicé result: sèbèli = "";
+  
+  // Status line
+  result = result + get_http_version_name(response.version) + " ";
+  result = result + int_to_string(response.status_code) + " ";
+  result = result + response.status_text + "\r\n";
+  
+  // Headers
+  kouicé i: konti = 0;
+  kouicé add_headers_done: konti = 0;
+  
+  be (add_headers_done == 0) {
+    xa (i >= response.header_count) {
+      add_headers_done = 1;
+    } xamuara {
+      result = result + response.headers[i].name + ": " + response.headers[i].value + "\r\n";
+      i = i + 1;
+    }
+  }
+  
+  // Empty line
+  result = result + "\r\n";
+  
+  // Body
+  kouicé body_str: sèbèli = ascii_array_to_string(response.body, response.body_length);
+  result = result + body_str;
+  
+  gbilen result;
+}
+
+// ==================== JSON PARSER ====================
+
+wali parse_json_string(data: sèbèli, startval: konti) JSONValue {
+  kouicé result: JSONValue = JSONValue{
+    type: JSON_TYPE_NULL,
+    bool_value: 0,
+    number_value: 0.0,
+    string_value: "",
+    array_items: [20]JSONValue{},
+    array_size: 0,
+    object_properties: [20]JSONProperty{},
+    object_size: 0,
+  };
+  
+  kouicé i: konti = startval;
+  kouicé parsing_done: konti = 0;
+  
+  be (parsing_done == 0) {
+    xa (i >= data.length) {
+      parsing_done = 1;
+    } xamuara {
+      kouicé ch: sèbèli = data[i];
+      
+      xa (ch == " " || ch == "\t" || ch == "\n" || ch == "\r") {
+        // Skip whitespace
+        i = i + 1;
+      } xamuara {
+        xa (ch == "n") {
+          // null
+          xa (i + 3 < data.length) {
+            xa (data[i+1] == "u" && data[i+2] == "l" && data[i+3] == "l") {
+              result.type = JSON_TYPE_NULL;
+              parsing_done = 1;
+            }
+          }
+        } xamuara {
+          xa (ch == "t") {
+            // true
+            xa (i + 3 < data.length) {
+              xa (data[i+1] == "r" && data[i+2] == "u" && data[i+3] == "e") {
+                result.type = JSON_TYPE_BOOL;
+                result.bool_value = 1;
+                parsing_done = 1;
+              }
+            }
+          } xamuara {
+            xa (ch == "f") {
+              // false
+              xa (i + 4 < data.length) {
+                xa (data[i+1] == "a" && data[i+2] == "l" && data[i+3] == "s" && data[i+4] == "e") {
+                  result.type = JSON_TYPE_BOOL;
+                  result.bool_value = 0;
+                  parsing_done = 1;
+                }
+              }
+            } xamuara {
+              xa (ch == "\"") {
+                // string
+                result.type = JSON_TYPE_STRING;
+                let str_content: string = "";
+                i = i + 1;
+                let string_done: int = 0;
+                
+                while (string_done == 0) {
+                  if (i >= data.length) {
+                    string_done = 1;
+                  } else {
+                    if (data[i] == "\"") {
+                      string_done = 1;
+                      i = i + 1;
+                    } xamuara {
+                      str_content = str_content + data[i];
+                      i = i + 1;
+                    }
+                  }
+                }
+                
+                result.string_value = str_content;
+                parsing_done = 1;
+              } xamuara {
+                xa (ch == "[") {
+                  // array
+                  result.type = JSON_TYPE_ARRAY;
+                  i = i + 1;
+                  kouicé array_done: konti = 0;
+                  
+                  be (array_done == 0) {
+                    xa (i >= data.length) {
+                      array_done = 1;
+                    } xamuara {
+                      kouicé array_ch: sèbèli = data[i];
+                      
+                      xa (array_ch == " " || array_ch == "\t" || array_ch == "\n" || array_ch == "\r") {
+                        i = i + 1;
+                      } xamuara {
+                        xa (array_ch == "]") {
+                          array_done = 1;
+                          i = i + 1;
+                        } xamuara {
+                          xa (array_ch == ",") {
+                            i = i + 1;
+                          } xamuara {
+                            kouicé item: JSONValue = parse_json_string(data, i);
+                            result.array_items[result.array_size] = item;
+                            result.array_size = result.array_size + 1;
+                            
+                            // Find where parsing ended
+                            kouicé temp_i: konti = i;
+                            kouicé find_end_done: konti = 0;
+                            
+                            be (find_end_done == 0) {
+                              xa (temp_i >= data.length) {
+                                find_end_done = 1;
+                              } xamuara {
+                                kouicé test_value: JSONValue = parse_json_string(data, temp_i);
+                                xa (test_value.type != JSON_TYPE_NULL || 
+                                    (temp_i + 3 < data.length && 
+                                     data[temp_i] == "n" && 
+                                     data[temp_i+1] == "u" && 
+                                     data[temp_i+2] == "l" && 
+                                     data[temp_i+3] == "l")) {
+                                  i = temp_i;
+                                  find_end_done = 1;
+                                }
+                                temp_i = temp_i + 1;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  
+                  parsing_done = 1;
+                } xamuara {
+                  xa (ch == "{") {
+                    // object
+                    result.type = JSON_TYPE_OBJECT;
+                    i = i + 1;
+                    kouicé object_done: konti = 0;
+                    
+                    be (object_done == 0) {
+                      xa (i >= data.length) {
+                        object_done = 1;
+                      } xamuara {
+                        kouicé object_ch: sèbèli = data[i];
+                        
+                        xa (object_ch == " " || object_ch == "\t" || object_ch == "\n" || object_ch == "\r") {
+                          i = i + 1;
+                        } xamuara {
+                          xa (object_ch == "}") {
+                            object_done = 1;
+                            i = i + 1;
+                          } xamuara {
+                            xa (object_ch == ",") {
+                              i = i + 1;
+                            } xamuara {
+                              // Parse key
+                              kouicé key_value: JSONValue = parse_json_string(data, i);
+                              xa (key_value.type == JSON_TYPE_STRING) {
+                                // Skip to colon
+                                kouicé colon_done: konti = 0;
+                                be (colon_done == 0) {
+                                  xa (i >= data.length) {
+                                    colon_done = 1;
+                                  } xamuara {
+                                    xa (data[i] == ":") {
+                                      colon_done = 1;
+                                    }
+                                    i = i + 1;
+                                  }
+                                }
+                                
+                                // Parse value
+                                kouicé value: JSONValue = parse_json_string(data, i);
+                                
+                                result.object_properties[result.object_size] = JSONProperty{
+                                  key: key_value.string_value,
+                                  value: value
+                                };
+                                result.object_size = result.object_size + 1;
+                                
+                                // Find where parsing ended
+                                kouicé temp_i: konti = i;
+                                kouicé find_end_done: konti = 0;
+                                
+                                be (find_end_done == 0) {
+                                  xa (temp_i >= data.length) {
+                                    find_end_done = 1;
+                                  } xamuara {
+                                    kouicé test_value: JSONValue = parse_json_string(data, temp_i);
+                                    xa (test_value.type != JSON_TYPE_NULL || 
+                                        (temp_i + 3 < data.length && 
+                                         data[temp_i] == "n" && 
+                                         data[temp_i+1] == "u" && 
+                                         data[temp_i+2] == "l" && 
+                                         data[temp_i+3] == "l")) {
+                                      i = temp_i;
+                                      find_end_done = 1;
+                                    }
+                                    temp_i = temp_i + 1;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    
+                    parsing_done = 1;
+                  } xamuara {
+                    // number
+                    result.type = JSON_TYPE_NUMBER;
+                    kouicé num_str: sèbèli = "";
+                    kouicé number_done: konti = 0;
+                    
+                    be (number_done == 0) {
+                      xa (i >= data.length) {
+                        number_done = 1;
+                      } xamuara {
+                        kouicé num_ch: sèbèli = data[i];
+                        
+                        xa ((num_ch >= "0" && num_ch <= "9") || num_ch == "." || num_ch == "-") {
+                          num_str = num_str + num_ch;
+                          i = i + 1;
+                        } xamuara {
+                          number_done = 1;
+                        }
+                      }
+                    }
+                    
+                    // Simple string to float conversion
+                    kouicé is_negative: konti = 0;
+                    kouicé int_part: konti = 0;
+                    kouicé frac_part: konti = 0;
+                    kouicé in_fraction: konti = 0;
+                    kouicé frac_divisor: konti = 1;
+                    kouicé j: konti = 0;
+                    
+                    xa (num_str.length > 0 && num_str[0] == "-") {
+                      is_negative = 1;
+                      j = 1;
+                    }
+                    
+                    be (j < num_str.length) {
+                      kouicé digit_ch: sèbèli = num_str[j];
+                      
+                      xa (digit_ch == ".") {
+                        in_fraction = 1;
+                      } xamuara {
+                        kouicé digit: konti = 0;
+                        xa (digit_ch == "0") { digit = 0; }
+                        xa (digit_ch == "1") { digit = 1; }
+                        xa (digit_ch == "2") { digit = 2; }
+                        xa (digit_ch == "3") { digit = 3; }
+                        xa (digit_ch == "4") { digit = 4; }
+                        xa (digit_ch == "5") { digit = 5; }
+                        xa (digit_ch == "6") { digit = 6; }
+                        xa (digit_ch == "7") { digit = 7; }
+                        xa (digit_ch == "8") { digit = 8; }
+                        xa (digit_ch == "9") { digit = 9; }
+                        
+                        xa (in_fraction == 0) {
+                          int_part = int_part * 10 + digit;
+                        } xamuara {
+                          frac_part = frac_part * 10 + digit;
+                          frac_divisor = frac_divisor * 10;
+                        }
+                      }
+                      
+                      j = j + 1;
+                    }
+                    
+                    result.number_value = int_part + (frac_part / frac_divisor);
+                    xa (is_negative == 1) {
+                      result.number_value = 0.0 - result.number_value;
+                    }
+                    
+                    parsing_done = 1;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  gbilen result;
+}
+
+wali json_value_to_string(value: JSONValue, indent: konti) sèbèli {
+  kouicé result: sèbèli = "";
+  
+  xa (value.type == JSON_TYPE_NULL) {
+    result = "null";
+  } xamuara {
+    xa (value.type == JSON_TYPE_BOOL) {
+      xa (value.bool_value == 1) {
+        result = "true";
+      } xamuara {
+        result = "false";
+      }
+    } xamuara {
+      xa (value.type == JSON_TYPE_NUMBER) {
+        result = float_to_string(value.number_value);
+      } xamuara {
+        xa (value.type == JSON_TYPE_STRING) {
+          result = "\"" + value.string_value + "\"";
+        } xamuara {
+          xa (value.type == JSON_TYPE_ARRAY) {
+            result = result + "[";
+            
+            kouicé i: konti = 0;
+            kouicé array_done: konti = 0;
+            
+            be (array_done == 0) {
+              xa (i >= value.array_size) {
+                array_done = 1;
+              } xamuara {
+                xa (i > 0) {
+                  result = result + ", ";
+                }
+                result = result + json_value_to_string(value.array_items[i], indent + 2);
+                i = i + 1;
+              }
+            }
+            
+            result = result + "]";
+          } xamuara {
+            xa (value.type == JSON_TYPE_OBJECT) {
+              result = result + "{";
+              
+              kouicé i: konti = 0;
+              kouicé object_done: konti = 0;
+              
+              be (object_done == 0) {
+                xa (i >= value.object_size) {
+                  object_done = 1;
+                } xamuara {
+                  xa (i > 0) {
+                    result = result + ", ";
+                  }
+                  result = result + "\"" + value.object_properties[i].key + "\": ";
+                  result = result + json_value_to_string(value.object_properties[i].value, indent + 2);
+                  i = i + 1;
+                }
+              }
+              
+              result = result + "}";
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  gbilen result;
+}
+
+// ==================== HTTP SERVER SIMULATION ====================
+
+wali handle_http_request(request: HTTPRequest) HTTPResponse {
+  kouicé response_body: [4096]konti = [4096]konti{0};
+  kouicé body_length: konti = 0;
+  kouicé status_code: konti = HTTP_STATUS_OK;
+  
+  // Check path
+  xa (request.path == "/") {
+    kouicé html: sèbèli = "<html><body><h1>Welcome to HTTP Server</h1><p>Try /api/json or /api/data</p></body></html>";
+    kouicé html_data: [4096]konti = string_to_ascii_array(html);
+    body_length = html.length;
+    
+    kouicé i: konti = 0;
+    kouicé copy_done: konti = 0;
+    
+    be (copy_done == 0) {
+      xa (i >= body_length) {
+        copy_done = 1;
+      } xamuara {
+        response_body[i] = html_data[i];
+        i = i + 1;
+      }
+    }
+    
+    kouicé response: HTTPResponse = create_http_response(HTTP_VERSION_1_1, status_code, response_body, body_length);
+    response.headers[0].value = "text/html";
+    gbilen response;
+  } xamuara {
+    xa (request.path == "/api/json") {
+      // Create JSON response
+      kouicé json_obj: JSONValue = JSONValue{
+        type: JSON_TYPE_OBJECT,
+        bool_value: 0,
+        number_value: 0.0,
+        string_value: "",
+        array_items: [20]JSONValue{},
+        array_size: 3,
+        object_properties: [20]JSONProperty{},
+        object_size: 4,
+      };
+      
+      // Add properties
+      json_obj.object_properties[0] = JSONProperty{
+        key: "status",
+        value: JSONValue{type: JSON_TYPE_STRING, string_value: "success", bool_value: 0, number_value: 0.0, 
+                         array_items: [20]JSONValue{}, array_size: 0, 
+                         object_properties: [20]JSONProperty{}, object_size: 0}
+      };
+      
+      json_obj.object_properties[1] = JSONProperty{
+        key: "message",
+        value: JSONValue{type: JSON_TYPE_STRING, string_value: "Hello from JSON API", bool_value: 0, number_value: 0.0, 
+                         array_items: [20]JSONValue{}, array_size: 0, 
+                         object_properties: [20]JSONProperty{}, object_size: 0}
+      };
+      
+      json_obj.object_properties[2] = JSONProperty{
+        key: "count",
+        value: JSONValue{type: JSON_TYPE_NUMBER, string_value: "", bool_value: 0, number_value: 42.5, 
+                         array_items: [20]JSONValue{}, array_size: 0, 
+                         object_properties: [20]JSONProperty{}, object_size: 0}
+      };
+      
+      // Create array
+      kouicé items_array: JSONValue = JSONValue{
+        type: JSON_TYPE_ARRAY,
+        bool_value: 0,
+        number_value: 0.0,
+        string_value: "",
+        array_items: [20]JSONValue{},
+        array_size: 3,
+        object_properties: [20]JSONProperty{},
+        object_size: 0,
+      };
+      
+      items_array.array_items[0] = JSONValue{type: JSON_TYPE_STRING, string_value: "item1", bool_value: 0, number_value: 0.0, 
+                                            array_items: [20]JSONValue{}, array_size: 0, 
+                                            object_properties: [20]JSONProperty{}, object_size: 0};
+      items_array.array_items[1] = JSONValue{type: JSON_TYPE_NUMBER, string_value: "", bool_value: 0, number_value: 100.0, 
+                                            array_items: [20]JSONValue{}, array_size: 0, 
+                                            object_properties: [20]JSONProperty{}, object_size: 0};
+      items_array.array_items[2] = JSONValue{type: JSON_TYPE_BOOL, string_value: "", bool_value: 1, number_value: 0.0, 
+                                            array_items: [20]JSONValue{}, array_size: 0, 
+                                            object_properties: [20]JSONProperty{}, object_size: 0};
+      
+      json_obj.object_properties[3] = JSONProperty{
+        key: "items",
+        value: items_array
+      };
+      
+      kouicé json_str: sèbèli = json_value_to_string(json_obj, 0);
+      kouicé json_data: [4096]konti = string_to_ascii_array(json_str);
+      body_length = json_str.length;
+      
+      kouicé i: konti = 0;
+      kouicé copy_done: konti = 0;
+      
+      be (copy_done == 0) {
+        xa (i >= body_length) {
+          copy_done = 1;
+        } xamuara {
+          response_body[i] = json_data[i];
+          i = i + 1;
+        }
+      }
+      
+      kouicé response: HTTPResponse = create_http_response(HTTP_VERSION_1_1, status_code, response_body, body_length);
+      response.headers[0].value = "application/json";
+      gbilen response;
+    } xamuara {
+      xa (request.path == "/api/data" && request.method == HTTP_POST) {
+        // Parse JSON from request body
+        kouicé body_str: sèbèli = ascii_array_to_string(request.body, request.body_length);
+        kouicé json_data: JSONValue = parse_json_string(body_str, 0);
+        
+        // Create response
+        kouicé response_json: JSONValue = JSONValue{
+          type: JSON_TYPE_OBJECT,
+          bool_value: 0,
+          number_value: 0.0,
+          string_value: "",
+          array_items: [20]JSONValue{},
+          array_size: 0,
+          object_properties: [20]JSONProperty{},
+          object_size: 2,
+        };
+        
+        response_json.object_properties[0] = JSONProperty{
+          key: "received",
+          value: json_data
+        };
+        
+        response_json.object_properties[1] = JSONProperty{
+          key: "processed",
+          value: JSONValue{type: JSON_TYPE_BOOL, string_value: "", bool_value: 1, number_value: 0.0, 
+                          array_items: [20]JSONValue{}, array_size: 0, 
+                          object_properties: [20]JSONProperty{}, object_size: 0}
+        };
+        
+        kouicé json_str: sèbèli = json_value_to_string(response_json, 0);
+        kouicé json_data_resp: [4096]konti = string_to_ascii_array(json_str);
+        body_length = json_str.length;
+        
+        kouicé i: konti = 0;
+        kouicé copy_done: konti = 0;
+        
+        be (copy_done == 0) {
+          xa (i >= body_length) {
+            copy_done = 1;
+          } xamuara {
+            response_body[i] = json_data_resp[i];
+            i = i + 1;
+          }
+        }
+        
+        kouicé response: HTTPResponse = create_http_response(HTTP_VERSION_1_1, status_code, response_body, body_length);
+        response.headers[0].value = "application/json";
+        gbilen response;
+      } xamuara {
+        // 404 Not Found
+        kouicé error_msg: sèbèli = "404 Not Found: " + request.path;
+        kouicé error_data: [4096]konti = string_to_ascii_array(error_msg);
+        body_length = error_msg.length;
+        
+        kouicé i: konti = 0;
+        kouicé copy_done: konti = 0;
+        
+        be (copy_done == 0) {
+          xa (i >= body_length) {
+            copy_done = 1;
+          } xamuara {
+            response_body[i] = error_data[i];
+            i = i + 1;
+          }
+        }
+        
+        gbilen create_http_response(HTTP_VERSION_1_1, HTTP_STATUS_NOT_FOUND, response_body, body_length);
+      }
+    }
+  }
+}
+
+// ==================== MAIN TEST PROGRAM ====================
+
+sodé() konti {
+  masen("=========================================");
+  masen("HTTP PARSER WITH JSON SUPPORT");
+  masen("=========================================");
+  
+  masen("");
+  masen("TEST 1: HTTP REQUEST PARSING");
+  masen("----------------------------");
+  
+  // Create a test HTTP request
+  kouicé http_request_raw: sèbèli = "POST /api/data?name=test&id=123 HTTP/1.1\r\n";
+  http_request_raw = http_request_raw + "Host: localhost:8080\r\n";
+  http_request_raw = http_request_raw + "Content-Type: application/json\r\n";
+  http_request_raw = http_request_raw + "Content-Length: 56\r\n";
+  http_request_raw = http_request_raw + "\r\n";
+  http_request_raw = http_request_raw + "{\"name\": \"John\", \"age\": 30, \"active\": true}";
+  
+  kouicé request_data: [4096]konti = string_to_ascii_array(http_request_raw);
+  kouicé request: HTTPRequest = parse_http_request(request_data, http_request_raw.length);
+  
+  masen("Parsed HTTP Request:");
+  masen("  Method: ", get_http_method_name(request.method));
+  masen("  Path: ", request.path);
+  masen("  Version: ", get_http_version_name(request.version));
+  masen("  Headers: ", request.header_count);
+  
+  kouicé i: konti = 0;
+  kouicé print_headers_done: konti = 0;
+  
+  be (print_headers_done == 0) {
+    xa (i >= request.header_count) {
+      print_headers_done = 1;
+    } xamuara {
+      masen("    ", request.headers[i].name, ": ", request.headers[i].value);
+      i = i + 1;
+    }
+  }
+  
+  masen("  Query Parameters: ", request.query_param_count);
+  
+  i = 0;
+  kouicé print_params_done: konti = 0;
+  
+  be (print_params_done == 0) {
+    xa (i >= request.query_param_count) {
+      print_params_done = 1;
+    } xamuara {
+      masen("    ", request.query_params[i].name, " = ", request.query_params[i].value);
+      i = i + 1;
+    }
+  }
+  
+  kouicé body_str: sèbèli = ascii_array_to_string(request.body, request.body_length);
+  masen("  Body: ", body_str);
+  
+  masen("");
+  masen("TEST 2: JSON PARSING");
+  masen("-------------------");
+  
+  kouicé json_str: sèbèli = "{\"name\": \"Alice\", \"age\": 25, \"scores\": [95, 87, 92], \"active\": true}";
+  masen("JSON string: ", json_str);
+  
+  kouicé json_value: JSONValue = parse_json_string(json_str, 0);
+  masen("Parsed JSON:");
+  masen("  Type: ", json_value.type, " (OBJECT)");
+  masen("  Properties: ", json_value.object_size);
+  
+  i = 0;
+  kouicé print_props_done: konti = 0;
+  
+  be (print_props_done == 0) {
+    xa (i >= json_value.object_size) {
+      print_props_done = 1;
+    } xamuara {
+      kouicé prop: JSONProperty = json_value.object_properties[i];
+      masen("    ", prop.key, ": ", json_value_to_string(prop.value, 0));
+      i = i + 1;
+    }
+  }
+  
+  masen("");
+  masen("TEST 3: JSON CREATION AND SERIALIZATION");
+  masen("---------------------------------------");
+  
+  kouicé new_json: JSONValue = JSONValue{
+    type: JSON_TYPE_OBJECT,
+    bool_value: 0,
+    number_value: 0.0,
+    string_value: "",
+    array_items: [20]JSONValue{},
+    array_size: 0,
+    object_properties: [20]JSONProperty{},
+    object_size: 3,
+  };
+  
+  new_json.object_properties[0] = JSONProperty{
+    key: "id",
+    value: JSONValue{type: JSON_TYPE_NUMBER, string_value: "", bool_value: 0, number_value: 1001.0, 
+                    array_items: [20]JSONValue{}, array_size: 0, 
+                    object_properties: [20]JSONProperty{}, object_size: 0}
+  };
+  
+  new_json.object_properties[1] = JSONProperty{
+    key: "name",
+    value: JSONValue{type: JSON_TYPE_STRING, string_value: "Test User", bool_value: 0, number_value: 0.0, 
+                    array_items: [20]JSONValue{}, array_size: 0, 
+                    object_properties: [20]JSONProperty{}, object_size: 0}
+  };
+  
+  kouicé tags_array: JSONValue = JSONValue{
+    type: JSON_TYPE_ARRAY,
+    bool_value: 0,
+    number_value: 0.0,
+    string_value: "",
+    array_items: [20]JSONValue{},
+    array_size: 3,
+    object_properties: [20]JSONProperty{},
+    object_size: 0,
+  };
+  
+  tags_array.array_items[0] = JSONValue{type: JSON_TYPE_STRING, string_value: "admin", bool_value: 0, number_value: 0.0, 
+                                       array_items: [20]JSONValue{}, array_size: 0, 
+                                       object_properties: [20]JSONProperty{}, object_size: 0};
+  tags_array.array_items[1] = JSONValue{type: JSON_TYPE_STRING, string_value: "user", bool_value: 0, number_value: 0.0, 
+                                       array_items: [20]JSONValue{}, array_size: 0, 
+                                       object_properties: [20]JSONProperty{}, object_size: 0};
+  tags_array.array_items[2] = JSONValue{type: JSON_TYPE_STRING, string_value: "tester", bool_value: 0, number_value: 0.0, 
+                                       array_items: [20]JSONValue{}, array_size: 0, 
+                                       object_properties: [20]JSONProperty{}, object_size: 0};
+  
+  new_json.object_properties[2] = JSONProperty{
+    key: "tags",
+    value: tags_array
+  };
+  
+  kouicé serialized_json: sèbèli = json_value_to_string(new_json, 0);
+  masen("Created JSON: ", serialized_json);
+  
+  masen("");
+  masen("TEST 4: HTTP RESPONSE CREATION");
+  masen("------------------------------");
+  
+  kouicé response_body_str: sèbèli = "{\"message\": \"Hello World\", \"timestamp\": 1234567890}";
+  kouicé response_body_data: [4096]konti = string_to_ascii_array(response_body_str);
+  
+  kouicé http_response: HTTPResponse = create_http_response(HTTP_VERSION_1_1, HTTP_STATUS_OK, 
+                                                        response_body_data, response_body_str.length);
+  http_response.headers[0].value = "application/json";
+  
+  kouicé response_str: sèbèli = http_response_to_string(http_response);
+  masen("HTTP Response:");
+  masen(response_str);
+  
+  masen("");
+  masen("TEST 5: HTTP SERVER SIMULATION");
+  masen("------------------------------");
+  
+  masen("");
+  masen("1. Handling GET / request:");
+  kouicé get_request_raw: sèbèli = "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n";
+  kouicé get_request_data: [4096]konti = string_to_ascii_array(get_request_raw);
+  kouicé get_request: HTTPRequest = parse_http_request(get_request_data, get_request_raw.length);
+  kouicé get_response: HTTPResponse = handle_http_request(get_request);
+  masen("   Status: ", get_response.status_code, " ", get_response.status_text);
+  masen("   Content-Type: ", get_response.headers[0].value);
+  
+  masen("");
+  masen("2. Handling GET /api/json request:");
+  kouicé json_request_raw: sèbèli = "GET /api/json HTTP/1.1\r\nHost: localhost\r\n\r\n";
+  kouicé json_request_data: [4096]konti = string_to_ascii_array(json_request_raw);
+  kouicé json_request: HTTPRequest = parse_http_request(json_request_data, json_request_raw.length);
+  kouicé json_api_response: HTTPResponse = handle_http_request(json_request);
+  masen("   Status: ", json_api_response.status_code, " ", json_api_response.status_text);
+  masen("   Content-Type: ", json_api_response.headers[0].value);
+  
+  kouicé json_response_body: sèbèli = ascii_array_to_string(json_api_response.body, json_api_response.body_length);
+  masen("   Body (first 100 chars): ");
+  
+  i = 0;
+  kouicé print_body_done: konti = 0;
+  
+  be (print_body_done == 0) {
+    xa (i >= 100 || i >= json_response_body.length) {
+      print_body_done = 1;
+    } xamuara {
+      masen(json_response_body[i]);
+      i = i + 1;
+    }
+  }
+  masen("");
+  
+  masen("");
+  masen("3. Handling POST /api/data request:");
+  kouicé post_request_raw: sèbèli = "POST /api/data HTTP/1.1\r\n";
+  post_request_raw = post_request_raw + "Host: localhost\r\n";
+  post_request_raw = post_request_raw + "Content-Type: application/json\r\n";
+  post_request_raw = post_request_raw + "Content-Length: 28\r\n";
+  post_request_raw = post_request_raw + "\r\n";
+  post_request_raw = post_request_raw + "{\"action\": \"test\", \"value\": 42}";
+  
+  kouicé post_request_data: [4096]konti = string_to_ascii_array(post_request_raw);
+  kouicé post_request: HTTPRequest = parse_http_request(post_request_data, post_request_raw.length);
+  kouicé post_response: HTTPResponse = handle_http_request(post_request);
+  masen("   Status: ", post_response.status_code, " ", post_response.status_text);
+  masen("   Content-Type: ", post_response.headers[0].value);
+  
+  kouicé post_response_body: sèbèli = ascii_array_to_string(post_response.body, post_response.body_length);
+  masen("   Response: ", post_response_body);
+  
+  masen("");
+  masen("4. Handling 404 request:");
+  kouicé notfound_request_raw: sèbèli = "GET /unknown/path HTTP/1.1\r\nHost: localhost\r\n\r\n";
+  kouicé notfound_request_data: [4096]konti = string_to_ascii_array(notfound_request_raw);
+  kouicé notfound_request: HTTPRequest = parse_http_request(notfound_request_data, notfound_request_raw.length);
+  kouicé notfound_response: HTTPResponse = handle_http_request(notfound_request);
+  masen("   Status: ", notfound_response.status_code, " ", notfound_response.status_text);
+  
+  masen("");
+  masen("TEST 6: UTILITY FUNCTIONS");
+  masen("-------------------------");
+  
+  kouicé test_int: konti = -12345;
+  kouicé int_str: sèbèli = int_to_string(test_int);
+  masen("Integer to string: ", test_int, " -> \"", int_str, "\"");
+  
+  kouicé test_float: desimali = 123.456;
+  kouicé float_str: sèbèli = float_to_string(test_float);
+  masen("Float to string: ", test_float, " -> \"", float_str, "\"");
+  
+  masen("");
+  masen("=========================================");
+  masen("HTTP PARSER WITH JSON SUPPORT - COMPLETE");
+  masen("=========================================");
+  masen("");
+  masen("Features implemented:");
+  masen("1. Complete HTTP/1.1 request parsing");
+  masen("2. HTTP method support (GET, POST, PUT, DELETE, HEAD, OPTIONS, PATCH)");
+  masen("3. Query parameter parsing");
+  masen("4. Header parsing and management");
+  masen("5. JSON parser with all types (null, boolean, number, string, array, object)");
+  masen("6. JSON serializer");
+  masen("7. HTTP response generation");
+  masen("8. HTTP server simulation with routing");
+  masen("9. Content-Type negotiation (text/html, application/json)");
+  masen("10. Error handling (404 Not Found)");
+  masen("11. No break statements - all loops use condition variables");
+  
+  gbilen 0;
+}

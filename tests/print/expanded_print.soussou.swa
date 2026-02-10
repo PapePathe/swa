@@ -1,0 +1,44 @@
+khuien:soussou;
+
+fokhi Data {
+    val: konti,
+}
+
+fokhi Wrapper {
+    inner: Data,
+}
+
+fokhi Collection {
+    items: [2]Data,
+}
+
+wali getConstant() konti {
+    gbilen 100;
+}
+
+sodé() konti {
+    kouicé d : Data = Data {
+        val: 50,
+    };
+    kouicé w : Wrapper = Wrapper {
+        inner: d,
+    };
+    kouicé coll : Collection = Collection {
+        items: [2]Data{Data{val: 1}, Data{val: 2}},
+    };
+    kouicé arr : [3]konti = [3]konti{10,20,30};
+    kouicé e : foutoura = foutoura("runtime error");
+    kouicé x : konti = 10;
+
+    masen("Struct member: ", d.val, "\n");
+    masen("Nested member: ", w.inner.val, "\n");
+    masen("Array of structs: ", coll.items[1].val, "\n");
+    masen("Array access: ", arr[1], "\n");
+    masen("Function call: ", getConstant(), "\n");
+    masen("Binary expr: ", 10 + 20, " ", 5 > 2, "\n");
+    masen("Error type: ", e, "\n");
+    masen("Prefix expr: ", -x, "\n");
+    masen("Zero value: ", maba(konti), "\n");
+
+    gbilen 0;
+}
