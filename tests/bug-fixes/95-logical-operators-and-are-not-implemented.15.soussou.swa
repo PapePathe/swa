@@ -1,0 +1,10 @@
+khuien:soussou;
+
+sodé() konti {
+  xa (1 == 1 || (1 == 0 && 1 == 0)) {
+    masen("1 == 1 || (1 == 0 && 1 == 0) evaluates to true");
+  } xamuara {
+    masen("implementation error");
+  }
+  gbilen 0;
+}

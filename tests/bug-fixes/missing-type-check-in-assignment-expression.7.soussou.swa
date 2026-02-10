@@ -1,0 +1,10 @@
+khuien:soussou;
+
+fokhi Coordinate{ x: konti, y: konti, }
+fokhi Place { c: Coordinate, Around: [100]Coordinate, }
+
+sodé () konti {
+  kouicé res : Place;
+  res.Around[1].x = 1.0;
+  gbilen 0; 
+}

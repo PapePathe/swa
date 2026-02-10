@@ -1,0 +1,190 @@
+khuien:soussou;
+//
+// ---------------------------------------------------------
+// DOMAIN MODELS
+// ---------------------------------------------------------
+
+fokhi Dimensions {
+    Length: decimal,
+    Width: decimal,
+    Height: decimal,
+}
+
+fokhi Item {
+    SKU: sèbèli,
+    Weight: decimal,
+    Dim: Dimensions,
+    Quantity: konti,
+    Price: decimal,
+}
+
+fokhi Bin {
+    Id: konti,
+    Items: [5]Item,
+    ItemCount: konti,
+}
+
+fokhi Aisle {
+    Letter: sèbèli,
+    Bins: [10]Bin,
+}
+
+fokhi Warehouse {
+    Location: sèbèli,
+    Aisles: [3]Aisle,
+    Capacity: decimal,
+}
+
+fokhi Truck {
+    ID: konti,
+    MaxWeight: decimal,
+    CurrentWeight: decimal,
+    IsFull: konti,
+}
+
+// ---------------------------------------------------------
+// CALCULATION HELPERS
+// ---------------------------------------------------------
+
+wali calculateVolume(d: Dimensions) decimal {
+    gbilen d.Length * d.Width * d.Height;
+}
+
+wali calculateShippingCost(weight: decimal, distance: konti, priority: konti) decimal {
+    // Math Coercion: float * int * int
+    kouicé base: decimal = weight * 0.5;
+    kouicé distCharge: decimal = distance * 0.15;
+    kouicé priorityMultiplier: decimal = 1.0;
+    
+    xa (priority == 1) {
+        priorityMultiplier = 1.5;
+    }
+    
+    gbilen (base + distCharge) * priorityMultiplier;
+}
+
+// ---------------------------------------------------------
+// WAREHOUSE OPERATIONS
+// ---------------------------------------------------------
+
+wali initializeWarehouse(wh: *Warehouse) konti {
+    wh.Location = "Central Hub - Paris";
+    wh.Capacity = 5000.0;
+    
+    // Demonstrates deep indexing in loops
+    kouicé a: konti = 0;
+    be (a < 3) {
+        xa (a == 0) { wh.Aisles[a].Letter = "A"; }
+        xa (a == 1) { wh.Aisles[a].Letter = "B"; }
+        xa (a == 2) { wh.Aisles[a].Letter = "C"; }
+        
+        kouicé b: konti = 0;
+        be (b < 10) {
+            wh.Aisles[a].Bins[b].Id = (a * 10) + b;
+            wh.Aisles[a].Bins[b].ItemCount = 0;
+            b = b + 1;
+        }
+        a = a + 1;
+    }
+    gbilen 1;
+}
+
+wali addItem(wh: *Warehouse, aisleIdx: konti, binIdx: konti, item: Item) konti {
+    kouicé count: konti = wh.Aisles[aisleIdx].Bins[binIdx].ItemCount;
+    
+    xa (count >= 5) {
+        masen("Bin %d in Aisle %s is full!\n", binIdx, wh.Aisles[aisleIdx].Letter);
+        gbilen -1;
+    }
+    
+    // Struct injection into nested array element
+    wh.Aisles[aisleIdx].Bins[binIdx].Items[count] = item;
+    wh.Aisles[aisleIdx].Bins[binIdx].ItemCount = count + 1;
+    
+    gbilen 0;
+}
+
+// ---------------------------------------------------------
+// TRUCK LOADING LOGIC
+// ---------------------------------------------------------
+
+wali loadTruck(t: *Truck, item: Item) konti {
+    xa (t.CurrentWeight + item.Weight > t.MaxWeight) {
+        t.IsFull = 1;
+        gbilen -1;
+    }
+    
+    t.CurrentWeight = t.CurrentWeight + item.Weight;
+    masen("Truck %d: Loaded SKU %s. Current Weight: %.2f\n", t.ID, item.SKU, t.CurrentWeight);
+    gbilen 1;
+}
+
+// ---------------------------------------------------------
+// MAIN EXECUTION (ENTRY POINT)
+// ---------------------------------------------------------
+
+sodé() konti {
+    masen("=== LOGISTICS SYSTEM INITIALIZING ===\n");
+
+    // 1. Setup Warehouse
+    kouicé myWarehouse: Warehouse = Warehouse{}; // Default initialization (zero-values)
+    initializeWarehouse(myWarehouse);
+    masen("Warehouse %s initialized.", myWarehouse.Location);
+
+    // 2. Create Stock Items
+    kouicé laptop: Item = Item{
+        SKU: "LAP-001", 
+        Weight: 2.5, 
+        Dim: Dimensions{Length: 35.0, Width: 25.0, Height: 2.0},
+        Quantity: 10,
+        Price: 1200.0
+    };
+
+    kouicé monitor: Item = Item{
+        SKU: "MON-99", 
+        Weight: 5.2, 
+        Dim: Dimensions{Length: 60.0, Width: 40.0, Height: 15.0},
+        Quantity: 5,
+        Price: 350.0
+    };
+
+    // 3. Stock the Warehouse (Testing Deep GEP)
+    addItem(myWarehouse, 0, 0, laptop);
+    addItem(myWarehouse, 0, 0, laptop);
+    addItem(myWarehouse, 1, 5, monitor);
+
+    // 4. Inventory Audit Logic
+    masen("--- INVENTORY AUDIT ---\n");
+    kouicé totalValue: decimal = 0.0;
+    kouicé i: konti = 0;
+    be (i < 3) {
+        kouicé j: konti = 0;
+        be (j < 10) {
+            kouicé k: konti = 0;
+            kouicé currentBin: Bin = myWarehouse.Aisles[i].Bins[j];
+            be (k < currentBin.ItemCount) {
+                kouicé it: Item = currentBin.Items[k];
+                masen("Aisle %s-Bin %d: SKU %s found.", myWarehouse.Aisles[i].Letter, j, it.SKU);
+                totalValue = totalValue + it.Price;
+                k = k + 1;
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+    masen("Total Asset Value in Warehouse: $%.2f\n", totalValue);
+
+    // 5. Fleet Management
+    kouicé deliveryTruck: Truck = Truck{ID: 501, MaxWeight: 100.0, CurrentWeight: 0.0, IsFull: 0};
+    
+    // Load truck from warehouse stock
+    loadTruck(deliveryTruck, myWarehouse.Aisles[0].Bins[0].Items[0]);
+    loadTruck(deliveryTruck, myWarehouse.Aisles[1].Bins[5].Items[0]);
+
+    // 6. Calculate Route Costs
+    kouicé shippingFee: decimal = calculateShippingCost(deliveryTruck.CurrentWeight, 250, 1);
+    masen("Shipment Cost for 250km (Priority): $%.2f\n", shippingFee);
+
+    masen("=== SYSTEM SHUTDOWN ===");
+    gbilen 0;
+}

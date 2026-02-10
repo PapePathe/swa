@@ -1,0 +1,11 @@
+khuien:soussou;
+wali mixed() (konti, decimal) {
+    gbilen 1, 2.5;
+}
+sodé() konti {
+    kouicé i: konti = 0;
+    kouicé f: decimal = 0.0;
+    (i, f) = mixed();
+    masen("i=%d, f=%.1f\n", i, f);
+    gbilen 0;
+}

@@ -1,0 +1,11 @@
+khuien:soussou;
+
+sodé() konti {
+  masen("%5s|%20s|%7s\n", "id", "dept", "salary");
+  masen("%5s|%20s|%7d\n", "20", "human resources", 1000000);
+  masen("%5s|%20s|%7d\n", "21", "accounting", 1000000);
+  masen("%5s|%20s|%7d\n", "22", "finance", 1000000);
+  masen("%5s|%20s|%7d\n", "23", "engineering", 1000000);
+
+  gbilen 0;
+}

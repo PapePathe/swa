@@ -1,0 +1,198 @@
+khuien:soussou;
+// ---------------------------------------------------------
+// 1. DATA MODELS & STRUCTURES
+// ---------------------------------------------------------
+
+fokhi Address {
+    Street: sèbèli,
+    Zip: konti,
+}
+
+fokhi Transaction {
+    Id: konti,
+    Description: sèbèli,
+    Amount: decimal,
+    Category: konti,    // 1: Revenue, 2: OPEX, 3: CAPEX, 4: Payroll
+}
+
+fokhi FixedAsset {
+    Description: sèbèli,
+    InitialCost: decimal,
+    PurchaseQuarter: konti,
+    UsefulLifeQuarters: konti,
+}
+
+fokhi BusinessState {
+    Name: sèbèli,
+    BankBalance: decimal,
+    MonthlySaaSRevenue: decimal,
+    MonthlyPayroll: decimal,
+    GrowthRate: decimal,
+    Location: Address,
+}
+
+fokhi AllHandsReport {
+    TotalRevenue: decimal,
+    TotalExpenses: decimal,
+    NetIncome: decimal,
+    Depreciation: decimal,
+}
+
+fokhi BalanceSheet {
+    Cash: decimal,
+    AssetBookValue: decimal,
+    Equity: decimal,
+}
+
+fokhi CashFlow {
+    OperatingCash: decimal,
+    NetChange: decimal,
+    Closing: decimal,
+}
+
+// ---------------------------------------------------------
+// 2. CORE ACCOUNTING CALCULATIONS
+// ---------------------------------------------------------
+
+wali calculateDepreciation(asset: FixedAsset, currentQ: konti) decimal {
+    xa (currentQ < asset.PurchaseQuarter) { 
+        gbilen 0.0; 
+    }
+    kouicé age: konti = currentQ - asset.PurchaseQuarter;
+    xa (age >= asset.UsefulLifeQuarters) { 
+        gbilen 0.0; 
+    }
+    // Straight line depreciation
+    gbilen asset.InitialCost / asset.UsefulLifeQuarters;
+}
+
+wali calculateBookValue(asset: FixedAsset, currentQ: konti) decimal {
+    kouicé quartersOwned: konti = currentQ - asset.PurchaseQuarter;
+    xa (quartersOwned <= 0) { gbilen asset.InitialCost; }
+    
+    kouicé depPerQ: decimal = asset.InitialCost / asset.UsefulLifeQuarters;
+    kouicé accumulated: decimal = depPerQ * quartersOwned;
+    
+    xa (accumulated >= asset.InitialCost) { gbilen 0.0; }
+    gbilen asset.InitialCost - accumulated;
+}
+
+// ---------------------------------------------------------
+// 3. SIMULATION & REPORTING ENGINE
+// ---------------------------------------------------------
+
+wali runQuarter(rep: *AllHandsReport, state: *BusinessState, assets: [2]FixedAsset, qNum: konti) konti {
+    // 3 months of activity
+    kouicé rev: decimal = state.MonthlySaaSRevenue * 3.0;
+    kouicé opex: decimal = state.MonthlyPayroll * 3.0;
+    
+    // Calculate non-cash depreciation
+    kouicé totalDep: decimal = 0.0;
+    kouicé i: konti = 0;
+    be (i < 2) {
+        totalDep = totalDep + calculateDepreciation(assets[i], qNum);
+        i = i + 1;
+    }
+
+    rep.TotalRevenue  = rev;
+    rep.TotalExpenses = opex + totalDep;
+    rep.NetIncome     = rev - (opex + totalDep);
+    rep.Depreciation  = totalDep;
+    // Cash movement (Depreciation is added back for cash balance)
+    state.BankBalance = state.BankBalance + (rev - opex);
+    // Apply growth for next quarter
+    state.MonthlySaaSRevenue = state.MonthlySaaSRevenue * state.GrowthRate;
+
+    gbilen 0;
+}
+
+wali generateStatements(state: BusinessState, report: AllHandsReport, assets: [2]FixedAsset, qNum: konti) konti {
+    // 1. Balance Sheet Audit
+    kouicé bookVal: decimal = 0.0;
+    kouicé i: konti = 0;
+    be (i < 2) {
+        bookVal = bookVal + calculateBookValue(assets[i], qNum);
+        i = i + 1;
+    }
+
+    kouicé bs: BalanceSheet = BalanceSheet{
+        Cash: state.BankBalance,
+        AssetBookValue: bookVal,
+        Equity: state.BankBalance + bookVal
+    };
+
+    // 2. Cash Flow Statement
+    kouicé cf: CashFlow = CashFlow{
+        OperatingCash: report.NetIncome + report.Depreciation,
+        NetChange: report.NetIncome + report.Depreciation,
+        Closing: state.BankBalance
+    };
+
+    // 3. Print Output
+    masen("--- QUARTER %d FINANCIAL STATEMENTS ---\n", qNum);
+    masen("  P&L: Rev: %.2f | Exp: %.2f | Net: %.2f\n", report.TotalRevenue, report.TotalExpenses, report.NetIncome);
+    masen("  B/S: Cash: %.2f | Assets: %.2f | Equity: %.2f\n", bs.Cash, bs.AssetBookValue, bs.Equity);
+    masen("  C/F: Op. Cash Flow: %.2f | Closing Cash: %.2f\n", cf.OperatingCash, cf.Closing);
+    masen("----------------------------------------\n");
+    
+    gbilen 0;
+}
+
+// ---------------------------------------------------------
+// 4. MAIN ENTRY POINT
+// ---------------------------------------------------------
+
+sodé() konti {
+    masen("INITIALIZING ENTERPRISE ACCOUNTING SUITE...\n");
+
+    // Setup persistent business state
+    kouicé myCorp: BusinessState = BusinessState{
+        Name: "TechFlow Systems",
+        BankBalance: 1000000.0,
+        MonthlySaaSRevenue: 50000.0,
+        MonthlyPayroll: 45000.0,
+        GrowthRate: 1.10,
+        Location: Address{ Street: "101 Innovation Way", Zip: 94025 }
+    };
+
+    // Setup Capital Assets
+    kouicé assets: [2]FixedAsset = [2]FixedAsset{
+        FixedAsset{Description: "Mainframe", InitialCost: 120000.0, PurchaseQuarter: 1, UsefulLifeQuarters: 12},
+        FixedAsset{Description: "Fleet", InitialCost: 80000.0, PurchaseQuarter: 2, UsefulLifeQuarters: 16},
+    };
+
+    kouicé annualRevenue: decimal = 0.0;
+    kouicé annualNet: decimal = 0.0;
+
+    // Run Fiscal Year Simulation
+    kouicé q: konti = 1;
+    be (q <= 4) {
+        kouicé qReport: AllHandsReport;
+        runQuarter(qReport, myCorp, assets, q);
+        
+        generateStatements(myCorp, qReport, assets, q);
+        
+        annualRevenue = annualRevenue + qReport.TotalRevenue;
+        annualNet = annualNet + qReport.NetIncome;
+        
+        q = q + 1;
+    }
+
+    // Final Annual Analysis
+    masen("*****************************************\n");
+    masen("       ANNUAL ALL-HANDS SUMMARY          \n");
+    masen("*****************************************\n");
+    masen("TOTAL ANNUAL REVENUE:   $%12.2f\n", annualRevenue);
+    masen("TOTAL ANNUAL NET PROFIT:$%12.2f\n", annualNet);
+    masen("FINAL BANK LIQUIDITY:   $%12.2f\n", myCorp.BankBalance);
+    masen("LOCATION:               %s\n", myCorp.Location.Street);
+    masen("*****************************************\n");
+
+    xa (annualNet > 0.0) {
+        masen("STATUS: PERFORMANCE MET. TARGETING IPO 2026.\n");
+    } xamuara {
+        masen("STATUS: RESTRUCTURING REQUIRED.\n");
+    }
+
+    gbilen 0;
+}

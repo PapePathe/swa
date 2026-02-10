@@ -1,0 +1,12 @@
+khuien:soussou;
+
+wali add(first: decimal, last: decimal) decimal {
+  gbilen first + last;
+}
+
+sodé () konti {
+  kouicé p : [1]decimal= [1]decimal{10.25};
+  kouicé res : decimal = add(p[0], 4.75);
+  masen("10.25 + 4.75 = %.2f", res);
+  gbilen 0; 
+}

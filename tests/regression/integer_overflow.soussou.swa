@@ -1,0 +1,18 @@
+khuien:soussou;
+
+sodé() konti {
+    // Swa might use 64-bit integers by default, but let's see.
+    kouicé max_int: konti = 9223372036854775807; 
+    masen("Max Int: %d\n", max_int);
+    
+    kouicé overflow: konti = max_int + 1;
+    masen("Overflow (should wrap if 64-bit signed): %d\n", overflow);
+    
+    xa (overflow < 0) {
+        masen("Success: Integer overflow behaved as expected (wrapped).\n");
+    } xamuara {
+        masen("Notice: Integer overflow did not wrap as expected for signed 64-bit.\n");
+    }
+    
+    gbilen 0;
+}

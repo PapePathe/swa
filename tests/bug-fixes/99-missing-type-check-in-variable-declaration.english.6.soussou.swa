@@ -1,0 +1,7 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé x: konti = "hello";
+
+  gbilen 0;
+}

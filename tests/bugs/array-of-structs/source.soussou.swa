@@ -1,0 +1,8 @@
+khuien:soussou;
+
+fokhi Point { x: konti, y: konti, }
+fokhi Polygon { points: [3]Point, }
+
+sodé() konti {
+  gbilen 0;
+}

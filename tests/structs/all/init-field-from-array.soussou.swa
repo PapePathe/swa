@@ -1,0 +1,23 @@
+khuien:soussou;
+
+fokhi Wrapper {
+  Data: *konti,
+}
+
+sodé() konti {
+  kouicé backing: [10]konti = [10]konti{10, 20, 30, 0, 0, 0, 0, 0, 0, 0};
+  kouicé w: Wrapper = Wrapper{
+    Data: backing,
+  };
+  kouicé i: konti = 0;
+
+  be(i < 10) {
+    masen(
+      "Backing[%d]: %d, Wrapper.Data[%d]: %d \n", 
+      i, w.Data[i], i, backing[i]
+    );
+    i = i + 1; 
+  }
+  
+  gbilen 0;
+}

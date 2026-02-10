@@ -1,0 +1,1338 @@
+khuien:soussou;
+
+// ==================== FOUNDATIONAL STRUCTURES ====================
+
+fokhi DynArray {
+  Size: konti,
+  Capacity: konti,
+  Data: *konti,
+}
+
+fokhi IPAddress {
+  address: [4]konti,  // IPv4 as 4 integers 0-255
+  port: konti,
+}
+
+fokhi Socket {
+  fd: konti,
+  family: konti,
+  type: konti,
+  protocol: konti,
+  local_addr: IPAddress,
+  remote_addr: IPAddress,
+  state: konti,
+  recv_buffer: [1024]konti,
+  send_buffer: [1024]konti,
+  recv_idx: konti,
+  send_idx: konti,
+  recv_count: konti,
+  send_count: konti,
+  seq_num: konti,
+  ack_num: konti,
+}
+
+fokhi TCPHeader {
+  source_port: konti,
+  dest_port: konti,
+  sequence: konti,
+  ack_number: konti,
+  data_offset: konti,
+  flags: konti,
+  window: konti,
+  checksum: konti,
+  urgent_pointer: konti,
+}
+
+fokhi Connection {
+  socket: Socket,
+  last_activity: konti,
+  bytes_sent: konti,
+  bytes_received: konti,
+  is_active: konti,
+}
+
+fokhi ConnectionManager {
+  connections: [100]Connection,
+  connection_count: konti,
+  max_connections: konti,
+}
+
+fokhi Person {
+  Age: konti,
+  Height: decimal,
+  Name: sèbèli,
+}
+
+fokhi NetworkConfig {
+  mtu: konti,
+  window_size: konti,
+  timeout: konti,
+  max_retries: konti,
+}
+
+// ==================== CONSTANTS ====================
+
+// TCP States
+kouicé TCP_CLOSED: konti = 0;
+kouicé TCP_LISTEN: konti = 1;
+kouicé TCP_SYN_SENT: konti = 2;
+kouicé TCP_SYN_RCVD: konti = 3;
+kouicé TCP_ESTABLISHED: konti = 4;
+kouicé TCP_FIN_WAIT_1: konti = 5;
+kouicé TCP_FIN_WAIT_2: konti = 6;
+kouicé TCP_CLOSE_WAIT: konti = 7;
+kouicé TCP_CLOSING: konti = 8;
+kouicé TCP_LAST_ACK: konti = 9;
+kouicé TCP_TIME_WAIT: konti = 10;
+
+// TCP Flags
+kouicé TCP_FLAG_FIN: konti = 1;
+kouicé TCP_FLAG_SYN: konti = 2;
+kouicé TCP_FLAG_RST: konti = 3;
+kouicé TCP_FLAG_PSH: konti = 4;
+kouicé TCP_FLAG_ACK: konti = 5;
+kouicé TCP_FLAG_URG: konti = 6;
+
+// Protocol Numbers
+kouicé IPPROTO_TCP: konti = 6;
+kouicé IPPROTO_UDP: konti = 17;
+kouicé IPPROTO_ICMP: konti = 1;
+
+// Socket Types
+kouicé SOCK_STREAM: konti = 1;
+kouicé SOCK_DGRAM: konti = 2;
+
+// Address Families
+kouicé AF_INET: konti = 2;
+
+// Port Ranges
+kouicé PORT_MIN: konti = 1;
+kouicé PORT_MAX: konti = 65535;
+kouicé WELL_KNOWN_PORT_MAX: konti = 1023;
+
+// Buffer Sizes
+kouicé MAX_PACKET_SIZE: konti = 1500;
+kouicé TCP_HEADER_SIZE: konti = 20;
+kouicé IP_HEADER_SIZE: konti = 20;
+
+// ==================== DYNAMIC ARRAY IMPLEMENTATION ====================
+
+wali push_dyn_array(arr: DynArray, value: konti) konti {
+  xa (arr.Size >= arr.Capacity) {
+    masen("Error: Array capacity exceeded (max ", arr.Capacity, ")");
+    gbilen -1;
+  }
+  arr.Data[arr.Size] = value;
+  arr.Size = arr.Size + 1;
+  gbilen arr.Size;
+}
+
+wali get_dyn_array(arr: DynArray, index: konti) konti {
+  xa (index < 0 || index >= arr.Size) {
+    masen("Error: Index ", index, " out of bounds (size: ", arr.Size, ")");
+    gbilen -1;
+  }
+  gbilen arr.Data[index];
+}
+
+wali set_dyn_array(arr: DynArray, index: konti, value: konti) konti {
+  xa (index < 0 || index >= arr.Size) {
+    masen("Error: Index ", index, " out of bounds (size: ", arr.Size, ")");
+    gbilen -1;
+  }
+  arr.Data[index] = value;
+  gbilen value;
+}
+
+wali print_dyn_array(arr: DynArray) konti {
+  masen("DynArray (Size: ", arr.Size, ", Capacity: ", arr.Capacity, "):");
+  kouicé i: konti = 0;
+  be (i < arr.Size) {
+    masen("  [", i, "]: ", arr.Data[i]);
+    i = i + 1;
+  }
+  gbilen 0;
+}
+
+// ==================== NETWORK UTILITIES ====================
+
+wali htons(port: konti) konti {
+  // Convert host byte order to network byte order
+  xa (port < 0 || port > 65535) {
+    masen("Error: Invalid port ", port);
+    gbilen 0;
+  }
+  kouicé low_byte: konti = port % 256;
+  kouicé high_byte: konti = port / 256;
+  gbilen low_byte * 256 + high_byte;
+}
+
+wali ntohs(port: konti) konti {
+  // Convert network byte order to host byte order
+  gbilen htons(port);  // Symmetric operation
+}
+
+wali htonl(value: konti) konti {
+  // Convert 32-bit host to network byte order
+  kouicé byte1: konti = value % 256;
+  kouicé byte2: konti = (value / 256) % 256;
+  kouicé byte3: konti = (value / 65536) % 256;
+  kouicé byte4: konti = value / 16777216;
+  
+  gbilen byte1 * 16777216 + byte2 * 65536 + byte3 * 256 + byte4;
+}
+
+wali ntohl(value: konti) konti {
+  // Convert 32-bit network to host byte order
+  gbilen htonl(value);  // Symmetric operation
+}
+
+wali ip_to_string(ip: [4]konti) sèbèli {
+  // Convert IP to string "a.b.c.d"
+  kouicé part1: sèbèli = int_to_string(ip[0]);
+  kouicé part2: sèbèli = int_to_string(ip[1]);
+  kouicé part3: sèbèli = int_to_string(ip[2]);
+  kouicé part4: sèbèli = int_to_string(ip[3]);
+  
+  gbilen part1 + "." + part2 + "." + part3 + "." + part4;
+}
+
+wali string_to_ip(ip_str: sèbèli) [4]konti {
+  kouicé ip: [4]konti = [4]konti{0, 0, 0, 0};
+  kouicé parts: [4]sèbèli = [4]sèbèli{"", "", "", ""};
+  kouicé part_idx: konti = 0;
+  kouicé char_idx: konti = 0;
+  
+  // Parse IP string
+  be (char_idx < ip_str.length && part_idx < 4) {
+    kouicé ch: sèbèli = ip_str[char_idx];
+    xa (ch == ".") {
+      part_idx = part_idx + 1;
+    } xamuara {
+      parts[part_idx] = parts[part_idx] + ch;
+    }
+    char_idx = char_idx + 1;
+  }
+  
+  // Convert to integers
+  ip[0] = string_to_int(parts[0]);
+  ip[1] = string_to_int(parts[1]);
+  ip[2] = string_to_int(parts[2]);
+  ip[3] = string_to_int(parts[3]);
+  
+  // Validate each octet
+  xa (ip[0] < 0 || ip[0] > 255 || ip[1] < 0 || ip[1] > 255 ||
+      ip[2] < 0 || ip[2] > 255 || ip[3] < 0 || ip[3] > 255) {
+    masen("Warning: Invalid IP address octet");
+  }
+  
+  gbilen ip;
+}
+
+wali int_to_string(num: konti) sèbèli {
+  xa (num == 0) { gbilen "0"; }
+  xa (num < 0) {
+    gbilen "-" + int_to_string(0 - num);
+  }
+  
+  kouicé result: sèbèli = "";
+  kouicé temp: konti = num;
+  kouicé digits: [20]konti = [20]konti{0};
+  kouicé digit_count: konti = 0;
+  
+  // Extract digits
+  be (temp > 0) {
+    digits[digit_count] = temp % 10;
+    temp = temp / 10;
+    digit_count = digit_count + 1;
+  }
+  
+  // Build string
+  kouicé i: konti = digit_count - 1;
+  be (i >= 0) {
+    xa (digits[i] == 0) { result = result + "0"; }
+    xa (digits[i] == 1) { result = result + "1"; }
+    xa (digits[i] == 2) { result = result + "2"; }
+    xa (digits[i] == 3) { result = result + "3"; }
+    xa (digits[i] == 4) { result = result + "4"; }
+    xa (digits[i] == 5) { result = result + "5"; }
+    xa (digits[i] == 6) { result = result + "6"; }
+    xa (digits[i] == 7) { result = result + "7"; }
+    xa (digits[i] == 8) { result = result + "8"; }
+    xa (digits[i] == 9) { result = result + "9"; }
+    i = i - 1;
+  }
+  
+  gbilen result;
+}
+
+wali string_to_int(str: sèbèli) konti {
+  kouicé result: konti = 0;
+  kouicé i: konti = 0;
+  kouicé is_negative: konti = 0;
+  
+  // Check for negative sign
+  xa (str.length > 0 && str[0] == "-") {
+    is_negative = 1;
+    i = 1;
+  }
+  
+  be (i < str.length) {
+    kouicé ch: sèbèli = str[i];
+    kouicé digit: konti = 0;
+    
+    xa (ch == "0") { digit = 0; }
+    xa (ch == "1") { digit = 1; }
+    xa (ch == "2") { digit = 2; }
+    xa (ch == "3") { digit = 3; }
+    xa (ch == "4") { digit = 4; }
+    xa (ch == "5") { digit = 5; }
+    xa (ch == "6") { digit = 6; }
+    xa (ch == "7") { digit = 7; }
+    xa (ch == "8") { digit = 8; }
+    xa (ch == "9") { digit = 9; }
+    
+    result = result * 10 + digit;
+    i = i + 1;
+  }
+  
+  xa (is_negative == 1) {
+    result = 0 - result;
+  }
+  
+  gbilen result;
+}
+
+wali calculate_checksum(data: [1500]konti, length: konti) konti {
+  // Simplified checksum calculation
+  kouicé sum: konti = 0;
+  kouicé i: konti = 0;
+  
+  be (i < length) {
+    sum = sum + data[i];
+    i = i + 1;
+  }
+  
+  // Keep within 16-bit range
+  be (sum > 65535) {
+    sum = sum - 65536;
+  }
+  
+  gbilen 65535 - sum;
+}
+
+wali validate_port(port: konti) konti {
+  xa (port < PORT_MIN || port > PORT_MAX) {
+    masen("Error: Port ", port, " out of range (1-65535)");
+    gbilen -1;
+  }
+  gbilen 0;
+}
+
+wali validate_ip(ip: [4]konti) konti {
+  xa (ip[0] < 0 || ip[0] > 255 || ip[1] < 0 || ip[1] > 255 ||
+      ip[2] < 0 || ip[2] > 255 || ip[3] < 0 || ip[3] > 255) {
+    masen("Error: Invalid IP address octet");
+    gbilen -1;
+  }
+  gbilen 0;
+}
+
+// ==================== SOCKET API ====================
+
+wali create_socket(domain: konti, type: konti, protocol: konti) Socket {
+  // Create new socket
+  kouicé sock: Socket = Socket{
+    fd: -1,
+    family: domain,
+    type: type,
+    protocol: protocol,
+    local_addr: IPAddress{address: [4]konti{0,0,0,0}, port: 0},
+    remote_addr: IPAddress{address: [4]konti{0,0,0,0}, port: 0},
+    state: TCP_CLOSED,
+    recv_buffer: [1024]konti{0},
+    send_buffer: [1024]konti{0},
+    recv_idx: 0,
+    send_idx: 0,
+    recv_count: 0,
+    send_count: 0,
+    seq_num: 0,
+    ack_num: 0,
+  };
+  
+  // Validate parameters
+  xa (domain != AF_INET) {
+    masen("Error: Only AF_INET (IPv4) supported");
+    gbilen sock;
+  }
+  
+  xa (type != SOCK_STREAM && type != SOCK_DGRAM) {
+    masen("Error: Invalid socket type");
+    gbilen sock;
+  }
+  
+  // Assign file descriptor
+  kouicé next_fd: konti = 3;  // Start after stdin/stdout/stderr
+  sock.fd = next_fd;
+  next_fd = next_fd + 1;
+  
+  masen("Socket created: fd=", sock.fd, ", type=", type);
+  gbilen sock;
+}
+
+wali bind_socket(sock: *Socket, addr: IPAddress) konti {
+  xa (sock.state != TCP_CLOSED) {
+    masen("Error: Socket must be in CLOSED state to bind");
+    gbilen -1;
+  }
+  
+  xa (validate_ip(addr.address) < 0) {
+    gbilen -1;
+  }
+  
+  xa (validate_port(addr.port) < 0) {
+    gbilen -1;
+  }
+  
+  sock.local_addr = addr;
+  masen("Socket bound to ", ip_to_string(addr.address), ":", addr.port);
+  
+  gbilen 0;
+}
+
+wali listen_socket(sock: *Socket, backlog: konti) konti {
+  xa (sock.state != TCP_CLOSED) {
+    masen("Error: Socket must be in CLOSED state to listen");
+    gbilen -1;
+  }
+  
+  xa (backlog <= 0) {
+    masen("Error: Invalid backlog size");
+    gbilen -1;
+  }
+  
+  sock.state = TCP_LISTEN;
+  masen("Listening on ", ip_to_string(sock.local_addr.address), ":", 
+        sock.local_addr.port, ", backlog=", backlog);
+  
+  gbilen 0;
+}
+
+wali accept_connection(sock: *Socket) Socket {
+  xa (sock.state != TCP_LISTEN) {
+    masen("Error: Socket not listening");
+    gbilen Socket{fd: -1};
+  }
+  
+  // Simulate accepting a connection
+  kouicé next_client_port: konti = 50000;
+  
+  kouicé client_sock: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  client_sock.local_addr = sock.local_addr;
+  client_sock.remote_addr = IPAddress{
+    address: [4]konti{192, 168, 1, 100},
+    port: next_client_port
+  };
+  next_client_port = next_client_port + 1;
+  
+  client_sock.state = TCP_ESTABLISHED;
+  client_sock.seq_num = 1000;  // Initial sequence number
+  client_sock.ack_num = 0;
+  
+  masen("Accepted connection from ", 
+        ip_to_string(client_sock.remote_addr.address), ":",
+        client_sock.remote_addr.port);
+  
+  gbilen client_sock;
+}
+
+wali connect_socket(sock: *Socket, addr: IPAddress) konti {
+  xa (sock.state != TCP_CLOSED) {
+    masen("Error: Socket must be in CLOSED state to connect");
+    gbilen -1;
+  }
+  
+  xa (validate_ip(addr.address) < 0) {
+    gbilen -1;
+  }
+  
+  xa (validate_port(addr.port) < 0) {
+    gbilen -1;
+  }
+  
+  sock.remote_addr = addr;
+  sock.state = TCP_SYN_SENT;
+  sock.seq_num = 2000;  // Initial sequence number
+  
+  masen("Connecting to ", ip_to_string(addr.address), ":", addr.port);
+  masen("Sending SYN (seq=", sock.seq_num, ")");
+  
+  // Simulate three-way handshake
+  sock.seq_num = sock.seq_num + 1;  // SYN consumes one sequence number
+  sock.state = TCP_ESTABLISHED;
+  
+  masen("Connection established");
+  gbilen 0;
+}
+
+wali send_tcp_data(sock: *Socket, data: [1024]konti, length: konti) konti {
+  xa (sock.state != TCP_ESTABLISHED) {
+    masen("Error: Socket not connected");
+    gbilen -1;
+  }
+  
+  xa (length <= 0 || length > 1024) {
+    masen("Error: Invalid data length");
+    gbilen -1;
+  }
+  
+  // Build TCP packet
+  kouicé packet: [1500]konti = [1500]konti{0};
+  kouicé packet_idx: konti = 0;
+  
+  // Build header (simplified)
+  packet[packet_idx] = htons(sock.local_addr.port); packet_idx = packet_idx + 1;
+  packet[packet_idx] = htons(sock.remote_addr.port); packet_idx = packet_idx + 1;
+  packet[packet_idx] = htonl(sock.seq_num); packet_idx = packet_idx + 1;
+  packet[packet_idx] = htonl(sock.ack_num); packet_idx = packet_idx + 1;
+  packet[packet_idx] = (5 * 16) + 0;  // Data offset (5 * 4 = 20 bytes)
+  packet_idx = packet_idx + 1;
+  packet[packet_idx] = TCP_FLAG_PSH + TCP_FLAG_ACK; packet_idx = packet_idx + 1;
+  packet[packet_idx] = htons(8192);  // Window size
+  packet_idx = packet_idx + 1;
+  packet[packet_idx] = 0;  // Checksum placeholder
+  packet_idx = packet_idx + 1;
+  packet[packet_idx] = 0;  // Urgent pointer
+  packet_idx = packet_idx + 1;
+  
+  // Copy data
+  kouicé i: konti = 0;
+  be (i < length) {
+    sock.send_buffer[sock.send_idx] = data[i];
+    sock.send_idx = sock.send_idx + 1;
+    sock.send_count = sock.send_count + 1;
+    packet[packet_idx] = data[i];
+    packet_idx = packet_idx + 1;
+    i = i + 1;
+  }
+  
+  // Update sequence number
+  sock.seq_num = sock.seq_num + length;
+  
+  // Calculate checksum
+  kouicé checksum: konti = calculate_checksum(packet, packet_idx);
+  packet[16] = checksum % 256;
+  packet[17] = checksum / 256;
+  
+  masen("Sent ", length, " bytes to ", 
+        ip_to_string(sock.remote_addr.address), ":", 
+        sock.remote_addr.port, " (seq=", sock.seq_num - length, ")");
+  
+  gbilen length;
+}
+
+wali receive_tcp_data(sock: *Socket, buffer: [1024]konti, max_length: konti) konti {
+  xa (sock.state != TCP_ESTABLISHED) {
+    masen("Error: Socket not connected");
+    gbilen -1;
+  }
+  
+  xa (max_length <= 0) {
+    masen("Error: Invalid buffer size");
+    gbilen -1;
+  }
+  
+  // Simulate receiving data
+  kouicé simulated_data: [50]konti = [50]konti{
+    72, 101, 108, 108, 111, 44, 32, 84, 67, 80, 32, 87, 111, 114, 108, 100, 33, 10,
+    84, 104, 105, 115, 32, 105, 115, 32, 97, 32, 116, 101, 115, 116, 32, 109, 101,
+    115, 115, 97, 103, 101, 46, 10, 69, 110, 100, 32, 111, 102, 32, 100
+  };
+  
+  kouicé to_receive: konti = 20;
+  xa (to_receive > max_length) {
+    to_receive = max_length;
+  }
+  
+  kouicé received: konti = 0;
+  be (received < to_receive) {
+    buffer[received] = simulated_data[received];
+    sock.recv_buffer[sock.recv_idx] = simulated_data[received];
+    sock.recv_idx = sock.recv_idx + 1;
+    sock.recv_count = sock.recv_count + 1;
+    received = received + 1;
+  }
+  
+  // Update acknowledgment number
+  sock.ack_num = sock.ack_num + received;
+  
+  xa (received > 0) {
+    masen("Received ", received, " bytes from ", 
+          ip_to_string(sock.remote_addr.address), ":", 
+          sock.remote_addr.port, " (ack=", sock.ack_num, ")");
+  }
+  
+  gbilen received;
+}
+
+wali close_socket(sock: *Socket) konti {
+  masen("Closing socket fd=", sock.fd);
+  
+  xa (sock.state == TCP_ESTABLISHED) {
+    masen("Sending FIN packet");
+    sock.state = TCP_FIN_WAIT_1;
+    
+    // Simulate FIN-ACK exchange
+    sock.state = TCP_TIME_WAIT;
+    masen("Connection in TIME_WAIT state");
+    
+    // Simulate 2MSL wait
+    masen("Waiting for 2MSL...");
+  }
+  
+  sock.state = TCP_CLOSED;
+  sock.fd = -1;
+  
+  masen("Socket closed");
+  gbilen 0;
+}
+
+// ==================== TCP STATE MACHINE ====================
+
+wali process_tcp_event(sock: *Socket, event_type: konti, event_data: konti) konti {
+  kouicé old_state: konti = sock.state;
+  kouicé action: konti = 0;
+  
+  masen("TCP State: ", get_state_name(old_state), " -> Event: ", 
+        get_event_name(event_type));
+  
+  xa (old_state == TCP_LISTEN && event_type == TCP_FLAG_SYN) {
+    sock.state = TCP_SYN_RCVD;
+    sock.seq_num = 3000;  // Initial server sequence
+    action = 1;  // Send SYN-ACK
+  }
+  xa (old_state == TCP_SYN_RCVD && event_type == TCP_FLAG_ACK) {
+    sock.state = TCP_ESTABLISHED;
+    action = 0;  // Connection established
+  }
+  xa (old_state == TCP_SYN_SENT && event_type == TCP_FLAG_SYN) {
+    sock.state = TCP_SYN_RCVD;
+    action = 1;  // Send SYN-ACK
+  }
+  xa (old_state == TCP_SYN_SENT && event_type == TCP_FLAG_ACK) {
+    sock.state = TCP_ESTABLISHED;
+    action = 0;
+  }
+  xa (old_state == TCP_ESTABLISHED && event_type == TCP_FLAG_FIN) {
+    sock.state = TCP_CLOSE_WAIT;
+    action = 2;  // Send ACK for FIN
+  }
+  xa (old_state == TCP_CLOSE_WAIT) {
+    sock.state = TCP_LAST_ACK;
+    action = 3;  // Send FIN
+  }
+  xa (old_state == TCP_LAST_ACK && event_type == TCP_FLAG_ACK) {
+    sock.state = TCP_CLOSED;
+    action = 0;
+  }
+  xa (old_state == TCP_FIN_WAIT_1 && event_type == TCP_FLAG_ACK) {
+    sock.state = TCP_FIN_WAIT_2;
+    action = 0;
+  }
+  xa (old_state == TCP_FIN_WAIT_2 && event_type == TCP_FLAG_FIN) {
+    sock.state = TCP_TIME_WAIT;
+    action = 2;  // Send ACK for FIN
+  }
+  xa (old_state == TCP_TIME_WAIT) {
+    // Timeout occurred
+    sock.state = TCP_CLOSED;
+    action = 0;
+  }
+  xamuara {
+    masen("Warning: Unhandled state transition");
+    action = -1;
+  }
+  
+  masen("New State: ", get_state_name(sock.state), ", Action: ", action);
+  gbilen action;
+}
+
+wali get_state_name(state: konti) sèbèli {
+  xa (state == TCP_CLOSED)     { gbilen "CLOSED"; }
+  xa (state == TCP_LISTEN)     { gbilen "LISTEN";}
+  xa (state == TCP_SYN_SENT)   { gbilen "SYN_SENT";}
+  xa (state == TCP_SYN_RCVD)   { gbilen "SYN_RCVD";}
+  xa (state == TCP_ESTABLISHED){ gbilen "ESTABLISHED";}
+  xa (state == TCP_FIN_WAIT_1) { gbilen "FIN_WAIT_1";}
+  xa (state == TCP_FIN_WAIT_2) { gbilen "FIN_WAIT_2";}
+  xa (state == TCP_CLOSE_WAIT) { gbilen "CLOSE_WAIT";}
+  xa (state == TCP_CLOSING)    { gbilen "CLOSING";}
+  xa (state == TCP_LAST_ACK)   { gbilen "LAST_ACK";}
+  xa (state == TCP_TIME_WAIT)  { gbilen "TIME_WAIT";}
+  gbilen "UNKNOWN";
+}
+
+wali get_event_name(event: konti) sèbèli {
+  xa (event == TCP_FLAG_FIN) { gbilen "FIN";}
+  xa (event == TCP_FLAG_SYN) { gbilen "SYN";}
+  xa (event == TCP_FLAG_RST) { gbilen "RST";}
+  xa (event == TCP_FLAG_PSH) { gbilen "PSH";}
+  xa (event == TCP_FLAG_ACK) { gbilen "ACK";}
+  xa (event == TCP_FLAG_URG) { gbilen "URG";}
+  gbilen "UNKNOWN";
+}
+
+// ==================== CONNECTION MANAGER ====================
+
+wali create_connection_manager(max_conns: konti) ConnectionManager {
+  kouicé manager: ConnectionManager = ConnectionManager{
+    connections: [100]Connection{},
+    connection_count: 0,
+    max_connections: max_conns,
+  };
+  
+  // Initialize all connections as inactive
+  kouicé i: konti = 0;
+  be (i < 100) {
+    manager.connections[i] = Connection{
+      socket: Socket{fd: -1},
+      last_activity: 0,
+      bytes_sent: 0,
+      bytes_received: 0,
+      is_active: 0,
+    };
+    i = i + 1;
+  }
+  
+  masen("Connection manager created (max=", max_conns, ")");
+  gbilen manager;
+}
+
+wali add_connection(manager: *ConnectionManager, sock: Socket) konti {
+  xa (manager.connection_count >= manager.max_connections) {
+    masen("Error: Connection limit reached (", manager.max_connections, ")");
+    gbilen -1;
+  }
+  
+  // Find first inactive slot
+  kouicé i: konti = 0;
+  be (i < manager.max_connections) {
+    xa (manager.connections[i].is_active == 0) {
+      manager.connections[i] = Connection{
+        socket: sock,
+        last_activity: 0,  // Would be timestamp
+        bytes_sent: 0,
+        bytes_received: 0,
+        is_active: 1,
+      };
+      manager.connection_count = manager.connection_count + 1;
+      
+      masen("Connection added at index ", i, " (total: ", 
+            manager.connection_count, ")");
+      gbilen i;
+    }
+    i = i + 1;
+  }
+  
+  gbilen -1;
+}
+
+wali remove_connection(manager: *ConnectionManager, conn_index: konti) konti {
+  xa (conn_index < 0 || conn_index >= manager.max_connections) {
+    masen("Error: Invalid connection index");
+    gbilen -1;
+  }
+  
+  xa (manager.connections[conn_index].is_active == 0) {
+    masen("Error: Connection not active");
+    gbilen -1;
+  }
+  
+  // Close the socket
+  close_socket(manager.connections[conn_index].socket);
+  
+  // Mark as inactive
+  manager.connections[conn_index].is_active = 0;
+  manager.connection_count = manager.connection_count - 1;
+  
+  masen("Connection removed from index ", conn_index, " (remaining: ",
+        manager.connection_count, ")");
+  
+  gbilen 0;
+}
+
+wali find_connection_by_fd(manager: ConnectionManager, fd: konti) konti {
+  kouicé i: konti = 0;
+  be (i < manager.max_connections) {
+    xa (manager.connections[i].is_active == 1 && 
+        manager.connections[i].socket.fd == fd) {
+      gbilen i;
+    }
+    i = i + 1;
+  }
+  gbilen -1;
+}
+
+wali update_connection_stats(manager: *ConnectionManager, conn_index: konti, 
+                            sent: konti, received: konti) {
+  xa (conn_index < 0 || conn_index >= manager.max_connections) {
+    // TODO how do we explicityly return from a functi
+   // return;
+  }
+  
+  manager.connections[conn_index].bytes_sent = 
+    manager.connections[conn_index].bytes_sent + sent;
+  manager.connections[conn_index].bytes_received = 
+    manager.connections[conn_index].bytes_received + received;
+  manager.connections[conn_index].last_activity = 0;  // Would update timestamp
+}
+
+wali print_connection_stats(manager: ConnectionManager) {
+  masen("");
+  masen("=== CONNECTION STATISTICS ===");
+  masen("Active connections: ", manager.connection_count, "/", 
+        manager.max_connections);
+  masen("");
+  masen("ID  FD  Remote Address       State        Sent     Recv");
+  masen("--------------------------------------------------------");
+  
+  kouicé i: konti = 0;
+  kouicé active_count: konti = 0;
+  be (i < manager.max_connections && active_count < manager.connection_count) {
+    xa (manager.connections[i].is_active == 1) {
+      kouicé conn: Connection = manager.connections[i];
+      kouicé state_name: sèbèli = get_state_name(conn.socket.state);
+      
+      masen(i, "  ", conn.socket.fd, "  ",
+            ip_to_string(conn.socket.remote_addr.address), ":",
+            conn.socket.remote_addr.port, "  ",
+            state_name, "  ",
+            conn.bytes_sent, "  ",
+            conn.bytes_received);
+      active_count = active_count + 1;
+    }
+    i = i + 1;
+  }
+}
+
+// ==================== TCP SERVER IMPLEMENTATION ====================
+
+wali start_tcp_server(bind_ip: sèbèli, port: konti, max_clients: konti) konti {
+  masen("");
+  masen("=== STARTING TCP SERVER ===");
+  masen("Binding to: ", bind_ip, ":", port);
+  masen("Max clients: ", max_clients);
+  
+  // Create server socket
+  kouicé server_socket: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  xa (server_socket.fd < 0) {
+    masen("Failed to create server socket");
+    gbilen -1;
+  }
+  
+  // Bind to address
+  kouicé bind_addr: IPAddress = IPAddress{
+    address: string_to_ip(bind_ip),
+    port: htons(port)
+  };
+  
+  xa (bind_socket(server_socket, bind_addr) < 0) {
+    masen("Failed to bind socket");
+    gbilen -1;
+  }
+  
+  // Start listening
+  xa (listen_socket(server_socket, max_clients) < 0) {
+    masen("Failed to listen");
+    gbilen -1;
+  }
+  
+  // Create connection manager
+  kouicé conn_manager: ConnectionManager = create_connection_manager(max_clients);
+  
+  masen("Server ready. Accepting connections...");
+  
+  // Accept and handle connections
+  kouicé client_count: konti = 0;
+  be (client_count < 3) {  // Demo: handle 3 clients
+    masen("");
+    masen("Waiting for client ", client_count + 1, "...");
+    
+    kouicé client_socket: Socket = accept_connection(server_socket);
+    xa (client_socket.fd < 0) {
+      masen("Failed to accept connection");
+      continue;
+    }
+    
+    // Add to connection manager
+    kouicé conn_idx: konti = add_connection(conn_manager, client_socket);
+    xa (conn_idx < 0) {
+      masen("Failed to add connection to manager");
+      close_socket(client_socket);
+      continue;
+    }
+    
+    // Handle client
+    masen("Handling client connection");
+    
+    // Send welcome message
+    kouicé welcome_data: [256]konti = [256]konti{0};
+    welcome_data[0] = 87;   // W
+    welcome_data[1] = 101;  // e
+    welcome_data[2] = 108;  // l
+    welcome_data[3] = 99;   // c
+    welcome_data[4] = 111;  // o
+    welcome_data[5] = 109;  // m
+    welcome_data[6] = 101;  // e
+    welcome_data[7] = 32;   // space
+    welcome_data[8] = 116;  // t
+    welcome_data[9] = 111;  // o
+    welcome_data[10] = 32;  // space
+    welcome_data[11] = 84;  // T
+    welcome_data[12] = 67;  // C
+    welcome_data[13] = 80;  // P
+    welcome_data[14] = 32;  // space
+    welcome_data[15] = 83;  // S
+    welcome_data[16] = 101; // e
+    welcome_data[17] = 114; // r
+    welcome_data[18] = 118; // v
+    welcome_data[19] = 101; // e
+    welcome_data[20] = 114; // r
+    welcome_data[21] = 33;  // !
+    welcome_data[22] = 10;  // \n
+    
+    kouicé sent: konti = send_tcp_data(client_socket, welcome_data, 23);
+    update_connection_stats(conn_manager, conn_idx, sent, 0);
+    
+    // Receive data
+    kouicé recv_buffer: [1024]konti = [1024]konti{0};
+    kouicé received: konti = receive_tcp_data(client_socket, recv_buffer, 1024);
+    update_connection_stats(conn_manager, conn_idx, 0, received);
+    
+    xa (received > 0) {
+      masen("Received ", received, " bytes from client");
+      
+      // Echo back
+      kouicé echo_sent: konti = send_tcp_data(client_socket, recv_buffer, received);
+      update_connection_stats(conn_manager, conn_idx, echo_sent, 0);
+    }
+    
+    // Close client connection
+    remove_connection(conn_manager, conn_idx);
+    
+    client_count = client_count + 1;
+  }
+  
+  // Show final statistics
+  print_connection_stats(conn_manager);
+  
+  // Close server socket
+  close_socket(server_socket);
+  
+  masen("");
+  masen("Server shutdown complete");
+  gbilen 0;
+}
+
+// ==================== TCP CLIENT IMPLEMENTATION ====================
+
+wali start_tcp_client(server_ip: sèbèli, server_port: konti) konti {
+  masen("");
+  masen("=== STARTING TCP CLIENT ===");
+  masen("Connecting to: ", server_ip, ":", server_port);
+  
+  // Create client socket
+  kouicé client_socket: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  xa (client_socket.fd < 0) {
+    masen("Failed to create client socket");
+    gbilen -1;
+  }
+  
+  // Connect to server
+  kouicé server_addr: IPAddress = IPAddress{
+    address: string_to_ip(server_ip),
+    port: htons(server_port)
+  };
+  
+  xa (connect_socket(client_socket, server_addr) < 0) {
+    masen("Failed to connect to server");
+    gbilen -1;
+  }
+  
+  masen("Connected to server");
+  
+  // Send data
+  kouicé message_data: [256]konti = [256]konti{0};
+  message_data[0] = 72;   // H
+  message_data[1] = 101;  // e
+  message_data[2] = 108;  // l
+  message_data[3] = 108;  // l
+  message_data[4] = 111;  // o
+  message_data[5] = 44;   // ,
+  message_data[6] = 32;   // space
+  message_data[7] = 83;   // S
+  message_data[8] = 101;  // e
+  message_data[9] = 114;  // r
+  message_data[10] = 118; // v
+  message_data[11] = 101; // e
+  message_data[12] = 114; // r
+  message_data[13] = 33;  // !
+  message_data[14] = 10;  // \n
+  
+  kouicé sent: konti = send_tcp_data(client_socket, message_data, 15);
+  masen("Sent ", sent, " bytes to server");
+  
+  // Receive response
+  kouicé recv_buffer: [1024]konti = [1024]konti{0};
+  kouicé received: konti = receive_tcp_data(client_socket, recv_buffer, 1024);
+  
+  xa (received > 0) {
+    masen("Received ", received, " bytes from server:");
+    
+    // Display as text
+    kouicé i: konti = 0;
+    masen("Message: \"");
+    while (i < received && i < 50) {
+      let ch: int = recv_buffer[i];
+      if (ch == 10) {
+        print("\\n");
+      } if (ch == 32) {
+        print(" ");
+      } if (ch >= 65 && ch <= 90) {
+        // Uppercase letters
+        if (ch == 65) { print("A");}
+         if (ch == 66){ print("B");}
+         if (ch == 67){ print("C");}
+         if (ch == 68){ print("D");}
+         if (ch == 69){ print("E");}
+         if (ch == 70){ print("F");}
+         if (ch == 71){ print("G");}
+         if (ch == 72){ print("H");}
+         if (ch == 73){ print("I");}
+         if (ch == 74){ print("J");}
+         if (ch == 75){ print("K");}
+         if (ch == 76){ print("L");}
+         if (ch == 77){ print("M");}
+         if (ch == 78){ print("N");}
+         if (ch == 79){ print("O");}
+         if (ch == 80){ print("P");}
+         if (ch == 81){ print("Q");}
+         if (ch == 82){ print("R");}
+         if (ch == 83){ print("S");}
+         if (ch == 84){ print("T");}
+         if (ch == 85){ print("U");}
+         if (ch == 86){ print("V");}
+         if (ch == 87){ print("W");}
+         if (ch == 88){ print("X");}
+         if (ch == 89){ print("Y");}
+         if (ch == 90){ print("Z");}
+      } if (ch >= 97 && ch <= 122) {
+        // Lowercase letters
+        if (ch == 97)  { print("a");}
+         if (ch == 98) { print("b");}
+         if (ch == 99) { print("c");}
+         if (ch == 100){ print("d");}
+         if (ch == 101){ print("e");}
+         if (ch == 102){ print("f");}
+         if (ch == 103){ print("g");}
+         if (ch == 104){ print("h");}
+         if (ch == 105){ print("i");}
+         if (ch == 106){ print("j");}
+         if (ch == 107){ print("k");}
+         if (ch == 108){ print("l");}
+         if (ch == 109){ print("m");}
+         if (ch == 110){ print("n");}
+         if (ch == 111){ print("o");}
+         if (ch == 112){ print("p");}
+         if (ch == 113){ print("q");}
+         if (ch == 114){ print("r");}
+         if (ch == 115){ print("s");}
+         if (ch == 116){ print("t");}
+         if (ch == 117){ print("u");}
+         if (ch == 118){ print("v");}
+         if (ch == 119){ print("w");}
+         if (ch == 120){ print("x");}
+         if (ch == 121){ print("y");}
+         if (ch == 122){ print("z");}
+      } else {
+        print(".");
+      }
+      i = i + 1;
+    }
+    print("\"");
+  }
+  
+  // Close connection
+  close_socket(client_socket);
+  
+  masen("Client disconnected");
+  gbilen 0;
+}
+
+// ==================== DEMONSTRATION FUNCTIONS ====================
+
+wali demonstrate_tcp_handshake() {
+  masen("");
+  masen("=== DEMONSTRATING TCP THREE-WAY HANDSHAKE ===");
+  
+  kouicé client: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  kouicé server: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  
+  masen("");
+  masen("1. Client -> Server: SYN");
+  masen("   Client state: ", get_state_name(client.state));
+  process_tcp_event(server, TCP_FLAG_SYN, 0);
+  
+  masen("");
+  masen("2. Server -> Client: SYN-ACK");
+  masen("   Server state: ", get_state_name(server.state));
+  process_tcp_event(client, TCP_FLAG_SYN, 0);
+  
+  masen("");
+  masen("3. Client -> Server: ACK");
+  masen("   Client state: ", get_state_name(client.state));
+  process_tcp_event(server, TCP_FLAG_ACK, 0);
+  
+  masen("");
+  masen("Handshake Complete!");
+  masen("Client state: ", get_state_name(client.state));
+  masen("Server state: ", get_state_name(server.state));
+}
+
+wali demonstrate_connection_close() {
+  masen("");
+  masen("=== DEMONSTRATING TCP CONNECTION CLOSE ===");
+  
+  kouicé conn: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  conn.state = TCP_ESTABLISHED;
+  
+  masen("");
+  masen("1. Application initiates close");
+  masen("   State: ", get_state_name(conn.state));
+  process_tcp_event(conn, 0, 0);  // Application close
+  
+  masen("");
+  masen("2. Send FIN, wait for ACK");
+  masen("   State: ", get_state_name(conn.state));
+  process_tcp_event(conn, TCP_FLAG_ACK, 0);
+  
+  masen("");
+  masen("3. Receive FIN from other side, send ACK");
+  masen("   State: ", get_state_name(conn.state));
+  process_tcp_event(conn, TCP_FLAG_FIN, 0);
+  
+  masen("");
+  masen("4. Wait 2MSL timeout");
+  masen("   State: ", get_state_name(conn.state));
+  process_tcp_event(conn, 0, 0);  // Timeout
+  
+  masen("");
+  masen("Connection fully closed");
+  masen("Final state: ", get_state_name(conn.state));
+}
+
+// ==================== INTEGRATED DEMO PROGRAM ====================
+
+sodé() konti {
+  masen("=================================================");
+  masen("COMPLETE TCP/IP PROTOCOL IMPLEMENTATION");
+  masen("=================================================");
+  
+  // Test 1: Network Utilities
+  masen("");
+  masen("TEST 1: NETWORK UTILITIES");
+  masen("-------------------------");
+  
+  kouicé test_port: konti = 8080;
+  masen("Port conversion test:");
+  masen("  Original: ", test_port);
+  masen("  Network: ", htons(test_port));
+  masen("  Host: ", ntohs(htons(test_port)));
+  
+  kouicé test_ip: sèbèli = "192.168.1.100";
+  kouicé ip_array: [4]konti = string_to_ip(test_ip);
+  masen("");
+  masen("IP conversion test:");
+  masen("  String: ", test_ip);
+  masen("  Array: [", ip_array[0], ", ", ip_array[1], ", ", 
+        ip_array[2], ", ", ip_array[3], "]");
+  masen("  Back to string: ", ip_to_string(ip_array));
+  
+  // Test 2: Dynamic Arrays
+  masen("");
+  masen("TEST 2: DYNAMIC ARRAYS");
+  masen("----------------------");
+  
+  kouicé backing_array: [10]konti = [10]konti{0,0,0,0,0,0,0,0,0,0};
+  kouicé dyn_arr: DynArray = DynArray{
+    Size: 0,
+    Capacity: 10,
+    Data: backing_array,
+  };
+  
+  masen("Pushing values 10-60:");
+  kouicé val: konti = 10;
+  be (val <= 60) {
+    kouicé result: konti = push_dyn_array(dyn_arr, val);
+    masen("  Pushed ", val, ", size: ", result);
+    val = val + 10;
+  }
+  
+  print_dyn_array(dyn_arr);
+  
+  masen("Accessing elements:");
+  masen("  arr[0] = ", get_dyn_array(dyn_arr, 0));
+  masen("  arr[3] = ", get_dyn_array(dyn_arr, 3));
+  masen("  arr[5] = ", get_dyn_array(dyn_arr, 5));
+  
+  // Test 3: TCP State Machine
+  demonstrate_tcp_handshake();
+  demonstrate_connection_close();
+  
+  // Test 4: Socket API
+  masen("");
+  masen("TEST 4: SOCKET API");
+  masen("------------------");
+  
+  kouicé test_socket: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  masen("Created socket fd=", test_socket.fd);
+  
+  // Test 5: Connection Manager
+  masen("");
+  masen("TEST 5: CONNECTION MANAGER");
+  masen("--------------------------");
+  
+  kouicé manager: ConnectionManager = create_connection_manager(5);
+  
+  // Add some connections
+  kouicé sock1: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  sock1.remote_addr = IPAddress{address: [4]konti{192,168,1,101}, port: 12345};
+  sock1.state = TCP_ESTABLISHED;
+  
+  kouicé sock2: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  sock2.remote_addr = IPAddress{address: [4]konti{10,0,0,5}, port: 80};
+  sock2.state = TCP_ESTABLISHED;
+  
+  kouicé sock3: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  sock3.remote_addr = IPAddress{address: [4]konti{172,16,0,1}, port: 443};
+  sock3.state = TCP_ESTABLISHED;
+  
+  add_connection(manager, sock1);
+  add_connection(manager, sock2);
+  add_connection(manager, sock3);
+  
+  // Update stats
+  update_connection_stats(manager, 0, 1500, 1200);
+  update_connection_stats(manager, 1, 500, 300);
+  update_connection_stats(manager, 2, 10000, 8000);
+  
+  print_connection_stats(manager);
+  
+  // Remove a connection
+  masen("");
+  masen("Removing connection 1...");
+  remove_connection(manager, 1);
+  print_connection_stats(manager);
+  
+  // Test 6: Full Server-Client Simulation
+  masen("");
+  masen("TEST 6: SERVER-CLIENT SIMULATION");
+  masen("--------------------------------");
+  
+  // Note: Uncomment to run full simulation
+  // start_tcp_server("0.0.0.0", 8080, 5);
+  // start_tcp_client("127.0.0.1", 8080);
+  
+  // Instead, do a mini simulation
+  masen("");
+  masen("Mini simulation of server-client interaction:");
+  
+  kouicé server_demo: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  server_demo.local_addr = IPAddress{address: [4]konti{0,0,0,0}, port: htons(8080)};
+  server_demo.state = TCP_LISTEN;
+  
+  kouicé client_demo: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  client_demo.remote_addr = IPAddress{address: [4]konti{127,0,0,1}, port: htons(8080)};
+  
+  masen("Server listening on port 8080");
+  masen("Client connecting to server...");
+  
+  // Simulate connection
+  process_tcp_event(server_demo, TCP_FLAG_SYN, 0);
+  process_tcp_event(client_demo, TCP_FLAG_SYN, 0);
+  process_tcp_event(server_demo, TCP_FLAG_ACK, 0);
+  
+  masen("Connection established!");
+  
+  // Simulate data transfer
+  kouicé demo_data: [10]konti = [10]konti{72, 101, 108, 108, 111, 33, 10, 0, 0, 0};
+  masen("Client sending 'Hello!'");
+  send_tcp_data(client_demo, demo_data, 7);
+  
+  masen("Server receiving data...");
+  kouicé demo_buffer: [1024]konti = [1024]konti{0};
+  receive_tcp_data(server_demo, demo_buffer, 1024);
+  
+  // Simulate close
+  masen("Closing connection...");
+  close_socket(client_demo);
+  close_socket(server_demo);
+  
+  // Test 7: Error Handling
+  masen("");
+  masen("TEST 7: ERROR HANDLING");
+  masen("----------------------");
+  
+  kouicé error_sock: Socket = create_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  
+  // Try invalid operations
+  masen("Testing error cases:");
+  masen("1. Send on closed socket:");
+  kouicé dummy_data: [5]konti = [5]konti{1,2,3,4,5};
+  kouicé send_result: konti = send_tcp_data(error_sock, dummy_data, 5);
+  masen("   Result: ", send_result, " (should be -1)");
+  
+  masen("2. Bind with invalid port:");
+  kouicé invalid_addr: IPAddress = IPAddress{
+    address: [4]konti{0,0,0,0},
+    port: 70000  // Invalid port
+  };
+  kouicé bind_result: konti = bind_socket(error_sock, invalid_addr);
+  masen("   Result: ", bind_result, " (should be -1)");
+  
+  masen("3. Connect with invalid IP:");
+  kouicé invalid_ip_addr: IPAddress = IPAddress{
+    address: [4]konti{300,500,700,900},  // Invalid octets
+    port: htons(80)
+  };
+  kouicé connect_result: konti = connect_socket(error_sock, invalid_ip_addr);
+  masen("   Result: ", connect_result, " (should be -1)");
+  
+  // Final summary
+  masen("");
+  masen("=================================================");
+  masen("IMPLEMENTATION SUMMARY");
+  masen("=================================================");
+  masen("");
+  masen("Features implemented:");
+  masen("1. Complete TCP socket API");
+  masen("2. TCP state machine with all states");
+  masen("3. Connection management with statistics");
+  masen("4. Network byte order conversion");
+  masen("5. IP address parsing and formatting");
+  masen("6. Dynamic array support");
+  masen("7. Error handling and validation");
+  masen("8. Data transfer with sequence numbers");
+  masen("9. Checksum calculation");
+  masen("10. Server and client implementations");
+  masen("");
+  masen("TCP States supported: CLOSED, LISTEN, SYN_SENT, SYN_RCVD,");
+  masen("ESTABLISHED, FIN_WAIT_1, FIN_WAIT_2, CLOSE_WAIT,");
+  masen("CLOSING, LAST_ACK, TIME_WAIT");
+  masen("");
+  masen("=================================================");
+  masen("TCP/IP IMPLEMENTATION COMPLETE");
+  masen("=================================================");
+  
+  gbilen 0;
+}

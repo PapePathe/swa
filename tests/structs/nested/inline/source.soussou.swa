@@ -1,0 +1,30 @@
+khuien:soussou;
+
+fokhi Adresse {
+  Ville: sèbèli,
+  CodePostal: konti,
+}
+
+fokhi Personne {
+  Nom: sèbèli,
+  Age: konti,
+  AdresseDomicile: Adresse,
+}
+
+debut() konti {
+  soit personne: Personne = Personne{
+    Nom: "Sene",
+    Age: 25,
+    AdresseDomicile: Adresse{
+      Ville: "Thies",
+      CodePostal: 21000,
+    },
+  };
+  
+  soit ville: sèbèli = personne.AdresseDomicile.Ville;
+  soit codePostal: konti = personne.AdresseDomicile.CodePostal;
+  
+  affiche("Nom: %s, Ville: %s, CodePostal: %d", personne.Nom, ville, codePostal);
+  
+  retour 0;
+}

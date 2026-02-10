@@ -1,0 +1,21 @@
+khuien:soussou;
+
+// Test 6: Returning struct with embedded array from function
+fokhi Data {
+  arr: [3]konti,
+  value: konti,
+}
+
+wali createData() Data {
+  gbilen Data{
+    arr: [3]konti{100, 200, 300},
+    value: 42,
+  };
+}
+
+sodé() konti {
+  kouicé d: Data = createData();
+  masen("arr[0]=%d arr[1]=%d arr[2]=%d value=%d", 
+        d.arr[0], d.arr[1], d.arr[2], d.value);
+  gbilen 0;
+}

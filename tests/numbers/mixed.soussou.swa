@@ -1,0 +1,24 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé x: konti = 5;
+  kouicé y: decimal = 2.5;
+
+  kouicé r00: decimal = x + y;
+  kouicé r01: decimal = y + x;
+  masen("(x + y = %.2f, y + x = %.2f)", r00, r01);
+
+  kouicé r10: decimal = x * y;
+  kouicé r11: decimal = y * x;
+  masen("(x * y = %.2f, y * x = %.2f)", r10, r11);
+
+  kouicé r20: decimal = x / y;
+  kouicé r21: decimal = y / x;
+  masen("(x / y = %.2f, y / x = %.2f)", r20, r21);
+
+  kouicé r30: decimal = x - y;
+  kouicé r31: decimal = y - x;
+  masen("(x - y = %.2f, y - x = %.2f)", r30, r31);
+
+  gbilen 0;
+}

@@ -1,0 +1,11 @@
+khuien:soussou;
+
+sodé() konti {
+   kouicé nums : [2]konti = [2]konti{15,30};
+   kouicé first : konti = nums[0];
+   masen(
+      "first elem: %d, assigned value: %d", 
+      nums[0], first
+   );
+   gbilen 0; 
+}

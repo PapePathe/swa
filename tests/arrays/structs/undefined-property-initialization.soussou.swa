@@ -1,0 +1,11 @@
+khuien:soussou;
+
+sodé() konti {
+  fokhi Engineer{
+    Age: konti,
+  }
+
+  kouicé tableau : [1]Engineer = [1]Engineer{
+    Engineer{ Name: "test" },
+  };
+}

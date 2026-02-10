@@ -1,0 +1,13 @@
+khuien:soussou;
+
+wali get_vector() (decimal, decimal) {
+    gbilen 1.5, 2.5;
+}
+
+sodé() konti {
+    kouicé x: decimal = 0.0;
+    kouicé y: decimal = 0.0;
+    (x, y) = get_vector();
+    masen("x: %.1f, y: %.1f\n", x, y);
+    gbilen 0;
+}

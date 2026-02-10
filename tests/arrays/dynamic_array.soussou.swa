@@ -1,0 +1,106 @@
+khuien:soussou;
+
+fokhi DynArray {
+  Size: konti,
+  Capacity: konti,
+  Data: *konti,
+}
+
+wali push(arr: DynArray, value: konti) konti {
+  // if (arr.Size >= arr.Capacity) {
+  //   // Resize strategy: Double the capacity (hardcoded for now due to language limitations)
+  //   if (arr.Capacity == 10) {
+  //      let new_data: [20]int = [20]int{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  //      let i: int = 0;
+  //      while (i < arr.Size) {
+  //        new_data[i+0] = arr.Data[i+0];
+  //        i = i + 1;
+  //      }
+  //      arr.Data = new_data;
+  //      arr.Capacity = 20;
+  //      print("Resized array to capacity 20");
+  //   }
+  // }
+
+  xa (arr.Size >= arr.Capacity) {
+       masen("Error: Array capacity exceeded (max 20 implemented)");
+       gbilen -1;
+  }
+
+  arr.Data[arr.Size+0] = value;
+  arr.Size = arr.Size + 1;
+  gbilen arr.Size;
+}
+
+wali get(arr: DynArray, index: konti) konti {
+  xa (index < 0) {
+    masen("Error: Index out of bounds");
+    gbilen -1;
+  }
+  xa (index >= arr.Size) {
+    masen("Error: Index out of bounds");
+    gbilen -1;
+  }
+  gbilen arr.Data[index+0];
+}
+
+wali set(arr: DynArray, index: konti, value: konti) konti {
+  xa (index < 0) {
+    masen("Error: Index out of bounds");
+    gbilen -1;
+  }
+  xa (index >= arr.Size) {
+    masen("Error: Index out of bounds");
+    gbilen -1;
+  }
+  arr.Data[index+0] = value;
+  gbilen value;
+}
+
+wali print_array(arr: DynArray) konti {
+  masen("Array (Size: %d, Capacity: %d):", arr.Size, arr.Capacity);
+  kouicé i: konti = 0;
+  be (i < arr.Size) {
+    masen("[%d]: %d", i, arr.Data[i+0]);
+    i = i + 1;
+  }
+  gbilen 0;
+}
+
+sodé() konti {
+  // Allocate backing array
+  kouicé backing: [10]konti = [10]konti{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  
+  // Initialize dynamic array
+  kouicé arr: DynArray = DynArray{
+    Size: 0,
+    Capacity: 10,
+    Data: backing,
+  };
+
+  // Test push
+  push(arr, 10);
+  push(arr, 20);
+  push(arr, 30);
+
+  print_array(arr);
+
+  // Test get
+  masen("Get index 1: %d", get(arr, 1));
+
+  // Test set
+  set(arr, 1, 99);
+  masen("After set index 1 to 99:");
+  print_array(arr);
+
+  // Test overflow and resize
+  kouicé j: konti = 0;
+  be (j < 10) {
+    push(arr, j + 100);
+    j = j + 1;
+  }
+  masen("After filling and resizing:");
+  print_array(arr);
+  
+  gbilen 0;
+}

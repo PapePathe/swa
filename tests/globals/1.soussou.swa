@@ -1,0 +1,15 @@
+khuien:soussou;
+
+kouicé NAME : sèbèli = "Swahili";
+kouicé PI : decimal = 3.14;
+kouicé SPEED_OF_LIGHT: konti = 300000;
+
+sodé() konti {
+  masen(
+    "LANG: %s,PI: %.2f, SPEED_OF_LIGHT: %d", 
+    NAME,
+    PI, 
+    SPEED_OF_LIGHT
+  );
+  gbilen 0;
+}

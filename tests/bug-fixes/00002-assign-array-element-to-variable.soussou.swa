@@ -1,0 +1,7 @@
+khuien:soussou;
+
+sodé() konti {
+   kouicé nums : [3]konti = [3]konti{15,30, 45};
+   masen("last elem: %d", nums[1 + 1]);
+   gbilen 0; 
+}

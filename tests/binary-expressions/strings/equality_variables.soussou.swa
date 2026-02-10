@@ -1,0 +1,13 @@
+khuien:soussou;
+
+sodé() konti {
+    kouicé s1 : sèbèli = "hello";
+    kouicé s2 : sèbèli = "hello";
+
+    xa (s1 == s2) {
+        masen("Passed");
+    } xamuara {
+        masen("Failed");
+    }
+    gbilen 0;
+}

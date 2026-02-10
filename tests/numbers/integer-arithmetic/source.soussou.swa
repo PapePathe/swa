@@ -1,0 +1,45 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé a: konti = 10;
+  kouicé b: konti = 5;
+  kouicé sum: konti = a + b;
+
+  xa(sum == 15) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Integer addition failed");
+  }
+
+  xa(10 + 5 == 15) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Integer literal addition failed");
+  }
+
+  xa(a > b) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Integer greater than failed");
+  }
+
+  xa(a >= b) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Integer greater than or equal failed");
+  }
+
+  xa(b < a) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Integer less than failed");
+  }
+
+  xa(b <= a) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Integer less than or equal failed");
+  }
+
+  gbilen 0;
+}

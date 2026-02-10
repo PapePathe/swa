@@ -1,0 +1,20 @@
+khuien:soussou;
+
+// Test: Pointer lifetime (returning pointer to stack array)
+fokhi Data {
+  ptr: *konti,
+}
+
+wali createData() Data {
+  kouicé arr: [3]konti = [3]konti{10, 20, 30};
+  gbilen Data{
+    ptr: arr, // Returning pointer to stack variable 'arr'
+  };
+}
+
+sodé() konti {
+  kouicé d: Data = createData();
+  // Accessing d.ptr should be unsafe if 'arr' was on stack and popped
+  masen("ptr[0]=%d", d.ptr[0]);
+  gbilen 0;
+}

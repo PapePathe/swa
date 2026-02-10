@@ -1,0 +1,17 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé salary_string : sèbèli = "100000 EUR";
+  kouicé salary: konti = 500000;
+  salary = 999999;
+  kouicé new_salary : Entier_32 = 1009;
+
+  xa(salary >= new_salary) {
+    masen("%s %s %s %s %d", "new salary is greater", "than", "salary", salary_string, salary);
+    gbilen 10;
+  } xamuara {
+    masen("%s %d", "salary is greater ---- from else block", new_salary);
+  }
+
+  gbilen 100;
+}

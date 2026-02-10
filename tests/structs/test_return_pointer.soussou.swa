@@ -1,0 +1,21 @@
+khuien:soussou;
+
+// Test 7: Returning struct with pointer from function
+fokhi Data {
+  ptr: *konti,
+  value: konti,
+}
+
+wali createData() Data {
+  gbilen Data{
+    ptr: [3]konti{100, 200, 300},
+    value: 42,
+  };
+}
+
+sodé() konti {
+  kouicé d: Data = createData();
+  masen("ptr[0]=%d ptr[1]=%d ptr[2]=%d value=%d", 
+        d.ptr[0], d.ptr[1], d.ptr[2], d.value);
+  gbilen 0;
+}

@@ -1,0 +1,13 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé x: sèbèli = "initial";
+
+  masen("Before: %s, ", x);
+
+  x = "changed";
+
+  masen("After: %s", x);
+
+  gbilen 0;
+}

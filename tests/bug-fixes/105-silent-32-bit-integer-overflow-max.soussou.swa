@@ -1,0 +1,6 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé x: konti = 2147483648;
+  gbilen 0;
+}

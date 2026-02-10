@@ -1,0 +1,653 @@
+khuien:soussou;
+
+// ==================== STRUCT DEFINITIONS ====================
+fokhi DynArray {
+  Size: konti,
+  Capacity: konti,
+  Data: *konti,
+}
+
+fokhi Person {
+  Age: konti,
+  Height: decimal,
+  Name: sèbèli,
+  Salary: kont64,
+  IsEmployed: konti, // Using int as boolean (0=false, 1=true)
+}
+
+fokhi Company {
+  Name: sèbèli,
+  Employees: [10]Person,
+  CEO: Person,
+  Revenue: decimal,
+}
+
+fokhi Point {
+  x: konti,
+  y: konti,
+}
+
+fokhi ComplexData {
+  Id: konti,
+  Values: [5]decimal,
+  Name: sèbèli,
+  Next: *ComplexData,
+}
+
+// ==================== ARRAY UTILITIES ====================
+wali push(arr: DynArray, value: konti) konti {
+  xa (arr.Size >= arr.Capacity) {
+    masen("Error: Array capacity exceeded (max %d)", arr.Capacity);
+    gbilen -1;
+  }
+  arr.Data[arr.Size] = value;
+  arr.Size = arr.Size + 1;
+  gbilen arr.Size;
+}
+
+wali get(arr: DynArray, index: konti) konti {
+  xa (index < 0 || index >= arr.Size) {
+    masen("Error: Index %d out of bounds (size: %d)", index, arr.Size);
+    gbilen -1;
+  }
+  gbilen arr.Data[index];
+}
+
+wali set(arr: DynArray, index: konti, value: konti) konti {
+  xa (index < 0 || index >= arr.Size) {
+    masen("Error: Index %d out of bounds (size: %d)", index, arr.Size);
+    gbilen -1;
+  }
+  arr.Data[index] = value;
+  gbilen value;
+}
+
+wali print_array(arr: DynArray) konti {
+  masen("DynArray (Size: %d, Capacity: %d):", arr.Size, arr.Capacity);
+  kouicé i: konti = 0;
+  be (i < arr.Size) {
+    masen("  [%d]: %d", i, arr.Data[i]);
+    i = i + 1;
+  }
+  gbilen 0;
+}
+
+// ==================== MATH OPERATIONS ====================
+wali add(a: konti, b: konti) konti {
+  gbilen a + b;
+}
+
+wali addf(a: decimal, b: decimal) decimal {
+  gbilen a + b;
+}
+
+wali subtract(a: konti, b: konti) konti {
+  gbilen a - b;
+}
+
+wali multiply(a: konti, b: konti) konti {
+  gbilen a * b;
+}
+
+wali divide(a: konti, b: konti) konti {
+  xa (b == 0) {
+    masen("Error: Division by zero");
+    gbilen 0;
+  }
+  gbilen a / b;
+}
+
+wali modulo(a: konti, b: konti) konti {
+  xa (b == 0) {
+    masen("Error: Modulo by zero");
+    gbilen 0;
+  }
+  gbilen a % b;
+}
+
+// ==================== STRING/ARRAY MANIPULATION ====================
+wali sum_array(arr: [5]konti) konti {
+  kouicé total: konti = 0;
+  kouicé i: konti = 0;
+  be (i < 5) {
+    total = total + arr[i];
+    i = i + 1;
+  }
+  gbilen total;
+}
+
+wali average_array(arr: [5]decimal) decimal {
+  kouicé total: decimal = 0.0;
+  kouicé i: konti = 0;
+  be (i < 5) {
+    total = total + arr[i];
+    i = i + 1;
+  }
+  gbilen total / 5.0;
+}
+
+wali reverse_array(arr: [5]konti) [5]konti {
+  kouicé result: [5]konti = [5]konti{0, 0, 0, 0, 0};
+  kouicé i: konti = 0;
+  be (i < 5) {
+    result[4 - i] = arr[i];
+    i = i + 1;
+  }
+  gbilen result;
+}
+
+// ==================== STRUCT MANIPULATION ====================
+wali makePoint(x: konti, y: konti) Point {
+  gbilen Point{x: x, y: y};
+}
+
+wali distance(p1: Point, p2: Point) decimal {
+  kouicé dx: konti = p1.x - p2.x;
+  kouicé dy: konti = p1.y - p2.y;
+  kouicé dxf: decimal = dx;
+  kouicé dyf: decimal = dy;
+  gbilen (dxf * dxf + dyf * dyf);
+}
+
+wali birthday(person: *Person) konti {
+  person.Age = person.Age + 1;
+  masen("%s is now %d years old!", person.Name, person.Age);
+  gbilen person.Age;
+}
+
+wali promote(person: *Person, raise: decimal) decimal {
+  person.Salary = person.Salary * (1.0 + raise / 100.0);
+  gbilen person.Salary;
+}
+
+// ==================== COMPLEX DATA STRUCTURES ====================
+wali create_linked_list() *ComplexData {
+  kouicé node3: ComplexData = ComplexData{
+    Id: 3,
+    Values: [5]decimal{3.1, 3.2, 3.3, 3.4, 3.5},
+    Name: "Third",
+    Next: 0, // null pointer
+  };
+  
+  kouicé node2: ComplexData = ComplexData{
+    Id: 2,
+    Values: [5]decimal{2.1, 2.2, 2.3, 2.4, 2.5},
+    Name: "Second",
+    Next: node3,
+  };
+  
+  kouicé node1: ComplexData = ComplexData{
+    Id: 1,
+    Values: [5]decimal{1.1, 1.2, 1.3, 1.4, 1.5},
+    Name: "First",
+    Next: node2,
+  };
+  
+  gbilen node1;
+}
+
+wali print_linked_list(head: *ComplexData) konti {
+  kouicé current: *ComplexData = head;
+  kouicé count: konti = 0;
+  
+  be (current != 0) {
+    masen("Node %d: %s (id: %d)", count, current.Name, current.Id);
+    current = current.Next;
+    count = count + 1;
+  }
+  
+  gbilen count;
+}
+
+// ==================== CONDITIONAL LOGIC TESTS ====================
+wali test_conditionals() konti {
+  masen("\n=== Testing Conditionals ===");
+  
+  kouicé a: konti = 10;
+  kouicé b: konti = 20;
+  kouicé c: decimal = 15.5;
+  kouicé d: decimal = 25.5;
+  
+  // Basic comparisons
+  xa (a < b) {
+    masen("a < b is true");
+  } xamuara {
+    masen("ERROR: a < b should be true");
+  }
+  
+  xa (a > b) {
+    masen("ERROR: a > b should be false");
+  } xamuara {
+    masen("a > b is false");
+  }
+  
+  xa (c == 15.5 && d == 25.5) {
+    masen("c == 15.5 && d == 25.5 is true");
+  }
+  
+  xa (a == 10 || b == 100) {
+    masen("a == 10 || b == 100 is true (short-circuit)");
+  }
+  
+  // Complex logical expressions
+  xa ((a < b && c < d) || (a > b && c > d)) {
+    masen("Complex expression 1 is true");
+  }
+  
+  xa (!(a == b) && (c != d)) {
+    masen("Complex expression 2 is true");
+  }
+  
+  // Nested conditionals
+  xa (a > 5) {
+    xa (b > 10) {
+      xa (c > 0.0) {
+        masen("Triple-nested condition is true");
+      }
+    }
+  }
+  
+  gbilen 0;
+}
+
+// ==================== LOOP TESTS ====================
+wali test_loops() konti {
+  masen("\n=== Testing Loops ===");
+  
+  // While loop with array
+  kouicé numbers: [10]konti = [10]konti{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  kouicé i: konti = 0;
+  kouicé sum: konti = 0;
+  
+  masen("Array elements:");
+  be (i < 10) {
+    masen("  numbers[%d] = %d", i, numbers[i]);
+    sum = sum + numbers[i];
+    i = i + 1;
+  }
+  masen("Sum of array: %d", sum);
+  
+  // Count even numbers
+  i = 0;
+  kouicé even_count: konti = 0;
+  be (i < 10) {
+    xa (numbers[i] % 2 == 0) {
+      even_count = even_count + 1;
+    }
+    i = i + 1;
+  }
+  masen("Even numbers count: %d", even_count);
+  
+  // Countdown
+  masen("Countdown from 5:");
+  kouicé count: konti = 5;
+  be (count > 0) {
+    masen("  %d...", count);
+    count = count - 1;
+  }
+  masen("Blast off!");
+  
+  gbilen 0;
+}
+
+// ==================== TYPE SYSTEM TESTS ====================
+wali test_types() konti {
+  masen("\n=== Testing Type System ===");
+  
+  // Integer types
+  kouicé small_int: konti = 42;
+  kouicé large_int: kont64 = 9223372036854775807; // max int64
+  kouicé negative_int: konti = -2147483647;
+  
+  masen("Integers: %d, %d, %d", small_int, large_int, negative_int);
+  
+  // Floating point
+  kouicé pi: decimal = 3.14159;
+  kouicé negative_pi: decimal = -3.14159;
+  kouicé large_float: decimal = 1.00000000000;
+  
+  masen("Floats: %.5f, %.5f, %.1f", pi, negative_pi, large_float);
+  
+  // Strings
+  kouicé greeting: sèbèli = "Hello, World!";
+  kouicé name: sèbèli = "Alice";
+  kouicé empty: sèbèli = "";
+  
+  masen("Strings: '%s', '%s', '%s'", greeting, name, empty);
+  
+  // Mixed arithmetic
+  kouicé int_val: konti = 10;
+  kouicé float_val: decimal = 2.5;
+  kouicé mixed_result: decimal = int_val * float_val;
+  
+  masen("Mixed arithmetic: %d * %.1f = %.1f", int_val, float_val, mixed_result);
+  
+  gbilen 0;
+}
+
+// ==================== FUNCTION TESTS ====================
+wali test_functions() konti {
+  masen("\n=== Testing Functions ===");
+  
+  // Test math functions
+  kouicé x: konti = 100;
+  kouicé y: konti = 25;
+  
+  masen("Math operations on %d and %d:", x, y);
+  masen("  Addition: %d", add(x, y));
+  masen("  Subtraction: %d", subtract(x, y));
+  masen("  Multiplication: %d", multiply(x, y));
+  masen("  Division: %d", divide(x, y));
+  masen("  Modulo: %d", modulo(x, y));
+  
+  // Test array functions
+  kouicé arr: [5]konti = [5]konti{1, 2, 3, 4, 5};
+  kouicé sum: konti = sum_array(arr);
+  kouicé reversed: [5]konti = reverse_array(arr);
+  
+  masen("Array sum: %d", sum);
+  masen("Reversed array: %d %d %d %d %d", 
+        reversed[0], reversed[1], reversed[2], reversed[3], reversed[4]);
+  
+  // Test struct functions
+  kouicé p1: Point = makePoint(0, 0);
+  kouicé p2: Point = makePoint(3, 4);
+  kouicé dist: decimal = distance(p1, p2);
+  
+  masen("Distance between (%d,%d) and (%d,%d): %.2f", 
+        p1.x, p1.y, p2.x, p2.y, dist);
+  
+  gbilen 0;
+}
+
+// ==================== EDGE CASE TESTS ====================
+wali test_edge_cases() konti {
+  masen("\n=== Testing Edge Cases ===");
+  
+  // 1. Array bounds checking
+  masen("1. Array bounds testing:");
+  kouicé small_array: [3]konti = [3]konti{1, 2, 3};
+  
+  // These should all work
+  masen("  small_array[0] = %d", small_array[0]);
+  masen("  small_array[2] = %d", small_array[2]);
+  
+  // 2. Division by zero (handled in function)
+  masen("\n2. Division by zero:");
+  masen("  10 / 0 = %d", divide(10, 0));
+  
+  // 3. Integer overflow
+  masen("\n3. Integer limits:");
+  kouicé max_int: konti = 2147483647;
+  kouicé min_int: konti = -2147483648;
+  masen("  Max int: %d, Min int: %d", max_int, min_int);
+  
+  // 4. Pointer to stack variable (potentially unsafe)
+  masen("\n4. Pointer lifetime test:");
+  fokhi LocalData {
+    value: konti,
+    ptr: *konti,
+  }
+  
+  kouicé local_arr: [2]konti = [2]konti{42, 99};
+  kouicé local_data: LocalData = LocalData{
+    value: 100,
+    ptr: local_arr,
+  };
+  
+  // Accessing should work while in scope
+  masen("  local_data.ptr[0] = %d", local_data.ptr[0]);
+  
+  // 5. Nested scopes with variable shadowing
+  masen("\n5. Variable shadowing:");
+  kouicé outer: konti = 100;
+  masen("  Outer before inner scope: %d", outer);
+  
+  xa (outer > 0) {
+    kouicé outer: konti = 200; // Shadows outer variable
+    masen("  Inner scope outer: %d", outer);
+    
+    xa (outer > 150) {
+      kouicé outer: konti = 300; // Another level of shadowing
+      masen("  Nested inner scope outer: %d", outer);
+    }
+    
+    masen("  Inner scope outer after nested: %d", outer);
+  }
+  
+  masen("  Outer after inner scope: %d", outer);
+  
+  // 6. Empty while loop
+  masen("\n6. Empty while loop:");
+  kouicé counter: konti = 3;
+  be (counter > 0) {
+    // Empty body
+    counter = counter - 1;
+  }
+  masen("  Loop completed");
+  
+  // 7. Recursion simulation (with loop)
+  masen("\n7. Recursion simulation (factorial):");
+  kouicé n: konti = 5;
+  kouicé factorial: konti = 1;
+  be (n > 0) {
+    factorial = factorial * n;
+    n = n - 1;
+  }
+  masen("  5! = %d", factorial);
+  
+  gbilen 0;
+}
+
+// ==================== REAL-WORLD SCENARIO ====================
+wali company_simulation() konti {
+  masen("\n=== Company Simulation ===");
+  
+  // Create company
+  kouicé google: Company = Company{
+    Name: "Google",
+    Employees: [10]Person{
+      Person{Age: 25, Height: 1.75, Name: "Alice", Salary: 100000, IsEmployed: 1},
+      Person{Age: 30, Height: 1.80, Name: "Bob", Salary: 120000, IsEmployed: 1},
+      Person{Age: 35, Height: 1.70, Name: "Charlie", Salary: 150000, IsEmployed: 1},
+      Person{Age: 40, Height: 1.85, Name: "Diana", Salary: 200000, IsEmployed: 1},
+      Person{Age: 28, Height: 1.65, Name: "Eve", Salary: 90000, IsEmployed: 1},
+      Person{Age: 0, Height: 0.0, Name: "", Salary: 0, IsEmployed: 0}, // Empty slot
+      Person{Age: 0, Height: 0.0, Name: "", Salary: 0, IsEmployed: 0}, // Empty slot
+      Person{Age: 0, Height: 0.0, Name: "", Salary: 0, IsEmployed: 0}, // Empty slot
+      Person{Age: 0, Height: 0.0, Name: "", Salary: 0, IsEmployed: 0}, // Empty slot
+      Person{Age: 0, Height: 0.0, Name: "", Salary: 0, IsEmployed: 0}, // Empty slot
+    },
+    CEO: Person{Age: 50, Height: 1.78, Name: "Sundar Pichai", Salary: 2000000, IsEmployed: 1},
+    Revenue: 300000000000.0, // 300 billion
+  };
+  
+  // Print company info
+  masen("Company: %s", google.Name);
+  masen("CEO: %s (Age: %d, Salary: %d)", google.CEO.Name, google.CEO.Age, google.CEO.Salary);
+  masen("Revenue: %.0f", google.Revenue);
+  
+  // Calculate average employee age and salary
+  kouicé total_age: konti = 0;
+  kouicé total_salary: kont64 = 0;
+  kouicé employee_count: konti = 0;
+  kouicé i: konti = 0;
+  
+  be (i < 10) {
+    xa (google.Employees[i].IsEmployed == 1) {
+      total_age = total_age + google.Employees[i].Age;
+      total_salary = total_salary + google.Employees[i].Salary;
+      employee_count = employee_count + 1;
+    }
+    i = i + 1;
+  }
+  
+  kouicé avg_age: konti = total_age / employee_count;
+  kouicé avg_salary: kont64 = total_salary / employee_count;
+  
+  masen("Employee Count: %d", employee_count);
+  masen("Average Age: %d", avg_age);
+  masen("Average Salary: %d", avg_salary);
+  
+  // Give everyone a birthday and raise
+  masen("\n--- Annual Review ---");
+  i = 0;
+  be (i < 10) {
+    xa (google.Employees[i].IsEmployed == 1) {
+      kouicé old_age: konti = google.Employees[i].Age;
+      kouicé old_salary: kont64 = google.Employees[i].Salary;
+      
+      birthday(google.Employees[i]);
+      google.Employees[i].Salary = google.Employees[i].Salary * 1.05; // 5% raise
+      
+      masen("  %s: Age %d->%d, Salary %d->%d", 
+            google.Employees[i].Name, old_age, google.Employees[i].Age, 
+            old_salary, google.Employees[i].Salary);
+    }
+    i = i + 1;
+  }
+  
+  gbilen 0;
+}
+
+// ==================== DYNAMIC ARRAY DEMO ====================
+wali dynamic_array_demo() konti {
+  masen("\n=== Dynamic Array Demo ===");
+  
+  // Create backing storage
+  kouicé backing: [20]konti = [20]konti{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  
+  // Initialize dynamic array
+  kouicé arr: DynArray = DynArray{
+    Size: 0,
+    Capacity: 20,
+    Data: backing,
+  };
+  
+  // Fill the array
+  masen("Pushing values 1-15:");
+  kouicé i: konti = 1;
+  be (i <= 15) {
+    kouicé result: konti = push(arr, i * 10);
+    masen("  Pushed %d, new size: %d", i * 10, result);
+    i = i + 1;
+  }
+  
+  print_array(arr);
+  
+  // Access elements
+  masen("\nAccessing elements:");
+  masen("  arr[0] = %d", get(arr, 0));
+  masen("  arr[7] = %d", get(arr, 7));
+  masen("  arr[14] = %d", get(arr, 14));
+  
+  // Test bounds checking
+  masen("\nTesting bounds checking:");
+  masen("  arr[-1] = %d (should be -1 error)", get(arr, -1));
+  masen("  arr[20] = %d (should be -1 error)", get(arr, 20));
+  
+  // Modify elements
+  masen("\nModifying elements:");
+  masen("  Setting arr[5] to 999: %d", set(arr, 5, 999));
+  masen("  Setting arr[10] to 888: %d", set(arr, 10, 888));
+  
+  print_array(arr);
+  
+  // Try to overflow
+  masen("\nTesting overflow:");
+  be (i <= 25) {
+    kouicé result: konti = push(arr, i * 10);
+    xa (result == -1) {
+      masen("  Failed to push %d: capacity exceeded", i * 10);
+    } xamuara {
+      masen("  Pushed %d, new size: %d", i * 10, result);
+    }
+    i = i + 1;
+  }
+  
+  gbilen 0;
+}
+
+// ==================== MAIN PROGRAM ====================
+sodé() konti {
+  masen("=========================================");
+  masen("COMPREHENSIVE PROGRAM TESTING ALL FEATURES");
+  masen("=========================================");
+  
+  // Run all test suites
+  test_conditionals();
+  test_loops();
+  test_types();
+  test_functions();
+  test_edge_cases();
+  
+  // Real-world simulations
+  company_simulation();
+  dynamic_array_demo();
+  
+  // Test linked list
+  masen("\n=== Linked List Test ===");
+  kouicé head: *ComplexData = create_linked_list();
+  kouicé node_count: konti = print_linked_list(head);
+  masen("Total nodes: %d", node_count);
+  
+  // Final output formatting test
+  masen("\n=== Formatted Output Test ===");
+  masen("%-20s | %10s | %10s", "Name", "Age", "Salary");
+  masen("%-20s-|-%10s-|-%10s", "--------------------", "----------", "----------");
+  masen("%-20s | %10d | %10d", "Alice", 25, 100000);
+  masen("%-20s | %10d | %10d", "Bob", 30, 120000);
+  masen("%-20s | %10d | %10d", "Charlie", 35, 150000);
+  
+  // Mixed type operations
+  masen("\n=== Mixed Type Operations ===");
+  kouicé int_val: konti = 7;
+  kouicé float_val: decimal = 3.5;
+  kouicé result1: decimal = int_val + float_val;
+  kouicé result2: decimal = int_val * float_val;
+  kouicé result3: decimal = int_val - float_val;
+  kouicé result4: decimal = int_val / float_val;
+  
+  masen("7 + 3.5 = %.2f", result1);
+  masen("7 * 3.5 = %.2f", result2);
+  masen("7 - 3.5 = %.2f", result3);
+  masen("7 / 3.5 = %.2f", result4);
+  
+  // Test array of structs
+  masen("\n=== Array of Structs ===");
+  kouicé points: [3]Point = [3]Point{
+    makePoint(1, 2),
+    makePoint(3, 4),
+    makePoint(5, 6)
+  };
+  
+  kouicé j: konti = 0;
+  be (j < 3) {
+    masen("Point %d: (%d, %d)", j, points[j].x, points[j].y);
+    j = j + 1;
+  }
+  
+  // Test nested struct access
+  masen("\n=== Nested Struct Access ===");
+  fokhi Container {
+    id: konti,
+    data: Person,
+    points: [2]Point,
+  }
+  
+  kouicé container: Container = Container{
+    id: 1,
+    data: Person{Age: 25, Height: 1.75, Name: "Nested", Salary: 50000, IsEmployed: 1},
+    points: [2]Point{makePoint(10, 20), makePoint(30, 40)},
+  };
+  
+  masen("Container ID: %d", container.id);
+  masen("  Person: %s, Age: %d", container.data.Name, container.data.Age);
+  masen("  Point 0: (%d, %d)", container.points[0].x, container.points[0].y);
+  
+  masen("\n=========================================");
+  masen("PROGRAM COMPLETED SUCCESSFULLY");
+  masen("=========================================");
+  
+  gbilen 0;
+}

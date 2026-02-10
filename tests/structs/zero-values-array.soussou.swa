@@ -1,0 +1,21 @@
+khuien:soussou;
+
+fokhi Point {
+  x: konti,
+  y: konti,
+}
+
+fokhi Path {
+  points: [1]Point,
+}
+
+sodé() konti {
+  kouicé l : [2]Path;
+  masen("- [1]Path with zero value\n");
+  masen(
+    "x1: %d y1:%d", 
+    l[0].points[0].x, l[0].points[0].y
+  );
+
+  gbilen 0;
+}

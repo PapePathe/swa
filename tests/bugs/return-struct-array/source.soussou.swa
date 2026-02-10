@@ -1,0 +1,16 @@
+khuien:soussou;
+
+fokhi Data {
+  arr: [3]konti,
+}
+
+wali createData() Data {
+  gbilen Data{
+    arr: [3]konti{1, 2, 3},
+  };
+}
+
+sodé() konti {
+  kouicé d: Data = createData();
+  gbilen 0;
+}

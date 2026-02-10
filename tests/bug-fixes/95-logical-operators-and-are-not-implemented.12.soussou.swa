@@ -1,0 +1,13 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé x: decimal = 0.5;
+  kouicé y: decimal = 1.5;
+  
+  xa (x == 0.5 || y == 0.0) {
+    masen("x == 0.5 || y == 0.0 evaluates to true");
+  } xamuara {
+    masen("implementation error");
+  }
+  gbilen 0;
+}

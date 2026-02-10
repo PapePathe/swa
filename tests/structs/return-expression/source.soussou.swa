@@ -1,0 +1,14 @@
+khuien:soussou;
+
+sodé() konti {
+	fokhi Test { 
+		Message: sèbèli, 
+		ExitCode: konti, 
+	}
+	kouicé ab1: Test = Test{ 
+		Message: "Done", 
+  	ExitCode: 0 
+  }; 
+
+  gbilen ab1.ExitCode;
+}	

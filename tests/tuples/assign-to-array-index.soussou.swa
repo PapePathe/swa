@@ -1,0 +1,10 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé tab : [2]konti;
+  (tab[0], tab[1]) = (15, 150);
+
+  masen("tab[0]=%d, tab[1]=%d\n", tab[0], tab[1]);
+
+  gbilen 0;
+}

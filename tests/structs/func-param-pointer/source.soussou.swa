@@ -1,0 +1,22 @@
+khuien:soussou;
+
+fokhi Data {
+  ptr: *konti,
+  value: konti,
+}
+
+// TODO: struct should be passed as a value here
+wali processData(d: *Data) konti {
+  gbilen d.ptr[0] + d.ptr[1] + d.ptr[2] + d.value;
+}
+
+sodé() konti {
+  kouicé d : Data = Data{
+    ptr: [3]konti{10, 20, 30},
+    value: 5,
+  };
+
+  kouicé result: konti = processData(d);
+  masen("Result: %d", result);
+  gbilen 0;
+}

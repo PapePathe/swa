@@ -1,0 +1,38 @@
+khuien:soussou;
+
+fokhi Person {
+  Age:     konti,
+  Height:  decimal,
+  Name:    sèbèli,
+}
+
+wali changeAge(person: *Person) konti {
+  person.Age = person.Age + 20;
+  person.Age = 20 + person.Age;
+ 
+
+  gbilen person.Age;
+}
+
+wali changeName(person: *Person) sèbèli {
+  person.Name = "Pathe SENE";
+
+  gbilen person.Name;
+}
+
+wali changHeight(person: *Person) decimal {
+  person.Height= 1.80;
+
+  gbilen person.Height;
+}
+
+sodé() konti {
+  kouicé p : Person = Person{ Age: 0, Height: 0.0, Name: "Pathe", };
+  kouicé myAge : konti = changeAge(p);
+  kouicé myHeight : decimal = changHeight(p);
+  kouicé myName: sèbèli = changeName(p);
+ 
+  masen("age: %d, height: %.2f, name: %s", myAge, myHeight, myName);
+
+  gbilen 0; 
+}

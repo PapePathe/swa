@@ -1,0 +1,51 @@
+khuien:soussou;
+
+sodé() konti {
+  fokhi Ingenieur{
+    Age:            konti,
+    Taille:         decimal,
+    Nom:            sèbèli,
+    StackTechnique: sèbèli,
+  }
+
+  kouicé tableau : [4]Ingenieur = [4]Ingenieur{
+    Ingenieur{ Age: 40, Taille: 1.80, Nom: "Pathe",  StackTechnique: "Ruby, Rust, Go" },
+    Ingenieur{ Age: 24, Taille: 1.81, Nom: "Lucien", StackTechnique: "Typescript, HTML, Css" },
+    Ingenieur{ Age: 25, Taille: 1.82, Nom: "Manel",  StackTechnique: "Typescript, Ruby" },
+    Ingenieur{ Age: 28, Taille: 1.83, Nom: "Bintou", StackTechnique: "Javascript, Css, HTML" },
+  };
+
+  masen(
+      "(nom: %s, age: %d, taille: %.2f, technos: %s) ", 
+      tableau[0].Nom, 
+      tableau[0].Age, 
+      tableau[0].Taille, 
+      tableau[0].StackTechnique
+      );
+
+  masen(
+      "(nom: %s, age: %d, taille: %.2f, technos: %s) ", 
+      tableau[1].Nom, 
+      tableau[1].Age, 
+      tableau[1].Taille, 
+      tableau[1].StackTechnique
+      );
+
+  masen(
+      "(nom: %s, age: %d, taille: %.2f, technos: %s) ", 
+      tableau[2].Nom, 
+      tableau[2].Age, 
+      tableau[2].Taille, 
+      tableau[2].StackTechnique
+      );
+
+  masen(
+      "(nom: %s, age: %d, technos: %s)", 
+      tableau[3].Nom, 
+      tableau[3].Age, 
+      tableau[3].Taille, 
+      tableau[3].StackTechnique
+      ); 
+
+  gbilen 0;
+}

@@ -1,0 +1,14 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé x : konti = 0;
+  kouicé array : [10]konti = [10]konti{5,15,25,35,45,55,65,75,85,95};
+
+  be (x < 10) {
+    masen("%d ", array[x]);
+
+    x = x + 1;
+  }
+
+  gbilen 0;
+}

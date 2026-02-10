@@ -1,0 +1,14 @@
+khuien:soussou;
+
+fokhi Data { arr: [3]konti, }
+
+sodé() konti {
+  kouicé d1: Data = Data{ arr: [3]konti{1, 2, 3} };
+  kouicé d2: Data = d1;
+
+  d2.arr[0] = 999;
+
+  masen("%d", d2.arr[0]);
+
+  gbilen 0;
+}

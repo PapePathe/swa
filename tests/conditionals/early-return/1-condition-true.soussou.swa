@@ -1,0 +1,15 @@
+khuien:soussou;
+
+fokhi Point {
+    x : decimal,
+}
+
+sodé () konti {
+  kouicé p : Point = Point{x: 10.25};
+
+  masen("program interrupted by early return");
+  gbilen 0 xa (p.x == 10.25);
+  masen("program not interrupted by early return");
+
+  gbilen 0; 
+}

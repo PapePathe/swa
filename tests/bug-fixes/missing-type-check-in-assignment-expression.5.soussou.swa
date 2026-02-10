@@ -1,0 +1,9 @@
+khuien:soussou;
+
+fokhi Point { x: konti, }
+
+sodé () konti {
+  kouicé res : Point;
+  res.x = 1.0;
+  gbilen 0; 
+}

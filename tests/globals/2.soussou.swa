@@ -1,0 +1,4 @@
+khuien:soussou;
+
+fokhi Point { x: konti, y: konti, }
+kouicé p : Point = Point{x:0, y:0};

@@ -1,0 +1,49 @@
+khuien:soussou;
+
+wali swap(list: [10]konti, i: konti, j: konti) konti {
+  kouicé temp: konti = list[i];
+  list[i] = list[j];
+  list[j] = temp;
+  gbilen 0;
+}
+
+wali bubble_sort(list: [10]konti) konti {
+  kouicé N: konti = 10;
+  kouicé i: konti = 0;
+  kouicé j: konti = 0;
+  
+  be (i < (N - 1)) {
+    j = 0;
+    be (j < (N - 1 - i)) {
+      xa (list[j] > list[j + 1]) {
+        kouicé temp: konti = list[j];
+        list[j] = list[j + 1];
+        list[j + 1] = temp;
+      }
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  gbilen 0;
+}
+
+wali print_array(list: [10]konti) konti {
+  kouicé N: konti = 10;
+  kouicé i: konti = 0;
+  masen("Sorted Array: ");
+  be (i < N) {
+    masen("%d ", list[i]);
+    i = i + 1;
+  }
+  masen("\n");
+  gbilen 0;
+}
+
+sodé() konti {
+  kouicé numbers: [10]konti = [10]konti{64, 34, 25, 12, 22, 11, 90, 8, 77, 4};
+  
+  bubble_sort(numbers);
+  print_array(numbers);
+  
+  gbilen 0;
+}

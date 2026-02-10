@@ -1,0 +1,53 @@
+khuien:soussou;
+
+wali selection_sort(list: [10]konti) konti {
+  kouicé N: konti = 10;
+  kouicé i: konti = 0;
+  kouicé j: konti = 0;
+  kouicé min_idx: konti = 0;
+  
+  // Outer loop: move the boundary of the unsorted subarray
+  be (i < (N - 1)) {
+    min_idx = i;
+    j = i + 1;
+    
+    // Inner loop: find the minimum element in the unsorted subarray
+    be (j < N) {
+      xa (list[j] < list[min_idx]) {
+        min_idx = j;
+      }
+      j = j + 1;
+    }
+    
+    // Swap the found minimum element with the first element of the unsorted subarray
+    xa (min_idx != i) {
+      kouicé temp: konti = list[i];
+      list[i] = list[min_idx];
+      list[min_idx] = temp;
+    }
+    
+    i = i + 1;
+  }
+  gbilen 0;
+}
+
+wali print_array_4(list: [10]konti) konti {
+  kouicé N: konti = 10;
+  kouicé i: konti = 0;
+  masen("Sorted Array: ");
+  be (i < N) {
+    masen("%d ", list[i]);
+    i = i + 1;
+  }
+  masen("\n");
+  gbilen 0;
+}
+
+sodé() konti {
+  kouicé numbers: [10]konti = [10]konti{77, 10, 5, 22, 11, 90, 8, 64, 34, 25};
+  
+  selection_sort(numbers);
+  print_array_4(numbers);
+  
+  gbilen 0;
+}

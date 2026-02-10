@@ -1,0 +1,49 @@
+khuien:soussou;
+
+fokhi Dimensions {
+  Length: decimal,
+  Width:  decimal,
+  Height: konti,
+  Name:   sèbèli,
+}
+
+fokhi Object {
+  Dim:   Dimensions,
+  Shape: sèbèli,
+}
+
+fokhi Block {
+  top:    Object,
+  bottom: Object,
+}
+
+sodé() konti {
+  kouicé dim : Dimensions;
+  masen("- Dimension with zero value\n");
+  masen(
+    "Length: %.2f, Width: %.2f, Height: %d, Name: %s\n\n", 
+    dim.Length, dim.Width, dim.Height, dim.Name,
+  );
+
+  kouicé obj : Object;
+  masen("- Object with zero value\n");
+  masen(
+    "Length: %.2f, Width: %.2f, Height: %d, Name: %s, Shape: %s\n\n", 
+    obj.Dim.Length, obj.Dim.Width, obj.Dim.Height, obj.Dim.Name, obj.Shape,
+  );
+
+  kouicé block : Block;
+  masen("- Block with zero value\n");
+  masen(
+    "Top(Length: %.2f, Width: %.2f, Height: %d, Name: %s, Shape: %s)\n", 
+    block.top.Dim.Length, block.top.Dim.Width, block.top.Dim.Height, 
+    block.top.Dim.Name, block.top.Shape,
+  );
+  masen(
+    "Bottom(Length: %.2f, Width: %.2f, Height: %d, Name: %s, Shape: %s)\n", 
+    block.bottom.Dim.Length, block.bottom.Dim.Width, block.bottom.Dim.Height, 
+    block.bottom.Dim.Name, block.bottom.Shape,
+  );
+
+  gbilen 0;
+}

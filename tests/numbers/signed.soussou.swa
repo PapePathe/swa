@@ -1,0 +1,19 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé x : konti = -2;
+  kouicé y : konti = 2;
+  
+  kouicé z     : konti = x + y;
+  kouicé zz    : konti = x * y;
+  kouicé zzz   : konti = x - y;
+  kouicé zzzz  : konti = x / y;
+  kouicé zzzzz : konti = x % y;
+
+  masen(
+    "x+y: %d, x*y: %d, x-y: %d, x/y: %d, x%%y: %d", 
+    z, zz, zzz zzzz zzzzz
+  );
+  
+  gbilen 0;
+}

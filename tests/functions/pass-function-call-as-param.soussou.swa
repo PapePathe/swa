@@ -1,0 +1,17 @@
+khuien:soussou;
+
+wali add(first: decimal, last: decimal) decimal {
+  gbilen first + last;
+}
+
+
+wali makef() decimal {
+  gbilen 10.25;
+}
+
+
+sodé () konti {
+  kouicé res : decimal = add(makef(), 4.75);
+  masen("10.25 + 4.75 = %.2f", res);
+  gbilen 0; 
+}

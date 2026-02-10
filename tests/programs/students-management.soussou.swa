@@ -1,0 +1,151 @@
+khuien:soussou;
+// ---------------------------------------------------------
+// STRUCT DEFINITIONS
+// ---------------------------------------------------------
+
+fokhi Address {
+    StreetNumber: konti,
+    StreetName: sèbèli,
+    ZipCode: konti,
+}
+
+fokhi Grades {
+    Math: decimal,
+    Science: decimal,
+    History: decimal,
+    Average: decimal,
+}
+
+fokhi Student {
+    Id: konti,
+    Name: sèbèli,
+    Location: Address,
+    Performance: Grades,
+    IsActive: konti,
+}
+
+fokhi Classroom {
+    RoomNumber: konti,
+    Students: [5]Student,
+    TotalStudents: konti,
+}
+
+// ---------------------------------------------------------
+// UTILITY FUNCTIONS
+// ---------------------------------------------------------
+
+wali calculateAverage(m: decimal, s: decimal, h: decimal) decimal {
+    // Demonstrates binary expression refactor with float promotion
+    kouicé sum: decimal = m + s + h;
+    gbilen sum / 3.0;
+}
+
+wali printAddress(addr: Address) konti {
+    masen("      Address: %d %s, %d", addr.StreetNumber, addr.StreetName, addr.ZipCode);
+    gbilen 0;
+}
+
+wali printGrades(g: Grades) konti {
+    masen("      Grades -> M: %.1f, S: %.1f, H: %.1f | AVG: %.2f", g.Math, g.Science, g.History, g.Average);
+    gbilen 0;
+}
+
+// ---------------------------------------------------------
+// CORE LOGIC
+// ---------------------------------------------------------
+
+wali initializeStudent(id: konti, name: sèbèli, streetNum: konti, streetName: sèbèli, m: decimal, s: decimal, h: decimal) Student {
+    // Demonstrates Nested Struct Initialization & Default Values
+    kouicé avg: decimal = calculateAverage(m, s, h);
+    
+    gbilen Student{
+        Id: id,
+        Name: name,
+        Location: Address{
+            StreetNumber: streetNum,
+            StreetName: streetName,
+            ZipCode: 90210
+        },
+        Performance: Grades{
+            Math: m,
+            Science: s,
+            History: h,
+            Average: avg
+        },
+        IsActive: 1
+    };
+}
+
+wali updateStudentPerformance(stud: *Student, m: decimal, s: decimal, h: decimal) konti {
+    // Demonstrates Pointer Decay and Member Access via Pointer
+    stud.Performance.Math = m;
+    stud.Performance.Science = s;
+    stud.Performance.History = h;
+    stud.Performance.Average = calculateAverage(m, s, h);
+    gbilen 1;
+}
+
+// ---------------------------------------------------------
+// MAIN EXECUTION
+// ---------------------------------------------------------
+
+sodé() konti {
+    masen("--- STARTING STUDENT MANAGEMENT SYSTEM ---");
+
+    // 1. Initialize a Classroom (Array of Structs)
+    kouicé myClass: Classroom = Classroom{
+        RoomNumber: 101,
+        TotalStudents: 0
+    };
+
+    // 2. Add Students manually (Demonstrates Struct injection)
+    myClass.Students[0] = initializeStudent(1, "Alice Smith", 123, "Maple Ave", 95.5, 88.0, 92.0);
+    myClass.Students[1] = initializeStudent(2, "Bob Jones", 456, "Oak St", 70.0, 75.5, 80.0);
+    myClass.Students[2] = initializeStudent(3, "Charlie Brown", 789, "Pine Rd", 85.0, 82.0, 88.5);
+    myClass.TotalStudents = 3;
+
+    // 3. Update a student using a pointer (Demonstrates injectSymbol and load logic)
+    masen("Updating Charlie's grades...");
+    updateStudentPerformance(myClass.Students[2], 90.0, 90.0, 95.0);
+
+    // 4. Iterate and Print using Deep Access (Nested Struct Access)
+    masen("Classroom Report (Room %d):", myClass.RoomNumber);
+    
+    kouicé i: konti = 0;
+    be (i < myClass.TotalStudents) {
+        kouicé s: Student = myClass.Students[i];
+        
+        masen("Student ID: %d | Name: %s", s.Id, s.Name);
+        
+        // Deep Property Access: Student -> Address -> StreetName
+        masen("   Location: %s", myClass.Students[i].Location.StreetName);
+        
+        // Accessing nested math results
+        printGrades(s.Performance);
+        
+        i = i + 1;
+    }
+
+    // 5. Statistics Calculation (Binary Expression Casting)
+    kouicé classSum: decimal = 0.0;
+    kouicé k: konti = 0;
+    be (k < myClass.TotalStudents) {
+        classSum = classSum + myClass.Students[k].Performance.Average;
+        k = k + 1;
+    }
+
+    // Demonstrating int/float coercion in print
+    kouicé classAvg: decimal = classSum / myClass.TotalStudents;
+    masen("---");
+    masen("Class Average Score: %.2f", classAvg);
+
+    // 6. Conditional Logic test
+    xa (classAvg > 80.0) {
+        masen("Status: Excellence Achievement Unlocked.");
+    } xamuara {
+        masen("Status: Standard Progress.");
+    }
+
+    masen("--- SYSTEM SHUTDOWN ---");
+    gbilen 0;
+}

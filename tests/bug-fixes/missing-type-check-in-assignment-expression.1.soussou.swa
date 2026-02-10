@@ -1,0 +1,7 @@
+khuien:soussou;
+
+sodé () konti {
+  kouicé res : decimal;
+  res = "this is not permitted";
+  gbilen 0; 
+}

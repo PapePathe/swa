@@ -1,0 +1,8 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé m : konti = 10;
+  masen("contenu de la variable: %d", m);
+
+  gbilen 0; 
+}

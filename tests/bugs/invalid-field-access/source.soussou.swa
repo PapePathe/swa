@@ -1,0 +1,7 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé i: konti = 10;
+  masen("%d", i.field);
+  gbilen 0;
+}

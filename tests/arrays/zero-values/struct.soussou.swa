@@ -1,0 +1,25 @@
+khuien:soussou;
+
+fokhi Dimension {
+  Length: decimal,
+  Height: konti,
+}
+
+sodé() konti {
+
+  kouicé l : [3]Dimension;
+  masen("- [3]Dimension with zero value\n");
+  masen(
+    "(Index: 0) Length: %.2f Height: %d\n", 
+    l[0].Length,  l[0].Height
+  );
+  masen(
+    "(Index: 1) Length: %.2f Height: %d\n", 
+    l[1].Length,  l[1].Height
+  );
+  masen(
+    "(Index: 2) Length: %.2f Height: %d\n", 
+    l[2].Length,  l[2].Height
+  );
+  gbilen 0;
+}

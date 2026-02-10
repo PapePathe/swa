@@ -1,0 +1,12 @@
+khuien:soussou;
+
+sodé() konti {
+    konti i = 5;
+    sèbèli s = "hello";
+    
+    xa (i != s) {
+        masen("Should not compile");
+    }
+    
+    gbilen 0;
+}

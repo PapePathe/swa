@@ -1,0 +1,14 @@
+khuien:soussou;
+
+fokhi Grid {
+  p: [2]konti,
+}
+
+sodé() konti {
+  kouicé g: Grid;
+  (g.p[0], g.p[1]) = (15, 150);
+
+  masen("tab[0]=%d, tab[1]=%d\n", g.p[0], g.p[1]);
+
+  gbilen 0;
+}

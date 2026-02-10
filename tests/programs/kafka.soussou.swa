@@ -1,0 +1,1867 @@
+khuien:soussou;
+
+// ==================== KAFKA PROTOCOL CONSTANTS AND STRUCTURES ====================
+
+// API Keys (simplified)
+kouicé API_KEY_PRODUCE: konti = 0;
+kouicé API_KEY_FETCH: konti = 1;
+kouicé API_KEY_METADATA: konti = 2;
+kouicé API_KEY_HEARTBEAT: konti = 3;
+kouicé API_KEY_JOIN_GROUP: konti = 4;
+kouicé API_KEY_SYNC_GROUP: konti = 5;
+kouicé API_KEY_LEAVE_GROUP: konti = 6;
+
+// Error Codes
+kouicé ERROR_NONE: konti = 0;
+kouicé ERROR_UNKNOWN: konti = -1;
+kouicé ERROR_OFFSET_OUT_OF_RANGE: konti = 1;
+kouicé ERROR_CORRUPT_MESSAGE: konti = 2;
+kouicé ERROR_UNKNOWN_TOPIC_OR_PARTITION: konti = 3;
+kouicé ERROR_INVALID_FETCH_SIZE: konti = 4;
+kouicé ERROR_LEADER_NOT_AVAILABLE: konti = 5;
+kouicé ERROR_NOT_LEADER_FOR_PARTITION: konti = 6;
+kouicé ERROR_REQUEST_TIMED_OUT: konti = 7;
+kouicé ERROR_BROKER_NOT_AVAILABLE: konti = 8;
+kouicé ERROR_REPLICA_NOT_AVAILABLE: konti = 9;
+kouicé ERROR_MESSAGE_TOO_LARGE: konti = 10;
+kouicé ERROR_INVALID_CONFIG: konti = 17;
+kouicé ERROR_NOT_COORDINATOR: konti = 16;
+
+// Compression Types
+kouicé COMPRESSION_NONE: konti = 0;
+kouicé COMPRESSION_GZIP: konti = 1;
+kouicé COMPRESSION_SNAPPY: konti = 2;
+kouicé COMPRESSION_LZ4: konti = 3;
+
+// Message Flags
+kouicé MESSAGE_FLAG_NONE: konti = 0;
+kouicé MESSAGE_FLAG_COMPRESSED: konti = 1;
+
+// Offsets
+kouicé OFFSET_EARLIEST: konti = -2;
+kouicé OFFSET_LATEST: konti = -1;
+
+// Message Structure
+fokhi Message {
+  offset: konti,
+  timestamp: konti,
+  key: [1024]konti,
+  key_length: konti,
+  value: [8192]konti,
+  value_length: konti,
+  compression: konti,
+  checksum: konti,
+  partition: konti,
+}
+
+fokhi MessageBatch {
+  messages: [100]Message,
+  message_count: konti,
+  base_offset: konti,
+  partition_leader_epoch: konti,
+  magic: konti,
+  compression_type: konti,
+  timestamp_type: konti,
+  max_timestamp: konti,
+  producer_id: konti,
+  producer_epoch: konti,
+  base_sequence: konti,
+}
+
+fokhi TopicPartition {
+  topic: sèbèli,
+  partition: konti,
+  offset: konti,
+  leader_id: konti,
+}
+
+fokhi Record {
+  topic: sèbèli,
+  partition: konti,
+  offset: konti,
+  timestamp: konti,
+  key: sèbèli,
+  value: sèbèli,
+}
+
+// Kafka Request/Response Headers
+fokhi KafkaHeader {
+  api_key: konti,
+  api_version: konti,
+  correlation_id: konti,
+  client_id: sèbèli,
+}
+
+fokhi KafkaRequest {
+  header: KafkaHeader,
+  data: [65536]konti,  // 64KB max request size
+  length: konti,
+}
+
+fokhi KafkaResponse {
+  header: KafkaHeader,
+  data: [65536]konti,  // 64KB max response size
+  length: konti,
+  error_code: konti,
+}
+
+// Broker and Cluster Management
+fokhi Broker {
+  id: konti,
+  host: sèbèli,
+  port: konti,
+  rack: sèbèli,
+  is_alive: konti,
+}
+
+fokhi PartitionMetadata {
+  partition: konti,
+  leader: konti,
+  replicas: [10]konti,
+  replica_count: konti,
+  isr: [10]konti,
+  isr_count: konti,
+  error_code: konti,
+}
+
+fokhi TopicMetadata {
+  topic: sèbèli,
+  partitions: [100]PartitionMetadata,
+  partition_count: konti,
+  error_code: konti,
+}
+
+fokhi ClusterMetadata {
+  brokers: [100]Broker,
+  broker_count: konti,
+  topics: [100]TopicMetadata,
+  topic_count: konti,
+  controller_id: konti,
+}
+
+// Consumer Group
+fokhi ConsumerGroup {
+  group_id: sèbèli,
+  members: [100]ConsumerMember,
+  member_count: konti,
+  protocol: sèbèli,
+  leader_id: sèbèli,
+  state: konti,  // 0=Stable, 1=PreparingRebalance, 2=AwaitingSync, 3=Dead
+}
+
+fokhi ConsumerMember {
+  member_id: sèbèli,
+  client_id: sèbèli,
+  client_host: sèbèli,
+  partitions: [100]TopicPartition,
+  partition_count: konti,
+}
+
+// Producer State
+fokhi ProducerState {
+  producer_id: konti,
+  producer_epoch: konti,
+  sequence_numbers: [100]konti,
+  sequence_count: konti,
+}
+
+// ==================== UTILITY FUNCTIONS ====================
+
+wali int_to_string(num: konti) sèbèli {
+  xa (num == 0) {
+    gbilen "0";
+  }
+  
+  kouicé result: sèbèli = "";
+  kouicé temp: konti = num;
+  kouicé is_negative: konti = 0;
+  
+  xa (temp < 0) {
+    is_negative = 1;
+    temp = 0 - temp;
+  }
+  
+  kouicé done: konti = 0;
+  be (done == 0) {
+    xa (temp == 0) {
+      done = 1;
+    } xamuara {
+      kouicé digit: konti = temp % 10;
+      kouicé digit_str: sèbèli = "";
+      xa (digit == 0) { digit_str = "0"; }
+      xa (digit == 1) { digit_str = "1"; }
+      xa (digit == 2) { digit_str = "2"; }
+      xa (digit == 3) { digit_str = "3"; }
+      xa (digit == 4) { digit_str = "4"; }
+      xa (digit == 5) { digit_str = "5"; }
+      xa (digit == 6) { digit_str = "6"; }
+      xa (digit == 7) { digit_str = "7"; }
+      xa (digit == 8) { digit_str = "8"; }
+      xa (digit == 9) { digit_str = "9"; }
+      
+      result = digit_str + result;
+      temp = temp / 10;
+    }
+  }
+  
+  xa (is_negative == 1) {
+    result = "-" + result;
+  }
+  
+  gbilen result;
+}
+
+wali string_to_int(str: sèbèli) konti {
+  kouicé result: konti = 0;
+  kouicé i: konti = 0;
+  kouicé is_negative: konti = 0;
+  
+  xa (str.length > 0) {
+    xa (str[0] == "-") {
+      is_negative = 1;
+      i = 1;
+    }
+  }
+  
+  be (i < str.length) {
+    kouicé ch: sèbèli = str[i];
+    kouicé digit: konti = 0;
+    
+    xa (ch == "0") { digit = 0; }
+    xa (ch == "1") { digit = 1; }
+    xa (ch == "2") { digit = 2; }
+    xa (ch == "3") { digit = 3; }
+    xa (ch == "4") { digit = 4; }
+    xa (ch == "5") { digit = 5; }
+    xa (ch == "6") { digit = 6; }
+    xa (ch == "7") { digit = 7; }
+    xa (ch == "8") { digit = 8; }
+    xa (ch == "9") { digit = 9; }
+    
+    result = result * 10 + digit;
+    i = i + 1;
+  }
+  
+  xa (is_negative == 1) {
+    result = 0 - result;
+  }
+  
+  gbilen result;
+}
+
+wali ascii_to_char(code: konti) sèbèli {
+  xa (code == 32){ gbilen " ";}
+  xa (code == 33){ gbilen "!";}
+  xa (code == 34){ gbilen "sq";}
+  xa (code == 35){ gbilen "#";}
+  xa (code == 36){ gbilen "$";}
+  xa (code == 37){ gbilen "%";}
+  xa (code == 38){ gbilen "&";}
+  xa (code == 39){ gbilen "'";}
+  xa (code == 40){ gbilen "(";}
+  xa (code == 41){ gbilen ")";}
+  xa (code == 42){ gbilen "*";}
+  xa (code == 43){ gbilen "+";}
+  xa (code == 44){ gbilen ",";}
+  xa (code == 45){ gbilen "-";}
+  xa (code == 46){ gbilen ".";}
+  xa (code == 47){ gbilen "/";}
+  xa (code == 58){ gbilen ":";}
+  xa (code == 59){ gbilen ";";}
+  xa (code == 60){ gbilen "<";}
+  xa (code == 61){ gbilen "=";}
+  xa (code == 62){ gbilen ">";}
+  xa (code == 63){ gbilen "?";}
+  xa (code == 64){ gbilen "@";}
+  xa (code == 91){ gbilen "[";}
+  xa (code == 92){ gbilen "\\";}
+  xa (code == 93){ gbilen "]";}
+  xa (code == 94){ gbilen "^";}
+  xa (code == 95){ gbilen "_";}
+  xa (code == 96){ gbilen "`";}
+  xa (code == 123){ gbilen "{";}
+  xa (code == 124){ gbilen "|";}
+  xa (code == 125){ gbilen "}";}
+  xa (code == 126){ gbilen "~";}
+  
+  xa (code >= 48 && code <= 57) {
+    gbilen int_to_string(code - 48);
+  }
+  
+  xa (code >= 65 && code <= 90) {
+    kouicé letter_num: konti = code - 65;
+    xa (letter_num == 0) { gbilen "A";}
+    xa (letter_num == 1) { gbilen "B";}
+    xa (letter_num == 2) { gbilen "C";}
+    xa (letter_num == 3) { gbilen "D";}
+    xa (letter_num == 4) { gbilen "E";}
+    xa (letter_num == 5) { gbilen "F";}
+    xa (letter_num == 6) { gbilen "G";}
+    xa (letter_num == 7) { gbilen "H";}
+    xa (letter_num == 8) { gbilen "I";}
+    xa (letter_num == 9) { gbilen "J";}
+    xa (letter_num == 10){ gbilen "K";}
+    xa (letter_num == 11){ gbilen "L";}
+    xa (letter_num == 12){ gbilen "M";}
+    xa (letter_num == 13){ gbilen "N";}
+    xa (letter_num == 14){ gbilen "O";}
+    xa (letter_num == 15){ gbilen "P";}
+    xa (letter_num == 16){ gbilen "Q";}
+    xa (letter_num == 17){ gbilen "R";}
+    xa (letter_num == 18){ gbilen "S";}
+    xa (letter_num == 19){ gbilen "T";}
+    xa (letter_num == 20){ gbilen "U";}
+    xa (letter_num == 21){ gbilen "V";}
+    xa (letter_num == 22){ gbilen "W";}
+    xa (letter_num == 23){ gbilen "X";}
+    xa (letter_num == 24){ gbilen "Y";}
+    gbilen "Z";
+  }
+  
+  xa (code >= 97 && code <= 122) {
+    kouicé letter_num: konti = code - 97;
+    xa (letter_num == 0)  { gbilen "a";}
+    xa (letter_num == 1)  { gbilen "b";}
+    xa (letter_num == 2)  { gbilen "c";}
+    xa (letter_num == 3)  { gbilen "d";}
+    xa (letter_num == 4)  { gbilen "e";}
+    xa (letter_num == 5)  { gbilen "f";}
+    xa (letter_num == 6)  { gbilen "g";}
+    xa (letter_num == 7)  { gbilen "h";}
+    xa (letter_num == 8)  { gbilen "i";}
+    xa (letter_num == 9)  { gbilen "j";}
+    xa (letter_num == 10) { gbilen "k";}
+    xa (letter_num == 11) { gbilen "l";}
+    xa (letter_num == 12) { gbilen "m";}
+    xa (letter_num == 13) { gbilen "n";}
+    xa (letter_num == 14) { gbilen "o";}
+    xa (letter_num == 15) { gbilen "p";}
+    xa (letter_num == 16) { gbilen "q";}
+    xa (letter_num == 17) { gbilen "r";}
+    xa (letter_num == 18) { gbilen "s";}
+    xa (letter_num == 19) { gbilen "t";}
+    xa (letter_num == 20) { gbilen "u";}
+    xa (letter_num == 21) { gbilen "v";}
+    xa (letter_num == 22) { gbilen "w";}
+    xa (letter_num == 23) { gbilen "x";}
+    xa (letter_num == 24) { gbilen "y";}
+    gbilen "z";
+  }
+  
+  gbilen "?";
+}
+
+wali char_to_ascii(ch: sèbèli) konti {
+  xa (ch == " ") { gbilen 32;}
+  xa (ch == "!") { gbilen 33;}
+  xa (ch == "sq"){ gbilen 34;}
+  xa (ch == "#") { gbilen 35;}
+  xa (ch == "$") { gbilen 36;}
+  xa (ch == "%") { gbilen 37;}
+  xa (ch == "&") { gbilen 38;}
+  xa (ch == "'") { gbilen 39;}
+  xa (ch == "(") { gbilen 40;}
+  xa (ch == ")") { gbilen 41;}
+  xa (ch == "*") { gbilen 42;}
+  xa (ch == "+") { gbilen 43;}
+  xa (ch == ",") { gbilen 44;}
+  xa (ch == "-") { gbilen 45;}
+  xa (ch == ".") { gbilen 46;}
+  xa (ch == "/") { gbilen 47;}
+  xa (ch == ":") { gbilen 58;}
+  xa (ch == ";") { gbilen 59;}
+  xa (ch == "<") { gbilen 60;}
+  xa (ch == "=") { gbilen 61;}
+  xa (ch == ">") { gbilen 62;}
+  xa (ch == "?") { gbilen 63;}
+  xa (ch == "@") { gbilen 64;}
+  xa (ch == "[") { gbilen 91;}
+  xa (ch == "\\"){ gbilen 92;}
+  xa (ch == "]") { gbilen 93;}
+  xa (ch == "^") { gbilen 94;}
+  xa (ch == "_") { gbilen 95;}
+  xa (ch == "`") { gbilen 96;}
+  xa (ch == "{") { gbilen 123;}
+  xa (ch == "|") { gbilen 124;}
+  xa (ch == "}") { gbilen 125;}
+  xa (ch == "~") { gbilen 126;}
+  xa (ch == "0") { gbilen 48;}
+  xa (ch == "1") { gbilen 49;}
+  xa (ch == "2") { gbilen 50;}
+  xa (ch == "3") { gbilen 51;}
+  xa (ch == "4") { gbilen 52;}
+  xa (ch == "5") { gbilen 53;}
+  xa (ch == "6") { gbilen 54;}
+  xa (ch == "7") { gbilen 55;}
+  xa (ch == "8") { gbilen 56;}
+  xa (ch == "9") { gbilen 57;}
+  xa (ch == "A"){ gbilen 65;}
+  xa (ch == "B"){ gbilen 66;}
+  xa (ch == "C"){ gbilen 67;}
+  xa (ch == "D"){ gbilen 68;}
+  xa (ch == "E"){ gbilen 69;}
+  xa (ch == "F"){ gbilen 70;}
+  xa (ch == "G"){ gbilen 71;}
+  xa (ch == "H"){ gbilen 72;}
+  xa (ch == "I"){ gbilen 73;}
+  xa (ch == "J"){ gbilen 74;}
+  xa (ch == "K"){ gbilen 75;}
+  xa (ch == "L"){ gbilen 76;}
+  xa (ch == "M"){ gbilen 77;}
+  xa (ch == "N"){ gbilen 78;}
+  xa (ch == "O"){ gbilen 79;}
+  xa (ch == "P"){ gbilen 80;}
+  xa (ch == "Q"){ gbilen 81;}
+  xa (ch == "R"){ gbilen 82;}
+  xa (ch == "S"){ gbilen 83;}
+  xa (ch == "T"){ gbilen 84;}
+  xa (ch == "U"){ gbilen 85;}
+  xa (ch == "V"){ gbilen 86;}
+  xa (ch == "W"){ gbilen 87;}
+  xa (ch == "X"){ gbilen 88;}
+  xa (ch == "Y"){ gbilen 89;}
+  xa (ch == "Z"){ gbilen 90;}
+  xa (ch == "a"){ gbilen 97;}
+  xa (ch == "b"){ gbilen 98;}
+  xa (ch == "c"){ gbilen 99;}
+  xa (ch == "d"){ gbilen 100;}
+  xa (ch == "e"){ gbilen 101;}
+  xa (ch == "f"){ gbilen 102;}
+  xa (ch == "g"){ gbilen 103;}
+  xa (ch == "h"){ gbilen 104;}
+  xa (ch == "i"){ gbilen 105;}
+  xa (ch == "j"){ gbilen 106;}
+  xa (ch == "k"){ gbilen 107;}
+  xa (ch == "l"){ gbilen 108;}
+  xa (ch == "m"){ gbilen 109;}
+  xa (ch == "n"){ gbilen 110;}
+  xa (ch == "o"){ gbilen 111;}
+  xa (ch == "p"){ gbilen 112;}
+  xa (ch == "q"){ gbilen 113;}
+  xa (ch == "r"){ gbilen 114;}
+  xa (ch == "s"){ gbilen 115;}
+  xa (ch == "t"){ gbilen 116;}
+  xa (ch == "u"){ gbilen 117;}
+  xa (ch == "v"){ gbilen 118;}
+  xa (ch == "w"){ gbilen 119;}
+  xa (ch == "x"){ gbilen 120;}
+  xa (ch == "y"){ gbilen 121;}
+  xa (ch == "z"){ gbilen 122;}
+  
+  gbilen 63; // "?"
+}
+
+wali string_to_ascii_array(str: sèbèli) [8192]konti {
+  kouicé result: [8192]konti = [8192]konti{0};
+  kouicé i: konti = 0;
+  kouicé done: konti = 0;
+  
+  be (done == 0) {
+    xa (i >= str.length || i >= 8192) {
+      done = 1;
+    } xamuara {
+      result[i] = char_to_ascii(str[i]);
+      i = i + 1;
+    }
+  }
+  
+  gbilen result;
+}
+
+wali ascii_array_to_string(data: [8192]konti, length: konti) sèbèli {
+  kouicé result: sèbèli = "";
+  kouicé i: konti = 0;
+  kouicé done: konti = 0;
+  
+  be (done == 0) {
+    xa (i >= length || i >= 8192) {
+      done = 1;
+    } xamuara {
+      result = result + ascii_to_char(data[i]);
+      i = i + 1;
+    }
+  }
+  
+  gbilen result;
+}
+
+wali get_error_name(error_code: konti) sèbèli {
+  xa (error_code == ERROR_NONE)                      { gbilen "NONE";}
+  xa (error_code == ERROR_UNKNOWN)                   { gbilen "UNKNOWN";}
+  xa (error_code == ERROR_OFFSET_OUT_OF_RANGE)       { gbilen "OFFSET_OUT_OF_RANGE";}
+  xa (error_code == ERROR_CORRUPT_MESSAGE)           { gbilen "CORRUPT_MESSAGE";}
+  xa (error_code == ERROR_UNKNOWN_TOPIC_OR_PARTITION){ gbilen "UNKNOWN_TOPIC_OR_PARTITION";}
+  xa (error_code == ERROR_INVALID_FETCH_SIZE)        { gbilen "INVALID_FETCH_SIZE";}
+  xa (error_code == ERROR_LEADER_NOT_AVAILABLE)      { gbilen "LEADER_NOT_AVAILABLE";}
+  xa (error_code == ERROR_NOT_LEADER_FOR_PARTITION)  { gbilen "NOT_LEADER_FOR_PARTITION";}
+  xa (error_code == ERROR_REQUEST_TIMED_OUT)         { gbilen "REQUEST_TIMED_OUT";}
+  xa (error_code == ERROR_BROKER_NOT_AVAILABLE)      { gbilen "BROKER_NOT_AVAILABLE";}
+  xa (error_code == ERROR_REPLICA_NOT_AVAILABLE)     { gbilen "REPLICA_NOT_AVAILABLE";}
+  xa (error_code == ERROR_MESSAGE_TOO_LARGE)         { gbilen "MESSAGE_TOO_LARGE";}
+  xa (error_code == ERROR_INVALID_CONFIG)            { gbilen "INVALID_CONFIG";}
+  xa (error_code == ERROR_NOT_COORDINATOR)           { gbilen "NOT_COORDINATOR";}
+  gbilen "UNKNOWN_ERROR_" + int_to_string(error_code);
+}
+
+wali simple_checksum(data: [8192]konti, length: konti) konti {
+  kouicé sum: konti = 0;
+  kouicé i: konti = 0;
+  kouicé done: konti = 0;
+  
+  be (done == 0) {
+    xa (i >= length) {
+      done = 1;
+    } xamuara {
+      sum = sum + data[i];
+      i = i + 1;
+    }
+  }
+  
+  // Simple modulo to keep in range
+  be (sum > 65535) {
+    sum = sum - 65536;
+  }
+  
+  gbilen sum;
+}
+
+// ==================== KAFKA WIRE PROTOCOL ====================
+
+wali encode_kafka_header(api_key: konti, api_version: konti, correlation_id: konti, client_id: sèbèli) [1024]konti {
+  kouicé header: [1024]konti = [1024]konti{0};
+  kouicé idx: konti = 0;
+  
+  // API Key (int16)
+  header[idx] = api_key / 256;
+  header[idx + 1] = api_key % 256;
+  idx = idx + 2;
+  
+  // API Version (int16)
+  header[idx] = api_version / 256;
+  header[idx + 1] = api_version % 256;
+  idx = idx + 2;
+  
+  // Correlation ID (int32)
+  header[idx] = correlation_id / 16777216;
+  header[idx + 1] = (correlation_id / 65536) % 256;
+  header[idx + 2] = (correlation_id / 256) % 256;
+  header[idx + 3] = correlation_id % 256;
+  idx = idx + 4;
+  
+  // Client ID (string)
+  kouicé client_id_len: konti = client_id.length;
+  header[idx] = client_id_len / 256;
+  header[idx + 1] = client_id_len % 256;
+  idx = idx + 2;
+  
+  kouicé i: konti = 0;
+  kouicé copy_client_done: konti = 0;
+  be (copy_client_done == 0) {
+    xa (i >= client_id_len) {
+      copy_client_done = 1;
+    } xamuara {
+      header[idx] = char_to_ascii(client_id[i]);
+      idx = idx + 1;
+      i = i + 1;
+    }
+  }
+  
+  gbilen header;
+}
+
+wali decode_kafka_header(data: [65536]konti, offset: konti) KafkaHeader {
+  kouicé header: KafkaHeader = KafkaHeader{
+    api_key: 0,
+    api_version: 0,
+    correlation_id: 0,
+    client_id: "",
+  };
+  
+  // API Key
+  header.api_key = data[offset] * 256 + data[offset + 1];
+  
+  // API Version
+  header.api_version = data[offset + 2] * 256 + data[offset + 3];
+  
+  // Correlation ID
+  header.correlation_id = data[offset + 4] * 16777216 +
+                         data[offset + 5] * 65536 +
+                         data[offset + 6] * 256 +
+                         data[offset + 7];
+  
+  // Client ID length
+  kouicé client_id_len: konti = data[offset + 8] * 256 + data[offset + 9];
+  
+  // Client ID
+  kouicé client_id_start: konti = offset + 10;
+  kouicé i: konti = 0;
+  kouicé build_client_done: konti = 0;
+  
+  be (build_client_done == 0) {
+    xa (i >= client_id_len) {
+      build_client_done = 1;
+    } xamuara {
+      header.client_id = header.client_id + ascii_to_char(data[client_id_start + i]);
+      i = i + 1;
+    }
+  }
+  
+  gbilen header;
+}
+
+wali encode_produce_request(topics: [10]sèbèli, topic_count: konti, 
+                           partitions: [10]konti, partition_count: konti,
+                           messages: [100]Message, message_count: konti,
+                           correlation_id: konti, client_id: sèbèli) KafkaRequest {
+  kouicé request: KafkaRequest = KafkaRequest{
+    header: KafkaHeader{api_key: 0, api_version: 0, correlation_id: 0, client_id: ""},
+    data: [65536]konti{0},
+    length: 0,
+  };
+  
+  // Encode header
+  kouicé header_data: [1024]konti = encode_kafka_header(API_KEY_PRODUCE, 2, correlation_id, client_id);
+  
+  // Copy header to request
+  kouicé idx: konti = 0;
+  kouicé copy_header_done: konti = 0;
+  be (copy_header_done == 0) {
+    xa (idx >= 1024 || header_data[idx] == 0) {
+      copy_header_done = 1;
+    } xamuara {
+      request.data[idx] = header_data[idx];
+      idx = idx + 1;
+    }
+  }
+  
+  request.length = idx;
+  
+  // Transactional ID (null for now)
+  request.data[request.length] = 255;
+  request.data[request.length + 1] = 255;
+  request.length = request.length + 2;
+  
+  // ACKS (1 = leader only)
+  request.data[request.length] = 1;
+  request.length = request.length + 2;
+  
+  // Timeout (30000 ms)
+  request.data[request.length] = 0;
+  request.data[request.length + 1] = 0;
+  request.data[request.length + 2] = 117;
+  request.data[request.length + 3] = 48;
+  request.length = request.length + 4;
+  
+  // Topic array count
+  request.data[request.length] = 0;
+  request.data[request.length + 1] = topic_count;
+  request.length = request.length + 2;
+  
+  // Encode each topic
+  kouicé topic_idx: konti = 0;
+  kouicé encode_topics_done: konti = 0;
+  be (encode_topics_done == 0) {
+    xa (topic_idx >= topic_count) {
+      encode_topics_done = 1;
+    } xamuara {
+      kouicé topic: sèbèli = topics[topic_idx];
+      
+      // Topic name length
+      kouicé topic_len: konti = topic.length;
+      request.data[request.length] = topic_len / 256;
+      request.data[request.length + 1] = topic_len % 256;
+      request.length = request.length + 2;
+      
+      // Topic name
+      kouicé char_idx: konti = 0;
+      kouicé copy_topic_done: konti = 0;
+      be (copy_topic_done == 0) {
+        xa (char_idx >= topic_len) {
+          copy_topic_done = 1;
+        } xamuara {
+          request.data[request.length] = char_to_ascii(topic[char_idx]);
+          request.length = request.length + 1;
+          char_idx = char_idx + 1;
+        }
+      }
+      
+      // Partition array count
+      request.data[request.length] = 0;
+      request.data[request.length + 1] = partition_count;
+      request.length = request.length + 2;
+      
+      // Encode each partition
+      kouicé part_idx: konti = 0;
+      kouicé encode_parts_done: konti = 0;
+      be (encode_parts_done == 0) {
+        xa (part_idx >= partition_count) {
+          encode_parts_done = 1;
+        } xamuara {
+          // Partition ID
+          kouicé partition_id: konti = partitions[part_idx];
+          request.data[request.length] = partition_id / 256;
+          request.data[request.length + 1] = partition_id % 256;
+          request.length = request.length + 2;
+          
+          // Message set size (placeholder)
+          kouicé msg_set_size_pos: konti = request.length;
+          request.length = request.length + 4;
+          
+          // Encode messages for this partition
+          kouicé msg_start_pos: konti = request.length;
+          kouicé msg_idx: konti = 0;
+          kouicé encode_msgs_done: konti = 0;
+          
+          be (encode_msgs_done == 0) {
+            xa (msg_idx >= message_count) {
+              encode_msgs_done = 1;
+            } xamuara {
+              kouicé message: Message = messages[msg_idx];
+              
+              // Message offset (int64)
+              kouicé offset: konti = message.offset;
+              request.data[request.length] = offset / 16777216 / 16777216;
+              request.data[request.length + 1] = (offset / 16777216) % 256;
+              request.data[request.length + 2] = (offset / 65536) % 256;
+              request.data[request.length + 3] = (offset / 256) % 256;
+              request.data[request.length + 4] = (offset / 256) % 256;
+              request.data[request.length + 5] = (offset / 256) % 256;
+              request.data[request.length + 6] = (offset / 256) % 256;
+              request.data[request.length + 7] = offset % 256;
+              request.length = request.length + 8;
+              
+              // Message size (placeholder)
+              kouicé msg_size_pos: konti = request.length;
+              request.length = request.length + 4;
+              
+              // CRC (placeholder)
+              request.data[request.length] = 0;
+              request.data[request.length + 1] = 0;
+              request.data[request.length + 2] = 0;
+              request.data[request.length + 3] = 0;
+              request.length = request.length + 4;
+              
+              // Magic byte
+              request.data[request.length] = 2;
+              request.length = request.length + 1;
+              
+              // Attributes
+              request.data[request.length] = message.compression;
+              request.length = request.length + 1;
+              
+              // Timestamp
+              kouicé timestamp: konti = message.timestamp;
+              request.data[request.length] = timestamp / 16777216 / 16777216;
+              request.data[request.length + 1] = (timestamp / 16777216) % 256;
+              request.data[request.length + 2] = (timestamp / 65536) % 256;
+              request.data[request.length + 3] = (timestamp / 256) % 256;
+              request.data[request.length + 4] = (timestamp / 256) % 256;
+              request.data[request.length + 5] = (timestamp / 256) % 256;
+              request.data[request.length + 6] = (timestamp / 256) % 256;
+              request.data[request.length + 7] = timestamp % 256;
+              request.length = request.length + 8;
+              
+              // Key length
+              kouicé key_len: konti = message.key_length;
+              request.data[request.length] = key_len / 256;
+              request.data[request.length + 1] = key_len % 256;
+              request.length = request.length + 2;
+              
+              // Key
+              kouicé key_idx: konti = 0;
+              kouicé copy_key_done: konti = 0;
+              be (copy_key_done == 0) {
+                xa (key_idx >= key_len) {
+                  copy_key_done = 1;
+                } xamuara {
+                  request.data[request.length] = message.key[key_idx];
+                  request.length = request.length + 1;
+                  key_idx = key_idx + 1;
+                }
+              }
+              
+              // Value length
+              kouicé value_len: konti = message.value_length;
+              request.data[request.length] = value_len / 256;
+              request.data[request.length + 1] = value_len % 256;
+              request.length = request.length + 2;
+              
+              // Value
+              kouicé value_idx: konti = 0;
+              kouicé copy_value_done: konti = 0;
+              be (copy_value_done == 0) {
+                xa (value_idx >= value_len) {
+                  copy_value_done = 1;
+                } xamuara {
+                  request.data[request.length] = message.value[value_idx];
+                  request.length = request.length + 1;
+                  value_idx = value_idx + 1;
+                }
+              }
+              
+              // Calculate message size and update
+              kouicé msg_size: konti = request.length - msg_size_pos - 4;
+              request.data[msg_size_pos] = msg_size / 16777216;
+              request.data[msg_size_pos + 1] = (msg_size / 65536) % 256;
+              request.data[msg_size_pos + 2] = (msg_size / 256) % 256;
+              request.data[msg_size_pos + 3] = msg_size % 256;
+              
+              // Calculate CRC (simplified)
+              kouicé crc_data: [8192]konti = [8192]konti{0};
+              kouicé crc_idx: konti = 0;
+              kouicé copy_crc_done: konti = 0;
+              be (copy_crc_done == 0) {
+                xa (crc_idx >= msg_size || (msg_size_pos + 4 + crc_idx) >= request.length) {
+                  copy_crc_done = 1;
+                } xamuara {
+                  crc_data[crc_idx] = request.data[msg_size_pos + 4 + crc_idx];
+                  crc_idx = crc_idx + 1;
+                }
+              }
+              
+              kouicé checksum: konti = simple_checksum(crc_data, crc_idx);
+              request.data[msg_size_pos + 4] = checksum / 16777216;
+              request.data[msg_size_pos + 5] = (checksum / 65536) % 256;
+              request.data[msg_size_pos + 6] = (checksum / 256) % 256;
+              request.data[msg_size_pos + 7] = checksum % 256;
+              
+              msg_idx = msg_idx + 1;
+            }
+          }
+          
+          // Update message set size
+          kouicé msg_set_size: konti = request.length - msg_start_pos;
+          request.data[msg_set_size_pos] = msg_set_size / 16777216;
+          request.data[msg_set_size_pos + 1] = (msg_set_size / 65536) % 256;
+          request.data[msg_set_size_pos + 2] = (msg_set_size / 256) % 256;
+          request.data[msg_set_size_pos + 3] = msg_set_size % 256;
+          
+          part_idx = part_idx + 1;
+        }
+      }
+      
+      topic_idx = topic_idx + 1;
+    }
+  }
+  
+  gbilen request;
+}
+
+wali decode_produce_response(data: [65536]konti, length: konti) KafkaResponse {
+  kouicé response: KafkaResponse = KafkaResponse{
+    header: decode_kafka_header(data, 0),
+    data: data,
+    length: length,
+    error_code: ERROR_NONE,
+  };
+  
+  // Skip header (find where it ends)
+  kouicé offset: konti = 0;
+  kouicé client_id_len: konti = data[8] * 256 + data[9];
+  offset = 10 + client_id_len;
+  
+  // Response starts here
+  // Throttle time (skip)
+  offset = offset + 4;
+  
+  // Topic array count
+  kouicé topic_count: konti = data[offset] * 256 + data[offset + 1];
+  offset = offset + 2;
+  
+  // Parse topics
+  kouicé topic_idx: konti = 0;
+  kouicé parse_topics_done: konti = 0;
+  be (parse_topics_done == 0) {
+    xa (topic_idx >= topic_count) {
+      parse_topics_done = 1;
+    } xamuara {
+      // Topic name length
+      kouicé topic_name_len: konti = data[offset] * 256 + data[offset + 1];
+      offset = offset + 2;
+      
+      // Skip topic name
+      offset = offset + topic_name_len;
+      
+      // Partition array count
+      kouicé partition_count: konti = data[offset] * 256 + data[offset + 1];
+      offset = offset + 2;
+      
+      // Parse partitions
+      kouicé part_idx: konti = 0;
+      kouicé parse_parts_done: konti = 0;
+      be (parse_parts_done == 0) {
+        xa (part_idx >= partition_count) {
+          parse_parts_done = 1;
+        } xamuara {
+          // Partition ID
+          kouicé partition_id: konti = data[offset] * 256 + data[offset + 1];
+          offset = offset + 2;
+          
+          // Error code
+          kouicé error_code: konti = data[offset] * 256 + data[offset + 1];
+          offset = offset + 2;
+          
+          xa (error_code != ERROR_NONE) {
+            response.error_code = error_code;
+          }
+          
+          // Base offset
+          kouicé base_offset: konti = data[offset] * 16777216 * 16777216 +
+                                data[offset + 1] * 16777216 +
+                                data[offset + 2] * 65536 +
+                                data[offset + 3] * 256 +
+                                data[offset + 4] * 256 +
+                                data[offset + 5] * 256 +
+                                data[offset + 6] * 256 +
+                                data[offset + 7];
+          offset = offset + 8;
+          
+          // Timestamp
+          offset = offset + 8;
+          
+          part_idx = part_idx + 1;
+        }
+      }
+      
+      topic_idx = topic_idx + 1;
+    }
+  }
+  
+  gbilen response;
+}
+
+wali encode_fetch_request(topics: [10]sèbèli, topic_count: konti,
+                         partitions: [10]konti, partition_count: konti,
+                         offsets: [10]konti, max_bytes: konti,
+                         correlation_id: konti, client_id: sèbèli) KafkaRequest {
+  kouicé request: KafkaRequest = KafkaRequest{
+    header: KafkaHeader{api_key: 0, api_version: 0, correlation_id: 0, client_id: ""},
+    data: [65536]konti{0},
+    length: 0,
+  };
+  
+  // Encode header
+  kouicé header_data: [1024]konti = encode_kafka_header(API_KEY_FETCH, 3, correlation_id, client_id);
+  
+  // Copy header to request
+  kouicé idx: konti = 0;
+  kouicé copy_header_done: konti = 0;
+  be (copy_header_done == 0) {
+    xa (idx >= 1024 || header_data[idx] == 0) {
+      copy_header_done = 1;
+    } xamuara {
+      request.data[idx] = header_data[idx];
+      idx = idx + 1;
+    }
+  }
+  
+  request.length = idx;
+  
+  // Replica ID (-1 for consumer)
+  request.data[request.length] = 255;
+  request.data[request.length + 1] = 255;
+  request.length = request.length + 4;
+  
+  // Max wait time (100 ms)
+  request.data[request.length] = 0;
+  request.data[request.length + 1] = 0;
+  request.data[request.length + 2] = 0;
+  request.data[request.length + 3] = 100;
+  request.length = request.length + 4;
+  
+  // Min bytes (1)
+  request.data[request.length] = 0;
+  request.data[request.length + 1] = 1;
+  request.length = request.length + 4;
+  
+  // Max bytes
+  request.data[request.length] = max_bytes / 16777216;
+  request.data[request.length + 1] = (max_bytes / 65536) % 256;
+  request.data[request.length + 2] = (max_bytes / 256) % 256;
+  request.data[request.length + 3] = max_bytes % 256;
+  request.length = request.length + 4;
+  
+  // Topic array count
+  request.data[request.length] = 0;
+  request.data[request.length + 1] = topic_count;
+  request.length = request.length + 2;
+  
+  // Encode each topic
+  kouicé topic_idx: konti = 0;
+  kouicé encode_topics_done: konti = 0;
+  be (encode_topics_done == 0) {
+    xa (topic_idx >= topic_count) {
+      encode_topics_done = 1;
+    } xamuara {
+      kouicé topic: sèbèli = topics[topic_idx];
+      
+      // Topic name length
+      kouicé topic_len: konti = topic.length;
+      request.data[request.length] = topic_len / 256;
+      request.data[request.length + 1] = topic_len % 256;
+      request.length = request.length + 2;
+      
+      // Topic name
+      kouicé char_idx: konti = 0;
+      kouicé copy_topic_done: konti = 0;
+      be (copy_topic_done == 0) {
+        xa (char_idx >= topic_len) {
+          copy_topic_done = 1;
+        } xamuara {
+          request.data[request.length] = char_to_ascii(topic[char_idx]);
+          request.length = request.length + 1;
+          char_idx = char_idx + 1;
+        }
+      }
+      
+      // Partition array count
+      request.data[request.length] = 0;
+      request.data[request.length + 1] = partition_count;
+      request.length = request.length + 2;
+      
+      // Encode each partition
+      kouicé part_idx: konti = 0;
+      kouicé encode_parts_done: konti = 0;
+      be (encode_parts_done == 0) {
+        xa (part_idx >= partition_count) {
+          encode_parts_done = 1;
+        } xamuara {
+          // Partition ID
+          kouicé partition_id: konti = partitions[part_idx];
+          request.data[request.length] = partition_id / 256;
+          request.data[request.length + 1] = partition_id % 256;
+          request.length = request.length + 2;
+          
+          // Current offset
+          kouicé current_offset: konti = offsets[part_idx];
+          request.data[request.length] = current_offset / 16777216 / 16777216;
+          request.data[request.length + 1] = (current_offset / 16777216) % 256;
+          request.data[request.length + 2] = (current_offset / 65536) % 256;
+          request.data[request.length + 3] = (current_offset / 256) % 256;
+          request.data[request.length + 4] = (current_offset / 256) % 256;
+          request.data[request.length + 5] = (current_offset / 256) % 256;
+          request.data[request.length + 6] = (current_offset / 256) % 256;
+          request.data[request.length + 7] = current_offset % 256;
+          request.length = request.length + 8;
+          
+          // Log start offset (0)
+          request.data[request.length] = 0;
+          request.data[request.length + 1] = 0;
+          request.data[request.length + 2] = 0;
+          request.data[request.length + 3] = 0;
+          request.data[request.length + 4] = 0;
+          request.data[request.length + 5] = 0;
+          request.data[request.length + 6] = 0;
+          request.data[request.length + 7] = 0;
+          request.length = request.length + 8;
+          
+          // Max bytes for this partition
+          request.data[request.length] = max_bytes / 16777216;
+          request.data[request.length + 1] = (max_bytes / 65536) % 256;
+          request.data[request.length + 2] = (max_bytes / 256) % 256;
+          request.data[request.length + 3] = max_bytes % 256;
+          request.length = request.length + 4;
+          
+          part_idx = part_idx + 1;
+        }
+      }
+      
+      topic_idx = topic_idx + 1;
+    }
+  }
+  
+  gbilen request;
+}
+
+wali decode_fetch_response(data: [65536]konti, length: konti) [100]Record {
+  kouicé records: [100]Record = [100]Record{};
+  kouicé record_count: konti = 0;
+  
+  // Skip to response data
+  kouicé offset: konti = 0;
+  
+  // Skip header
+  kouicé client_id_len: konti = data[8] * 256 + data[9];
+  offset = 10 + client_id_len;
+  
+  // Throttle time
+  offset = offset + 4;
+  
+  // Topic array count
+  kouicé topic_count: konti = data[offset] * 256 + data[offset + 1];
+  offset = offset + 2;
+  
+  // Parse topics
+  kouicé topic_idx: konti = 0;
+  kouicé parse_topics_done: konti = 0;
+  be (parse_topics_done == 0) {
+    xa (topic_idx >= topic_count) {
+      parse_topics_done = 1;
+    } xamuara {
+      // Topic name length
+      kouicé topic_name_len: konti = data[offset] * 256 + data[offset + 1];
+      offset = offset + 2;
+      
+      // Topic name
+      kouicé topic_name: sèbèli = "";
+      kouicé char_idx: konti = 0;
+      kouicé build_topic_done: konti = 0;
+      be (build_topic_done == 0) {
+        xa (char_idx >= topic_name_len) {
+          build_topic_done = 1;
+        } xamuara {
+          topic_name = topic_name + ascii_to_char(data[offset]);
+          offset = offset + 1;
+          char_idx = char_idx + 1;
+        }
+      }
+      
+      // Partition array count
+      kouicé partition_count: konti = data[offset] * 256 + data[offset + 1];
+      offset = offset + 2;
+      
+      // Parse partitions
+      kouicé part_idx: konti = 0;
+      kouicé parse_parts_done: konti = 0;
+      be (parse_parts_done == 0) {
+        xa (part_idx >= partition_count) {
+          parse_parts_done = 1;
+        } xamuara {
+          // Partition ID
+          kouicé partition_id: konti = data[offset] * 256 + data[offset + 1];
+          offset = offset + 2;
+          
+          // Error code
+          kouicé error_code: konti = data[offset] * 256 + data[offset + 1];
+          offset = offset + 2;
+          
+          // High watermark offset
+          offset = offset + 8;
+          
+          // Last stable offset
+          offset = offset + 8;
+          
+          // Log start offset
+          offset = offset + 8;
+          
+          // Aborted transactions length
+          kouicé aborted_len: konti = data[offset] * 256 + data[offset + 1];
+          offset = offset + 2;
+          
+          // Skip aborted transactions
+          offset = offset + aborted_len;
+          
+          // Record batch length
+          kouicé batch_len: konti = data[offset] * 16777216 +
+                              data[offset + 1] * 65536 +
+                              data[offset + 2] * 256 +
+                              data[offset + 3];
+          offset = offset + 4;
+          
+          xa (batch_len > 0) {
+            kouicé batch_end: konti = offset + batch_len;
+            
+            // Parse record batch
+            be (offset < batch_end && record_count < 100) {
+              // Check if we have enough data for a record
+              xa (offset + 50 > length) {
+                offset = batch_end;
+              } xamuara {
+                // Parse a message (simplified)
+                kouicé message_offset: konti = offset;
+                
+                // Skip to value
+                kouicé value_offset: konti = offset + 40; // Approximate
+                
+                // Try to parse key and value
+                kouicé key_len_pos: konti = value_offset - 2;
+                kouicé key_len: konti = data[key_len_pos] * 256 + data[key_len_pos + 1];
+                
+                kouicé value_len_pos: konti = value_offset + key_len;
+                kouicé value_len: konti = data[value_len_pos] * 256 + data[value_len_pos + 1];
+                
+                xa (key_len > 0 || value_len > 0) {
+                  // Extract key
+                  kouicé key_str: sèbèli = "";
+                  xa (key_len > 0) {
+                    kouicé key_start: konti = value_offset;
+                    kouicé ki: konti = 0;
+                    kouicé extract_key_done: konti = 0;
+                    be (extract_key_done == 0) {
+                      xa (ki >= key_len || key_start + ki >= length) {
+                        extract_key_done = 1;
+                      } xamuara {
+                        key_str = key_str + ascii_to_char(data[key_start + ki]);
+                        ki = ki + 1;
+                      }
+                    }
+                  }
+                  
+                  // Extract value
+                  kouicé value_str: sèbèli = "";
+                  xa (value_len > 0) {
+                    kouicé value_start: konti = value_len_pos + 2;
+                    kouicé vi: konti = 0;
+                    kouicé extract_value_done: konti = 0;
+                    be (extract_value_done == 0) {
+                      xa (vi >= value_len || value_start + vi >= length) {
+                        extract_value_done = 1;
+                      } xamuara {
+                        value_str = value_str + ascii_to_char(data[value_start + vi]);
+                        vi = vi + 1;
+                      }
+                    }
+                  }
+                  
+                  // Create record
+                  records[record_count] = Record{
+                    topic: topic_name,
+                    partition: partition_id,
+                    offset: 0, // Would be parsed from message
+                    timestamp: 0, // Would be parsed from message
+                    key: key_str,
+                    value: value_str,
+                  };
+                  record_count = record_count + 1;
+                }
+                
+                // Move to next message (simplified)
+                offset = offset + 100;
+              }
+            }
+          }
+          
+          part_idx = part_idx + 1;
+        }
+      }
+      
+      topic_idx = topic_idx + 1;
+    }
+  }
+  
+  gbilen records;
+}
+
+// ==================== BROKER AND CLUSTER MANAGEMENT ====================
+
+wali create_cluster() ClusterMetadata {
+  kouicé cluster: ClusterMetadata = ClusterMetadata{
+    brokers: [100]Broker{},
+    broker_count: 0,
+    topics: [100]TopicMetadata{},
+    topic_count: 0,
+    controller_id: 0,
+  };
+  
+  // Create some default brokers
+  cluster.brokers[0] = Broker{
+    id: 1,
+    host: "localhost",
+    port: 9092,
+    rack: "rack1",
+    is_alive: 1,
+  };
+  cluster.broker_count = cluster.broker_count + 1;
+  
+  cluster.brokers[1] = Broker{
+    id: 2,
+    host: "localhost",
+    port: 9093,
+    rack: "rack1",
+    is_alive: 1,
+  };
+  cluster.broker_count = cluster.broker_count + 1;
+  
+  cluster.brokers[2] = Broker{
+    id: 3,
+    host: "localhost",
+    port: 9094,
+    rack: "rack2",
+    is_alive: 1,
+  };
+  cluster.broker_count = cluster.broker_count + 1;
+  
+  cluster.controller_id = 1;
+  
+  gbilen cluster;
+}
+
+wali create_topic_metadata(cluster: *ClusterMetadata, topic_name: sèbèli, partition_count: konti, replication_factor: konti) konti {
+  xa (cluster.topic_count >= 100) {
+    gbilen ERROR_UNKNOWN;
+  }
+  
+  kouicé topic_meta: TopicMetadata = TopicMetadata{
+    topic: topic_name,
+    partitions: [100]PartitionMetadata{},
+    partition_count: 0,
+    error_code: ERROR_NONE,
+  };
+  
+  // Create partitions
+  kouicé part_idx: konti = 0;
+  kouicé create_parts_done: konti = 0;
+  be (create_parts_done == 0) {
+    xa (part_idx >= partition_count) {
+      create_parts_done = 1;
+    } xamuara {
+      // Simple leader assignment
+      kouicé leader_id: konti = (part_idx % cluster.broker_count) + 1;
+      
+      // Create replicas
+      kouicé replicas: [10]konti = [10]konti{0};
+      kouicé replica_count: konti = 0;
+      kouicé rep_idx: konti = 0;
+      kouicé assign_replicas_done: konti = 0;
+      
+      be (assign_replicas_done == 0) {
+        xa (replica_count >= replication_factor || replica_count >= cluster.broker_count) {
+          assign_replicas_done = 1;
+        } xamuara {
+          kouicé broker_id: konti = (part_idx + rep_idx) % cluster.broker_count + 1;
+          replicas[replica_count] = broker_id;
+          replica_count = replica_count + 1;
+          rep_idx = rep_idx + 1;
+        }
+      }
+      
+      // ISR same as replicas for now
+      kouicé isr: [10]konti = [10]konti{0};
+      kouicé isr_count: konti = replica_count;
+      kouicé isr_idx: konti = 0;
+      kouicé copy_isr_done: konti = 0;
+      
+      be (copy_isr_done == 0) {
+        xa (isr_idx >= isr_count) {
+          copy_isr_done = 1;
+        } xamuara {
+          isr[isr_idx] = replicas[isr_idx];
+          isr_idx = isr_idx + 1;
+        }
+      }
+      
+      topic_meta.partitions[part_idx] = PartitionMetadata{
+        partition: part_idx,
+        leader: leader_id,
+        replicas: replicas,
+        replica_count: replica_count,
+        isr: isr,
+        isr_count: isr_count,
+        error_code: ERROR_NONE,
+      };
+      topic_meta.partition_count = topic_meta.partition_count + 1;
+      
+      part_idx = part_idx + 1;
+    }
+  }
+  
+  cluster.topics[cluster.topic_count] = topic_meta;
+  cluster.topic_count = cluster.topic_count + 1;
+  
+  gbilen ERROR_NONE;
+}
+
+wali get_topic_metadata(cluster: ClusterMetadata, topic_name: sèbèli) TopicMetadata {
+  kouicé empty_meta: TopicMetadata = TopicMetadata{
+    topic: "",
+    partitions: [100]PartitionMetadata{},
+    partition_count: 0,
+    error_code: ERROR_UNKNOWN_TOPIC_OR_PARTITION,
+  };
+  
+  kouicé i: konti = 0;
+  kouicé search_done: konti = 0;
+  
+  be (search_done == 0) {
+    xa (i >= cluster.topic_count) {
+      search_done = 1;
+    } xamuara {
+      xa (cluster.topics[i].topic == topic_name) {
+        gbilen cluster.topics[i];
+      }
+      i = i + 1;
+    }
+  }
+  
+  gbilen empty_meta;
+}
+
+// ==================== PRODUCER IMPLEMENTATION ====================
+
+fokhi Producer {
+  cluster: ClusterMetadata,
+  client_id: sèbèli,
+  correlation_counter: konti,
+  acks: konti,
+  timeout_ms: konti,
+  compression_type: konti,
+  batch_size: konti,
+}
+
+wali create_producer(client_id: sèbèli) Producer {
+  kouicé producer: Producer = Producer{
+    cluster: create_cluster(),
+    client_id: client_id,
+    correlation_counter: 1,
+    acks: 1,
+    timeout_ms: 30000,
+    compression_type: COMPRESSION_NONE,
+    batch_size: 16384,
+  };
+  
+  // Create some default topics
+  create_topic_metadata(producer.cluster, "test-topic", 3, 2);
+  create_topic_metadata(producer.cluster, "events", 5, 3);
+  create_topic_metadata(producer.cluster, "logs", 1, 1);
+  
+  gbilen producer;
+}
+
+wali producer_send(producer: *Producer, topic: sèbèli, partition: konti, 
+                  key: sèbèli, value: sèbèli) KafkaResponse {
+  // Get topic metadata
+  kouicé topic_meta: TopicMetadata = get_topic_metadata(producer.cluster, topic);
+  
+  xa (topic_meta.error_code != ERROR_NONE) {
+    kouicé error_response: KafkaResponse = KafkaResponse{
+      header: KafkaHeader{api_key: API_KEY_PRODUCE, api_version: 2, 
+                         correlation_id: producer.correlation_counter, 
+                         client_id: producer.client_id},
+      data: [65536]konti{0},
+      length: 0,
+      error_code: topic_meta.error_code,
+    };
+    producer.correlation_counter = producer.correlation_counter + 1;
+    gbilen error_response;
+  }
+  
+  // Check partition exists
+  xa (partition < 0 || partition >= topic_meta.partition_count) {
+    kouicé error_response: KafkaResponse = KafkaResponse{
+      header: KafkaHeader{api_key: API_KEY_PRODUCE, api_version: 2, 
+                         correlation_id: producer.correlation_counter, 
+                         client_id: producer.client_id},
+      data: [65536]konti{0},
+      length: 0,
+      error_code: ERROR_UNKNOWN_TOPIC_OR_PARTITION,
+    };
+    producer.correlation_counter = producer.correlation_counter + 1;
+    gbilen error_response;
+  }
+  
+  // Create message
+  kouicé message: Message = Message{
+    offset: 0, // Will be assigned by broker
+    timestamp: 1234567890, // Would be current timestamp
+    key: string_to_ascii_array(key),
+    key_length: key.length,
+    value: string_to_ascii_array(value),
+    value_length: value.length,
+    compression: producer.compression_type,
+    checksum: 0, // Will be calculated
+    partition: partition,
+  };
+  
+  // Calculate checksum
+  kouicé checksum_data: [8192]konti = [8192]konti{0};
+  kouicé data_idx: konti = 0;
+  
+  // Copy key
+  kouicé key_idx: konti = 0;
+  kouicé copy_key_done: konti = 0;
+  be (copy_key_done == 0) {
+    xa (key_idx >= message.key_length) {
+      copy_key_done = 1;
+    } xamuara {
+      checksum_data[data_idx] = message.key[key_idx];
+      data_idx = data_idx + 1;
+      key_idx = key_idx + 1;
+    }
+  }
+  
+  // Copy value
+  kouicé value_idx: konti = 0;
+  kouicé copy_value_done: konti = 0;
+  be (copy_value_done == 0) {
+    xa (value_idx >= message.value_length) {
+      copy_value_done = 1;
+    } xamuara {
+      checksum_data[data_idx] = message.value[value_idx];
+      data_idx = data_idx + 1;
+      value_idx = value_idx + 1;
+    }
+  }
+  
+  message.checksum = simple_checksum(checksum_data, data_idx);
+  
+  // Prepare request
+  kouicé topics: [10]sèbèli = [10]sèbèli{topic, "", "", "", "", "", "", "", "", ""};
+  kouicé partitions_arr: [10]konti = [10]konti{partition, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  kouicé messages_arr: [100]Message = [100]Message{message};
+  
+  kouicé request: KafkaRequest = encode_produce_request(topics, 1, partitions_arr, 1, 
+                                                    messages_arr, 1, 
+                                                    producer.correlation_counter, 
+                                                    producer.client_id);
+  
+  // Simulate sending to broker (in real implementation, this would be network)
+  kouicé response: KafkaResponse = decode_produce_response(request.data, request.length);
+  
+  producer.correlation_counter = producer.correlation_counter + 1;
+  gbilen response;
+}
+
+// ==================== CONSUMER IMPLEMENTATION ====================
+
+fokhi Consumer {
+  cluster: ClusterMetadata,
+  group_id: sèbèli,
+  client_id: sèbèli,
+  correlation_counter: konti,
+  topics: [10]sèbèli,
+  topic_count: konti,
+  offsets: [100]konti, // topic*partition -> offset
+  auto_offset_reset: konti, // 0=earliest, 1=latest
+  enable_auto_commit: konti,
+  fetch_min_bytes: konti,
+  fetch_max_wait_ms: konti,
+}
+
+wali create_consumer(group_id: sèbèli, client_id: sèbèli) Consumer {
+  kouicé consumer: Consumer = Consumer{
+    cluster: create_cluster(),
+    group_id: group_id,
+    client_id: client_id,
+    correlation_counter: 1,
+    topics: [10]sèbèli{"", "", "", "", "", "", "", "", "", ""},
+    topic_count: 0,
+    offsets: [100]konti{0},
+    auto_offset_reset: 0, // earliest
+    enable_auto_commit: 1,
+    fetch_min_bytes: 1,
+    fetch_max_wait_ms: 100,
+  };
+  
+  gbilen consumer;
+}
+
+wali consumer_subscribe(consumer: *Consumer, topic: sèbèli) konti {
+  xa (consumer.topic_count >= 10) {
+    gbilen ERROR_UNKNOWN;
+  }
+  
+  consumer.topics[consumer.topic_count] = topic;
+  consumer.topic_count = consumer.topic_count + 1;
+  
+  gbilen ERROR_NONE;
+}
+
+wali consumer_poll(consumer: *Consumer, timeout_ms: konti) [100]Record {
+  kouicé empty_records: [100]Record = [100]Record{};
+  
+  xa (consumer.topic_count == 0) {
+    gbilen empty_records;
+  }
+  
+  // For each subscribed topic, fetch messages
+  kouicé all_records: [100]Record = [100]Record{};
+  kouicé total_records: konti = 0;
+  
+  kouicé topic_idx: konti = 0;
+  kouicé poll_topics_done: konti = 0;
+  
+  be (poll_topics_done == 0) {
+    xa (topic_idx >= consumer.topic_count) {
+      poll_topics_done = 1;
+    } xamuara {
+      kouicé topic: sèbèli = consumer.topics[topic_idx];
+      kouicé topic_meta: TopicMetadata = get_topic_metadata(consumer.cluster, topic);
+      
+      xa (topic_meta.error_code == ERROR_NONE) {
+        // Fetch from all partitions
+        kouicé part_idx: konti = 0;
+        kouicé poll_parts_done: konti = 0;
+        
+        be (poll_parts_done == 0) {
+          xa (part_idx >= topic_meta.partition_count || total_records >= 100) {
+            poll_parts_done = 1;
+          } xamuara {
+            // Get current offset for this partition
+            kouicé offset_key: konti = topic_idx * 10 + part_idx;
+            kouicé current_offset: konti = consumer.offsets[offset_key];
+            
+            xa (current_offset == 0 && consumer.auto_offset_reset == 1) {
+              current_offset = OFFSET_LATEST;
+            }
+            
+            // Prepare fetch request
+            kouicé topics_arr: [10]sèbèli = [10]sèbèli{topic, "", "", "", "", "", "", "", "", ""};
+            kouicé partitions_arr: [10]konti = [10]konti{part_idx, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+            kouicé offsets_arr: [10]konti = [10]konti{current_offset, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+            
+            kouicé request: KafkaRequest = encode_fetch_request(topics_arr, 1, partitions_arr, 1,
+                                                            offsets_arr, 65536,
+                                                            consumer.correlation_counter,
+                                                            consumer.client_id);
+            
+            // Simulate fetch
+            kouicé records: [100]Record = decode_fetch_response(request.data, request.length);
+            
+            // Process records
+            kouicé rec_idx: konti = 0;
+            kouicé process_records_done: konti = 0;
+            
+            be (process_records_done == 0) {
+              xa (rec_idx >= 100 || records[rec_idx].topic == "") {
+                process_records_done = 1;
+              } xamuara {
+                all_records[total_records] = records[rec_idx];
+                total_records = total_records + 1;
+                
+                // Update offset
+                consumer.offsets[offset_key] = consumer.offsets[offset_key] + 1;
+                
+                rec_idx = rec_idx + 1;
+              }
+            }
+            
+            consumer.correlation_counter = consumer.correlation_counter + 1;
+            part_idx = part_idx + 1;
+          }
+        }
+      }
+      
+      topic_idx = topic_idx + 1;
+    }
+  }
+  
+  gbilen all_records;
+}
+
+wali consumer_commit(consumer: *Consumer) konti {
+  // In a real implementation, this would send offset commit requests
+  // For now, just acknowledge the operation
+  gbilen ERROR_NONE;
+}
+
+// ==================== TOPIC ADMINISTRATION ====================
+
+wali create_topic(cluster: *ClusterMetadata, topic_name: sèbèli, 
+                 num_partitions: konti, replication_factor: konti) konti {
+  // Check if topic already exists
+  kouicé i: konti = 0;
+  kouicé check_done: konti = 0;
+  
+  be (check_done == 0) {
+    xa (i >= cluster.topic_count) {
+      check_done = 1;
+    } xamuara {
+      xa (cluster.topics[i].topic == topic_name) {
+        gbilen ERROR_INVALID_CONFIG; // Topic already exists
+      }
+      i = i + 1;
+    }
+  }
+  
+  // Validate parameters
+  xa (num_partitions <= 0) {
+    gbilen ERROR_INVALID_CONFIG;
+  }
+  
+  xa (replication_factor <= 0 || replication_factor > cluster.broker_count) {
+    gbilen ERROR_INVALID_CONFIG;
+  }
+  
+  // Create topic
+  gbilen create_topic_metadata(cluster, topic_name, num_partitions, replication_factor);
+}
+
+wali delete_topic(cluster: *ClusterMetadata, topic_name: sèbèli) konti {
+  // Find topic
+  kouicé topic_idx: konti = -1;
+  kouicé i: konti = 0;
+  kouicé search_done: konti = 0;
+  
+  be (search_done == 0) {
+    xa (i >= cluster.topic_count) {
+      search_done = 1;
+    } xamuara {
+      xa (cluster.topics[i].topic == topic_name) {
+        topic_idx = i;
+        search_done = 1;
+      }
+      i = i + 1;
+    }
+  }
+  
+  xa (topic_idx == -1) {
+    gbilen ERROR_UNKNOWN_TOPIC_OR_PARTITION;
+  }
+  
+  // Shift topics array
+  kouicé shift_idx: konti = topic_idx;
+  kouicé shift_done: konti = 0;
+  
+  be (shift_done == 0) {
+    xa (shift_idx >= cluster.topic_count - 1) {
+      shift_done = 1;
+    } xamuara {
+      cluster.topics[shift_idx] = cluster.topics[shift_idx + 1];
+      shift_idx = shift_idx + 1;
+    }
+  }
+  
+  cluster.topic_count = cluster.topic_count - 1;
+  
+  gbilen ERROR_NONE;
+}
+
+// ==================== MAIN TEST PROGRAM ====================
+
+sodé() konti {
+  masen("=========================================");
+  masen("KAFKA-LITE PROTOCOL IMPLEMENTATION");
+  masen("=========================================");
+  
+  masen("");
+  masen("TEST 1: CLUSTER INITIALIZATION");
+  masen("------------------------------");
+  
+  kouicé cluster: ClusterMetadata = create_cluster();
+  masen("Cluster created with ", cluster.broker_count, " brokers");
+  masen("Controller ID: ", cluster.controller_id);
+  
+  kouicé broker_idx: konti = 0;
+  kouicé print_brokers_done: konti = 0;
+  be (print_brokers_done == 0) {
+    xa (broker_idx >= cluster.broker_count) {
+      print_brokers_done = 1;
+    } xamuara {
+      kouicé broker: Broker = cluster.brokers[broker_idx];
+      masen("  Broker ", broker.id, ": ", broker.host, ":", broker.port, 
+            " (rack: ", broker.rack, ", alive: ", broker.is_alive, ")");
+      broker_idx = broker_idx + 1;
+    }
+  }
+  
+  masen("");
+  masen("TEST 2: TOPIC CREATION");
+  masen("---------------------");
+  
+  kouicé create_result: konti = create_topic(cluster, "test-topic", 3, 2);
+  masen("Create topic 'test-topic': ", get_error_name(create_result));
+  
+  create_result = create_topic(cluster, "events", 5, 3);
+  masen("Create topic 'events': ", get_error_name(create_result));
+  
+  create_result = create_topic(cluster, "logs", 1, 1);
+  masen("Create topic 'logs': ", get_error_name(create_result));
+  
+  masen("");
+  masen("Cluster now has ", cluster.topic_count, " topics");
+  
+  kouicé topic_idx: konti = 0;
+  kouicé print_topics_done: konti = 0;
+  be (print_topics_done == 0) {
+    xa (topic_idx >= cluster.topic_count) {
+      print_topics_done = 1;
+    } xamuara {
+      kouicé topic: TopicMetadata = cluster.topics[topic_idx];
+      masen("  Topic '", topic.topic, "': ", topic.partition_count, " partitions");
+      
+      kouicé part_idx: konti = 0;
+      kouicé print_parts_done: konti = 0;
+      be (print_parts_done == 0) {
+        xa (part_idx >= topic.partition_count) {
+          print_parts_done = 1;
+        } xamuara {
+          kouicé partition: PartitionMetadata = topic.partitions[part_idx];
+          masen("    Partition ", partition.partition, ": leader=", partition.leader);
+          
+          kouicé replica_str: sèbèli = "replicas=[";
+          kouicé rep_idx: konti = 0;
+          kouicé build_replicas_done: konti = 0;
+          be (build_replicas_done == 0) {
+            xa (rep_idx >= partition.replica_count) {
+              build_replicas_done = 1;
+            } xamuara {
+              xa (rep_idx > 0) {
+                replica_str = replica_str + ",";
+              }
+              replica_str = replica_str + int_to_string(partition.replicas[rep_idx]);
+              rep_idx = rep_idx + 1;
+            }
+          }
+          replica_str = replica_str + "]";
+          masen("      ", replica_str);
+          
+          part_idx = part_idx + 1;
+        }
+      }
+      
+      topic_idx = topic_idx + 1;
+    }
+  }
+  
+  masen("");
+  masen("TEST 3: PRODUCER OPERATIONS");
+  masen("---------------------------");
+  
+  kouicé producer: Producer = create_producer("test-producer");
+  masen("Producer created with client_id: ", producer.client_id);
+  
+  // Send messages
+  masen("");
+  masen("Sending messages to 'test-topic':");
+  
+  kouicé message_num: konti = 1;
+  kouicé send_done: konti = 0;
+  be (send_done == 0) {
+    xa (message_num > 3) {
+      send_done = 1;
+    } xamuara {
+      kouicé key: sèbèli = "key" + int_to_string(message_num);
+      kouicé value: sèbèli = "Message " + int_to_string(message_num) + " from producer";
+      
+      masen("  Sending message ", message_num, " (key: ", key, ")");
+      kouicé response: KafkaResponse = producer_send(producer, "test-topic", 0, key, value);
+      
+      xa (response.error_code == ERROR_NONE) {
+        masen("    Success! Correlation ID: ", response.header.correlation_id);
+      } xamuara {
+        masen("    Error: ", get_error_name(response.error_code));
+      }
+      
+      message_num = message_num + 1;
+    }
+  }
+  
+  masen("");
+  masen("TEST 4: CONSUMER OPERATIONS");
+  masen("---------------------------");
+  
+  kouicé consumer: Consumer = create_consumer("test-group", "test-consumer");
+  masen("Consumer created with group_id: ", consumer.group_id);
+  
+  kouicé subscribe_result: konti = consumer_subscribe(consumer, "test-topic");
+  masen("Subscribe to 'test-topic': ", get_error_name(subscribe_result));
+  
+  subscribe_result = consumer_subscribe(consumer, "events");
+  masen("Subscribe to 'events': ", get_error_name(subscribe_result));
+  
+  masen("");
+  masen("Polling for messages:");
+  kouicé records: [100]Record = consumer_poll(consumer, 1000);
+  
+  kouicé record_idx: konti = 0;
+  kouicé print_records_done: konti = 0;
+  be (print_records_done == 0) {
+    xa (record_idx >= 100 || records[record_idx].topic == "") {
+      print_records_done = 1;
+    } xamuara {
+      kouicé record: Record = records[record_idx];
+    }
+  }
+
+  gbilen 0;
+}

@@ -1,0 +1,7 @@
+khuien:soussou;
+
+sodé () konti {
+  kouicé res : decimal;
+  res = 1;
+  gbilen 0; 
+}

@@ -1,0 +1,10 @@
+khuien:soussou;
+
+wali add(a: konti, b: konti) konti {
+  gbilen a + b;
+}
+
+sodé() konti {
+  add(10, "20");
+  gbilen 0;
+}

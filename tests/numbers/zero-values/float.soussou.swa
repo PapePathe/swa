@@ -1,0 +1,11 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé idx : decimal;
+  masen("zero value: %f ", idx);
+
+  idx = 100.0;
+  masen("assigned value: %f", idx);
+
+  gbilen 0;
+}

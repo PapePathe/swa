@@ -1,0 +1,21 @@
+khuien:soussou;
+
+wali check_value(v: konti) (konti, foutoura) {
+    xa (v < 0) {
+        gbilen 0, foutoura("value is negative");
+    }
+    gbilen v, maba(foutoura);
+}
+
+sodé() konti {
+    kouicé val: konti = 0;
+    kouicé err: foutoura;
+    
+    (val, err) = check_value(10);
+    masen("val: %d, err: %s\n", val, err);
+    
+    (val, err) = check_value(-1);
+    masen("val: %d, err: %s\n", val, err);
+    
+    gbilen 0;
+}

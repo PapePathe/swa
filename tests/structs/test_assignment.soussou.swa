@@ -1,0 +1,25 @@
+khuien:soussou;
+
+// Test: Struct assignment (copy vs reference)
+fokhi Data {
+  embedded: [3]konti,
+  ptr: *konti,
+}
+
+sodé() konti {
+  kouicé d1: Data = Data{
+    embedded: [3]konti{10, 20, 30},
+    ptr: [3]konti{100, 200, 300},
+  };
+
+  // Assign d1 to d2
+  kouicé d2: Data = d1;
+
+  // Modify d2
+  d2.embedded[0] = 999;
+  d2.ptr[0] = 888;
+
+  // Check d1 (embedded should be unchanged if copy, ptr should be changed)
+  masen("d1.embedded[0]=%d d1.ptr[0]=%d", d1.embedded[0], d1.ptr[0]);
+  gbilen 0;
+}

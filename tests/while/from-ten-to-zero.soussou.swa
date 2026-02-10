@@ -1,0 +1,12 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé x : konti = 10;
+  be(x > 0) {
+    masen("%d ", x);
+
+    x = x - 1;
+  }
+
+  gbilen 0;
+}

@@ -1,0 +1,22 @@
+khuien:soussou;
+
+fokhi Person { 
+  Age: konti, 
+}
+
+sodé() konti {
+   kouicé persons: [2]Person = [2]Person{
+     Person{Age: 11}, 
+     Person{Age: 44}, 
+   };
+
+   kouicé first : konti = persons[0 + 0].Age;
+   masen("(first persons's age: %d)", first);
+
+   kouicé x : konti = 0;
+
+   kouicé last: konti = persons[1].Age;
+   masen("(last persons's age: %d)", last);
+
+   gbilen 0; 
+}

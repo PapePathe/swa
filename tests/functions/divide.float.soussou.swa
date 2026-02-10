@@ -1,0 +1,12 @@
+khuien:soussou;
+
+wali division(premierArgument : decimal, secondArgument: decimal) decimal {
+  gbilen premierArgument / secondArgument;
+}
+
+sodé() konti {
+  kouicé m : decimal = 0.0;
+  m = division(10.0, 5.0);
+  masen("10.0 / 5.0 = %f", m);
+  gbilen 0; 
+}

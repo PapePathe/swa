@@ -1,0 +1,23 @@
+khuien:soussou;
+
+sodé() konti {
+    kouicé a: konti = 1;
+    kouicé b: konti = 0;
+    kouicé c: konti = 1;
+    kouicé d: konti = 0;
+    
+    // Complex logical expression
+    xa ((a == 1 && b == 0) || (c == 0 && d == 1)) {
+        xa (! (a == 0 || b == 1) && (c == 1)) {
+            masen("Success: Complex boolean logic evaluated correctly.\n");
+        } xamuara {
+            masen("Error: Nested boolean logic failed.\n");
+            gbilen 1;
+        }
+    } xamuara {
+        masen("Error: Initial boolean logic failed.\n");
+        gbilen 1;
+    }
+    
+    gbilen 0;
+}

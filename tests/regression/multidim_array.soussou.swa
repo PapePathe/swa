@@ -1,0 +1,23 @@
+khuien:soussou;
+
+sodé() konti {
+    // Testing 2D arrays
+    kouicé grid: [3][3]konti = [3][3]konti{};
+    
+    grid[0][0] = 1;
+    grid[1][1] = 5;
+    grid[2][2] = 9;
+    
+    masen("grid[0][0] = %d\n", grid[0][0]);
+    masen("grid[1][1] = %d\n", grid[1][1]);
+    masen("grid[2][2] = %d\n", grid[2][2]);
+    
+    xa (grid[1][1] == 5) {
+        masen("Success: 2D array access works.\n");
+    } xamuara {
+        masen("Error: 2D array access failed.\n");
+        gbilen 1;
+    }
+    
+    gbilen 0;
+}

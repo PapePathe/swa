@@ -1,0 +1,45 @@
+khuien:soussou;
+
+sodé() konti {
+  kouicé a: decimal = 10.5;
+  kouicé b: decimal = 5.5;
+  kouicé sum: decimal = a + b;
+
+  xa(sum == 16.0) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Float addition failed");
+  }
+
+  xa(10.5 + 5.5 == 16.0) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Float literal addition failed");
+  }
+
+  xa(a > b) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Float greater than failed");
+  }
+
+  xa(a >= b) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Float greater than or equal failed");
+  }
+
+  xa(b < a) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Float less than failed");
+  }
+
+  xa(b <= a) {
+    masen("%s", "ok");
+  } xamuara {
+    masen("%s", "Float less than or equal failed");
+  }
+
+  gbilen 0;
+}
