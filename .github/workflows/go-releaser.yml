@@ -67,10 +67,12 @@ jobs:
       - name: Install LLVM (Native macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          brew install llvm@19
+          brew install llvm@19 lld@19
           echo "$(brew --prefix llvm@19)/bin" >> $GITHUB_PATH
           echo "CC=$(brew --prefix llvm@19)/bin/clang" >> $GITHUB_ENV
           echo "CXX=$(brew --prefix llvm@19)/bin/clang++" >> $GITHUB_ENV
+          echo "LDFLAGS=-L$(brew --prefix llvm@19)/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I$(brew --prefix llvm@19)/include" >> $GITHUB_ENV
 
       - name: Install LLVM (Native Windows)
         if: matrix.os == 'windows-latest'
@@ -89,7 +91,7 @@ jobs:
           distribution: goreleaser
           version: '~> v2'
           workdir: ./lang
-          args: release --clean
+          args: release --clean --snapshot --split
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CGO_ENABLED: 1
