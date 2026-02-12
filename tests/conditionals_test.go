@@ -97,6 +97,29 @@ func TestEarlyReturnStatements(t *testing.T) {
 		})
 	})
 
+	t.Run("Wolof", func(t *testing.T) {
+		t.Run("1", func(t *testing.T) {
+			t.Run("Condition is true", func(t *testing.T) {
+				req := CompileRequest{
+					InputPath:               "./conditionals/early-return/1-condition-true.wolof.swa",
+					ExpectedExecutionOutput: "program interrupted by early return",
+					T:                       t,
+				}
+
+				req.AssertCompileAndExecute()
+			})
+			t.Run("Condition is false", func(t *testing.T) {
+				req := CompileRequest{
+					InputPath:               "./conditionals/early-return/1-condition-false.wolof.swa",
+					ExpectedExecutionOutput: "program not interrupted by early return",
+					T:                       t,
+				}
+
+				req.AssertCompileAndExecute()
+			})
+		})
+	})
+
 	t.Run("French", func(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
 			t.Run("Condition is true", func(t *testing.T) {
