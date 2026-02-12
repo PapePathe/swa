@@ -158,10 +158,16 @@ func (l *LLVMTypeChecker) ZeroOfVoidType(node *ast.VoidType) error              
 func (l *LLVMTypeChecker) ZeroOfTupleType(node *ast.TupleType) error                 { return nil }
 func (l *LLVMTypeChecker) VisitZeroExpression(node *ast.ZeroExpression) error        { return nil }
 func (l *LLVMTypeChecker) VisitBinaryExpression(node *ast.BinaryExpression) error    { return nil }
+
 func (l *LLVMTypeChecker) VisitSymbolAdressExpression(node *ast.SymbolAdressExpression) error {
 	return nil
 }
+
 func (l *LLVMTypeChecker) VisitSymbolValueExpression(node *ast.SymbolValueExpression) error {
+	return nil
+}
+
+func (l *LLVMTypeChecker) VisitFloatingBlockExpression(node *ast.FloatingBlockExpression) error {
 	return nil
 }
 

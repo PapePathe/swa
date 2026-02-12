@@ -52,6 +52,10 @@ func (g *LLVMGenerator) VisitSymbolValueExpression(node *ast.SymbolValueExpressi
 	return fmt.Errorf("TODO implement VisitSymbolValueExpression")
 }
 
+func (g *LLVMGenerator) VisitFloatingBlockExpression(node *ast.FloatingBlockExpression) error {
+	return node.Stmt.Accept(g)
+}
+
 func (g *LLVMGenerator) VisitZeroExpression(node *ast.ZeroExpression) error {
 	err := node.T.AcceptZero(g)
 	if err != nil {

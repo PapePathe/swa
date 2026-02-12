@@ -280,6 +280,15 @@ func (t *TreeDrawer) VisitFloatExpression(node *ast.FloatExpression) error {
 	return nil
 }
 
+func (t *TreeDrawer) VisitFloatingBlockExpression(node *ast.FloatingBlockExpression) error {
+	t.writeLine("FloatingBlockExpression")
+	if err := t.visitChild(node.Stmt, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (t *TreeDrawer) VisitSymbolExpression(node *ast.SymbolExpression) error {
 	t.writeLine(fmt.Sprintf("SymbolExpression (%s)", node.Value))
 	return nil
