@@ -44,6 +44,14 @@ func (g *LLVMGenerator) Debugf(format string, args ...any) {
 	}
 }
 
+func (g *LLVMGenerator) VisitSymbolAdressExpression(node *ast.SymbolAdressExpression) error {
+	return fmt.Errorf("TODO implement VisitSymbolAdressExpression")
+}
+
+func (g *LLVMGenerator) VisitSymbolValueExpression(node *ast.SymbolValueExpression) error {
+	return fmt.Errorf("TODO implement VisitSymbolValueExpression")
+}
+
 func (g *LLVMGenerator) VisitZeroExpression(node *ast.ZeroExpression) error {
 	err := node.T.AcceptZero(g)
 	if err != nil {
