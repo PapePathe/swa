@@ -368,7 +368,6 @@ func (lex *FastLexer) getOperatorKind(op string) TokenKind {
 		return Comma
 	case ":":
 		return Colon
-
 	default:
 		panic(fmt.Sprintf("lex not supported (%s) %v", string(op), lex.Tokens))
 	}
