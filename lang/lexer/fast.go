@@ -328,6 +328,8 @@ func (lex *FastLexer) getOperatorKind(op string) TokenKind {
 		return Plus
 	case "-":
 		return Minus
+	case "**":
+		return DoubleStar
 	case "*":
 		return Star
 	case "/":
@@ -350,6 +352,8 @@ func (lex *FastLexer) getOperatorKind(op string) TokenKind {
 		return LessThanEquals
 	case ">=":
 		return GreaterThanEquals
+	case "&":
+		return Ampersand
 	case "&&":
 		return And
 	case "||":
