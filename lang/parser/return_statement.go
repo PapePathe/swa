@@ -62,6 +62,7 @@ func ParseReturnStatement(p *Parser) (ast.Statement, error) {
 			Body: []ast.Statement{&stmt},
 		}
 
+		cond.Tokens = append(cond.Tokens, value.TokenStream()...)
 		cond.Tokens = append(cond.Tokens, p.expect(lexer.CloseParen))
 		cond.Tokens = append(cond.Tokens, p.expect(lexer.SemiColon))
 
