@@ -14,11 +14,17 @@ func ParseReturnStatement(p *Parser) (ast.Statement, error) {
 	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.Return))
 
 	var expressions []ast.Expression
-	for p.hasTokens() && p.currentToken().Kind != lexer.SemiColon && p.currentToken().Kind != lexer.KeywordIf {
+
+	for p.hasTokens() &&
+		p.currentToken().Kind != lexer.SemiColon &&
+		p.currentToken().Kind != lexer.KeywordIf {
+		p.trace("currentToken %v", p.currentToken())
+
 		value, err := parseExpression(p, DefaultBindingPower)
 		if err != nil {
 			return nil, err
 		}
+
 		expressions = append(expressions, value)
 		stmt.Tokens = append(stmt.Tokens, value.TokenStream()...)
 
