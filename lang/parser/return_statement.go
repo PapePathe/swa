@@ -48,8 +48,10 @@ func ParseReturnStatement(p *Parser) (ast.Statement, error) {
 		p.trace("parsing cond return statement")
 
 		cond := ast.ConditionalStatetement{}
-		p.expect(lexer.KeywordIf)
-		p.expect(lexer.OpenParen)
+		p.currentStatement = &cond
+		cond.Tokens = append(cond.Tokens, p.expect(lexer.KeywordIf))
+		cond.Tokens = append(cond.Tokens, p.expect(lexer.OpenParen))
+
 		value, err := parseExpression(p, DefaultBindingPower)
 		if err != nil {
 			return nil, err
@@ -59,8 +61,9 @@ func ParseReturnStatement(p *Parser) (ast.Statement, error) {
 		cond.Success = ast.BlockStatement{
 			Body: []ast.Statement{&stmt},
 		}
-		p.expect(lexer.CloseParen)
-		p.expect(lexer.SemiColon)
+
+		cond.Tokens = append(cond.Tokens, p.expect(lexer.CloseParen))
+		cond.Tokens = append(cond.Tokens, p.expect(lexer.SemiColon))
 
 		return &cond, nil
 	}
