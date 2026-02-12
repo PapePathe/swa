@@ -5,6 +5,36 @@ import (
 	"swahili/lang/lexer"
 )
 
+func ParseSymbolValueExpression(p *Parser) (ast.Expression, error) {
+	expr := ast.SymbolValueExpression{}
+	expr.Tokens = append(expr.Tokens, p.expect(lexer.Star))
+
+	inner, err := parseExpression(p, DefaultBindingPower)
+	if err != nil {
+		return nil, err
+	}
+
+	expr.Tokens = append(expr.Tokens, inner.TokenStream()...)
+	expr.Exp = inner
+
+	return &expr, nil
+}
+
+func ParseSymbolAddressExpression(p *Parser) (ast.Expression, error) {
+	expr := ast.SymbolAdressExpression{}
+	expr.Tokens = append(expr.Tokens, p.expect(lexer.Ampersand))
+
+	inner, err := parseExpression(p, DefaultBindingPower)
+	if err != nil {
+		return nil, err
+	}
+
+	expr.Tokens = append(expr.Tokens, inner.TokenStream()...)
+	expr.Exp = inner
+
+	return &expr, nil
+}
+
 // ParseBinaryExpression ...
 func ParseBinaryExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
 	expr := ast.BinaryExpression{}
