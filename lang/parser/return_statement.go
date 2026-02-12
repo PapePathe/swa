@@ -6,6 +6,9 @@ import (
 )
 
 func ParseReturnStatement(p *Parser) (ast.Statement, error) {
+	old := p.logger.Step("RetStmt")
+	defer p.logger.Restore(old)
+
 	stmt := ast.ReturnStatement{}
 	p.currentStatement = &stmt
 	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.Return))
@@ -36,6 +39,8 @@ func ParseReturnStatement(p *Parser) (ast.Statement, error) {
 	}
 
 	if p.currentToken().Kind == lexer.KeywordIf {
+		p.trace("parsing cond return statement")
+
 		cond := ast.ConditionalStatetement{}
 		p.expect(lexer.KeywordIf)
 		p.expect(lexer.OpenParen)

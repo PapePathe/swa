@@ -9,6 +9,9 @@ import (
 
 // ParseStatement ...
 func ParseStatement(p *Parser) (ast.Statement, error) {
+	old := p.logger.Step(fmt.Sprintf("Stmt %v", p.currentToken().Kind))
+	defer p.logger.Restore(old)
+
 	stmt := ast.ExpressionStatement{}
 	p.currentStatement = &stmt
 	statementFn, exists := statementLookup[p.currentToken().Kind]
