@@ -69,13 +69,37 @@ func (t *TreeDrawer) visitType(typ ast.Type, last bool) error {
 	return err
 }
 
+func (t *TreeDrawer) VisitSymbolAdressExpression(node *ast.SymbolAdressExpression) error {
+	t.writeLine("SymbolAdressExpression")
+
+	err := t.visitChild(node.Exp, true)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *TreeDrawer) VisitSymbolValueExpression(node *ast.SymbolValueExpression) error {
+	t.writeLine("SymbolValueExpression")
+
+	err := t.visitChild(node.Exp, true)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (t *TreeDrawer) VisitBlockStatement(node *ast.BlockStatement) error {
 	t.writeLine("BlockStatement")
+
 	for i, stmt := range node.Body {
 		if err := t.visitChild(stmt, i == len(node.Body)-1); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
