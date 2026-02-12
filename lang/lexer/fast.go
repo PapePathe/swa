@@ -185,12 +185,14 @@ func (lex *FastLexer) lexNumber() {
 			lex.advance()
 		} else if unicode.IsDigit(ch) {
 			lex.advance()
+		} else if ch == '_' {
+			lex.advance()
 		} else {
 			break
 		}
 	}
 
-	text := lex.currentText()
+	text := strings.ReplaceAll(lex.currentText(), "_", "")
 	if hadDecimal {
 		lex.push(Float, text)
 	} else {
