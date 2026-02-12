@@ -20,11 +20,16 @@ func ParseFloatingBlockStatement(p *Parser) (ast.Expression, error) {
 }
 
 func ParseBlockStatement(p *Parser) (ast.BlockStatement, error) {
+	old := p.logger.Step("BlockStmt")
+	defer p.logger.Restore(old)
+
 	blockStatement := ast.BlockStatement{}
 	blockStatement.Tokens = append(blockStatement.Tokens, p.expect(lexer.OpenCurly))
 	p.currentStatement = &blockStatement
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseCurly {
+		p.trace("currentToken %v", p.currentToken())
+
 		stmt, err := ParseStatement(p)
 		if err != nil {
 			return ast.BlockStatement{}, err
@@ -40,6 +45,9 @@ func ParseBlockStatement(p *Parser) (ast.BlockStatement, error) {
 }
 
 func ParseConditionalExpression(p *Parser) (ast.Statement, error) {
+	old := p.logger.Step("CondExpr")
+	defer p.logger.Restore(old)
+
 	stmt := ast.ConditionalStatetement{}
 	p.currentStatement = &stmt
 
@@ -50,6 +58,8 @@ func ParseConditionalExpression(p *Parser) (ast.Statement, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	p.trace("condition %s", condition)
 
 	stmt.Condition = condition
 	stmt.Tokens = append(stmt.Tokens, condition.TokenStream()...)
