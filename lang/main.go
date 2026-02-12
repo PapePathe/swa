@@ -147,7 +147,9 @@ var tokenizeCmd = &cobra.Command{
 		sourceCode := string(bytes)
 		tokens, _ := lexer.Tokenize(sourceCode)
 
-		fmt.Println(tokens)
+		for _, v := range tokens {
+			fmt.Println(v)
+		}
 	},
 }
 
