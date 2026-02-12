@@ -32,7 +32,10 @@ func ParseStatement(p *Parser) (ast.Statement, error) {
 
 	stmt.Exp = expression
 	stmt.Tokens = append(stmt.Tokens, expression.TokenStream()...)
-	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.SemiColon))
+
+	if p.currentToken().Kind == lexer.SemiColon {
+		stmt.Tokens = append(stmt.Tokens, p.expect(lexer.SemiColon))
+	}
 
 	return &stmt, nil
 }
