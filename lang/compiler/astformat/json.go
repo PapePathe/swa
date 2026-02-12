@@ -428,6 +428,34 @@ func (j *Json) VisitSymbolType(node *ast.SymbolType) error {
 	return nil
 }
 
+func (j *Json) VisitSymbolAdressExpression(node *ast.SymbolAdressExpression) error {
+	m := make(map[string]any)
+
+	_ = node.Exp.Accept(j)
+	m["Exp"] = j.getLastResult()
+
+	res := make(map[string]any)
+	res["SymbolAdressExpression"] = m
+
+	j.setLastResult(res)
+
+	return nil
+}
+
+func (j *Json) VisitSymbolValueExpression(node *ast.SymbolValueExpression) error {
+	m := make(map[string]any)
+
+	_ = node.Exp.Accept(j)
+	m["Exp"] = j.getLastResult()
+
+	res := make(map[string]any)
+	res["SymbolValueExpression"] = m
+
+	j.setLastResult(res)
+
+	return nil
+}
+
 func (j *Json) VisitErrorType(node *ast.ErrorType) error {
 	res := make(map[string]any)
 	res["ErrorType"] = node.Value().String()
