@@ -20,3 +20,23 @@ func (stmt *BlockStatement) Accept(g CodeGenerator) error {
 func (stmt BlockStatement) TokenStream() []lexer.Token {
 	return stmt.Tokens
 }
+
+// FloatingBlockExpression
+type FloatingBlockExpression struct {
+	Stmt   Statement
+	Tokens []lexer.Token
+}
+
+var _ Expression = (*FloatingBlockExpression)(nil)
+
+func (f *FloatingBlockExpression) VisitedSwaType() Type {
+	panic("unimplemented")
+}
+
+func (f *FloatingBlockExpression) Accept(g CodeGenerator) error {
+	return g.VisitFloatingBlockExpression(f)
+}
+
+func (f *FloatingBlockExpression) TokenStream() []lexer.Token {
+	return f.Tokens
+}
