@@ -75,6 +75,8 @@ type ExpressionsCodeGenerator interface {
 	VisitArrayOfStructsAccessExpression(node *ArrayOfStructsAccessExpression) error
 	VisitPrefixExpression(node *PrefixExpression) error
 	VisitZeroExpression(node *ZeroExpression) error
+	VisitSymbolValueExpression(node *SymbolValueExpression) error
+	VisitSymbolAdressExpression(node *SymbolAdressExpression) error
 }
 
 type TypeVisitor interface {
