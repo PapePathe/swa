@@ -94,11 +94,13 @@ func (p *Parser) expectError(kind lexer.TokenKind, err any) lexer.Token {
 func (p *Parser) expect(kind lexer.TokenKind) lexer.Token {
 	if p.currentStatement != nil {
 		err := p.sourceError(kind, p.currentToken(), p.currentStatement.TokenStream())
+
 		return p.expectError(kind, err)
 	}
 
 	if p.currentExpression != nil {
 		err := p.sourceError(kind, p.currentToken(), p.currentExpression.TokenStream())
+
 		return p.expectError(kind, err)
 	}
 
