@@ -1,0 +1,7 @@
+dialecte:français;
+
+demarrer () entier {
+  variable program_version: entier = 2_100_000;
+  variable program_versionf: float = 2_100.1_000;
+  retourner 0;
+}

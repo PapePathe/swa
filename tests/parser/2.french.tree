@@ -1,0 +1,11 @@
+BlockStatement
+└── MainStatement
+    └── BlockStatement
+        ├── VarDeclarationStatement (Name: program_version, Constant: false)
+        │   ├── Type: Number
+        │   └── NumberExpression (2100000)
+        ├── VarDeclarationStatement (Name: program_versionf, Constant: false)
+        │   ├── Type: Symbol (float)
+        │   └── FloatExpression (2100.100000)
+        └── ReturnStatement
+            └── NumberExpression (0)
