@@ -22,8 +22,11 @@ func NewTreeDrawer(w io.Writer) *TreeDrawer {
 
 func Draw(node ast.Node) string {
 	var sb strings.Builder
+
 	drawer := NewTreeDrawer(&sb)
-	node.Accept(drawer)
+
+	_ = node.Accept(drawer)
+
 	return sb.String()
 }
 
