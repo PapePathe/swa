@@ -6,6 +6,7 @@ type TokenKind int
 var tks = map[TokenKind]string{
 	And:                "AND",
 	Assignment:         "ASSIGNMENT",
+	Ampersand:          "AMPERSAND",
 	Colon:              "COLON",
 	Comma:              "COMMA",
 	CloseCurly:         "CLOSE_CURLY",
@@ -49,6 +50,7 @@ var tks = map[TokenKind]string{
 	Struct:             "STRUCT",
 	String:             "STRING",
 	Star:               "STAR",
+	DoubleStar:         "DOUBLE_STAR",
 	TypeInt:            "TYPE_INT",
 	TypeInt64:          "TYPE_INT_64",
 	TypeFloat:          "TYPE_FLOAT",
@@ -77,6 +79,9 @@ const (
 	Or
 	// And represents the "and" logical operator.
 	And
+
+	Ampersand
+	DoubleStar
 	// KeywordIf represents the "if" keyword.
 	KeywordIf
 	// KeywordElse represents the "else" keyword.
