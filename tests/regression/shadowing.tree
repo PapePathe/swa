@@ -1,0 +1,45 @@
+BlockStatement
+└── MainStatement
+    └── BlockStatement
+        ├── VarDeclarationStatement (Name: x, Constant: false)
+        │   ├── Type: Number
+        │   └── NumberExpression (10)
+        ├── PrintStatement
+        │   ├── StringExpression ("Outer x: %d\n")
+        │   └── SymbolExpression (x)
+        ├── ExpressionStatement
+        │   └── FloatingBlockExpression
+        │       ├── BlockStatement
+        │       │   ├── VarDeclarationStatement (Name: x, Constant: false)
+        │       │   │   ├── Type: Number
+        │       │   │   └── NumberExpression (20)
+        │       │   ├── PrintStatement
+        │       │   │   ├── StringExpression ("Inner x: %d\n")
+        │       │   │   └── SymbolExpression (x)
+        │       │   └── ConditionalStatement
+        │       │       ├── BinaryExpression (!=)
+        │       │       │   ├── SymbolExpression (x)
+        │       │       │   └── NumberExpression (20)
+        │       │       ├── BlockStatement
+        │       │       │   ├── PrintStatement
+        │       │       │   │   └── StringExpression ("Error: Shadowing failed in inner block.\n")
+        │       │       │   └── ReturnStatement
+        │       │       │       └── NumberExpression (1)
+        │       │       └── BlockStatement
+        ├── PrintStatement
+        │   ├── StringExpression ("Outer x again: %d\n")
+        │   └── SymbolExpression (x)
+        ├── ConditionalStatement
+        │   ├── BinaryExpression (!=)
+        │   │   ├── SymbolExpression (x)
+        │   │   └── NumberExpression (10)
+        │   ├── BlockStatement
+        │   │   ├── PrintStatement
+        │   │   │   └── StringExpression ("Error: Outer variable was corrupted by inner shadow.\n")
+        │   │   └── ReturnStatement
+        │   │       └── NumberExpression (1)
+        │   └── BlockStatement
+        ├── PrintStatement
+        │   └── StringExpression ("Success: Variable shadowing works.\n")
+        └── ReturnStatement
+            └── NumberExpression (0)

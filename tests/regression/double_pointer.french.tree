@@ -1,0 +1,45 @@
+BlockStatement
+└── MainStatement
+    └── BlockStatement
+        ├── VarDeclarationStatement (Name: x, Constant: false)
+        │   ├── Type: Number
+        │   └── NumberExpression (42)
+        ├── VarDeclarationStatement (Name: p, Constant: false)
+        │   ├── Type: Pointer
+        │   │   └── Type: Number
+        │   └── SymbolAdressExpression
+        │       └── SymbolExpression (x)
+        ├── VarDeclarationStatement (Name: pp, Constant: false)
+        │   ├── Type: Pointer
+        │   │   └── Type: Pointer
+        │   │       └── Type: Number
+        │   └── SymbolAdressExpression
+        │       └── SymbolExpression (p)
+        ├── PrintStatement
+        │   ├── StringExpression ("x = %d\n")
+        │   └── SymbolExpression (x)
+        ├── PrintStatement
+        │   ├── StringExpression ("*p = %d\n")
+        │   └── SymbolValueExpression
+        │       └── SymbolExpression (p)
+        ├── PrintStatement
+        │   ├── StringExpression ("**pp = %d\n")
+        │   └── SymbolValueExpression
+        │       └── SymbolValueExpression
+        │           └── SymbolExpression (pp)
+        ├── ConditionalStatement
+        │   ├── SymbolValueExpression
+        │   │   └── SymbolValueExpression
+        │   │       └── BinaryExpression (==)
+        │   │           ├── SymbolExpression (pp)
+        │   │           └── NumberExpression (42)
+        │   ├── BlockStatement
+        │   │   └── PrintStatement
+        │   │       └── StringExpression ("Success: Double pointer dereference works.\n")
+        │   └── BlockStatement
+        │       ├── PrintStatement
+        │       │   └── StringExpression ("Error: Double pointer dereference failed.\n")
+        │       └── ReturnStatement
+        │           └── NumberExpression (1)
+        └── ReturnStatement
+            └── NumberExpression (0)

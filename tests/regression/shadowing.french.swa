@@ -1,0 +1,24 @@
+dialecte:français;
+
+demarrer() entier {
+    variable x: entier = 10;
+    afficher("Outer x: %d\n", x);
+    
+    {
+        variable x: entier = 20;
+        afficher("Inner x: %d\n", x);
+        si (x != 20) {
+            afficher("Error: Shadowing failed in inner block.\n");
+            retourner 1;
+        }
+    }
+    
+    afficher("Outer x again: %d\n", x);
+    si (x != 10) {
+        afficher("Error: Outer variable was corrupted by inner shadow.\n");
+        retourner 1;
+    }
+    
+    afficher("Success: Variable shadowing works.\n");
+    retourner 0;
+}
