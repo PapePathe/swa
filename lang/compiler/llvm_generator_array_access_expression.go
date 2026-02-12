@@ -203,6 +203,10 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 			Type:           etype.Type,
 			ElementsCount:  elementsCount,
 		}
+
+	case *ast.ArrayAccessExpression:
+		// TODO implement access to nested arrays
+		return fmt.Errorf("TODO: nested array access not yet supported"), nil, nil, nil
 	default:
 		key := "LLVMGenerator.VisitArrayAccessExpression.NotImplementedFor"
 		err := g.Ctx.Dialect.Error(key, expr.Name)
