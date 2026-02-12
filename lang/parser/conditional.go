@@ -5,6 +5,20 @@ import (
 	"swahili/lang/lexer"
 )
 
+func ParseFloatingBlockStatement(p *Parser) (ast.Expression, error) {
+	expr := ast.FloatingBlockExpression{}
+	p.currentExpression = &expr
+
+	stmt, err := ParseBlockStatement(p)
+	if err != nil {
+		return nil, err
+	}
+
+	expr.Stmt = &stmt
+
+	return &expr, nil
+}
+
 func ParseBlockStatement(p *Parser) (ast.BlockStatement, error) {
 	blockStatement := ast.BlockStatement{}
 	blockStatement.Tokens = append(blockStatement.Tokens, p.expect(lexer.OpenCurly))
