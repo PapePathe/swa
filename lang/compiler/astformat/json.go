@@ -222,6 +222,20 @@ func (j *Json) VisitFloatType(node *ast.FloatType) error {
 	return nil
 }
 
+func (j *Json) VisitFloatingBlockExpression(node *ast.FloatingBlockExpression) error {
+	m := make(map[string]any)
+
+	_ = node.Stmt.Accept(j)
+	m["Stmt"] = j.getLastResult()
+
+	res := make(map[string]any)
+	res["FloatingBlockExpression"] = m
+
+	j.setLastResult(res)
+
+	return nil
+}
+
 func (j *Json) VisitFunctionCall(node *ast.FunctionCallExpression) error {
 	m := make(map[string]any)
 	m["Name"] = node.Name
