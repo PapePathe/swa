@@ -1,0 +1,50 @@
+{
+   "BlockStatement": [
+     {
+       "MainProGram": {
+         "Body": {
+           "BlockStatement": [
+             {
+               "VarDeclarationStatement": {
+                 "ExplicitType": {
+                   "NumberType": "Number"
+                 },
+                 "IsConstant": false,
+                 "Name": "program_version",
+                 "Value": {
+                   "NumberExpression": 2100000
+                 }
+               }
+             },
+             {
+               "VarDeclarationStatement": {
+                 "ExplicitType": {
+                   "SymbolType": "float"
+                 },
+                 "IsConstant": false,
+                 "Name": "program_versionf",
+                 "Value": {
+                   "FloatExpression": 2100.1
+                 }
+               }
+             },
+             {
+               "ReturnStatement": {
+                 "Value": 0,
+                 "Tokens": [
+                   {
+                     "Value": "0",
+                     "Name": "",
+                     "Line": 6,
+                     "Column": 13
+                   }
+                 ],
+                 "SwaType": null
+               }
+             }
+           ]
+         }
+       }
+     }
+   ]
+ }
