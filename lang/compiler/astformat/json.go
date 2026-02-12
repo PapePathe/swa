@@ -8,8 +8,6 @@ type Json struct {
 	Element map[string]any
 }
 
-var _ ast.CodeGenerator = (*Json)(nil)
-
 func NewJsonFormatter() *Json {
 	return &Json{Element: map[string]any{}}
 }
