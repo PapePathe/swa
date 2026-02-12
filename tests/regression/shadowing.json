@@ -1,0 +1,183 @@
+{
+   "BlockStatement": [
+     {
+       "MainProGram": {
+         "Body": {
+           "BlockStatement": [
+             {
+               "VarDeclarationStatement": {
+                 "ExplicitType": {
+                   "NumberType": "Number"
+                 },
+                 "IsConstant": false,
+                 "Name": "x",
+                 "Value": {
+                   "NumberExpression": 10
+                 }
+               }
+             },
+             {
+               "PrintStatetement": [
+                 {
+                   "StringExpression": "Outer x: %d\n"
+                 },
+                 {
+                   "SymbolExpression": "x"
+                 }
+               ]
+             },
+             {
+               "ExpressionStatement": {
+                 "FloatingBlockExpression": {
+                   "Stmt": {
+                     "BlockStatement": [
+                       {
+                         "VarDeclarationStatement": {
+                           "ExplicitType": {
+                             "NumberType": "Number"
+                           },
+                           "IsConstant": false,
+                           "Name": "x",
+                           "Value": {
+                             "NumberExpression": 20
+                           }
+                         }
+                       },
+                       {
+                         "PrintStatetement": [
+                           {
+                             "StringExpression": "Inner x: %d\n"
+                           },
+                           {
+                             "SymbolExpression": "x"
+                           }
+                         ]
+                       },
+                       {
+                         "ConditionalStatement": {
+                           "condition": {
+                             "BinaryExpression": {
+                               "Left": {
+                                 "SymbolExpression": "x"
+                               },
+                               "Operator": "!=",
+                               "Right": {
+                                 "NumberExpression": 20
+                               }
+                             }
+                           },
+                           "failure": {
+                             "BlockStatement": []
+                           },
+                           "success": {
+                             "BlockStatement": [
+                               {
+                                 "PrintStatetement": [
+                                   {
+                                     "StringExpression": "Error: Shadowing failed in inner block.\n"
+                                   }
+                                 ]
+                               },
+                               {
+                                 "ReturnStatement": {
+                                   "Value": 1,
+                                   "Tokens": [
+                                     {
+                                       "Value": "1",
+                                       "Name": "",
+                                       "Line": 12,
+                                       "Column": 20
+                                     }
+                                   ],
+                                   "SwaType": null
+                                 }
+                               }
+                             ]
+                           }
+                         }
+                       }
+                     ]
+                   }
+                 }
+               }
+             },
+             {
+               "PrintStatetement": [
+                 {
+                   "StringExpression": "Outer x again: %d\n"
+                 },
+                 {
+                   "SymbolExpression": "x"
+                 }
+               ]
+             },
+             {
+               "ConditionalStatement": {
+                 "condition": {
+                   "BinaryExpression": {
+                     "Left": {
+                       "SymbolExpression": "x"
+                     },
+                     "Operator": "!=",
+                     "Right": {
+                       "NumberExpression": 10
+                     }
+                   }
+                 },
+                 "failure": {
+                   "BlockStatement": []
+                 },
+                 "success": {
+                   "BlockStatement": [
+                     {
+                       "PrintStatetement": [
+                         {
+                           "StringExpression": "Error: Outer variable was corrupted by inner shadow.\n"
+                         }
+                       ]
+                     },
+                     {
+                       "ReturnStatement": {
+                         "Value": 1,
+                         "Tokens": [
+                           {
+                             "Value": "1",
+                             "Name": "",
+                             "Line": 19,
+                             "Column": 16
+                           }
+                         ],
+                         "SwaType": null
+                       }
+                     }
+                   ]
+                 }
+               }
+             },
+             {
+               "PrintStatetement": [
+                 {
+                   "StringExpression": "Success: Variable shadowing works.\n"
+                 }
+               ]
+             },
+             {
+               "ReturnStatement": {
+                 "Value": 0,
+                 "Tokens": [
+                   {
+                     "Value": "0",
+                     "Name": "",
+                     "Line": 23,
+                     "Column": 12
+                   }
+                 ],
+                 "SwaType": null
+               }
+             }
+           ]
+         }
+       }
+     }
+   ]
+ }

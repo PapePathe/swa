@@ -1,0 +1,171 @@
+{
+   "BlockStatement": [
+     {
+       "MainProGram": {
+         "Body": {
+           "BlockStatement": [
+             {
+               "VarDeclarationStatement": {
+                 "ExplicitType": {
+                   "NumberType": "Number"
+                 },
+                 "IsConstant": false,
+                 "Name": "x",
+                 "Value": {
+                   "NumberExpression": 42
+                 }
+               }
+             },
+             {
+               "VarDeclarationStatement": {
+                 "ExplicitType": {
+                   "PointerType": "Number"
+                 },
+                 "IsConstant": false,
+                 "Name": "p",
+                 "Value": {
+                   "SymbolAdressExpression": {
+                     "Exp": {
+                       "SymbolExpression": "x"
+                     }
+                   }
+                 }
+               }
+             },
+             {
+               "VarDeclarationStatement": {
+                 "ExplicitType": {
+                   "PointerType": "Pointer"
+                 },
+                 "IsConstant": false,
+                 "Name": "pp",
+                 "Value": {
+                   "SymbolAdressExpression": {
+                     "Exp": {
+                       "SymbolExpression": "p"
+                     }
+                   }
+                 }
+               }
+             },
+             {
+               "PrintStatetement": [
+                 {
+                   "StringExpression": "x = %d\n"
+                 },
+                 {
+                   "SymbolExpression": "x"
+                 }
+               ]
+             },
+             {
+               "PrintStatetement": [
+                 {
+                   "StringExpression": "*p = %d\n"
+                 },
+                 {
+                   "SymbolValueExpression": {
+                     "Exp": {
+                       "SymbolExpression": "p"
+                     }
+                   }
+                 }
+               ]
+             },
+             {
+               "PrintStatetement": [
+                 {
+                   "StringExpression": "**pp = %d\n"
+                 },
+                 {
+                   "SymbolValueExpression": {
+                     "Exp": {
+                       "SymbolValueExpression": {
+                         "Exp": {
+                           "SymbolExpression": "pp"
+                         }
+                       }
+                     }
+                   }
+                 }
+               ]
+             },
+             {
+               "ConditionalStatement": {
+                 "condition": {
+                   "SymbolValueExpression": {
+                     "Exp": {
+                       "SymbolValueExpression": {
+                         "Exp": {
+                           "BinaryExpression": {
+                             "Left": {
+                               "SymbolExpression": "pp"
+                             },
+                             "Operator": "==",
+                             "Right": {
+                               "NumberExpression": 42
+                             }
+                           }
+                         }
+                       }
+                     }
+                   }
+                 },
+                 "failure": {
+                   "BlockStatement": [
+                     {
+                       "PrintStatetement": [
+                         {
+                           "StringExpression": "Error: Double pointer dereference failed.\n"
+                         }
+                       ]
+                     },
+                     {
+                       "ReturnStatement": {
+                         "Value": 1,
+                         "Tokens": [
+                           {
+                             "Value": "1",
+                             "Name": "",
+                             "Line": 16,
+                             "Column": 19
+                           }
+                         ],
+                         "SwaType": null
+                       }
+                     }
+                   ]
+                 },
+                 "success": {
+                   "BlockStatement": [
+                     {
+                       "PrintStatetement": [
+                         {
+                           "StringExpression": "Success: Double pointer dereference works.\n"
+                         }
+                       ]
+                     }
+                   ]
+                 }
+               }
+             },
+             {
+               "ReturnStatement": {
+                 "Value": 0,
+                 "Tokens": [
+                   {
+                     "Value": "0",
+                     "Name": "",
+                     "Line": 19,
+                     "Column": 15
+                   }
+                 ],
+                 "SwaType": null
+               }
+             }
+           ]
+         }
+       }
+     }
+   ]
+ }

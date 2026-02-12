@@ -1,0 +1,20 @@
+dialect:english;
+
+start() int {
+    let x: int = 42;
+    let p: *int = &x;
+    let pp: **int = &p;
+    
+    print("x = %d\n", x);
+    print("*p = %d\n", *p);
+    print("**pp = %d\n", **pp);
+    
+    if (**pp == 42) {
+        print("Success: Double pointer dereference works.\n");
+    } else {
+        print("Error: Double pointer dereference failed.\n");
+        return 1;
+    }
+    
+    return 0;
+}

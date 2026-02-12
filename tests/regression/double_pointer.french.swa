@@ -1,0 +1,20 @@
+dialecte:français;
+
+demarrer() entier {
+    variable x: entier = 42;
+    variable p: *entier = &x;
+    variable pp: **entier = &p;
+    
+    afficher("x = %d\n", x);
+    afficher("*p = %d\n", *p);
+    afficher("**pp = %d\n", **pp);
+    
+    si (**pp == 42) {
+        afficher("Success: Double pointer dereference works.\n");
+    } sinon {
+        afficher("Error: Double pointer dereference failed.\n");
+        retourner 1;
+    }
+    
+    retourner 0;
+}
