@@ -6,6 +6,7 @@ import (
 	"strings"
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
+	"swahili/lang/trc"
 )
 
 // Parser ...
@@ -14,6 +15,8 @@ type Parser struct {
 	pos               int
 	currentStatement  ast.Statement
 	currentExpression ast.Expression
+	logger            trc.Logger
+	tracing           bool
 }
 
 // Parse ...
@@ -23,7 +26,12 @@ func Parse(tokens []lexer.Token) (ast.BlockStatement, error) {
 	createTokenLookups()
 	createTokenTypeLookups()
 
-	psr := &Parser{tokens: tokens}
+	psr := &Parser{
+		tokens: tokens,
+		logger: *trc.NewLogger("PARSER"),
+		//	tracing: true,
+		tracing: false,
+	}
 
 	if psr.hasTokens() {
 		psr.expect(lexer.DialectDeclaration)
@@ -44,6 +52,12 @@ func Parse(tokens []lexer.Token) (ast.BlockStatement, error) {
 	return ast.BlockStatement{
 		Body: body,
 	}, nil
+}
+
+func (p *Parser) trace(format string, args ...any) {
+	if p.tracing {
+		p.logger.Debug(fmt.Sprintf(format, args...))
+	}
 }
 
 func (p *Parser) currentToken() lexer.Token {
