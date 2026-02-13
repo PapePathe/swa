@@ -1,0 +1,8 @@
+dialect:english;
+
+start() int {
+  let arr: [5]int = [5]int{1, 2, 3, 4, 5};
+  let p: *int = &arr[0];
+
+  return 0;
+}

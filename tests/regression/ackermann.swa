@@ -1,0 +1,34 @@
+dialect:english;
+
+// Ackermann function: classic recursion benchmark
+func ackermann(m: int, n: int) int {
+    if (m == 0) {
+        return n + 1;
+    }
+    if (m > 0) {
+        if (n == 0) {
+            return ackermann(m - 1, 1);
+        }
+    }
+    return ackermann(m - 1, ackermann(m, n - 1));
+}
+
+start() int {
+    print("Testing Ackermann function...\n");
+    
+    // A(3, 2) = 29
+    let m: int = 3;
+    let n: int = 2;
+    let res: int = ackermann(m, n);
+    
+    print("ackermann(%d, %d) = %d\n", m, n, res);
+    
+    if (res == 29) {
+        print("Success: Ackermann A(3, 2) is correct.\n");
+    } else {
+        print("Error: Expected 29, got %d\n", res);
+        return 1;
+    }
+    
+    return 0;
+}

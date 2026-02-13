@@ -16,30 +16,40 @@ BlockStatement
         │       │   ├── PrintStatement
         │       │   │   ├── StringExpression ("Inner x: %d\n")
         │       │   │   └── SymbolExpression (x)
-        │       │   └── ConditionalStatement
-        │       │       ├── BinaryExpression (!=)
-        │       │       │   ├── SymbolExpression (x)
-        │       │       │   └── NumberExpression (20)
-        │       │       ├── BlockStatement
-        │       │       │   ├── PrintStatement
-        │       │       │   │   └── StringExpression ("Error: Shadowing failed in inner block.\n")
-        │       │       │   └── ReturnStatement
-        │       │       │       └── NumberExpression (1)
-        │       │       └── BlockStatement
-        ├── PrintStatement
-        │   ├── StringExpression ("Outer x again: %d\n")
-        │   └── SymbolExpression (x)
-        ├── ConditionalStatement
-        │   ├── BinaryExpression (!=)
-        │   │   ├── SymbolExpression (x)
-        │   │   └── NumberExpression (10)
-        │   ├── BlockStatement
+        │       │   └── IfStatement
+        │       │       ├── Condition
+        │       │       │   ├── BinaryExpression (!=)
+        │       │       │   │   ├── Left
+        │       │       │   │   │   ├── SymbolExpression (x)
+        │       │       │   │   └── Right
+        │       │       │   │       └── NumberExpression (20)
+        │       │       ├── Success
+        │       │       │   ├── BlockStatement
+        │       │       │   │   ├── PrintStatement
+        │       │       │   │   │   └── StringExpression ("Error: Shadowing failed in inner block.\n")
+        │       │       │   │   └── ReturnStatement
+        │       │       │   │       └── NumberExpression (1)
+        │       │       ├── Failure
+        │       │       │   └── BlockStatement
+        │   ├── PrintStatement
+        │   │   ├── StringExpression ("Outer x again: %d\n")
+        │   │   └── SymbolExpression (x)
+        │   ├── IfStatement
+        │   │   ├── Condition
+        │   │   │   ├── BinaryExpression (!=)
+        │   │   │   │   ├── Left
+        │   │   │   │   │   ├── SymbolExpression (x)
+        │   │   │   │   └── Right
+        │   │   │   │       └── NumberExpression (10)
+        │   │   ├── Success
+        │   │   │   ├── BlockStatement
+        │   │   │   │   ├── PrintStatement
+        │   │   │   │   │   └── StringExpression ("Error: Outer variable was corrupted by inner shadow.\n")
+        │   │   │   │   └── ReturnStatement
+        │   │   │   │       └── NumberExpression (1)
+        │   │   ├── Failure
+        │   │   │   └── BlockStatement
         │   │   ├── PrintStatement
-        │   │   │   └── StringExpression ("Error: Outer variable was corrupted by inner shadow.\n")
+        │   │   │   └── StringExpression ("Success: Variable shadowing works.\n")
         │   │   └── ReturnStatement
-        │   │       └── NumberExpression (1)
-        │   └── BlockStatement
-        ├── PrintStatement
-        │   └── StringExpression ("Success: Variable shadowing works.\n")
-        └── ReturnStatement
-            └── NumberExpression (0)
+        │   │       └── NumberExpression (0)
