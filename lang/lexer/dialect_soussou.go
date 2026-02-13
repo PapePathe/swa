@@ -63,6 +63,7 @@ func (m Soussou) translations() map[string]string {
 
 		"VisitStructDeclaration.SelfPointerReferenceNotAllowed": "fokhi ya na a gbe gbegbe findi, se mu lanné: %s",
 		"VisitStructDeclaration.SelfReferenceNotAllowed":        "fokhi ya na a gbe findi, se mu lanné: %s",
+		"LLVMGenerator.VisitStructDeclaration.EmptyStruct":      "Struct (%s) must have at least one field",
 
 		"VisitSymbolExpression.UnsupportedTypeAsGlobal": "DataType %s mu lanné global ra",
 		"VisitPrefixExpression.OperatorNotSupported":    "Operator %s mu lanné prefix ma",
