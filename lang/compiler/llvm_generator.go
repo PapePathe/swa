@@ -298,6 +298,12 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 
 	g.Debugf(node.Name)
 
+	if len(node.Properties) == 0 {
+		key := "LLVMGenerator.VisitStructDeclaration.EmptyStruct"
+
+		return g.Ctx.Dialect.Error(key, node.Name)
+	}
+
 	entry := &StructSymbolTableEntry{
 		Metadata:    *node,
 		Embeds:      map[string]StructSymbolTableEntry{},
