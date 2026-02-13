@@ -6,6 +6,37 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestEmptyStruct(t *testing.T) {
+	tests := []MultiDialectTest{
+		{
+			name:           "English",
+			inputPath:      "./structs/empty.swa",
+			expectedOutput: "Struct (Point) must have at least one field\n",
+		},
+		{
+			name:           "french",
+			inputPath:      "./structs/empty.french.swa",
+			expectedOutput: "La structure (Point) doit avoir au moins un champ\n",
+		},
+		// TODO
+		// * Add test cas for wolof
+		// * Add test cas for soussou
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			req := CompileRequest{
+				InputPath:      test.inputPath,
+				ExpectedOutput: test.expectedOutput,
+				T:              t,
+			}
+
+			assert.Error(t, req.Compile())
+		})
+	}
+
+}
+
 func TestStructZeroValues(t *testing.T) {
 	expected := "- Dimension with zero value\nLength: 0.00, Width: 0.00, Height: 0, Name: \n\n- Object with zero value\nLength: 0.00, Width: 0.00, Height: 0, Name: , Shape: \n\n- Block with zero value\nTop(Length: 0.00, Width: 0.00, Height: 0, Name: , Shape: )\nBottom(Length: 0.00, Width: 0.00, Height: 0, Name: , Shape: )\n"
 

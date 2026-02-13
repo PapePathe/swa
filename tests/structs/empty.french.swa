@@ -1,0 +1,10 @@
+dialecte:français;
+
+structure Point{}
+
+demarrer() entier {
+  variable res: Point;
+
+  retourner 0;
+}
+
