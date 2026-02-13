@@ -1,0 +1,9 @@
+dialect:english;
+
+start() int {
+    let p: *int = 0;
+    
+    print("p[0] = %d\n", *p);
+    
+    return 0;
+}

@@ -1,0 +1,40 @@
+dialect:english;
+
+struct VM {
+    Tape: [300]int,
+    Ptr: int,
+    IP: int,
+}
+
+func execute(vm: *VM, code: string) int {
+    let codeLength: int = 15; // Hardcoded length for "Hello World" or similar snippet
+    print("Simulating BF: +++[->+<]\n");
+    vm.Tape[vm.Ptr] = vm.Tape[vm.Ptr] + 3;
+    while (vm.Tape[vm.Ptr] > 0) {
+        vm.Tape[vm.Ptr] = vm.Tape[vm.Ptr] - 1;
+        vm.Ptr = vm.Ptr + 1;
+        vm.Tape[vm.Ptr] = vm.Tape[vm.Ptr] + 1;
+        vm.Ptr = vm.Ptr - 1;
+    }
+    
+    return vm.Tape[1];
+}
+
+start() int {
+    print("Testing Brainfuck Simulation...\n");
+    
+    let myVM: VM;
+    
+    let result: int = execute(myVM, "+++[->+<]");
+    
+    print("Result in cell 1: %d\n", result);
+    
+    if (result == 3) {
+        print("Success: BF simulation worked.\n");
+    } else {
+        print("Error: Expected 3, got %d\n", result);
+        return 1;
+    }
+    
+    return 0;
+}

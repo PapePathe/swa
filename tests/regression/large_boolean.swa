@@ -1,0 +1,23 @@
+dialect:english;
+
+start() int {
+    let a: int = 1;
+    let b: int = 0;
+    let c: int = 1;
+    let d: int = 0;
+    
+    // Complex logical expression
+    if ((a == 1 && b == 0) || (c == 0 && d == 1)) {
+        if (! (a == 0 || b == 1) && (c == 1)) {
+            print("Success: Complex boolean logic evaluated correctly.\n");
+        } else {
+            print("Error: Nested boolean logic failed.\n");
+            return 1;
+        }
+    } else {
+        print("Error: Initial boolean logic failed.\n");
+        return 1;
+    }
+    
+    return 0;
+}

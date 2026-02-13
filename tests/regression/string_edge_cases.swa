@@ -1,0 +1,18 @@
+dialect:english;
+
+start() int {
+    let s1: string = "Hello\nWorld";
+    let s2: string = "Tab\tCharacter";
+    let s3: string = "Quote \" inside";
+    let s4: string = "Backslash \\ inside";
+    
+    print("s1: %s\n", s1);
+    print("s2: %s\n", s2);
+    print("s3: %s\n", s3);
+    print("s4: %s\n", s4);
+    
+    let long_string: string = "This is a very long string designed to test how the compiler handles larger literals in the assembly generation phase. It should be able to handle strings that are significantly longer than short identifiers or simple messages.\n";
+    print("Long string: %s", long_string);
+    
+    return 0;
+}

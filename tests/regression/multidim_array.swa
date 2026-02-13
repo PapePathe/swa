@@ -1,0 +1,23 @@
+dialect:english;
+
+start() int {
+    // Testing 2D arrays
+    let grid: [3][3]int = [3][3]int{};
+    
+    grid[0][0] = 1;
+    grid[1][1] = 5;
+    grid[2][2] = 9;
+    
+    print("grid[0][0] = %d\n", grid[0][0]);
+    print("grid[1][1] = %d\n", grid[1][1]);
+    print("grid[2][2] = %d\n", grid[2][2]);
+    
+    if (grid[1][1] == 5) {
+        print("Success: 2D array access works.\n");
+    } else {
+        print("Error: 2D array access failed.\n");
+        return 1;
+    }
+    
+    return 0;
+}

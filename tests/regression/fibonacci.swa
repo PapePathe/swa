@@ -1,0 +1,46 @@
+dialect:english;
+
+// Recursive Fibonacci
+func fib_recursive(n: int) int {
+    if (n <= 1) {
+        return n;
+    }
+    return fib_recursive(n - 1) + fib_recursive(n - 2);
+}
+
+// Iterative Fibonacci
+func fib_iterative(n: int) int {
+    if (n <= 1) {
+        return n;
+    }
+    let a: int = 0;
+    let b: int = 1;
+    let i: int = 2;
+    while (i <= n) {
+        let temp: int = a + b;
+        a = b;
+        b = temp;
+        i = i + 1;
+    }
+    return b;
+}
+
+start() int {
+    print("Testing Fibonacci implementations...\n");
+    
+    let n: int = 10;
+    let res_rec: int = fib_recursive(n);
+    let res_ite: int = fib_iterative(n);
+    
+    print("fib_recursive(%d) = %d\n", n, res_rec);
+    print("fib_iterative(%d) = %d\n", n, res_ite);
+    
+    if (res_rec == res_ite) {
+        print("Success: Both implementations match.\n");
+    } else {
+        print("Error: Implementations do not match.\n");
+        return 1;
+    }
+    
+    return 0;
+}

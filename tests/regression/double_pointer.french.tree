@@ -27,19 +27,24 @@ BlockStatement
         │   └── SymbolValueExpression
         │       └── SymbolValueExpression
         │           └── SymbolExpression (pp)
-        ├── ConditionalStatement
-        │   ├── SymbolValueExpression
-        │   │   └── SymbolValueExpression
-        │   │       └── BinaryExpression (==)
-        │   │           ├── SymbolExpression (pp)
-        │   │           └── NumberExpression (42)
-        │   ├── BlockStatement
-        │   │   └── PrintStatement
-        │   │       └── StringExpression ("Success: Double pointer dereference works.\n")
-        │   └── BlockStatement
-        │       ├── PrintStatement
-        │       │   └── StringExpression ("Error: Double pointer dereference failed.\n")
-        │       └── ReturnStatement
-        │           └── NumberExpression (1)
-        └── ReturnStatement
-            └── NumberExpression (0)
+        ├── IfStatement
+        │   ├── Condition
+        │   │   ├── SymbolValueExpression
+        │   │   │   └── SymbolValueExpression
+        │   │   │       └── BinaryExpression (==)
+        │   │   │           ├── Left
+        │   │   │           │   ├── SymbolExpression (pp)
+        │   │   │           └── Right
+        │   │   │               └── NumberExpression (42)
+        │   ├── Success
+        │   │   ├── BlockStatement
+        │   │   │   └── PrintStatement
+        │   │   │       └── StringExpression ("Success: Double pointer dereference works.\n")
+        │   ├── Failure
+        │   │   └── BlockStatement
+        │   │       ├── PrintStatement
+        │   │       │   └── StringExpression ("Error: Double pointer dereference failed.\n")
+        │   │       └── ReturnStatement
+        │   │           └── NumberExpression (1)
+        │   └── ReturnStatement
+        │       └── NumberExpression (0)
