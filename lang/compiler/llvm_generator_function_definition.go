@@ -61,14 +61,16 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 			var entry SymbolTableEntry
 
 			switch argType.(type) {
-			case ast.FloatType, ast.NumberType, ast.Number64Type,
-				ast.SymbolType, ast.PointerType, ast.ArrayType:
+			case ast.SymbolType, ast.PointerType, ast.ArrayType:
 				entry = SymbolTableEntry{
 					Value:        p,
 					DeclaredType: argType,
 					Address:      &p,
 				}
 			default:
+				// ast.FloatType, ast.NumberType, ast.Number64Type
+				// Need to alloc and store the passed value so
+				// that assignmnt to it will work.
 				alloca := g.Ctx.Builder.CreateAlloca(p.Type(), name)
 				g.Ctx.Builder.CreateStore(p, alloca)
 
