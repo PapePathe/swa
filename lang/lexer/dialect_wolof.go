@@ -39,15 +39,19 @@ func (m Wolof) Reserved() map[string]TokenKind {
 		"tambali":   Main,
 		"wanel":     Print,
 		"deloko":    Return,
+		// TODO: find  translation for struct
 		"structure": Struct,
-		"decimal":   TypeFloat,
-		"lëmm":      TypeInt,
-		"lëmm64":    TypeInt64,
-		"ay_araf":   TypeString,
-		"njumte":    TypeError,
+		// TODO: find  translation for float
+		"decimal": TypeFloat,
+		"lëmm":    TypeInt,
+		"lëmm64":  TypeInt64,
+		// TODO: find better translation for string
+		"ay_araf": TypeString,
+		"njumte":  TypeError,
 		// TODO: find  translation for variadic
 		"variadique": Variadic,
-		"zero":       Zero,
+		// TODO: find  translation for zero
+		"zero": Zero,
 	}
 }
 
