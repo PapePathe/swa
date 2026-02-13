@@ -63,6 +63,7 @@ func (m French) translations() map[string]string {
 
 		"VisitStructDeclaration.SelfPointerReferenceNotAllowed": "struct with pointer reference to self not supported, property: %s",
 		"VisitStructDeclaration.SelfReferenceNotAllowed":        "struct with reference to self not supported, property: %s",
+		"LLVMGenerator.VisitStructDeclaration.EmptyStruct":      "La structure (%s) doit avoir au moins un champ",
 
 		"VisitSymbolExpression.UnsupportedTypeAsGlobal": "Unsupported datatype %s in global",
 		"VisitPrefixExpression.OperatorNotSupported":    "PrefixExpression: operator %s not supported",

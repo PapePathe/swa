@@ -64,6 +64,7 @@ func (m Wolof) translations() map[string]string {
 
 		"VisitStructDeclaration.SelfPointerReferenceNotAllowed": "struct with pointer reference to self not supported, property: %s",
 		"VisitStructDeclaration.SelfReferenceNotAllowed":        "struct with reference to self not supported, property: %s",
+		"LLVMGenerator.VisitStructDeclaration.EmptyStruct":      "Struct (%s) must have at least one field",
 
 		"VisitSymbolExpression.UnsupportedTypeAsGlobal": "Unsupported datatype %s in global",
 		"VisitPrefixExpression.OperatorNotSupported":    "PrefixExpression: operator %s not supported",
