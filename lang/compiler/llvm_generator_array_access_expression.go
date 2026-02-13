@@ -244,6 +244,16 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 		res := g.getLastResult()
 
 		if res.Value.Type().TypeKind() == llvm.PointerTypeKind {
+			if res.StuctPropertyValueType != nil {
+				g.Debugf(
+					"Struct property value type is set to %v",
+					res.StuctPropertyValueType)
+
+				load := g.Ctx.Builder.CreateLoad(*res.StuctPropertyValueType, *res.Value, "")
+				indices = []llvm.Value{load}
+
+				break
+			}
 			load := g.Ctx.Builder.CreateLoad(res.Value.AllocatedType(), *res.Value, "")
 			indices = []llvm.Value{load}
 		} else {
