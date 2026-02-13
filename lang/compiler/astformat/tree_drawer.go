@@ -138,22 +138,53 @@ func (t *TreeDrawer) VisitExpressionStatement(node *ast.ExpressionStatement) err
 }
 
 func (t *TreeDrawer) VisitConditionalStatement(node *ast.ConditionalStatetement) error {
-	t.writeLine("ConditionalStatement")
+	t.writeLine("IfStatement")
+
+	t.isLast = append(t.isLast, false)
+	t.writeLine("Condition")
+
 	if err := t.visitChild(node.Condition, false); err != nil {
 		return err
 	}
+
+	t.isLast = t.isLast[:len(t.isLast)-1]
+	t.isLast = append(t.isLast, false)
+	t.writeLine("Success")
+
 	if err := t.visitChild(&node.Success, false); err != nil {
 		return err
 	}
-	return t.visitChild(&node.Failure, true)
+
+	t.isLast = t.isLast[:len(t.isLast)-1]
+	t.isLast = append(t.isLast, false)
+
+	t.writeLine("Failure")
+	if err := t.visitChild(&node.Failure, true); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (t *TreeDrawer) VisitWhileStatement(node *ast.WhileStatement) error {
 	t.writeLine("WhileStatement")
+	t.isLast = append(t.isLast, false)
+	t.isLast = t.isLast[:len(t.isLast)-1]
+	t.writeLine("Condition")
+
 	if err := t.visitChild(node.Condition, false); err != nil {
 		return err
 	}
-	return t.visitChild(&node.Body, true)
+
+	t.isLast = t.isLast[:len(t.isLast)-1]
+	t.isLast = append(t.isLast, false)
+	t.writeLine("Body")
+
+	if err := t.visitChild(&node.Body, true); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (t *TreeDrawer) VisitFunctionDefinition(node *ast.FuncDeclStatement) error {
@@ -238,10 +269,23 @@ func (t *TreeDrawer) VisitErrorExpression(node *ast.ErrorExpression) error {
 
 func (t *TreeDrawer) VisitBinaryExpression(node *ast.BinaryExpression) error {
 	t.writeLine(fmt.Sprintf("BinaryExpression (%s)", node.Operator.Value))
+	t.isLast = append(t.isLast, false)
+	t.writeLine("Left")
+
 	if err := t.visitChild(node.Left, false); err != nil {
 		return err
 	}
-	return t.visitChild(node.Right, true)
+
+	t.isLast[len(t.isLast)-1] = true
+
+	t.writeLine("Right")
+	if err := t.visitChild(node.Right, true); err != nil {
+		return err
+	}
+
+	t.isLast = t.isLast[:len(t.isLast)-1]
+
+	return nil
 }
 
 func (t *TreeDrawer) VisitFunctionCall(node *ast.FunctionCallExpression) error {
@@ -307,10 +351,23 @@ func (t *TreeDrawer) VisitAssignmentExpression(node *ast.AssignmentExpression) e
 
 func (t *TreeDrawer) VisitArrayAccessExpression(node *ast.ArrayAccessExpression) error {
 	t.writeLine("ArrayAccessExpression")
+	t.isLast = append(t.isLast, false)
+	t.writeLine("Name")
+
 	if err := t.visitChild(node.Name, false); err != nil {
 		return err
 	}
-	return t.visitChild(node.Index, true)
+
+	t.isLast[len(t.isLast)-1] = true
+	t.writeLine("Index")
+
+	if err := t.visitChild(node.Index, true); err != nil {
+		return err
+	}
+
+	t.isLast = t.isLast[:len(t.isLast)-1]
+
+	return nil
 }
 
 func (t *TreeDrawer) VisitMemberExpression(node *ast.MemberExpression) error {
