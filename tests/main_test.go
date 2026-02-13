@@ -11,6 +11,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type MultiDialectTest struct {
+	name                    string
+	inputPath               string
+	expectedOutput          string
+	expectedExecutionOutput string
+}
+
 type CompileRequest struct {
 	InputPath  string
 	OutputPath string
