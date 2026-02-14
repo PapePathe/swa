@@ -185,7 +185,7 @@ func (lex *FastLexer) lexNumber() {
 			lex.advance()
 		} else if unicode.IsDigit(ch) {
 			lex.advance()
-		} else if ch == '_' {
+		} else if ch == '_' || ch == 'e' || ch == '-' {
 			lex.advance()
 		} else {
 			break
@@ -326,6 +326,8 @@ func (lex *FastLexer) isTwoCharOperator(op string) bool {
 
 func (lex *FastLexer) getOperatorKind(op string) TokenKind {
 	switch op {
+	case "~":
+		return Tilde
 	case "+":
 		return Plus
 	case "-":
@@ -369,7 +371,7 @@ func (lex *FastLexer) getOperatorKind(op string) TokenKind {
 	case ":":
 		return Colon
 	default:
-		panic(fmt.Sprintf("lex not supported (%s) %v", string(op), lex.Tokens))
+		panic(fmt.Sprintf("lex not supported (%s) %v", string(op), lex.source[lex.position:]))
 	}
 }
 
