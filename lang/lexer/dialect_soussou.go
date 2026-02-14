@@ -42,7 +42,7 @@ func (m Soussou) Error(key string, args ...any) error {
 	formatted, ok := m.translations()[key]
 
 	if !ok {
-		format := "key %s does not exist in dialect translations"
+		format := "key %s does not exist in soussou dialect translations"
 
 		return fmt.Errorf(format, key)
 	}
