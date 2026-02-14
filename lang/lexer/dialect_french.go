@@ -118,7 +118,9 @@ func (m French) translations() map[string]string {
 		"LLVMGenerator.VisitStructInitializationExpression.Unimplemented": "struct field initialization unimplemented for %T",
 
 		"LLVMGenerator.resolveGepIndices.FailedToEvaluate": "failed to evaluate index expression",
+		"LLVMGenerator.getProperty.NotASymbol":             "struct property should be a symbol",
 
-		"LLVMGenerator.getProperty.NotASymbol": "struct property should be a symbol",
+		"LLVMCompiler.MissingProgramEntrypoint":  "Vous devez definir le programme principal",
+		"LLVMCompiler.TooManyProgramEntrypoints": "Vous devez definir un seul programme principal, nombre (%d)",
 	}
 }

@@ -122,5 +122,8 @@ func (m English) translations() map[string]string {
 		"LLVMGenerator.getProperty.NotASymbol": "struct property should be a symbol",
 
 		"LLVMGenerator.ZeroOfArrayType.TooBigForZeroInitializer": "ArraySize (%d) too big for zero value initialization, max is %d",
+
+		"LLVMCompiler.MissingProgramEntrypoint":  "Your program is missing a main function",
+		"LLVMCompiler.TooManyProgramEntrypoints": "Your program must have exactly one main function, count (%d)",
 	}
 }
