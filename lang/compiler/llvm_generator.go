@@ -191,6 +191,8 @@ func (g *LLVMGenerator) VisitFloatExpression(node *ast.FloatExpression) error {
 // VisitMainStatement implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitMainStatement(node *ast.MainStatement) error {
 	g.Ctx.InsideFunction = true
+	g.Ctx.IncrementMainOccurrences()
+
 	old := g.logger.Step("MainStmt")
 
 	defer g.logger.Restore(old)

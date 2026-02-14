@@ -69,6 +69,20 @@ func (c *LLVMCompiler) Run() error {
 		os.Exit(1)
 	}
 
+	count := c.context.MainFuncOccurrences
+	switch count {
+	case 1:
+	// we good
+	case 0:
+		key := "LLVMCompiler.MissingProgramEntrypoint"
+
+		return c.context.Dialect.Error(key)
+	default:
+		key := "LLVMCompiler.TooManyProgramEntrypoints"
+
+		return c.context.Dialect.Error(key, count)
+	}
+
 	err = llvm.VerifyModule(*c.context.Module, llvm.ReturnStatusAction)
 	if err != nil {
 		return err
