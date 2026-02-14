@@ -120,5 +120,8 @@ func (m Soussou) translations() map[string]string {
 		"LLVMGenerator.resolveGepIndices.FailedToEvaluate": "index expression maboroma",
 
 		"LLVMGenerator.getProperty.NotASymbol": "fokhi se nan lanné variable ra",
+
+		"LLVMCompiler.MissingProgramEntrypoint":  "Your program is missing a main function",
+		"LLVMCompiler.TooManyProgramEntrypoints": "Your program must have exactly one main function, count (%d)",
 	}
 }
