@@ -50,17 +50,18 @@ type FuncDetails struct {
 }
 
 type CompilerCtx struct {
-	parent            *CompilerCtx
-	Context           *llvm.Context
-	Builder           *llvm.Builder
-	Module            *llvm.Module
-	Dialect           lexer.Dialect
-	symbolTable       map[string]SymbolTableEntry
-	structSymbolTable map[string]StructSymbolTableEntry
-	arraysSymbolTable map[string]ArraySymbolTableEntry
-	funcSymbolTable   map[string]FuncDetails
-	Debugging         bool
-	InsideFunction    bool
+	parent              *CompilerCtx
+	Context             *llvm.Context
+	Builder             *llvm.Builder
+	Module              *llvm.Module
+	Dialect             lexer.Dialect
+	symbolTable         map[string]SymbolTableEntry
+	structSymbolTable   map[string]StructSymbolTableEntry
+	arraysSymbolTable   map[string]ArraySymbolTableEntry
+	funcSymbolTable     map[string]FuncDetails
+	Debugging           bool
+	InsideFunction      bool
+	MainFuncOccurrences int
 }
 
 func NewCompilerContext(
@@ -95,6 +96,16 @@ func NewCompilerContext(
 	}
 
 	return ctx
+}
+
+func (ctx *CompilerCtx) IncrementMainOccurrences() {
+	if ctx.parent != nil {
+		ctx.parent.IncrementMainOccurrences()
+
+		return
+	}
+
+	ctx.MainFuncOccurrences += 1
 }
 
 func (ctx CompilerCtx) UpdateStructSymbol(name string, value *StructSymbolTableEntry) error {
