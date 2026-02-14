@@ -2,6 +2,7 @@ package parser
 
 import (
 	"swahili/lang/ast"
+	"swahili/lang/lexer"
 )
 
 func ParseAssignmentExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
@@ -21,6 +22,7 @@ func ParseAssignmentExpression(p *Parser, left ast.Expression, bp BindingPower) 
 
 		expr.Value = rightHandSide
 		expr.Tokens = append(expr.Tokens, rightHandSide.TokenStream()...)
+		expr.Tokens = append(expr.Tokens, p.expect(lexer.SemiColon))
 
 		return &expr, nil
 	}
@@ -40,6 +42,7 @@ func ParseAssignmentExpression(p *Parser, left ast.Expression, bp BindingPower) 
 
 	expr.Value = rightHandSide
 	expr.Tokens = append(expr.Tokens, rightHandSide.TokenStream()...)
+	expr.Tokens = append(expr.Tokens, p.expect(lexer.SemiColon))
 
 	return &expr, nil
 }
