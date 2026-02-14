@@ -129,7 +129,11 @@ func parseType(p *Parser, bp BindingPower) (ast.Type, []lexer.Token) {
 	tokens := []lexer.Token{}
 
 	if !exists {
-		panic(fmt.Sprintf("type nud handler expected for token kind: %s, value: %s\n", tokenKind, p.currentToken().Value))
+		panic(fmt.Sprintf(
+			"type nud handler expected for token kind: %s, value: %s line %d\n",
+			tokenKind,
+			p.currentToken().Value,
+			p.currentToken().Line))
 	}
 
 	left, toks := nudFn(p)
