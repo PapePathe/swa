@@ -1,0 +1,4 @@
+dialect:english;
+
+start() int { return 0; }
+start() int { return 0; }
