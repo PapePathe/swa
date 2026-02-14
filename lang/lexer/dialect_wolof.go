@@ -22,7 +22,7 @@ func (m Wolof) Error(key string, args ...any) error {
 		return fmt.Errorf("key %s does not exist in wolof dialect translations", key)
 	}
 
-	return errmsg.NewAstError(formatted, args)
+	return errmsg.NewAstError(formatted, args...)
 }
 
 func (m Wolof) Reserved() map[string]TokenKind {
