@@ -79,6 +79,7 @@ func (m Soussou) translations() map[string]string {
 		"CompilerCtx.AddFuncSymbol.AlreadyExisits":          "wali %s na na yi khorun",
 		"CompilerCtx.AddSymbol.AlreadyExisits":              "variable %s na na yi khorun",
 		"CompilerCtx.FindSymbol.DoesNotExist":               "variable %s maboroma",
+		"CompilerCtx.FindFuncSymbol.DoesNotExist":           "function named %s does not exist in symbol table",
 
 		"LLVMGenerator.VisitArrayAccessExpression.FieldDoesNotExistInStruct": "fokhi %s, se %s mu na a kui",
 		"LLVMGenerator.VisitArrayAccessExpression.UnderlyingTypeNotSet":      "underlying type mu lanyi",

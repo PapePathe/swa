@@ -84,6 +84,7 @@ func (m Wolof) translations() map[string]string {
 		"CompilerCtx.AddFuncSymbol.AlreadyExisits":          "function named %s already exists in symbol table",
 		"CompilerCtx.AddSymbol.AlreadyExisits":              "variable named %s already exists in symbol table",
 		"CompilerCtx.FindSymbol.DoesNotExist":               "variable named %s does not exist in symbol table",
+		"CompilerCtx.FindFuncSymbol.DoesNotExist":           "function named %s does not exist in symbol table",
 
 		"LLVMGenerator.VisitArrayAccessExpression.FieldDoesNotExistInStruct": "struct %s has no field %s",
 		"LLVMGenerator.VisitArrayAccessExpression.UnderlyingTypeNotSet":      "underlying type not set",
