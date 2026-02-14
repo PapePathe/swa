@@ -50,6 +50,7 @@ var tks = map[TokenKind]string{
 	Struct:             "STRUCT",
 	String:             "STRING",
 	Star:               "STAR",
+	Tilde:              "TILDE",
 	DoubleStar:         "DOUBLE_STAR",
 	TypeInt:            "TYPE_INT",
 	TypeInt64:          "TYPE_INT_64",
@@ -170,6 +171,9 @@ const (
 	Main
 	Return
 	Modulo
+
+	// TODO maybe we can find a better name
+	Tilde
 
 	Variadic
 	TypeError
