@@ -97,7 +97,7 @@ func TestBugInvalidArrayAccess(t *testing.T) {
 
 		req := CompileRequest{
 			InputPath:      "./bugs/invalid-array-access/source.wolof.swa",
-			ExpectedOutput: "Property [age] is not an array\n", // Expected correct error
+			ExpectedOutput: "Property age is not an array\n", // Expected correct error
 			T:              t,
 		}
 
@@ -147,7 +147,7 @@ func TestBugInvalidFieldAccess(t *testing.T) {
 
 		req := CompileRequest{
 			InputPath:      "./bugs/invalid-field-access/source.wolof.swa",
-			ExpectedOutput: "struct named [int] does not exist in symbol table\n",
+			ExpectedOutput: "struct named int does not exist in symbol table\n",
 			T:              t,
 		}
 
