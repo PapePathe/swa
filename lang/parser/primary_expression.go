@@ -11,6 +11,16 @@ import (
 // ParsePrimaryExpression ...
 func ParsePrimaryExpression(p *Parser) (ast.Expression, error) {
 	switch p.currentToken().Kind {
+	case lexer.True:
+		expr := ast.BooleanExpression{Value: true}
+		expr.Tokens = append(expr.Tokens, p.expect(lexer.True))
+
+		return &expr, nil
+	case lexer.False:
+		expr := ast.BooleanExpression{Value: false}
+		expr.Tokens = append(expr.Tokens, p.expect(lexer.False))
+
+		return &expr, nil
 	case lexer.Number:
 		expr := ast.NumberExpression{}
 		p.currentExpression = &expr
