@@ -5,13 +5,7 @@ import (
 )
 
 func TestMissingDialect(t *testing.T) {
-	t.Parallel()
-
-	req := CompileRequest{
-		InputPath:               "./examples/missing_dialect.swa",
-		ExpectedExecutionOutput: "you must define your dialect\n",
-		T:                       t,
-	}
-
-	req.AssertCompileAndExecute()
+	NewFailedCompileRequest(t,
+		"./examples/missing_dialect.swa",
+		"you must define your dialect\n")
 }

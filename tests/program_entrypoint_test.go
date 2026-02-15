@@ -2,8 +2,6 @@ package tests
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestProgramEntryPoint(t *testing.T) {
@@ -34,13 +32,7 @@ func TestProgramEntryPoint(t *testing.T) {
 
 		for _, test := range tests {
 			t.Run(test.name, func(t *testing.T) {
-				req := CompileRequest{
-					T:              t,
-					InputPath:      test.inputPath,
-					ExpectedOutput: test.expectedOutput,
-				}
-
-				assert.Error(t, req.Compile())
+				NewFailedCompileRequest(t, test.inputPath, test.expectedOutput)
 			})
 		}
 	})
@@ -72,13 +64,7 @@ func TestProgramEntryPoint(t *testing.T) {
 
 		for _, test := range tests {
 			t.Run(test.name, func(t *testing.T) {
-				req := CompileRequest{
-					T:              t,
-					InputPath:      test.inputPath,
-					ExpectedOutput: test.expectedOutput,
-				}
-
-				assert.Error(t, req.Compile())
+				NewFailedCompileRequest(t, test.inputPath, test.expectedOutput)
 			})
 		}
 	})
