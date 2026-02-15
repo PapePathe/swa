@@ -33,6 +33,8 @@ func (dt DataType) String() string {
 		return "Pointer"
 	case DataTypeVoid:
 		return "Void"
+	case DataTypeBool:
+		return "Bool"
 	default:
 		fmt.Printf("Unmatched data type %d", dt)
 		os.Exit(1)
@@ -54,6 +56,7 @@ const (
 	DataTypeVoid
 	DataTypeError
 	DataTypeTuple
+	DataTypeBool
 )
 
 type SymbolType struct {
@@ -254,4 +257,20 @@ func (t *TupleType) String() string {
 	sb.WriteString(")")
 
 	return sb.String()
+}
+
+type BoolType struct{}
+
+var _ Type = (*BoolType)(nil)
+
+func (b *BoolType) Accept(g CodeGenerator) error {
+	return g.VisitBoolType(b)
+}
+
+func (b *BoolType) AcceptZero(g CodeGenerator) error {
+	return g.ZeroOfBoolType(b)
+}
+
+func (b *BoolType) Value() DataType {
+	return DataTypeBool
 }
