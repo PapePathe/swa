@@ -1,0 +1,14 @@
+dialect:english;
+
+start() int {
+  let a : [3]bool= [3]bool{true, false, zero(bool)};
+  let i : int;
+
+  while (i < 3) {
+    print( "Position : ", i, " value : ", a[i], "\n");
+
+    i = i + 1;
+  }
+
+  return 0; 
+}
