@@ -265,3 +265,9 @@ func TestArrayAccessWithSymbolExpression(t *testing.T) {
 			"variable named x does not exist in symbol table\n")
 	})
 }
+
+func TestBooleanArray(t *testing.T) {
+	NewSuccessfulCompileRequest(t,
+		"./arrays/booleans/bools.swa",
+		"Position : 0 value : 1\nPosition : 1 value : 0\nPosition : 2 value : 0\n")
+}
