@@ -68,6 +68,8 @@ func createTokenLookups() {
 	led(lexer.Divide, Multiplicative, ParseBinaryExpression)
 	led(lexer.Modulo, Multiplicative, ParseBinaryExpression)
 
+	nud(lexer.True, ParsePrimaryExpression)
+	nud(lexer.False, ParsePrimaryExpression)
 	nud(lexer.Number, ParsePrimaryExpression)
 	nud(lexer.Float, ParsePrimaryExpression)
 	nud(lexer.String, ParsePrimaryExpression)
