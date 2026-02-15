@@ -6,6 +6,8 @@ go build -o tmp/swa main.go
 
 if [ "$1" == "parse" ]; then
     ./tmp/swa parse -s test.swa
+elif [ "$1" == "parse-file" ]; then
+    ./tmp/swa parse -s "$2" -o tree
 elif [ "$1" == "parse-tree" ]; then
     ./tmp/swa parse -s test.swa -o tree
 elif [ "$1" == "tokenize" ]; then
@@ -14,6 +16,14 @@ elif [ "$1" == "compile" ]; then
     ./tmp/swa compile -s test.swa && ./start.exe
 elif [ "$1" == "compile-trace" ]; then
     SWA_DEBUG=yes ./tmp/swa compile -e -s test.swa && ./start.exe
+elif [ "$1" == "compile-file" ]; then
+    ./tmp/swa compile -s "$2" && ./start.exe
+elif [ "$1" == "compile-file-trace" ]; then
+    SWA_DEBUG=yes ./tmp/swa compile -e -s "$2" && ./start.exe
+
+elif [ "$1" == "compile-swa" ]; then
+    ./tmp/swa compile -s test.swa -g swa && ./start.exe
+
 else
     echo "❓ Unknown command: $1. Use 'compile' or 'parse'."
     exit 1
