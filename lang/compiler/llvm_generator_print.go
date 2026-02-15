@@ -170,9 +170,9 @@ func extractSymbol(g *LLVMGenerator, res *CompilerResult) llvm.Value {
 func extractDirect(g *LLVMGenerator, res *CompilerResult) llvm.Value {
 	val := *res.Value
 	// Ensure i1 (bool) is extended for printf
-	if val.Type().TypeKind() == llvm.IntegerTypeKind && val.Type().IntTypeWidth() == 1 {
-		return g.Ctx.Builder.CreateZExt(val, g.Ctx.Context.Int32Type(), "zext.bool")
-	}
+	//	if val.Type().TypeKind() == llvm.IntegerTypeKind && val.Type().IntTypeWidth() == 1 {
+	//		return g.Ctx.Builder.CreateZExt(val, g.Ctx.Context.Int32Type(), "zext.bool")
+	//	}
 	return val
 }
 
