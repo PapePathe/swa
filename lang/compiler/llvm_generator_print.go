@@ -96,7 +96,8 @@ func (g *LLVMGenerator) getFormatSpecifier(res *CompilerResult) string {
 
 	if swaType != nil {
 		switch swaType.(type) {
-		case ast.NumberType, *ast.NumberType, ast.Number64Type, *ast.Number64Type:
+		case ast.NumberType, *ast.NumberType,
+			ast.Number64Type, *ast.Number64Type, *ast.BoolType:
 			return "%d"
 		case ast.FloatType, *ast.FloatType:
 			return "%f"
@@ -147,6 +148,7 @@ var printableValueExtractors = map[reflect.Type]PrintableValueExtractor{
 	reflect.TypeFor[*ast.PrefixExpression]():       extractDirect,
 	reflect.TypeFor[*ast.ZeroExpression]():         extractDirect,
 	reflect.TypeFor[*ast.ErrorExpression]():        extractDirect,
+	reflect.TypeFor[*ast.BooleanExpression]():      extractDirect,
 }
 
 func extractSymbol(g *LLVMGenerator, res *CompilerResult) llvm.Value {
