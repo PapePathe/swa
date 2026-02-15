@@ -72,6 +72,12 @@ func (t *TreeDrawer) visitType(typ ast.Type, last bool) error {
 	return err
 }
 
+func (t *TreeDrawer) VisitBooleanExpression(node *ast.BooleanExpression) error {
+	t.writeLine(fmt.Sprintf("BooleanExpression(%v)", node.Value))
+
+	return nil
+}
+
 func (t *TreeDrawer) VisitSymbolAdressExpression(node *ast.SymbolAdressExpression) error {
 	t.writeLine("SymbolAdressExpression")
 
@@ -471,6 +477,20 @@ func (t *TreeDrawer) VisitArrayType(node *ast.ArrayType) error {
 
 func (t *TreeDrawer) VisitVoidType(node *ast.VoidType) error {
 	t.writeLine("Type: Void")
+
+	return nil
+}
+
+func (t *TreeDrawer) ZeroOfBoolType(node *ast.BoolType) error {
+	t.writeLine("ZeroExpression")
+
+	return t.visitType(&ast.BoolType{}, true)
+}
+
+// VisitBoolType implements [ast.CodeGenerator].
+func (t *TreeDrawer) VisitBoolType(node *ast.BoolType) error {
+	t.writeLine("Type: Bool")
+
 	return nil
 }
 

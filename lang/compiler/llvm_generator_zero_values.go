@@ -195,6 +195,21 @@ func (g *LLVMGenerator) ZeroOfErrorType(node *ast.ErrorType) error {
 	return nil
 }
 
+func (g *LLVMGenerator) ZeroOfBoolType(node *ast.BoolType) error {
+	err := node.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	lastres := g.getLastTypeVisitResult()
+	zero := llvm.ConstNull(lastres.Type)
+	res := &CompilerResult{Value: &zero}
+
+	g.setLastResult(res)
+
+	return nil
+}
+
 // ZeroOfVoidType implements [ast.CodeGenerator].
 func (g *LLVMGenerator) ZeroOfVoidType(node *ast.VoidType) error {
 	panic("ZeroOfVoidType unimplemented")

@@ -144,3 +144,11 @@ func (g *LLVMGenerator) VisitErrorType(node *ast.ErrorType) error {
 
 	return nil
 }
+
+func (g *LLVMGenerator) VisitBoolType(node *ast.BoolType) error {
+	g.setLastTypeVisitResult(&CompilerResultType{
+		Type: llvm.GlobalContext().Int1Type(),
+	})
+
+	return nil
+}
