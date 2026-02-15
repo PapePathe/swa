@@ -9,6 +9,21 @@ type LLVMTypeChecker struct {
 	ctx *CompilerCtx
 }
 
+// ZeroOfBoolType implements [ast.CodeGenerator].
+func (l *LLVMTypeChecker) ZeroOfBoolType(node *ast.BoolType) error {
+	panic("unimplemented")
+}
+
+// VisitBoolType implements [ast.CodeGenerator].
+func (l *LLVMTypeChecker) VisitBoolType(node *ast.BoolType) error {
+	panic("unimplemented")
+}
+
+// VisitBooleanExpression implements [ast.CodeGenerator].
+func (l *LLVMTypeChecker) VisitBooleanExpression(node *ast.BooleanExpression) error {
+	panic("unimplemented")
+}
+
 var _ ast.CodeGenerator = (*LLVMTypeChecker)(nil)
 
 func NewLLVMTypeChecker(ctx *CompilerCtx) *LLVMTypeChecker {

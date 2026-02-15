@@ -26,6 +26,20 @@ type LLVMGenerator struct {
 	logger         *Logger
 }
 
+func (g *LLVMGenerator) VisitBooleanExpression(node *ast.BooleanExpression) error {
+	value := llvm.ConstInt(llvm.GlobalContext().Int1Type(), uint64(0), false)
+
+	if node.Value {
+		value = llvm.ConstInt(llvm.GlobalContext().Int1Type(), uint64(1), false)
+	}
+
+	g.setLastResult(&CompilerResult{
+		Value: &value,
+	})
+
+	return nil
+}
+
 var _ ast.CodeGenerator = (*LLVMGenerator)(nil)
 
 func NewLLVMGenerator(ctx *CompilerCtx) *LLVMGenerator {

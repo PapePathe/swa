@@ -78,6 +78,7 @@ type ExpressionsCodeGenerator interface {
 	VisitFloatingBlockExpression(node *FloatingBlockExpression) error
 	VisitSymbolValueExpression(node *SymbolValueExpression) error
 	VisitSymbolAdressExpression(node *SymbolAdressExpression) error
+	VisitBooleanExpression(node *BooleanExpression) error
 }
 
 type TypeVisitor interface {
@@ -91,6 +92,7 @@ type TypeVisitor interface {
 	VisitStringType(node *StringType) error
 	VisitArrayType(node *ArrayType) error
 	VisitVoidType(node *VoidType) error
+	VisitBoolType(node *BoolType) error
 }
 
 type ZeroValueVisitor interface {
@@ -104,4 +106,5 @@ type ZeroValueVisitor interface {
 	ZeroOfStringType(node *StringType) error
 	ZeroOfArrayType(node *ArrayType) error
 	ZeroOfVoidType(node *VoidType) error
+	ZeroOfBoolType(node *BoolType) error
 }
