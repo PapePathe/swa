@@ -3,13 +3,15 @@ dialecte:français;
 variable NAME : chaine = "Swahili";
 variable PI : decimal = 3.14;
 variable SPEED_OF_LIGHT: entier = 300000;
+variable COMPILED: booleen = vrai;
 
 demarrer() entier {
   afficher(
-    "LANG: %s,PI: %.2f, SPEED_OF_LIGHT: %d", 
+    "LANG: %s,PI: %.2f, SPEED_OF_LIGHT: %d, COMPILED: %d", 
     NAME,
     PI, 
-    SPEED_OF_LIGHT
+    SPEED_OF_LIGHT,
+    COMPILED
   );
   retourner 0;
 }

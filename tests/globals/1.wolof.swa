@@ -1,16 +1,17 @@
 laak:wolof;
 
-
 dencukaay NAME : ay_araf = "Swahili";
 dencukaay PI : decimal = 3.14;
 dencukaay SPEED_OF_LIGHT: lëmm = 300000;
+dencukaay COMPILED: bool = true;
 
 tambali() lëmm {
   wanel(
-    "LANG: %s,PI: %.2f, SPEED_OF_LIGHT: %d", 
+    "LANG: %s,PI: %.2f, SPEED_OF_LIGHT: %d, COMPILED: %d", 
     NAME,
     PI, 
-    SPEED_OF_LIGHT
+    SPEED_OF_LIGHT,
+    COMPILED
   );
   deloko 0;
 }
