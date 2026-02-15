@@ -3,13 +3,15 @@ khuien:soussou;
 kouicé NAME : sèbèli = "Swahili";
 kouicé PI : desimali = 3.14;
 kouicé SPEED_OF_LIGHT: konti = 300000;
+kouicé COMPILED: bool = true;
 
 sodé() konti {
   masen(
-    "LANG: %s,PI: %.2f, SPEED_OF_LIGHT: %d", 
+    "LANG: %s,PI: %.2f, SPEED_OF_LIGHT: %d, COMPILED: %d", 
     NAME,
     PI, 
-    SPEED_OF_LIGHT
+    SPEED_OF_LIGHT,
+    COMPILED
   );
   gbilen 0;
 }

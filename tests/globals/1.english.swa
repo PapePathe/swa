@@ -1,15 +1,17 @@
 dialect:english;
 
 let NAME : string = "Swahili";
+let COMPILED: bool =  true;
 let PI : float = 3.14;
 let SPEED_OF_LIGHT: int = 300000;
 
 start() int {
   print(
-    "LANG: %s,PI: %.2f, SPEED_OF_LIGHT: %d", 
+    "LANG: %s,PI: %.2f, SPEED_OF_LIGHT: %d, COMPILED: %d", 
     NAME,
     PI, 
-    SPEED_OF_LIGHT
+    SPEED_OF_LIGHT,
+    COMPILED
   );
   return 0;
 }
