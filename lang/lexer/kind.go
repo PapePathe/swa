@@ -19,6 +19,7 @@ var tks = map[TokenKind]string{
 	EOF:                "EOF",
 	Equals:             "EQUALS",
 	Function:           "FUNCTION",
+	False:              "FALSE",
 	GreaterThan:        "GREATER_THAN",
 	GreaterThanEquals:  "GREATER_THAN_EQUALS",
 	Identifier:         "IDENTIFIER",
@@ -51,7 +52,10 @@ var tks = map[TokenKind]string{
 	String:             "STRING",
 	Star:               "STAR",
 	Tilde:              "TILDE",
+	True:               "TRUE",
 	DoubleStar:         "DOUBLE_STAR",
+	TypeByte:           "TYPE_BYTE",
+	TypeBool:           "TYPE_BOOLEAN",
 	TypeInt:            "TYPE_INT",
 	TypeInt64:          "TYPE_INT_64",
 	TypeFloat:          "TYPE_FLOAT",
@@ -174,8 +178,12 @@ const (
 
 	// TODO maybe we can find a better name
 	Tilde
+	True
+	False
 
 	Variadic
 	TypeError
+	TypeBool
+	TypeByte
 	Zero
 )

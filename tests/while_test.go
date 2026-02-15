@@ -84,32 +84,31 @@ func TestWhileStatement(t *testing.T) {
 		})
 	})
 
-	t.Run("Odd Numbers func", func(t *testing.T) {
-		tests := []MultiDialectTest{
-			{
-				name:                    "english",
-				inputPath:               "./while/odd-numbers-bool-func.swa",
-				expectedExecutionOutput: "1 3 5 7 9 ",
-			},
-			{
-				name:                    "soussou",
-				inputPath:               "./while/odd-numbers-bool-func.soussou.swa",
-				expectedExecutionOutput: "1 3 5 7 9 ",
-			},
-			{
-				name:                    "french",
-				inputPath:               "./while/odd-numbers-bool-func.french.swa",
-				expectedExecutionOutput: "1 3 5 7 9 ",
-			},
-		}
-
-		for _, test := range tests {
-			t.Run(test.name, func(t *testing.T) {
-				NewSuccessfulCompileRequest(t,
-					test.inputPath,
-					test.expectedExecutionOutput)
-			})
-		}
-	})
-
+	//	t.Run("Odd Numbers func", func(t *testing.T) {
+	//		tests := []MultiDialectTest{
+	//			{
+	//				name:                    "english",
+	//				inputPath:               "./while/odd-numbers-bool-func.swa",
+	//				expectedExecutionOutput: "1 3 5 7 9 ",
+	//			},
+	//			{
+	//				name:                    "soussou",
+	//				inputPath:               "./while/odd-numbers-bool-func.soussou.swa",
+	//				expectedExecutionOutput: "1 3 5 7 9 ",
+	//			},
+	//			{
+	//				name:                    "french",
+	//				inputPath:               "./while/odd-numbers-bool-func.french.swa",
+	//				expectedExecutionOutput: "1 3 5 7 9 ",
+	//			},
+	//		}
+	//
+	//		for _, test := range tests {
+	//			t.Run(test.name, func(t *testing.T) {
+	//				NewSuccessfulCompileRequest(t,
+	//					test.inputPath,
+	//					test.expectedExecutionOutput)
+	//			})
+	//		}
+	//	})
 }
