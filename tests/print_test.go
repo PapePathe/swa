@@ -6,8 +6,6 @@ import (
 
 func TestPrint(t *testing.T) {
 	t.Run("static string", func(t *testing.T) {
-		t.Parallel()
-
 		NewSuccessfulCompileRequest(
 			t,
 			"./print/binexpr.swa",
@@ -16,8 +14,6 @@ func TestPrint(t *testing.T) {
 	})
 
 	t.Run("table display", func(t *testing.T) {
-		t.Parallel()
-
 		NewSuccessfulCompileRequest(
 			t,
 			"./print/table.swa",
@@ -32,49 +28,39 @@ func TestPrint(t *testing.T) {
 
 	t.Run("French", func(t *testing.T) {
 		t.Run("static string", func(t *testing.T) {
-			req := CompileRequest{
-				InputPath:               "./print/variable.string.french.swa",
-				ExpectedExecutionOutput: "contenu de la variable: french",
-				T:                       t,
-			}
-
-			req.AssertCompileAndExecute()
+			NewSuccessfulCompileRequest(
+				t,
+				"./print/variable.string.french.swa",
+				"contenu de la variable: french",
+			)
 		})
 
 		t.Run("float expression", func(t *testing.T) {
-			req := CompileRequest{
-				InputPath:               "./print/expression.float.french.swa",
-				ExpectedExecutionOutput: "a: 10.005000, b: -10.005000",
-				T:                       t,
-			}
-
-			req.AssertCompileAndExecute()
+			NewSuccessfulCompileRequest(
+				t,
+				"./print/expression.float.french.swa",
+				"a: 10.005000, b: -10.005000",
+			)
 		})
 
 		t.Run("float variable", func(t *testing.T) {
-			req := CompileRequest{
-				InputPath:               "./print/variable.float.french.swa",
-				ExpectedExecutionOutput: "a: 10.005000, b: -10.005000",
-				T:                       t,
-			}
-
-			req.AssertCompileAndExecute()
+			NewSuccessfulCompileRequest(
+				t,
+				"./print/variable.float.french.swa",
+				"a: 10.005000, b: -10.005000",
+			)
 		})
 
 		t.Run("Number variable", func(t *testing.T) {
-			req := CompileRequest{
-				InputPath:               "./print/variable.number.french.swa",
-				ExpectedExecutionOutput: "contenu de la variable: 10",
-				T:                       t,
-			}
-
-			req.AssertCompileAndExecute()
+			NewSuccessfulCompileRequest(
+				t,
+				"./print/variable.number.french.swa",
+				"contenu de la variable: 10",
+			)
 		})
 	})
 
 	t.Run("modern print", func(t *testing.T) {
-		t.Parallel()
-
 		NewSuccessfulCompileRequest(
 			t,
 			"./print/modern_print.swa",
@@ -83,8 +69,6 @@ func TestPrint(t *testing.T) {
 	})
 
 	t.Run("expanded print", func(t *testing.T) {
-		t.Parallel()
-
 		NewSuccessfulCompileRequest(
 			t,
 			"./print/expanded_print.swa",

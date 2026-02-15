@@ -28,7 +28,31 @@ type CompileRequest struct {
 	T                       *testing.T
 }
 
+func NewFailedCompileRequest(t *testing.T, input string, output string) {
+	t.Parallel()
+
+	req := CompileRequest{InputPath: input, ExpectedOutput: output, T: t}
+	assert.Error(t, req.Compile())
+}
+
+func SuccessFulMultidialectCompileRequest(t *testing.T, tests []MultiDialectTest) {
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			req := CompileRequest{
+				InputPath:               test.inputPath,
+				T:                       t,
+				ExpectedExecutionOutput: test.expectedExecutionOutput,
+			}
+
+			req.AssertCompileAndExecute()
+		})
+	}
+}
+
 func NewSuccessfulCompileRequest(t *testing.T, input string, output string) {
+	t.Parallel()
+
 	req := CompileRequest{InputPath: input, ExpectedExecutionOutput: output, T: t}
 	req.AssertCompileAndExecute()
 }
@@ -68,7 +92,21 @@ func (cr *CompileRequest) Compile() error {
 		)
 	}
 
-	return err
+	if err != nil {
+		return err
+	}
+
+	cmd = exec.Command("./swa", "parse", "-s", cr.InputPath, "-o", "json")
+	_, err = cmd.CombinedOutput()
+
+	assert.NoError(cr.T, err)
+
+	cmd = exec.Command("./swa", "parse", "-s", cr.InputPath, "-o", "tree")
+	_, err = cmd.CombinedOutput()
+
+	assert.NoError(cr.T, err)
+
+	return nil
 }
 
 func (cr *CompileRequest) RunProgram() error {

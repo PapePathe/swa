@@ -5,11 +5,8 @@ import (
 	"testing"
 )
 
-func TestBinaryExpressionsModulo(t *testing.T) {
-
+func TestBinaryExpressionsStrings(t *testing.T) {
 	t.Run("Strings in binary-expressions", func(t *testing.T) {
-		t.Parallel()
-
 		tests := []struct {
 			name     string
 			filename string
@@ -31,90 +28,46 @@ func TestBinaryExpressionsModulo(t *testing.T) {
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
 				t.Run("English", func(t *testing.T) {
-					req := CompileRequest{
-						InputPath:               "./binary-expressions/strings/" + tt.filename,
-						T:                       t,
-						ExpectedExecutionOutput: "Passed",
-					}
-					req.AssertCompileAndExecute()
+					NewSuccessfulCompileRequest(t, "./binary-expressions/strings/"+tt.filename, "Passed")
 				})
 				t.Run("Soussou", func(t *testing.T) {
-					req := CompileRequest{
-						InputPath:               "./binary-expressions/strings/" + strings.Replace(tt.filename, ".english.swa", ".soussou.swa", 1),
-						T:                       t,
-						ExpectedExecutionOutput: "Passed",
-					}
-					req.AssertCompileAndExecute()
+					NewSuccessfulCompileRequest(
+						t,
+						"./binary-expressions/strings/"+strings.Replace(tt.filename, ".english.swa", ".soussou.swa", 1),
+						"Passed",
+					)
 				})
 			})
 		}
 	})
+}
 
+func TestBinaryExpressionsModulo(t *testing.T) {
 	t.Run("English", func(t *testing.T) {
-		t.Parallel()
-
 		t.Run("Modulo with symbol expressions", func(t *testing.T) {
-			req := CompileRequest{
-				InputPath:               "./binary-expressions/modulo/variable-declaration-2.english.swa",
-				T:                       t,
-				ExpectedExecutionOutput: "v1: 0, v2: 1",
-			}
-
-			req.AssertCompileAndExecute()
+			NewSuccessfulCompileRequest(t, "./binary-expressions/modulo/variable-declaration-2.english.swa", "v1: 0, v2: 1")
 		})
 
 		t.Run("Modulo in conditionals", func(t *testing.T) {
-			req := CompileRequest{
-				InputPath:               "./binary-expressions/modulo/conditionals.english.swa",
-				T:                       t,
-				ExpectedExecutionOutput: "(4 modulo 3 is equal to 1)(4 modulo 2 is equal to 0)",
-			}
-
-			req.AssertCompileAndExecute()
+			NewSuccessfulCompileRequest(t, "./binary-expressions/modulo/conditionals.english.swa", "(4 modulo 3 is equal to 1)(4 modulo 2 is equal to 0)")
 		})
 
 		t.Run("Modulo with integer expressions", func(t *testing.T) {
-			req := CompileRequest{
-				InputPath:               "./binary-expressions/modulo/variable-declaration.english.swa",
-				T:                       t,
-				ExpectedExecutionOutput: "x: 1, y: 0",
-			}
-
-			req.AssertCompileAndExecute()
+			NewSuccessfulCompileRequest(t, "./binary-expressions/modulo/variable-declaration.english.swa", "x: 1, y: 0")
 		})
 	})
 
 	t.Run("Soussou", func(t *testing.T) {
-		t.Parallel()
-
 		t.Run("Modulo with symbol expressions", func(t *testing.T) {
-			req := CompileRequest{
-				InputPath:               "./binary-expressions/modulo/variable-declaration-2.soussou.swa",
-				T:                       t,
-				ExpectedExecutionOutput: "v1: 0, v2: 1",
-			}
-
-			req.AssertCompileAndExecute()
+			NewSuccessfulCompileRequest(t, "./binary-expressions/modulo/variable-declaration-2.soussou.swa", "v1: 0, v2: 1")
 		})
 
 		t.Run("Modulo in conditionals", func(t *testing.T) {
-			req := CompileRequest{
-				InputPath:               "./binary-expressions/modulo/conditionals.soussou.swa",
-				T:                       t,
-				ExpectedExecutionOutput: "(4 modulo 3 is equal to 1)(4 modulo 2 is equal to 0)",
-			}
-
-			req.AssertCompileAndExecute()
+			NewSuccessfulCompileRequest(t, "./binary-expressions/modulo/conditionals.soussou.swa", "(4 modulo 3 is equal to 1)(4 modulo 2 is equal to 0)")
 		})
 
 		t.Run("Modulo with integer expressions", func(t *testing.T) {
-			req := CompileRequest{
-				InputPath:               "./binary-expressions/modulo/variable-declaration.soussou.swa",
-				T:                       t,
-				ExpectedExecutionOutput: "x: 1, y: 0",
-			}
-
-			req.AssertCompileAndExecute()
+			NewSuccessfulCompileRequest(t, "./binary-expressions/modulo/variable-declaration.soussou.swa", "x: 1, y: 0")
 		})
 	})
 }
