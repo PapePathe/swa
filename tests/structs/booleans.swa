@@ -1,0 +1,19 @@
+dialect:english;
+
+struct Door{
+  open: bool,
+}
+
+start() int {
+  let d : Door;
+  let d2 : Door = Door{open: zero(bool)};
+  let d3 : Door = Door{open: true };
+  let d4 : Door = Door{open: false};
+
+  print("Door 1 is open ? : ", d.open, "\n");
+  print("Door 2 is open ? : ", d2.open, "\n");
+  print("Door 3 is open ? : ", d3.open, "\n");
+  print("Door 4 is open ? : ", d4.open, "\n");
+
+  return 0;
+}
