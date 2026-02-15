@@ -51,7 +51,10 @@ func (m Wolof) Reserved() map[string]TokenKind {
 		// TODO: find  translation for variadic
 		"variadique": Variadic,
 		// TODO: find  translation for zero
-		"zero": Zero,
+		"zero":  Zero,
+		"true":  True,
+		"false": False,
+		"bool":  TypeBool,
 	}
 }
 

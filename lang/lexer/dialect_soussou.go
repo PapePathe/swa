@@ -30,11 +30,14 @@ func (m Soussou) Reserved() map[string]TokenKind {
 		"fokhi":    Struct,
 		"desimali": TypeFloat,
 		"konti":    TypeInt,
-		"kont64":   TypeInt64,
+		"konti64":  TypeInt64,
 		"sèbèli":   TypeString,
 		"foutoura": TypeError,
 		"gbegbe":   Variadic,
 		"maba":     Zero,
+		"true":     True,
+		"false":    False,
+		"bool":     TypeBool,
 	}
 }
 
