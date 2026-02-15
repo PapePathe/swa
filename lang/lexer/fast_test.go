@@ -467,7 +467,7 @@ tantque vrai {
 		{String, "Bonjour!"},
 		{SemiColon, ";"},
 		{KeywordWhile, "tantque"},
-		{Identifier, "vrai"},
+		{True, "vrai"},
 		{OpenCurly, "{"},
 		{Print, "afficher"},
 		{String, "En boucle"},

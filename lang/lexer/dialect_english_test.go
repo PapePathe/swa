@@ -26,6 +26,9 @@ func TestReservedEnglish(t *testing.T) {
 		"variadic": Variadic,
 		"while":    KeywordWhile,
 		"zero":     Zero,
+		"true":     True,
+		"false":    False,
+		"bool":     TypeBool,
 	}
 	english := English{}
 
