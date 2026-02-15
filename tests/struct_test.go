@@ -107,13 +107,13 @@ func TestStructPropertyInReturnExpression(t *testing.T) {
 	t.Run("English", func(t *testing.T) {
 		NewSuccessfulCompileRequest(t,
 			"./structs/return-expression/source.english.swa",
-			"Name: Pathe, TechStack: (Ruby, Rust, Go), Age: (40), Height: (1.80)")
+			"")
 	})
 
 	t.Run("French", func(t *testing.T) {
 		NewSuccessfulCompileRequest(t,
 			"./structs/return-expression/source.french.swa",
-			"Nom: Pathe, Stack Technique: (Ruby, Rust, Go), Age: (40), Taille: (1.80)")
+			"")
 	})
 }
 

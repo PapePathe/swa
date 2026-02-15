@@ -68,7 +68,7 @@ func TestTupleReturns(t *testing.T) {
 	t.Run("Assign to member expression", func(t *testing.T) {
 		NewSuccessfulCompileRequest(t,
 			"./tuples/assign-to-member-expression.swa",
-			"p.div = 4, p.mod = 8\n")
+			"p.div = 4, p.mod = 8")
 	})
 
 	t.Run("Assign to member typecheck", func(t *testing.T) {
