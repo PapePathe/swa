@@ -38,6 +38,7 @@ func createTokenTypeLookups() {
 	typeNud(lexer.TypeFloat, parseFloatType)
 	typeNud(lexer.TypeString, parseStringType)
 	typeNud(lexer.TypeError, parseErrorType)
+	typeNud(lexer.TypeBool, parseBoolType)
 	typeNud(lexer.OpenBracket, parseArrayType)
 }
 
@@ -48,6 +49,12 @@ func parsePointerType(p *Parser) (ast.Type, []lexer.Token) {
 	tokens = append(tokens, toks...)
 
 	return ast.PointerType{Underlying: underlying}, tokens
+}
+
+func parseBoolType(p *Parser) (ast.Type, []lexer.Token) {
+	tokens := []lexer.Token{p.advance()}
+
+	return &ast.BoolType{}, tokens
 }
 
 func parseFloatType(p *Parser) (ast.Type, []lexer.Token) {
