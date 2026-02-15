@@ -19,6 +19,7 @@ func (m French) Reserved() map[string]TokenKind {
 	return map[string]TokenKind{
 		"constante":  Const,
 		"dialecte":   DialectDeclaration,
+		"faux":       False,
 		"fonction":   Function,
 		"sinon":      KeywordElse,
 		"si":         KeywordIf,
@@ -28,6 +29,8 @@ func (m French) Reserved() map[string]TokenKind {
 		"afficher":   Print,
 		"retourner":  Return,
 		"structure":  Struct,
+		"vrai":       True,
+		"booleen":    TypeBool,
 		"decimal":    TypeFloat,
 		"entier":     TypeInt,
 		"entier64":   TypeInt64,
