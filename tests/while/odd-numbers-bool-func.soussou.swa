@@ -1,0 +1,20 @@
+khuien:soussou;
+
+wali odd(n: konti) bool {
+  gbilen n % 2 == 1;
+}
+
+sodé() konti {
+  kouicé numbers : [10]konti = [10]konti{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  kouicé x : konti = 0;
+
+  be (x < 10) {
+    xa (odd(numbers[x])) {
+      masen("%d ", x);
+    }
+
+    x = x + 1;
+  }
+
+  gbilen 0;
+}

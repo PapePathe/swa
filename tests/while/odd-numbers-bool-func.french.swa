@@ -1,0 +1,20 @@
+dialecte:français;
+
+fonction impair(n: entier) booleen {
+  retourner n % 2 == 1;
+}
+
+demarrer() entier {
+  variable numbers : [10]entier = [10]entier{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  variable x : entier = 0;
+
+  tantque (x < 10) {
+    si (impair(numbers[x])) {
+      afficher("%d ", x);
+    }
+
+    x = x + 1;
+  }
+
+  retourner 0;
+}
