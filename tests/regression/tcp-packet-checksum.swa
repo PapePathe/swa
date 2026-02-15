@@ -1,0 +1,93 @@
+dialecte:français;
+
+// Programme 4 : Calcul du checksum Internet (RFC 1071) sur un paquet simulé
+// Calcule le complément à 1 de la somme des mots de 16 bits.
+
+structure PaquetIP {
+  version: entier,
+  longueur_en_tête: entier,
+  type_de_service: entier,
+  longueur_totale: entier,
+  identification: entier,
+  flags: entier,
+  décalage_fragment: entier,
+  durée_de_vie: entier,
+  protocole: entier,
+  checksum: entier,
+  adresse_source: [4]entier,
+  adresse_destination: [4]entier,
+  données: [20]entier,      // octets
+}
+
+fonction calculer_checksum(paquet: *PaquetIP) entier {
+  // On simule un buffer de mots de 16 bits
+  variable somme: entier = 0;
+  variable i: entier = 0;
+  // Traiter l'en-tête (simplifié : on suppose que l'en-tête fait 20 octets)
+  tantque (i < 10) { // 10 mots de 16 bits = 20 octets
+    // Prendre deux octets
+    variable mot: entier = 0;
+    // Dans un vrai programme, on aurait accès aux octets ; ici on simule des valeurs
+    // Pour l'exemple, on utilise des valeurs arbitraires
+    mot = (i * 256 + i+1); // juste pour remplir
+    somme = somme + mot;
+    // Gérer la retenue
+    si (somme > 65535) {
+      somme = (somme & 65535) + 1;
+    }
+    i = i + 1;
+  }
+  // Complément à 1
+  retourner ~somme & 65535;
+}
+
+fonction vérifier_checksum(paquet: *PaquetIP) booleen {
+  variable somme: entier = 0;
+  variable i: entier = 0;
+  tantque (i < 10) {
+    variable mot: entier = 0;
+    // Même simulation
+    mot = (i * 256 + i+1);
+    somme = somme + mot;
+    si (somme > 65535) {
+      somme = (somme & 65535) + 1;
+    }
+    i = i + 1;
+  }
+  // À la réception, somme + checksum doit donner 0xFFFF
+  somme = somme + paquet.checksum;
+  si (somme > 65535) {
+    somme = (somme & 65535) + 1;
+  }
+  retourner (somme == 65535);
+}
+
+demarrer() entier {
+  variable paquet: PaquetIP = PaquetIP{
+    version: 4,
+    longueur_en_tête: 5,
+    type_de_service: 0,
+    longueur_totale: 40,
+    identification: 12345,
+    flags: 2,
+    décalage_fragment: 0,
+    durée_de_vie: 64,
+    protocole: 6, // TCP
+    checksum: 0,
+    adresse_source: [4]entier{192,168,1,1},
+    adresse_destination: [4]entier{192,168,1,2}
+  };
+  paquet.checksum = calculer_checksum(paquet);
+  afficher("Checksum calculé : %d (0x%X)", paquet.checksum, paquet.checksum);
+  si (vérifier_checksum(paquet)) {
+    afficher("Checksum valide.");
+  } sinon {
+    afficher("Checksum invalide !");
+  }
+  // Corrompre le paquet
+  paquet.données[0] = 99;
+  si (!vérifier_checksum(paquet)) {
+    afficher("Checksum invalide après corruption (normal).");
+  }
+  retourner 0;
+}

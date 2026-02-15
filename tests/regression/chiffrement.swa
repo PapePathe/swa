@@ -1,0 +1,67 @@
+dialecte:français;
+
+// Programme 5 : Générateur pseudo‑aléatoire (congruentiel linéaire) pour flux de chiffrement simple
+// Chiffrement par addition modulo 256 (sans XOR).
+
+variable graine: entier = 123456789;
+
+fonction rand() entier {
+  graine = (graine * 1103515245 + 12345) % 2147483648;
+  retourner graine;
+}
+
+fonction rand_octet() entier {
+  retourner rand() % 256;
+}
+
+fonction chiffrer_flux(message: [100]entier, longueur: entier, clé: entier) [100]entier {
+  variable résultat: [100]entier;
+  variable i: entier = 0;
+  graine = clé; // initialiser avec la clé
+  tantque (i < longueur) {
+    variable k: entier = rand_octet();
+    résultat[i] = (message[i] + k) % 256; // addition modulo 256
+    i = i + 1;
+  }
+  retourner résultat;
+}
+
+fonction déchiffrer_flux(message_chiffré: [100]entier, longueur: entier, clé: entier) [100]entier {
+  variable résultat: [100]entier;
+  variable i: entier = 0;
+  graine = clé;
+  tantque (i < longueur) {
+    variable k: entier = rand_octet();
+    résultat[i] = (message_chiffré[i] - k + 256) % 256; // soustraction modulo 256
+    i = i + 1;
+  }
+  retourner résultat;
+}
+
+demarrer() entier {
+  variable message_original: [100]entier = [100]entier{72,101,108,108,111,32,109,111,110,100,101,33,0};
+  variable longueur: entier = 13;
+  variable clé: entier = 987654321;
+  variable chiffré: [100]entier = chiffrer_flux(message_original, longueur, clé);
+  variable déchiffré: [100]entier = déchiffrer_flux(chiffré, longueur, clé);
+  afficher("Message original : ");
+  variable i: entier = 0;
+  tantque (i < longueur) {
+    afficher("%c ", message_original[i]);
+    i = i + 1;
+  }
+  afficher("\nMessage chiffré : ");
+  i = 0;
+  tantque (i < longueur) {
+    afficher("%d ", chiffré[i]);
+    i = i + 1;
+  }
+  afficher("\nMessage déchiffré : ");
+  i = 0;
+  tantque (i < longueur) {
+    afficher("%c ", déchiffré[i]);
+    i = i + 1;
+  }
+  afficher("\n");
+  retourner 0;
+}

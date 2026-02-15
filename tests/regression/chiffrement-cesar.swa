@@ -1,0 +1,54 @@
+dialecte:français;
+
+// Programme 7 : Chiffrement par décalage (César) avec gestion des accents
+// Utilise une chaîne avec des lettres accentuées et les décale.
+
+fonction est_lettre_majuscule(c: chaine) booleen {
+  retourner (c >= "A" & c <= "Z") || (c >= "À" & c <= "Ö") || (c >= "Ø" & c <= "Þ");
+}
+
+fonction est_lettre_minuscule(c: chaine) booleen {
+  retourner (c >= "a" & c <= "z") || (c >= "à" & c <= "ö") || (c >= "ø" & c <= "þ");
+}
+
+fonction décaler_lettre(c: chaine, décalage: entier) chaine {
+  si (est_lettre_majuscule(c)) {
+    variable base: chaine;
+    si (c >= "A" & c <= "Z"){ base = "A";}
+    sinon { base = "À";} // simplifié : on suppose que toutes les majuscules accentuées se suivent
+    variable idx: entier = ordre(c) - ordre(base);
+    idx = (idx + décalage) % 26;
+    retourner base + idx; // hypothétique conversion
+  } sinon {
+    si (est_lettre_minuscule(c)) {
+      variable base: chaine;
+      si (c >= "a" & c <= "z") { base = "a"; }
+      sinon { base = "à"; }
+      variable idx: entier = ordre(c) - ordre(base);
+      idx = (idx + décalage) % 26;
+      retourner base + idx;
+    }
+  }
+  retourner c;
+}
+
+fonction chiffrer_cesar(texte: chaine, décalage: entier) chaine {
+  variable résultat: chaine = "";
+  variable i: entier = 0;
+  variable long: entier = longueur(texte);
+  tantque (i < long) {
+    variable c: chaine = texte[i];
+    résultat = résultat + décaler_lettre(c, décalage);
+    i = i + 1;
+  }
+  retourner résultat;
+}
+
+demarrer() entier {
+  variable message: chaine = "Bonjour, comment ça va ? Été et hiver.";
+  variable décalage: entier = 3;
+  variable chiffré: chaine = chiffrer_cesar(message, décalage);
+  afficher("Original : %s", message);
+  afficher("Chiffré (décalage %d) : %s", décalage, chiffré);
+  retourner 0;
+}

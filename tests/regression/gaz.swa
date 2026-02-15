@@ -1,0 +1,48 @@
+dialecte:français;
+
+// Programme 3 : Loi des gaz parfaits avec mélange
+// Calcul de la pression partielle et totale dans un mélange de gaz.
+
+structure Gaz {
+  nom: chaine,
+  quantité: decimal,        // moles
+  masse_molaire: decimal,   // g/mol
+  pression_partielle: decimal, // Pa (sera calculée)
+}
+
+fonction pression_totale(gaz: [4]Gaz, nb: entier, volume: decimal, température: decimal) decimal {
+  variable R: decimal = 8.314; // J/(mol·K)
+  variable n_total: decimal = 0.0;
+  variable i: entier = 0;
+  tantque (i < nb) {
+    n_total = n_total + gaz[i].quantité;
+    i = i + 1;
+  }
+  variable P_tot: decimal = n_total * R * température / volume;
+  // Calcul des pressions partielles
+  i = 0;
+  tantque (i < nb) {
+    gaz[i].pression_partielle = (gaz[i].quantité / n_total) * P_tot;
+    i = i + 1;
+  }
+  retourner P_tot;
+}
+
+demarrer() entier {
+  variable mélange: [4]Gaz = [4]Gaz{
+    Gaz{nom: "Azote", quantité: 0.78, masse_molaire: 28.0},
+    Gaz{nom: "Oxygène", quantité: 0.21, masse_molaire: 32.0},
+    Gaz{nom: "Argon", quantité: 0.01, masse_molaire: 40.0},
+    Gaz{nom: "Dioxyde de carbone", quantité: 0.0004, masse_molaire: 44.0}
+  };
+  variable volume: decimal = 0.1; // m³
+  variable température: decimal = 298.0; // K
+  variable P_tot: decimal = pression_totale(mélange, 4, volume, température);
+  afficher("Pression totale = %.2f Pa", P_tot);
+  variable i: entier = 0;
+  tantque (i < 4) {
+    afficher("Gaz %s : pression partielle = %.2f Pa", mélange[i].nom, mélange[i].pression_partielle);
+    i = i + 1;
+  }
+  retourner 0;
+}

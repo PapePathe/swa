@@ -1,0 +1,69 @@
+dialecte:français;
+
+// Programme 2 : Échange de clés Diffie‑Hellman
+// Simulation de l'établissement d'un secret partagé entre Alice et Bob.
+// Utilise un module et une base publics.
+
+structure ParamètresDH {
+  p: entier,    // module (nombre premier)
+  g: entier,    // générateur
+}
+
+structure PartieDH {
+  nom: chaine,
+  secret_privé: entier,
+  clé_publique: entier,
+  secret_partagé: entier,
+}
+
+fonction générer_clé_publique(params: *ParamètresDH, privé: entier) entier {
+  // Calcule g^privé mod p
+  variable résultat: entier = 1;
+  variable base: entier = params.g % params.p;
+  variable exp: entier = privé;
+  tantque (exp > 0) {
+    si (exp % 2 == 1) {
+      résultat = (résultat * base) % params.p;
+    }
+    base = (base * base) % params.p;
+    exp = exp / 2;
+  }
+  retourner résultat;
+}
+
+fonction calculer_secret_partagé(params: *ParamètresDH, clé_autre: entier, privé: entier) entier {
+  // Calcule (clé_autre)^privé mod p
+  variable résultat: entier = 1;
+  variable base: entier = clé_autre % params.p;
+  variable exp: entier = privé;
+  tantque (exp > 0) {
+    si (exp % 2 == 1) {
+      résultat = (résultat * base) % params.p;
+    }
+    base = (base * base) % params.p;
+    exp = exp / 2;
+  }
+  retourner résultat;
+}
+
+demarrer() entier {
+  variable params: ParamètresDH = ParamètresDH{p: 23, g: 5}; // petits nombres pour l'exemple
+  variable alice: PartieDH = PartieDH{nom: "Alice", secret_privé: 6};
+  variable bob: PartieDH = PartieDH{nom: "Bob", secret_privé: 15};
+  // Échange des clés publiques
+  alice.clé_publique = générer_clé_publique(params, alice.secret_privé);
+  bob.clé_publique = générer_clé_publique(params, bob.secret_privé);
+  afficher("Clé publique d'Alice : %d", alice.clé_publique);
+  afficher("Clé publique de Bob : %d", bob.clé_publique);
+  // Calcul du secret partagé
+  alice.secret_partagé = calculer_secret_partagé(params, bob.clé_publique, alice.secret_privé);
+  bob.secret_partagé = calculer_secret_partagé(params, alice.clé_publique, bob.secret_privé);
+  afficher("Secret partagé pour Alice : %d", alice.secret_partagé);
+  afficher("Secret partagé pour Bob : %d", bob.secret_partagé);
+  si (alice.secret_partagé == bob.secret_partagé) {
+    afficher("Secret partagé identique !");
+  } sinon {
+    afficher("Erreur : secrets différents.");
+  }
+  retourner 0;
+}

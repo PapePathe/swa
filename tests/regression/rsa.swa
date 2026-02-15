@@ -1,0 +1,113 @@
+dialecte:français;
+
+// Programme 1 : Chiffrement RSA simplifié
+// Génération de clés, chiffrement et déchiffrement d'un message (entier).
+// Utilise de grands nombres (simulés avec des entiers 64 bits, attention aux débordements).
+// Inclut un test de primalité basique (divisions par les petits nombres premiers).
+
+structure CléRSA {
+  modulus: entier,          // n = p * q
+  exposant: entier,         // e (public) ou d (privé)
+  est_publique: booleen,
+}
+
+fonction est_premier(n: entier) booleen {
+  retourner faux si (n < 2) ;
+  retourner vrai si (n == 2);
+  retourner faux si (n % 2 == 0);
+
+  variable i: entier = 3;
+  tantque (i * i <= n) {
+     retourner faux si (n % i == 0);
+    i = i + 2;
+  }
+
+  retourner vrai;
+}
+
+fonction pgcd(a: entier, b: entier) entier {
+  tantque (b != 0) {
+    variable temp: entier = a % b;
+    a = b;
+    b = temp;
+  }
+  retourner a;
+}
+
+fonction inverse_modulaire(a: entier, m: entier) entier {
+  // Retourne l'inverse de a modulo m (supposé premier entre eux)
+  variable m0: entier = m;
+  variable x0: entier = 0;
+  variable x1: entier = 1;
+
+  retourner 0 si (m == 1);
+
+  tantque (a > 1) {
+    variable q: entier = a / m;
+    variable t: entier = m;
+    m = a % m;
+    a = t;
+    t = x0;
+    x0 = x1 - q * x0;
+    x1 = t;
+  }
+  si (x1 < 0) { x1 = x1 + m0; }
+  retourner x1;
+}
+
+fonction générer_clés(p: entier, q: entier) (CléRSA, CléRSA) {
+  // p et q sont des nombres premiers
+  variable n: entier = p * q;
+  variable phi: entier = (p - 1) * (q - 1);
+  variable e: entier = 65537; // exposant public courant
+  // S'assurer que e et phi sont premiers entre eux
+  tantque (pgcd(e, phi) != 1) {
+    e = e + 2; // on essaye des valeurs impaires
+  }
+  variable d: entier = inverse_modulaire(e, phi);
+  variable clé_publique: CléRSA = CléRSA{modulus: n, exposant: e, est_publique: vrai};
+  variable clé_privée: CléRSA = CléRSA{modulus: n, exposant: d, est_publique: faux};
+  retourner (clé_publique, clé_privée);
+}
+
+fonction chiffrer(message: entier, clé: CléRSA) entier {
+  // Calcul de message^exposant mod modulus par exponentiation rapide
+  variable résultat: entier = 1;
+  variable base: entier = message % clé.modulus;
+  variable exp: entier = clé.exposant;
+  tantque (exp > 0) {
+    si (exp % 2 == 1) {
+      résultat = (résultat * base) % clé.modulus;
+    }
+    base = (base * base) % clé.modulus;
+    exp = exp / 2;
+  }
+  retourner résultat;
+}
+
+fonction déchiffrer(message_chiffré: entier, clé: CléRSA) entier {
+  retourner chiffrer(message_chiffré, clé); // même opération
+}
+
+demarrer() entier {
+  // Choix de deux petits nombres premiers (pour éviter les débordements)
+  variable p: entier = 61;
+  variable q: entier = 53;
+  variable publique : CléRSA;
+  variable privée: CléRSA;
+  (publique, privée) = générer_clés(p, q);
+  afficher("Clé publique : (n=%d, e=%d)", publique.modulus, publique.exposant);
+  afficher("Clé privée : (n=%d, d=%d)", privée.modulus, privée.exposant);
+  variable message_original: entier = 42;
+  variable message_chiffré: entier = chiffrer(message_original, publique);
+  variable message_déchiffré: entier = déchiffrer(message_chiffré, privée);
+  afficher("Message original : %d", message_original);
+  afficher("Message chiffré : %d", message_chiffré);
+  afficher("Message déchiffré : %d", message_déchiffré);
+  si (message_original == message_déchiffré) {
+    afficher("Succès !");
+  } sinon {
+    afficher("Échec !");
+  }
+  retourner 0;
+}

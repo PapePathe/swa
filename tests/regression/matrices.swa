@@ -1,0 +1,80 @@
+dialecte:français;
+
+// Programme 8 : Manipulation de matrices (addition, multiplication) avec validation
+// Utilise des tableaux 2D (tableaux de tableaux) et des boucles imbriquées.
+
+structure Matrice {
+  données: [3][3]decimal,
+  lignes: entier,
+  colonnes: entier,
+}
+
+fonction additionner(A: *Matrice, B: *Matrice, résultat: *Matrice) entier {
+  si (A.lignes != B.lignes || A.colonnes != B.colonnes) {
+    retourner -1;
+  }
+  résultat.lignes = A.lignes;
+  résultat.colonnes = A.colonnes;
+  variable i: entier = 0;
+  tantque (i < A.lignes) {
+    variable j: entier = 0;
+    tantque (j < A.colonnes) {
+      résultat.données[i][j] = A.données[i][j] + B.données[i][j];
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  retourner 0;
+}
+
+fonction multiplier(A: *Matrice, B: *Matrice, résultat: *Matrice) entier {
+  si (A.colonnes != B.lignes) {
+    retourner -1;
+  }
+  résultat.lignes = A.lignes;
+  résultat.colonnes = B.colonnes;
+  variable i: entier = 0;
+  tantque (i < A.lignes) {
+    variable j: entier = 0;
+    tantque (j < B.colonnes) {
+      résultat.données[i][j] = 0.0;
+      variable k: entier = 0;
+      tantque (k < A.colonnes) {
+        résultat.données[i][j] = résultat.données[i][j] + A.données[i][k] * B.données[k][j];
+        k = k + 1;
+      }
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  retourner 0;
+}
+
+demarrer() entier {
+  variable A: Matrice = Matrice{lignes: 2, colonnes: 3};
+  A.données[0][0] = 1.0; A.données[0][1] = 2.0; A.données[0][2] = 3.0;
+  A.données[1][0] = 4.0; A.données[1][1] = 5.0; A.données[1][2] = 6.0;
+  variable B: Matrice = Matrice{lignes: 3, colonnes: 2};
+  B.données[0][0] = 7.0; B.données[0][1] = 8.0;
+  B.données[1][0] = 9.0; B.données[1][1] = 10.0;
+  B.données[2][0] = 11.0; B.données[2][1] = 12.0;
+  variable C: Matrice;
+  variable err: entier = multiplier(A, B, C);
+  si (err == 0) {
+    afficher("Multiplication réussie :");
+    variable i: entier = 0;
+    tantque (i < C.lignes) {
+      variable j: entier = 0;
+      tantque (j < C.colonnes) {
+        afficher("C[%d][%d] = %.2f", i, j, C.données[i][j]);
+        j = j + 1;
+      }
+      i = i + 1;
+    }
+  } sinon {
+    afficher("Erreur de multiplication");
+  }
+  retourner 0;
+}
+
+

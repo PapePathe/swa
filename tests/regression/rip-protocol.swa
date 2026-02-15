@@ -1,0 +1,130 @@
+dialecte:français;
+
+// Programme 6 : Protocole de routage RIP simplifié (distance vector)
+// Échange de tables de routage entre routeurs.
+
+structure Route {
+  destination: [4]entier,   // adresse IP
+  masque: [4]entier,
+  prochain_saut: [4]entier,
+  distance: entier,         // métrique
+  temps: entier,            // temps de vie
+}
+
+structure Routeur {
+  id: entier,
+  tables: [10]Route,
+  nb_routes: entier,
+}
+
+fonction copier_adresse(src: [4]entier, dest: [4]entier) entier {
+  variable i: entier = 0;
+  tantque (i < 4) {
+    dest[i] = src[i];
+    i = i + 1;
+  }
+  retourner 0;
+}
+
+fonction adresses_égales(a: [4]entier, b: [4]entier) booleen {
+  variable i: entier = 0;
+  tantque (i < 4) {
+    retourner faux  si (a[i] != b[i]);
+
+    i = i + 1;
+  }
+  retourner vrai;
+}
+
+fonction mettre_à_jour_table(routeur: *Routeur, voisin: *Routeur, distance_vers_voisin: entier) entier {
+  variable i: entier = 0;
+  tantque (i < voisin.nb_routes) {
+    variable route_voisin: Route = voisin.tables[i];
+    // Appliquer la règle de distance vector : nouvelle distance = distance_vers_voisin + route_voisin.distance
+    variable nouvelle_distance: entier = distance_vers_voisin + route_voisin.distance;
+    // Chercher si la destination existe déjà dans la table locale
+    variable j: entier = 0;
+    variable trouvé: booleen = faux;
+    tantque (j < routeur.nb_routes && !trouvé) {
+      si (adresses_égales(routeur.tables[j].destination, route_voisin.destination)) {
+        trouvé = vrai;
+        si (nouvelle_distance < routeur.tables[j].distance) {
+          // Mise à jour
+          routeur.tables[j].distance = nouvelle_distance;
+          copier_adresse(voisin.tables[i].prochain_saut, routeur.tables[j].prochain_saut);
+          routeur.tables[j].temps = 180; // réinitialiser
+        }
+      }
+      j = j + 1;
+    }
+    si (!trouvé) {
+      // Nouvelle route
+      routeur.tables[routeur.nb_routes].destination = route_voisin.destination;
+      routeur.tables[routeur.nb_routes].masque = route_voisin.masque;
+      copier_adresse(voisin.tables[i].prochain_saut, routeur.tables[routeur.nb_routes].prochain_saut);
+      routeur.tables[routeur.nb_routes].distance = nouvelle_distance;
+      routeur.tables[routeur.nb_routes].temps = 180;
+      routeur.nb_routes = routeur.nb_routes + 1;
+    }
+    i = i + 1;
+  }
+  retourner 0;
+}
+
+fonction afficher_table(routeur: *Routeur) entier {
+  afficher("Table du routeur %d :", routeur.id);
+  variable i: entier = 0;
+  tantque (i < routeur.nb_routes) {
+    afficher("  Destination %d.%d.%d.%d/%d.%d.%d.%d -> prochain %d.%d.%d.%d distance %d",
+             routeur.tables[i].destination[0], routeur.tables[i].destination[1],
+             routeur.tables[i].destination[2], routeur.tables[i].destination[3],
+             routeur.tables[i].masque[0], routeur.tables[i].masque[1],
+             routeur.tables[i].masque[2], routeur.tables[i].masque[3],
+             routeur.tables[i].prochain_saut[0], routeur.tables[i].prochain_saut[1],
+             routeur.tables[i].prochain_saut[2], routeur.tables[i].prochain_saut[3],
+             routeur.tables[i].distance);
+    i = i + 1;
+  }
+  retourner 0;
+}
+
+demarrer() entier {
+  // Création de deux routeurs avec quelques routes initiales
+  variable r1: Routeur = Routeur{id: 1, nb_routes: 2};
+  r1.tables[0].destination = [4]entier{10,0,0,0};
+  r1.tables[0].masque = [4]entier{255,0,0,0};
+  r1.tables[0].prochain_saut = [4]entier{0,0,0,0}; // directement connecté
+  r1.tables[0].distance = 1;
+  r1.tables[0].temps = 180;
+  r1.tables[1].destination = [4]entier{192,168,1,0};
+  r1.tables[1].masque = [4]entier{255,255,255,0};
+  r1.tables[1].prochain_saut = [4]entier{0,0,0,0};
+  r1.tables[1].distance = 1;
+  r1.tables[1].temps = 180;
+
+  variable r2: Routeur = Routeur{id: 2, nb_routes: 2};
+  r2.tables[0].destination = [4]entier{172,16,0,0};
+  r2.tables[0].masque = [4]entier{255,255,0,0};
+  r2.tables[0].prochain_saut = [4]entier{0,0,0,0};
+  r2.tables[0].distance = 1;
+  r2.tables[0].temps = 180;
+  r2.tables[1].destination = [4]entier{10,1,0,0};
+  r2.tables[1].masque = [4]entier{255,255,0,0};
+  r2.tables[1].prochain_saut = [4]entier{0,0,0,0};
+  r2.tables[1].distance = 1;
+  r2.tables[1].temps = 180;
+
+  afficher("Avant échange :");
+  afficher_table(r1);
+  afficher_table(r2);
+
+  // Échange des tables (r1 reçoit de r2 avec distance 1)
+  mettre_à_jour_table(r1, r2, 1);
+  mettre_à_jour_table(r2, r1, 1);
+
+  afficher("Après échange :");
+  afficher_table(r1);
+  afficher_table(r2);
+
+  retourner 0;
+}

@@ -1,0 +1,53 @@
+dialecte:français;
+
+// Programme 4 : Circuit RC (charge et décharge d'un condensateur)
+// Résolution de l'équation différentielle dV/dt = (E - V)/(RC) pour la charge,
+// et dV/dt = -V/(RC) pour la décharge.
+
+structure CircuitRC {
+  résistance: decimal,      // Ω
+  capacité: decimal,        // F
+  tension_alimentation: decimal, // V
+  tension_condensateur: decimal,
+  temps: decimal,
+}
+
+fonction charge(c: *CircuitRC, dt: decimal) entier {
+  variable tau: decimal = c.résistance * c.capacité;
+  variable dérivée: decimal = (c.tension_alimentation - c.tension_condensateur) / tau;
+  c.tension_condensateur = c.tension_condensateur + dérivée * dt;
+  c.temps = c.temps + dt;
+  retourner 0;
+}
+
+fonction décharge(c: *CircuitRC, dt: decimal) entier {
+  variable tau: decimal = c.résistance * c.capacité;
+  variable dérivée: decimal = -c.tension_condensateur / tau;
+  c.tension_condensateur = c.tension_condensateur + dérivée * dt;
+  c.temps = c.temps + dt;
+  retourner 0;
+}
+
+demarrer() entier {
+  variable circuit: CircuitRC = CircuitRC{
+    résistance: 1000.0,
+    capacité: 1.0e-6,
+    tension_alimentation: 5.0,
+    tension_condensateur: 0.0,
+    temps: 0.0
+  };
+  variable dt: decimal = 1.0e-5; // 10 µs
+  variable t_max: decimal = 0.01; // 10 ms
+  // Charge
+  tantque (circuit.temps < t_max / 2) {
+    charge(circuit, dt);
+  }
+  afficher("À t = %.6f s, tension = %.4f V (charge)", circuit.temps, circuit.tension_condensateur);
+  // Décharge
+  circuit.tension_alimentation = 0.0; // on coupe l'alim
+  tantque (circuit.temps < t_max) {
+    décharge(circuit, dt);
+  }
+  afficher("À t = %.6f s, tension = %.4f V (décharge)", circuit.temps, circuit.tension_condensateur);
+  retourner 0;
+}

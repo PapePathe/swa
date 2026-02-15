@@ -1,0 +1,125 @@
+dialecte:français;
+
+// Programme 3 : Algorithme génétique simple pour trouver le maximum d'une fonction
+// Utilise une population d'individus, des mutations, des croisements.
+
+structure Individu {
+  gènes: [10]entier,
+  fitness: entier,
+}
+
+fonction évaluer(ind: *Individu) entier {
+  // Fonction à maximiser : somme des gènes
+  variable somme: entier = 0;
+  variable i: entier = 0;
+  tantque (i < 10) {
+    somme = somme + ind.gènes[i];
+    i = i + 1;
+  }
+  ind.fitness = somme;
+  retourner 0;
+}
+
+fonction croiser(père: *Individu, mère: *Individu, enfant: *Individu) entier {
+  variable point: entier = 3; // point de croisement fixe
+  variable i: entier = 0;
+  tantque (i < point) {
+    enfant.gènes[i] = père.gènes[i];
+    i = i + 1;
+  }
+  tantque (i < 10) {
+    enfant.gènes[i] = mère.gènes[i];
+    i = i + 1;
+  }
+  retourner 0;
+}
+
+fonction muter(ind: *Individu) entier {
+  variable pos: entier = 4; // mutation à la position 4
+  si (ind.gènes[pos] == 0) {
+    ind.gènes[pos] = 1;
+  } sinon {
+    ind.gènes[pos] = 0;
+  }
+  retourner 0;
+}
+
+demarrer() entier {
+  variable population: [10]Individu;
+  variable génération: entier = 0;
+  variable i: entier = 0;
+  // Initialisation aléatoire (faute de rand, on met des valeurs)
+  tantque (i < 10) {
+    variable j: entier = 0;
+    tantque (j < 10) {
+      population[i].gènes[j] = i % 2;
+      j = j + 1;
+    }
+    évaluer(population[i]);
+    i = i + 1;
+  }
+  tantque (génération < 50) {
+    // Sélectionner les deux meilleurs (tournoi simple)
+    variable meilleur1: entier = 0;
+    variable meilleur2: entier = 1;
+    si (population[1].fitness > population[0].fitness) {
+      meilleur1 = 1;
+      meilleur2 = 0;
+    }
+    i = 2;
+    tantque (i < 10) {
+      si (population[i].fitness > population[meilleur1].fitness) {
+        meilleur2 = meilleur1;
+        meilleur1 = i;
+      } sinon {
+        si (population[i].fitness > population[meilleur2].fitness) {
+          meilleur2 = i;
+        }
+      }
+      i = i + 1;
+    }
+    // Créer deux nouveaux individus par croisement et mutation
+    variable enfant1: Individu;
+    variable enfant2: Individu;
+    croiser(population[meilleur1], population[meilleur2], enfant1);
+    croiser(population[meilleur2], population[meilleur1], enfant2);
+    muter(enfant1);
+    évaluer(enfant1);
+    évaluer(enfant2);
+    // Remplacer les deux moins bons
+    variable pire1: entier = 0;
+    variable pire2: entier = 1;
+    si (population[1].fitness < population[0].fitness) {
+      pire1 = 1;
+      pire2 = 0;
+    }
+    i = 2;
+    tantque (i < 10) {
+      si (population[i].fitness < population[pire1].fitness) {
+        pire2 = pire1;
+        pire1 = i;
+      } sinon {
+        si (population[i].fitness < population[pire2].fitness) {
+          pire2 = i;
+        }
+      }
+      i = i + 1;
+    }
+    population[pire1] = enfant1;
+    population[pire2] = enfant2;
+    génération = génération + 1;
+  }
+  // Afficher le meilleur individu final
+  variable meilleur_idx: entier = 0;
+  i = 1;
+  tantque (i < 10) {
+    si (population[i].fitness > population[meilleur_idx].fitness) {
+      meilleur_idx = i;
+    }
+    i = i + 1;
+  }
+  afficher("Meilleur fitness après 50 générations : %d", population[meilleur_idx].fitness);
+  retourner 0;
+}
+
+

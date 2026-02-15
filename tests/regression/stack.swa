@@ -1,0 +1,105 @@
+dialecte:français;
+
+// Programme 10 : Évaluation d'expressions arithmétiques avec priorités (simulateur de calculatrice)
+// Utilise une pile et des opérateurs, gestion des parenthèses.
+
+structure Pile {
+  données: [100]decimal,
+  sommet: entier,
+}
+
+fonction empiler(p: *Pile, val: decimal) entier {
+  si (p.sommet < 100) {
+    p.données[p.sommet] = val;
+    p.sommet = p.sommet + 1;
+    retourner 0;
+  }
+  retourner -1;
+}
+
+fonction dépiler(p: *Pile) decimal {
+  si (p.sommet > 0) {
+    p.sommet = p.sommet - 1;
+    retourner p.données[p.sommet];
+  }
+  retourner 0.0;
+}
+
+fonction priorité(op: chaine) entier {
+  retourner 1 si (op == "+" || op == "-");
+  retourner 2 si (op == "*" || op == "/");
+  retourner 0;
+}
+
+fonction appliquer_op(a: decimal, b: decimal, op: chaine) decimal {
+ retourner a + b si (op == "+");
+ retourner a - b si (op == "-");
+ retourner a * b si (op == "*");
+ retourner a / b si (op == "/");
+  retourner 0.0;
+}
+
+fonction évaluer(expression: chaine) decimal {
+  variable valeurs: Pile = Pile{sommet: 0};
+  variable opérateurs: Pile = Pile{sommet: 0};
+  variable i: entier = 0;
+  variable long: entier = longueur(expression);
+  tantque (i < long) {
+    variable c: chaine = expression[i];
+    si (c == " ") {
+      i = i + 1;
+      continuer;
+    }
+    si (c >= "0" & c <= "9") {
+      variable nb: decimal = 0.0;
+      tantque (i < long && expression[i] >= "0" && expression[i] <= "9") {
+        nb = nb * 10.0 + (ordre(expression[i]) - ordre('0'));
+        i = i + 1;
+      }
+      empiler(valeurs, nb);
+    } sinon {
+      si (c == "(") {
+        empiler(opérateurs, c);
+      } sinon {
+        si (c == ")") {
+          tantque (opérateurs.sommet > 0 & opérateurs.données[opérateurs.sommet-1] != "(") {
+            variable op: chaine = dépiler(opérateurs);
+            variable b: decimal = dépiler(valeurs);
+            variable a: decimal = dépiler(valeurs);
+            variable rés: decimal = appliquer_op(a, b, op);
+            empiler(valeurs, rés);
+          }
+          dépiler(opérateurs); // enlève '('
+        } sinon {
+          // opérateur
+          tantque (opérateurs.sommet > 0 & priorité(c) <= priorité(opérateurs.données[opérateurs.sommet-1])) {
+            variable op: chaine = dépiler(opérateurs);
+            variable b: decimal = dépiler(valeurs);
+            variable a: decimal = dépiler(valeurs);
+            variable rés: decimal = appliquer_op(a, b, op);
+            empiler(valeurs, rés);
+          }
+          empiler(opérateurs, c);
+        }
+      }
+      i = i + 1;
+    }
+  }
+  tantque (opérateurs.sommet > 0) {
+    variable op: chaine = dépiler(opérateurs);
+    variable b: decimal = dépiler(valeurs);
+    variable a: decimal = dépiler(valeurs);
+    variable rés: decimal = appliquer_op(a, b, op);
+    empiler(valeurs, rés);
+  }
+  retourner dépiler(valeurs);
+}
+
+demarrer() entier {
+  variable expr: chaine = "3 + 5 * (2 - 8) / 2";
+  variable résultat: decimal = évaluer(expr);
+  afficher("Résultat de '%s' = %.2f", expr, résultat);
+  retourner 0;
+}
+
+

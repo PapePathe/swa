@@ -1,0 +1,28 @@
+dialect:english;
+
+// Test 4: Mutual recursion (even/odd)
+func isEven(n: int) int {
+  if (n == 0) {
+    return 1; // true
+  }
+  return isOdd(n - 1);
+}
+
+func isOdd(n: int) int {
+  if (n == 0) {
+    return 0; // false
+  }
+  return isEven(n - 1);
+}
+
+start() int {
+  let num: int = 7;
+  if (isEven(num)) {
+    print("%d is even", num);
+  } else {
+    print("%d is odd", num);
+  }
+  return 0;
+}
+
+

@@ -1,0 +1,55 @@
+dialecte:français;
+
+// Programme 2 : Mouvement harmonique simple (masse-ressort)
+// Simulation d'un oscillateur harmonique avec frottement visqueux.
+// Résolution numérique par la méthode d'Euler-Cromer.
+
+structure Oscillateur {
+  masse: decimal,           // kg
+  raideur: decimal,         // N/m
+  frottement: decimal,      // kg/s
+  position: decimal,        // m
+  vitesse: decimal,         // m/s
+  énergie_cinétique: decimal,
+  énergie_potentielle: decimal,
+}
+
+fonction calculer_énergie(o: *Oscillateur) entier {
+  o.énergie_cinétique = 0.5 * o.masse * o.vitesse * o.vitesse;
+  o.énergie_potentielle = 0.5 * o.raideur * o.position * o.position;
+  retourner 0;
+}
+
+fonction mettre_à_jour_oscillateur(o: *Oscillateur, dt: decimal) entier {
+  // Force de rappel : -k*x, force de frottement : -b*v
+  variable accélération: decimal = (-o.raideur * o.position - o.frottement * o.vitesse) / o.masse;
+  o.vitesse = o.vitesse + accélération * dt;
+  o.position = o.position + o.vitesse * dt; // Euler-Cromer : utilise nouvelle vitesse
+  calculer_énergie(o);
+  retourner 0;
+}
+
+demarrer() entier {
+  variable o: Oscillateur = Oscillateur{
+    masse: 1.0,
+    raideur: 10.0,
+    frottement: 0.5,
+    position: 0.5,
+    vitesse: 0.0
+  };
+  variable dt: decimal = 0.01;
+  variable temps_total: decimal = 10.0;
+  variable nb_pas: entier = temps_total / dt;
+  variable i: entier = 0;
+  variable énergie_initiale: decimal;
+  calculer_énergie(o);
+  énergie_initiale = o.énergie_cinétique + o.énergie_potentielle;
+  tantque (i < nb_pas) {
+    mettre_à_jour_oscillateur(o, dt);
+    i = i + 1;
+  }
+  variable énergie_finale: decimal = o.énergie_cinétique + o.énergie_potentielle;
+  afficher("Après %.2f s : position = %.4f m, vitesse = %.4f m/s", temps_total, o.position, o.vitesse);
+  afficher("Énergie initiale : %.4f J, finale : %.4f J (perte due au frottement)", énergie_initiale, énergie_finale);
+  retourner 0;
+}

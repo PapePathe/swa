@@ -1,0 +1,89 @@
+dialecte:français;
+
+// Programme 1 : Loi de la gravitation universelle (N corps)
+// Simulation simplifiée de l'attraction gravitationnelle entre plusieurs corps.
+// Utilise la méthode d'Euler pour mettre à jour les positions et vitesses.
+
+structure Corps {
+  nom: chaine,
+  masse: decimal,           // kg
+  position_x: decimal,      // m
+  position_y: decimal,
+  vitesse_x: decimal,       // m/s
+  vitesse_y: decimal,
+  force_x: decimal,         // N (accumulateur)
+  force_y: decimal,
+}
+
+fonction calculer_force(c1: *Corps, c2: *Corps, G: decimal) entier {
+  variable dx: decimal = c2.position_x - c1.position_x;
+  variable dy: decimal = c2.position_y - c1.position_y;
+  variable distance2: decimal = dx * dx + dy * dy;
+  variable distance: decimal = sqrt(distance2);
+  si (distance == 0.0) {
+    retourner 0; // éviter division par zéro
+  }
+  variable force_magnitude: decimal = G * c1.masse * c2.masse / distance2;
+  variable fx: decimal = force_magnitude * dx / distance;
+  variable fy: decimal = force_magnitude * dy / distance;
+  c1.force_x = c1.force_x + fx;
+  c1.force_y = c1.force_y + fy;
+  c2.force_x = c2.force_x - fx;
+  c2.force_y = c2.force_y - fy;
+  retourner 0;
+}
+
+fonction mettre_à_jour(c: *Corps, dt: decimal) entier {
+  variable ax: decimal = c.force_x / c.masse;
+  variable ay: decimal = c.force_y / c.masse;
+  c.vitesse_x = c.vitesse_x + ax * dt;
+  c.vitesse_y = c.vitesse_y + ay * dt;
+  c.position_x = c.position_x + c.vitesse_x * dt;
+  c.position_y = c.position_y + c.vitesse_y * dt;
+  // Réinitialiser les forces pour la prochaine itération
+  c.force_x = 0.0;
+  c.force_y = 0.0;
+  retourner 0;
+}
+
+demarrer() entier {
+  variable G: decimal = 6.67430e-11; // constante gravitationnelle
+  variable dt: decimal = 3600.0; // pas de temps d'une heure (en secondes)
+  variable nb_corps: entier = 3;
+  variable corps: [3]Corps = [3]Corps{
+    Corps{nom: "Soleil", masse: 1.989e30, position_x: 0.0, position_y: 0.0, vitesse_x: 0.0, vitesse_y: 0.0},
+    Corps{nom: "Terre", masse: 5.972e24, position_x: 1.496e11, position_y: 0.0, vitesse_x: 0.0, vitesse_y: 29780.0},
+    Corps{nom: "Mars", masse: 6.39e23, position_x: 2.279e11, position_y: 0.0, vitesse_x: 0.0, vitesse_y: 24070.0}
+  };
+  variable temps: decimal = 0.0;
+  variable nb_pas: entier = 24 * 30; // 30 jours
+  variable i: entier = 0;
+  tantque (i < nb_pas) {
+    // Calcul des forces entre toutes les paires
+    variable j: entier = 0;
+    tantque (j < nb_corps) {
+      variable k: entier = j + 1;
+      tantque (k < nb_corps) {
+        calculer_force(corps[j], corps[k], G);
+        k = k + 1;
+      }
+      j = j + 1;
+    }
+    // Mise à jour des positions
+    j = 0;
+    tantque (j < nb_corps) {
+      mettre_à_jour(corps[j], dt);
+      j = j + 1;
+    }
+    temps = temps + dt;
+    i = i + 1;
+  }
+  i = 0;
+  tantque (i < nb_corps) {
+    afficher("Corps %s : position (%.2e, %.2e) m, vitesse (%.2e, %.2e) m/s",
+             corps[i].nom, corps[i].position_x, corps[i].position_y,
+             corps[i].vitesse_x, corps[i].vitesse_y);
+    i = i + 1;
+  }
+  retourner 0;
+}

@@ -1,0 +1,56 @@
+dialecte:français;
+
+// Programme 13 : Simulation de mouvement de particules sous gravité (avec listes)
+// Utilise des structures pour les particules et des tableaux dynamiques.
+
+structure Particule {
+  masse: decimal,
+  position_x: decimal,
+  position_y: decimal,
+  vitesse_x: decimal,
+  vitesse_y: decimal,
+}
+
+fonction appliquer_gravité(p: *Particule, dt: decimal) entier {
+  variable g: decimal = 9.81; // m/s^2
+  p.vitesse_y = p.vitesse_y - g * dt;
+  p.position_x = p.position_x + p.vitesse_x * dt;
+  p.position_y = p.position_y + p.vitesse_y * dt;
+  retourner 0;
+}
+
+fonction détecter_collision_sol(p: *Particule, sol_y: decimal) entier {
+  si (p.position_y <= sol_y) {
+    p.position_y = sol_y;
+    p.vitesse_y = -p.vitesse_y * 0.8; // rebond avec perte d'énergie
+  }
+  retourner 0;
+}
+
+demarrer() entier {
+  variable particules: [5]Particule = [5]Particule{
+    Particule{masse: 1.0, position_x: 0.0, position_y: 10.0, vitesse_x: 2.0, vitesse_y: 0.0},
+    Particule{masse: 1.0, position_x: 1.0, position_y: 12.0, vitesse_x: 1.5, vitesse_y: 1.0},
+    Particule{masse: 1.0, position_x: -1.0, position_y: 8.0, vitesse_x: -1.0, vitesse_y: 2.0},
+    Particule{masse: 1.0, position_x: 2.0, position_y: 15.0, vitesse_x: 0.5, vitesse_y: -1.0},
+    Particule{masse: 1.0, position_x: -2.0, position_y: 5.0, vitesse_x: -0.5, vitesse_y: 3.0}
+  };
+  variable temps: decimal = 0.0;
+  variable dt: decimal = 0.1;
+  variable sol: decimal = 0.0;
+  tantque (temps < 10.0) {
+    variable i: entier = 0;
+    tantque (i < 5) {
+      appliquer_gravité(particules[i], dt);
+      détecter_collision_sol(particules[i], sol);
+      i = i + 1;
+    }
+    temps = temps + dt;
+  }
+  i = 0;
+  tantque (i < 5) {
+    afficher("Particule %d : position (%.2f, %.2f), vitesse (%.2f, %.2f)", i, particules[i].position_x, particules[i].position_y, particules[i].vitesse_x, particules[i].vitesse_y);
+    i = i + 1;
+  }
+  retourner 0;
+}
