@@ -1,0 +1,31 @@
+dialecte:français;
+
+// Programme 5 : Calcul de l'intégrale d'une fonction par la méthode des trapèzes
+// Utilise des boucles et des accumulations.
+
+fonction f(x: decimal) decimal {
+  retourner x * x + 2.0 * x + 1.0; // une parabole
+}
+
+fonction integrale_trapezes(a: decimal, b: decimal, n: entier) decimal {
+  variable h: decimal = (b - a) / n;
+  variable somme: decimal = (f(a) + f(b)) / 2.0;
+  variable i: entier = 1;
+  tantque (i < n) {
+    variable x: decimal = a + i * h;
+    somme = somme + f(x);
+    i = i + 1;
+  }
+  retourner somme * h;
+}
+
+demarrer() entier {
+  variable a: decimal = 0.0;
+  variable b: decimal = 2.0;
+  variable n: entier = 1000;
+  variable résultat: decimal = integrale_trapezes(a, b, n);
+  afficher("Intégrale de f(x)=x^2+2x+1 de %.2f à %.2f avec %d trapèzes = %.6f", a, b, n, résultat);
+  retourner 0;
+}
+
+

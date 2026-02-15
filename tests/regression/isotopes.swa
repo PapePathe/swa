@@ -1,0 +1,56 @@
+dialecte:français;
+
+// Programme 6 : Simulation de la désintégration radioactive avec plusieurs isotopes
+// Utilise des tableaux de structures et des mises à jour itératives.
+
+structure Isotope {
+  nom: chaine,
+  demi_vie: decimal,       // en années
+  quantité_initiale: decimal,
+  quantité_actuelle: decimal,
+  constante_désintégration: decimal,
+}
+
+fonction initialiser_isotope(i: *Isotope) entier {
+  i.constante_désintégration = 0.693 / i.demi_vie;
+  i.quantité_actuelle = i.quantité_initiale;
+  retourner 0;
+}
+
+fonction mettre_à_jour(isotopes: [5]Isotope, nb: entier, dt: decimal) entier {
+  variable i: entier = 0;
+  tantque (i < nb) {
+    // dN/dt = -lambda * N
+    variable delta: decimal = -isotopes[i].constante_désintégration * isotopes[i].quantité_actuelle * dt;
+    isotopes[i].quantité_actuelle = isotopes[i].quantité_actuelle + delta;
+    i = i + 1;
+  }
+  retourner 0;
+}
+
+demarrer() entier {
+  variable isotopes: [5]Isotope = [5]Isotope{
+    Isotope{nom: "Carbone-14", demi_vie: 5730.0, quantité_initiale: 100.0},
+    Isotope{nom: "Uranium-238", demi_vie: 4.468, quantité_initiale: 100.0},
+    Isotope{nom: "Radium-226", demi_vie: 1600.0, quantité_initiale: 100.0},
+    Isotope{nom: "Polonium-210", demi_vie: 0.378, quantité_initiale: 100.0},
+    Isotope{nom: "Thorium-234", demi_vie: 24.1, quantité_initiale: 100.0}
+  };
+  variable i: entier = 0;
+  tantque (i < 5) {
+    initialiser_isotope(isotopes[i]);
+    i = i + 1;
+  }
+  variable temps: decimal = 0.0;
+  variable pas: decimal = 100.0; // années
+  tantque (temps < 10000.0) {
+    mettre_à_jour(isotopes, 5, pas);
+    temps = temps + pas;
+  }
+  i = 0;
+  tantque (i < 5) {
+    afficher("Après %.0f ans, %s restant : %.3f", temps, isotopes[i].nom, isotopes[i].quantité_actuelle);
+    i = i + 1;
+  }
+  retourner 0;
+}

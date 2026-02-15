@@ -1,0 +1,83 @@
+dialecte:français;
+
+// Programme 4 : Gestion d'une bibliothèque avec recherche par titre et auteur
+// Utilise des structures complexes, des tableaux et des fonctions de recherche.
+
+structure Livre {
+  titre: chaine,
+  auteur: chaine,
+  année: entier,
+  ISBN: chaine,
+  disponible: booleen,
+}
+
+structure Bibliothèque {
+  livres: [100]Livre,
+  nb_livres: entier,
+}
+
+fonction ajouter_livre(biblio: *Bibliothèque, l: Livre) entier {
+  si (biblio.nb_livres < 100) {
+    biblio.livres[biblio.nb_livres] = l;
+    biblio.nb_livres = biblio.nb_livres + 1;
+    retourner 0;
+  }
+  retourner -1;
+}
+
+fonction rechercher_par_titre(biblio: *Bibliothèque, titre: chaine) entier {
+  variable i: entier = 0;
+  tantque (i < biblio.nb_livres) {
+    si (biblio.livres[i].titre == titre) {
+      retourner i;
+    }
+    i = i + 1;
+  }
+  retourner -1;
+}
+
+fonction rechercher_par_auteur(biblio: *Bibliothèque, auteur: chaine, résultats: [100]entier) entier {
+  variable nb: entier = 0;
+  variable i: entier = 0;
+  tantque (i < biblio.nb_livres) {
+    si (biblio.livres[i].auteur == auteur) {
+      résultats[nb] = i;
+      nb = nb + 1;
+    }
+    i = i + 1;
+  }
+  retourner nb;
+}
+
+fonction emprunter(biblio: *Bibliothèque, idx: entier) entier {
+  si (idx >= 0 & idx < biblio.nb_livres) {
+    si (biblio.livres[idx].disponible) {
+      biblio.livres[idx].disponible = faux;
+      retourner 0;
+    }
+  }
+  retourner -1;
+}
+
+demarrer() entier {
+  variable biblio: Bibliothèque = Bibliothèque{nb_livres: 0};
+  variable l1: Livre = Livre{titre: "Les Misérables", auteur: "Victor Hugo", année: 1862, ISBN: "978-0-14-044430-8", disponible: vrai};
+  variable l2: Livre = Livre{titre: "Le Petit Prince", auteur: "Antoine de Saint-Exupéry", année: 1943, ISBN: "978-2-07-061275-8", disponible: vrai};
+  variable l3: Livre = Livre{titre: "Germinal", auteur: "Émile Zola", année: 1885, ISBN: "978-0-14-044742-2", disponible: vrai};
+  ajouter_livre(biblio, l1);
+  ajouter_livre(biblio, l2);
+  ajouter_livre(biblio, l3);
+  variable idx: entier = rechercher_par_titre(biblio, "Le Petit Prince");
+  si (idx >= 0) {
+    emprunter(biblio, idx);
+    afficher("Livre emprunté : %s", biblio.livres[idx].titre);
+  }
+  variable résultats_auteur: [100]entier;
+  variable nb_auteur: entier = rechercher_par_auteur(biblio, "Émile Zola", résultats_auteur);
+  si (nb_auteur > 0) {
+    afficher("Livre(s) d'Émile Zola : %s", biblio.livres[résultats_auteur[0]].titre);
+  }
+  retourner 0;
+}
+
+

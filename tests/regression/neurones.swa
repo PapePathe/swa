@@ -1,0 +1,58 @@
+dialecte:français;
+
+// Programme 1 : Simulation d'un réseau de neurones simplifié avec matrices
+// Utilise des structures imbriquées, des boucles profondes et des calculs flottants.
+
+structure Neurone {
+  poids: [10]decimal,   // poids d'entrée
+  biais: decimal,
+  sortie: decimal,
+}
+
+structure Couche {
+  neurones: [5]Neurone,
+  taille_entrée: entier,
+}
+
+fonction sigmoid(x: decimal) decimal {
+  // TODO add libc function for exponential
+  // or write one in the standard library
+  retourner 1.0 / (1.0 + exp(-x));
+}
+
+fonction propager_avant(entrée: [10]decimal, couche: *Couche) entier {
+  variable i: entier = 0;
+  tantque (i < 5) {
+    variable somme: decimal = couche.neurones[i].biais;
+    variable j: entier = 0;
+    tantque (j < 10) {
+      somme = somme + couche.neurones[i].poids[j] * entrée[j];
+      j = j + 1;
+    }
+    couche.neurones[i].sortie = sigmoid(somme);
+    i = i + 1;
+  }
+  retourner 0;
+}
+
+demarrer() entier {
+  variable entrée: [10]decimal = [10]decimal{0.5, 0.2, 0.1, 0.9, 0.3, 0.7, 0.4, 0.6, 0.8, 0.0};
+  variable c: Couche = Couche{taille_entrée: 10};
+  variable i: entier = 0;
+  tantque (i < 5) {
+    c.neurones[i].biais = 0.1 * i;
+    variable j: entier = 0;
+    tantque (j < 10) {
+      c.neurones[i].poids[j] = 0.01 * (i + j);
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  propager_avant(entrée, c);
+  i = 0;
+  tantque (i < 5) {
+    afficher("Neurone %d : sortie = %.4f", i, c.neurones[i].sortie);
+    i = i + 1;
+  }
+  retourner 0;
+}

@@ -1,0 +1,80 @@
+dialecte:français;
+
+// Programme 8 : Protocole ARP simplifié (résolution d'adresse)
+// Simulation de requête et réponse ARP.
+
+structure RequêteARP {
+  adresse_IP_cible: [4]entier,
+  adresse_MAC_expéditeur: [6]entier,
+  adresse_IP_expéditeur: [4]entier,
+}
+
+structure RéponseARP {
+  adresse_IP_cible: [4]entier,
+  adresse_MAC_cible: [6]entier,
+  adresse_MAC_expéditeur: [6]entier,
+  adresse_IP_expéditeur: [4]entier,
+}
+
+structure EntreeTableARP {
+  adresse_IP: [4]entier, 
+  adresse_MAC: [6]entier,
+}
+
+structure TableARP {
+  entrées: [10]EntreeTableARP,
+  nb_entrées: entier,
+}
+
+fonction chercher_dans_table(table: *TableARP, ip: [4]entier) entier {
+  variable i: entier = 0;
+  tantque (i < table.nb_entrées) {
+    si (adresses_égales(table.entrées[i].adresse_IP, ip)) {
+      retourner i;
+    }
+    i = i + 1;
+  }
+  retourner -1;
+}
+
+fonction traiter_requête_ARp(requête: *RequêteARP, table: *TableARP, mac_expéditeur: [6]entier) entier {
+  afficher("Requête ARP reçue pour IP %d.%d.%d.%d",
+           requête.adresse_IP_cible[0], requête.adresse_IP_cible[1],
+           requête.adresse_IP_cible[2], requête.adresse_IP_cible[3]);
+  // Vérifier si l'IP cible est la nôtre
+  variable notre_IP: [4]entier = [4]entier{192,168,1,10}; // IP de la machine
+  si (adresses_égales(requête.adresse_IP_cible, notre_IP)) {
+    afficher("C'est pour nous ! Envoi d'une réponse.");
+    variable réponse: RéponseARP = RéponseARP{
+      adresse_IP_cible: requête.adresse_IP_expéditeur,
+      adresse_MAC_cible: requête.adresse_MAC_expéditeur,
+      adresse_IP_expéditeur: notre_IP,
+      adresse_MAC_expéditeur: mac_expéditeur
+    };
+    // Envoyer la réponse (simulé)
+    afficher("Réponse envoyée : MAC %x:%x:%x:%x:%x:%x",
+             réponse.adresse_MAC_expéditeur[0], réponse.adresse_MAC_expéditeur[1],
+             réponse.adresse_MAC_expéditeur[2], réponse.adresse_MAC_expéditeur[3],
+             réponse.adresse_MAC_expéditeur[4], réponse.adresse_MAC_expéditeur[5]);
+  }
+  retourner 0;
+}
+
+demarrer() entier {
+  variable table_locale: TableARP = TableARP{nb_entrées: 2};
+  table_locale.entrées[0].adresse_IP = [4]entier{192,168,1,1};
+  table_locale.entrées[0].adresse_MAC = [6]entier{0x00,0x11,0x22,0x33,0x44,0x55};
+  table_locale.entrées[1].adresse_IP = [4]entier{192,168,1,2};
+  table_locale.entrées[1].adresse_MAC = [6]entier{0x66,0x77,0x88,0x99,0xAA,0xBB};
+  variable notre_MAC: [6]entier = [6]entier{0xAA,0xBB,0xCC,0xDD,0xEE,0xFF};
+  // Requête ARP pour notre IP
+  variable requête: RequêteARP = RequêteARP{
+    adresse_IP_cible: [4]entier{192,168,1,10},
+    adresse_MAC_expéditeur: [6]entier{0x00,0x01,0x02,0x03,0x04,0x05},
+    adresse_IP_expéditeur: [4]entier{192,168,1,20}
+  };
+  traiter_requête_ARp(requête, table_locale, notre_MAC);
+  retourner 0;
+}
+
+

@@ -1,0 +1,59 @@
+dialecte:français;
+
+// Programme 5 : Projectile avec résistance de l'air
+// Force de traînée proportionnelle au carré de la vitesse : F = -0.5 * ρ * Cx * A * v²
+
+structure Projectile {
+  masse: decimal,           // kg
+  surface: decimal,         // m²
+  Cx: decimal,              // coefficient de traînée
+  position_x: decimal,      // m
+  position_y: decimal,
+  vitesse_x: decimal,
+  vitesse_y: decimal,
+}
+
+fonction traînée(p: *Projectile, ρ_air: decimal) decimal {
+  variable v2: decimal = p.vitesse_x * p.vitesse_x + p.vitesse_y * p.vitesse_y;
+  variable F: decimal = 0.5 * ρ_air * p.Cx * p.surface * v2;
+  retourner F;
+}
+
+fonction mettre_à_jour_projectile(p: *Projectile, dt: decimal, ρ_air: decimal, g: decimal) entier {
+  variable v_norme: decimal = sqrt(p.vitesse_x * p.vitesse_x + p.vitesse_y * p.vitesse_y);
+  si (v_norme == 0.0) {
+    retourner 0;
+  }
+  variable F_traînée: decimal = traînée(p, ρ_air);
+  variable ax: decimal = -(F_traînée / p.masse) * (p.vitesse_x / v_norme);
+  variable ay: decimal = -g - (F_traînée / p.masse) * (p.vitesse_y / v_norme);
+  p.vitesse_x = p.vitesse_x + ax * dt;
+  p.vitesse_y = p.vitesse_y + ay * dt;
+  p.position_x = p.position_x + p.vitesse_x * dt;
+  p.position_y = p.position_y + p.vitesse_y * dt;
+  retourner 0;
+}
+
+demarrer() entier {
+  variable p: Projectile = Projectile{
+    masse: 0.145,           // balle de baseball
+    surface: 0.0042,        // m²
+    Cx: 0.3,
+    position_x: 0.0,
+    position_y: 1.0,        // lâchée à 1 m
+    vitesse_x: 30.0,        // 30 m/s horizontal
+    vitesse_y: 10.0         // 10 m/s vers le haut
+  };
+  variable ρ_air: decimal = 1.2; // kg/m³
+  variable g: decimal = 9.81;
+  variable dt: decimal = 0.01;
+  variable t: decimal = 0.0;
+  tantque (p.position_y >= 0.0) {
+    mettre_à_jour_projectile(p, dt, ρ_air, g);
+    t = t + dt;
+  }
+  afficher("Temps de vol : %.2f s", t);
+  afficher("Portée : %.2f m", p.position_x);
+  afficher("Vitesse à l'impact : (%.2f, %.2f) m/s", p.vitesse_x, p.vitesse_y);
+  retourner 0;
+}

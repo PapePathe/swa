@@ -1,0 +1,87 @@
+dialecte:français;
+
+// Programme 12 : Résolution d'un système linéaire par la méthode de Gauss-Jordan
+// Utilise des matrices et des pivots.
+
+structure MatriceAugmentée {
+  coefficients: [3][4]decimal, // 3 équations, 4 colonnes (dernière = second membre)
+  taille: entier,
+}
+
+fonction échanger_lignes(M: *MatriceAugmentée, i: entier, j: entier) entier {
+  variable k: entier = 0;
+  tantque (k < M.taille + 1) {
+    variable temp: decimal = M.coefficients[i][k];
+    M.coefficients[i][k] = M.coefficients[j][k];
+    M.coefficients[j][k] = temp;
+    k = k + 1;
+  }
+  retourner 0;
+}
+
+fonction diviser_ligne(M: *MatriceAugmentée, i: entier, diviseur: decimal) entier {
+  variable k: entier = 0;
+  tantque (k < M.taille + 1) {
+    M.coefficients[i][k] = M.coefficients[i][k] / diviseur;
+    k = k + 1;
+  }
+  retourner 0;
+}
+
+fonction combiner_lignes(M: *MatriceAugmentée, i: entier, j: entier, facteur: decimal) entier {
+  // Ligne i = Ligne i - facteur * Ligne j
+  variable k: entier = 0;
+  tantque (k < M.taille + 1) {
+    M.coefficients[i][k] = M.coefficients[i][k] - facteur * M.coefficients[j][k];
+    k = k + 1;
+  }
+  retourner 0;
+}
+
+fonction gauss_jordan(M: *MatriceAugmentée) entier {
+  variable n: entier = M.taille;
+  variable i: entier = 0;
+  tantque (i < n) {
+    // Recherche du pivot maximal
+    variable pivot: entier = i;
+    variable j: entier = i + 1;
+    tantque (j < n) {
+      si (abs(M.coefficients[j][i]) > abs(M.coefficients[pivot][i])) {
+        pivot = j;
+      }
+      j = j + 1;
+    }
+    si (M.coefficients[pivot][i] == 0.0) {
+      retourner -1; // système singulier
+    }
+    échanger_lignes(M, i, pivot);
+    diviser_ligne(M, i, M.coefficients[i][i]);
+    // Éliminer les autres lignes
+    j = 0;
+    tantque (j < n) {
+      si (j != i) {
+        combiner_lignes(M, j, i, M.coefficients[j][i]);
+      }
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  retourner 0;
+}
+
+demarrer() entier {
+  variable système: MatriceAugmentée = MatriceAugmentée{taille: 3};
+  // 2x + y - z = 8
+  // -3x - y + 2z = -11
+  // -2x + y + 2z = -3
+  système.coefficients[0][0] = 2.0; système.coefficients[0][1] = 1.0; système.coefficients[0][2] = -1.0; système.coefficients[0][3] = 8.0;
+  système.coefficients[1][0] = -3.0; système.coefficients[1][1] = -1.0; système.coefficients[1][2] = 2.0; système.coefficients[1][3] = -11.0;
+  système.coefficients[2][0] = -2.0; système.coefficients[2][1] = 1.0; système.coefficients[2][2] = 2.0; système.coefficients[2][3] = -3.0;
+  variable err: entier = gauss_jordan(système);
+  si (err == 0) {
+    afficher("Solution : x = %.2f, y = %.2f, z = %.2f", système.coefficients[0][3], système.coefficients[1][3], système.coefficients[2][3]);
+  } sinon {
+    afficher("Système singulier ou erreur");
+  }
+  retourner 0;
+}

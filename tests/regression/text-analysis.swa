@@ -1,0 +1,87 @@
+dialecte:français;
+
+// panic: lex not supported (©) quence = mots[k+1].frÃ©quence;
+// 	        mots[k+1].mot = temp_mot;
+// 	        mots[k+1].frÃ©quence = temp_freq;
+// 	      }
+// 	      k = k + 1;
+// 	    }
+// 	    j = j + 1;
+// 	  }
+// 	  i = 0;
+// 	  tantque (i < nb_mots) {
+// 	    afficher("Mot : %s, fréquence : %d", mots[i].mot, mots[i].fréquence);
+// 	    i = i + 1;
+// 	  }
+// 	  retourner 0;
+// 	}
+// 
+// Programme 2 : Analyse de texte avec comptage de mots (utilise des chaînes et des structures)
+// Compter la fréquence des mots dans un texte donné.
+
+structure MotFréquence {
+  mot: chaine,
+  fréquence: entier,
+}
+
+fonction est_dans_tableau(m: chaine, tab: [100]MotFréquence, taille: entier) entier {
+  variable i: entier = 0;
+  tantque (i < taille) {
+    si (tab[i].mot == m) {
+      retourner i;
+    }
+    i = i + 1;
+  }
+  retourner -1;
+}
+
+demarrer() entier {
+  variable texte: chaine = "Le chat et le chien jouent dans le jardin. Le chat est content, le chien aussi.";
+  variable mots: [100]MotFréquence;
+  variable nb_mots: entier = 0;
+  variable courant: chaine = "";
+  variable i: entier = 0;
+  variable long_texte: entier = longueur(texte); // hypothétique fonction longueur
+  tantque (i < long_texte) {
+    variable c: chaine = texte[i]; // accès caractère
+    si (c == " " ou c == "." ou c == "," ou c == "!" ou c == "?") {
+      si (courant != "") {
+        variable idx: entier = est_dans_tableau(courant, mots, nb_mots);
+        si (idx >= 0) {
+          mots[idx].fréquence = mots[idx].fréquence + 1;
+        } sinon {
+          mots[nb_mots].mot = courant;
+          mots[nb_mots].fréquence = 1;
+          nb_mots = nb_mots + 1;
+        }
+        courant = "";
+      }
+    } sinon {
+      courant = courant + c; // concaténation
+    }
+    i = i + 1;
+  }
+  // Trier par fréquence (tri à bulles)
+  variable j: entier = 0;
+  tantque (j < nb_mots - 1) {
+    variable k: entier = 0;
+    tantque (k < nb_mots - 1 - j) {
+      si (mots[k].fréquence < mots[k+1].fréquence) {
+        variable temp_mot: chaine = mots[k].mot;
+        variable temp_freq: entier = mots[k].fréquence;
+        mots[k].mot = mots[k+1].mot;
+        mots[k].frÃ©quence = mots[k+1].frÃ©quence;
+        mots[k+1].mot = temp_mot;
+        mots[k+1].frÃ©quence = temp_freq;
+      }
+      k = k + 1;
+    }
+    j = j + 1;
+  }
+  i = 0;
+  tantque (i < nb_mots) {
+    afficher("Mot : %s, fréquence : %d", mots[i].mot, mots[i].fréquence);
+    i = i + 1;
+  }
+  retourner 0;
+}

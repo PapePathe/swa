@@ -1,0 +1,14 @@
+dialect:english;
+
+// Test 1: Complex arithmetic expression with parentheses and operator precedence
+start() int {
+  let a: int = 5;
+  let b: int = 10;
+  let c: int = 3;
+  let result: int = (a + b) * c - (b / a) + (a % c);
+  // Expected: (5+10)*3 - (10/5) + (5%3) = 15*3 - 2 + 2 = 45 - 2 + 2 = 45
+  print("Result: %d", result);
+  return 0;
+}
+
+

@@ -1,0 +1,136 @@
+dialecte:français;
+
+// Programme 3 : Simulation du handshake TCP (Three‑Way Handshake)
+// Utilise des structures pour représenter les segments TCP et une machine d'états simplifiée.
+// Inclut la gestion des numéros de séquence et d'acquittement.
+
+structure SegmentTCP {
+  numéro_séquence: entier,
+  numéro_acquittement: entier,
+  flag_syn: booleen,
+  flag_ack: booleen,
+  flag_fin: booleen,
+  données: chaine,
+}
+
+structure ConnexionTCP {
+  état: entier,             // 0: FERMÉ, 1: ÉCOUTE, 2: SYN_ENVOYÉ, 3: SYN_REÇU, 4: ÉTABLIE
+  numéro_séquence_local: entier,
+  numéro_séquence_distant: entier,
+  port_local: entier,
+  port_distant: entier,
+}
+
+fonction envoyer_segment(conn: *ConnexionTCP, segment: *SegmentTCP) entier {
+  // Simule l'envoi d'un segment (affichage)
+  afficher("Envoi : SYN=%d, ACK=%d, seq=%d, ack=%d",
+           segment.flag_syn, segment.flag_ack, segment.numéro_séquence, segment.numéro_acquittement);
+  retourner 0;
+}
+
+fonction recevoir_segment(conn: *ConnexionTCP, segment: *SegmentTCP) entier {
+  afficher("Réception : SYN=%d, ACK=%d, seq=%d, ack=%d",
+           segment.flag_syn, segment.flag_ack, segment.numéro_séquence, segment.numéro_acquittement);
+  // Machine d'états simplifiée
+  si (conn.état == 1) { // ÉCOUTE
+    si (segment.flag_syn && !segment.flag_ack) {
+      // SYN reçu
+      conn.état = 3; // SYN_REÇU
+      conn.numéro_séquence_distant = segment.numéro_séquence;
+      // Envoyer SYN-ACK
+      variable synack: SegmentTCP = SegmentTCP{
+        numéro_séquence: conn.numéro_séquence_local,
+        numéro_acquittement: conn.numéro_séquence_distant + 1,
+        flag_syn: vrai,
+        flag_ack: vrai,
+        flag_fin: faux
+      };
+      envoyer_segment(conn, synack);
+      conn.numéro_séquence_local = conn.numéro_séquence_local + 1;
+    }
+  } sinon {
+    si (conn.état == 2) { // SYN_ENVOYÉ
+      si (segment.flag_syn & segment.flag_ack) {
+        // SYN-ACK reçu
+        si (segment.numéro_acquittement == conn.numéro_séquence_local + 1) {
+          conn.état = 4; // ÉTABLIE
+          conn.numéro_séquence_distant = segment.numéro_séquence;
+          conn.numéro_séquence_local = conn.numéro_séquence_local + 1;
+          // Envoyer ACK final
+          variable ack: SegmentTCP = SegmentTCP{
+            numéro_séquence: conn.numéro_séquence_local,
+            numéro_acquittement: conn.numéro_séquence_distant + 1,
+            flag_syn: faux,
+            flag_ack: vrai,
+            flag_fin: faux
+          };
+          envoyer_segment(conn, ack);
+          conn.numéro_séquence_local = conn.numéro_séquence_local + 1;
+        }
+      }
+    } sinon {
+      si (conn.état == 3) { // SYN_REÇU
+        si (segment.flag_ack & !segment.flag_syn) {
+          si (segment.numéro_acquittement == conn.numéro_séquence_local) {
+            conn.état = 4; // ÉTABLIE
+            afficher("Connexion établie !");
+          }
+        }
+      }
+    }
+  }
+  retourner 0;
+}
+
+demarrer() entier {
+  variable conn_serveur: ConnexionTCP = ConnexionTCP{
+    état: 1,                // ÉCOUTE
+    numéro_séquence_local: 1000,
+    numéro_séquence_distant: 0,
+    port_local: 80,
+    port_distant: 0
+  };
+  variable conn_client: ConnexionTCP = ConnexionTCP{
+    état: 0,                // FERMÉ
+    numéro_séquence_local: 2000,
+    numéro_séquence_distant: 0,
+    port_local: 12345,
+    port_distant: 80
+  };
+  // Côté client : envoie SYN
+  variable syn: SegmentTCP = SegmentTCP{
+    numéro_séquence: conn_client.numéro_séquence_local,
+    numéro_acquittement: 0,
+    flag_syn: vrai,
+    flag_ack: faux,
+    flag_fin: faux
+  };
+  conn_client.état = 2; // SYN_ENVOYÉ
+  envoyer_segment(conn_client, syn);
+  conn_client.numéro_séquence_local = conn_client.numéro_séquence_local + 1;
+  // Le serveur reçoit le SYN
+  recevoir_segment(conn_serveur, syn);
+  // Le serveur a envoyé SYN-ACK ; le client le reçoit
+  // Pour la simulation, on crée le SYN-ACK manuellement
+  variable synack: SegmentTCP = SegmentTCP{
+    numéro_séquence: conn_serveur.numéro_séquence_local - 1, // car le serveur a incrémenté après envoi
+    numéro_acquittement: conn_client.numéro_séquence_distant + 1,
+    flag_syn: vrai,
+    flag_ack: vrai,
+    flag_fin: faux
+  };
+  recevoir_segment(conn_client, synack);
+  // Le client envoie ACK final (déjà fait dans la machine d'états)
+  // On simule l'ACK final reçu par le serveur
+  variable ack_final: SegmentTCP = SegmentTCP{
+    numéro_séquence: conn_client.numéro_séquence_local - 1,
+    numéro_acquittement: conn_serveur.numéro_séquence_local,
+    flag_syn: faux,
+    flag_ack: vrai,
+    flag_fin: faux
+  };
+  recevoir_segment(conn_serveur, ack_final);
+  afficher("État final du serveur : %d", conn_serveur.état);
+  afficher("État final du client : %d", conn_client.état);
+  retourner 0;
+}
