@@ -133,7 +133,7 @@ func (g *LLVMGenerator) extractType(ctx *CompilerCtx, t ast.Type) (error, extrac
 
 	switch typ := t.(type) {
 	case ast.NumberType, ast.Number64Type, ast.FloatType,
-		ast.StringType, ast.VoidType, ast.ErrorType, *ast.TupleType:
+		ast.StringType, ast.VoidType, ast.ErrorType, *ast.TupleType, *ast.BoolType:
 		return nil, extractedType{typ: compiledType.Type}
 	case ast.SymbolType:
 		err, entry := ctx.FindStructSymbol(typ.Name)
@@ -193,7 +193,7 @@ func (g *LLVMGenerator) extractType(ctx *CompilerCtx, t ast.Type) (error, extrac
 	default:
 		key := "LLVMGenerator.VisitFunctionDefinition.UnsupportedArgumentType"
 
-		return g.Ctx.Dialect.Error(key, t), extractedType{}
+		return g.Ctx.Dialect.Error(key, t.Value().String()), extractedType{}
 	}
 }
 
