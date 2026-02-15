@@ -123,5 +123,7 @@ func (m French) translations() map[string]string {
 
 		"LLVMCompiler.MissingProgramEntrypoint":  "Vous devez definir le programme principal",
 		"LLVMCompiler.TooManyProgramEntrypoints": "Vous devez definir un seul programme principal, nombre (%d)",
+
+		"VisitReturnStatement.UnsupportedExpression": "VisitReturnStatement: Unsupported expression type %T",
 	}
 }
