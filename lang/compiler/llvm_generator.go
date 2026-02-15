@@ -120,9 +120,14 @@ func (g *LLVMGenerator) VisitAssignmentExpression(node *ast.AssignmentExpression
 
 	var address *llvm.Value
 
+	g.Debugf("SymbolTableEntry of compiledAssignee %+v", compiledAssignee.SymbolTableEntry)
+
 	if compiledAssignee.SymbolTableEntry != nil &&
 		compiledAssignee.SymbolTableEntry.Address != nil {
 		// TODO: figure out why we are doing this
+		// TODO this triggers LLVM Verify Module Error
+		// Store operand must be a pointer. store i32 %23, i32 %21, align 4
+		// File: tests/./regression/rsa.swa
 		if compiledAssignee.SymbolTableEntry.Ref != nil {
 			address = compiledAssignee.Value
 		} else {
@@ -135,6 +140,7 @@ func (g *LLVMGenerator) VisitAssignmentExpression(node *ast.AssignmentExpression
 	g.Ctx.Builder.CreateStore(valueToBeAssigned, *address)
 
 	if g.Ctx.Debugging {
+		fmt.Printf("VisitAssignmentExpression address to be assigned: %s\n", address)
 		fmt.Printf("VisitAssignmentExpression assignee: %s\n", compiledAssignee.Value.String())
 		fmt.Printf("VisitAssignmentExpression value: %s\n", valueToBeAssigned.String())
 	}
@@ -421,7 +427,7 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 		default:
 			key := "VisitSymbolExpression.UnsupportedTypeAsGlobal"
 
-			return g.Ctx.Dialect.Error(key, entry.DeclaredType)
+			return g.Ctx.Dialect.Error(key, entry.DeclaredType.Value().String())
 		}
 
 		g.setLastResult(
