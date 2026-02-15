@@ -101,6 +101,7 @@ var nodeVariableDeclarationStyles = map[reflect.Type]InitializationStyle{
 	reflect.TypeFor[*ast.PrefixExpression]():               StyleDefault,
 	reflect.TypeFor[*ast.ZeroExpression]():                 StyleDefault,
 	reflect.TypeFor[*ast.ErrorExpression]():                StyleDefault,
+	reflect.TypeFor[*ast.BooleanExpression]():              StyleDefault,
 }
 
 func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatement) error {
@@ -137,11 +138,22 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 			return g.Ctx.Dialect.Error(key, node.Value)
 		}
 
-		// Logic for extracting value from an accessor
+		g.Debugf("DeclaredType %s, ValueType: %+v",
+			node.ExplicitType.Value().String(),
+			res.StuctPropertyValueType)
+
 		typ := res.Value.AllocatedType()
+
 		if _, ok := node.Value.(*ast.ArrayOfStructsAccessExpression); ok {
+			g.Debugf("Value is a array of structs expression")
 			typ = *res.StuctPropertyValueType
 		}
+
+		if _, ok := node.Value.(*ast.MemberExpression); ok {
+			g.Debugf("Value is a binary expression")
+			typ = *res.StuctPropertyValueType
+		}
+
 		loadedVal := g.Ctx.Builder.CreateLoad(typ, *res.Value, "tmp.load")
 
 		alloc := g.Ctx.Builder.CreateAlloca(typ, node.Name)
