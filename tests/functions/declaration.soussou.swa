@@ -1,8 +1,8 @@
 khuien:soussou;
 
-wali gbegbe printf2(format: sèbèli) konti; 
-wali open(name: sèbèli, mode: konti) konti64; 
-wali close(fd: konti64); 
+wali gbegbe printf2(format: sèbèli) konti;
+wali open(name: sèbèli, mode: konti) konti64;
+wali close(fd: konti64);
 wali getpid() konti;
 wali getenv(name: sèbèli) sèbèli;
 
