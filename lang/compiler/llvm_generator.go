@@ -406,7 +406,8 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 		load := llvm.Value{}
 
 		switch entry.DeclaredType.Value() {
-		case ast.DataTypeFloat, ast.DataTypeNumber, ast.DataTypeNumber64:
+		case ast.DataTypeFloat, ast.DataTypeNumber,
+			ast.DataTypeNumber64, ast.DataTypeBool:
 			err := entry.DeclaredType.Accept(g)
 			if err != nil {
 				return err
@@ -535,7 +536,7 @@ func (g *LLVMGenerator) prepareReturnValue(expr ast.Expression, res *CompilerRes
 		return alloc, nil
 	case *ast.SymbolExpression, *ast.BinaryExpression, *ast.FunctionCallExpression,
 		*ast.NumberExpression, *ast.FloatExpression, *ast.TupleExpression,
-		*ast.ErrorExpression, *ast.ZeroExpression:
+		*ast.ErrorExpression, *ast.ZeroExpression, *ast.BooleanExpression:
 		return *res.Value, nil
 	default:
 		key := "VisitReturnStatement.UnsupportedExpression"
