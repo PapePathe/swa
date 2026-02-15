@@ -26,6 +26,9 @@ func TestReservedFrench(t *testing.T) {
 		"variable":   Let,
 		"variadique": Variadic,
 		"zero":       Zero,
+		"vrai":       True,
+		"faux":       False,
+		"booleen":    TypeBool,
 	}
 
 	French := French{}
