@@ -52,9 +52,7 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 
 	finalLeft, finalRight, err := g.coerceOperands(leftVal, rightVal)
 	if err != nil {
-		key := "LLVMGenerator.VisitBinaryExpression.TypeMismatch"
-
-		return g.Ctx.Dialect.Error(key, node.TokenStream(), err)
+		return err
 	}
 
 	err, res := g.handleBinaryOp(node.Operator.Kind, finalLeft, finalRight)
