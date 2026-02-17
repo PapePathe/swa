@@ -12,6 +12,8 @@ elif [ "$1" == "parse-tree" ]; then
     ./tmp/swa parse -s test.swa -o tree
 elif [ "$1" == "tokenize" ]; then
     ./tmp/swa tokenize -s test.swa
+elif [ "$1" == "tokenize-file" ]; then
+    ./tmp/swa tokenize -s "$2"
 elif [ "$1" == "compile" ]; then
     ./tmp/swa compile -s test.swa && ./start.exe
 elif [ "$1" == "compile-trace" ]; then
@@ -20,8 +22,8 @@ elif [ "$1" == "compile-file" ]; then
     ./tmp/swa compile -s "$2" && ./start.exe
 elif [ "$1" == "compile-file-trace" ]; then
     SWA_DEBUG=yes ./tmp/swa compile -e -s "$2" && ./start.exe
-
 elif [ "$1" == "compile-swa" ]; then
+#    ./tmp/swa parse -s test.swa -o tree
     ./tmp/swa compile -s test.swa -g swa && ./start.exe
 
 else
