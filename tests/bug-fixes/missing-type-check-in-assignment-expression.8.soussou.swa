@@ -1,6 +1,6 @@
 khuien:soussou;
 
-wali multiply(first : desimali, last: desimali) konti {
+wali multiply(first : desimali, last: desimali) desimali {
   gbilen first * last;
 }
 
