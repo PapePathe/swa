@@ -109,6 +109,7 @@ var structInjectors = map[reflect.Type]StructInitializationExpressionPropertyInj
 	reflect.TypeFor[*ast.BooleanExpression]():              injectDirectly,
 	reflect.TypeFor[*ast.NumberExpression]():               injectDirectly,
 	reflect.TypeFor[*ast.FloatExpression]():                injectDirectly,
+	reflect.TypeFor[*ast.FunctionCallExpression]():         injectDirectly,
 	reflect.TypeFor[*ast.StringExpression]():               injectDirectly,
 	reflect.TypeFor[*ast.BinaryExpression]():               injectDirectly,
 	reflect.TypeFor[*ast.MemberExpression]():               injectDirectly,

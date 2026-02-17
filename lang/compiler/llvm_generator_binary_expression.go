@@ -62,14 +62,28 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 
 	// Determine resulting type
 	resultingSwaType := leftRes.SwaType
+
 	if leftRes.SwaType != nil && rightRes.SwaType != nil {
-		if leftRes.SwaType.Value() == ast.DataTypeFloat || rightRes.SwaType.Value() == ast.DataTypeFloat {
+		if leftRes.SwaType.Value() == ast.DataTypeFloat ||
+			rightRes.SwaType.Value() == ast.DataTypeFloat {
 			resultingSwaType = ast.FloatType{}
 		}
 	}
 
+	if node.Operator.Kind == lexer.Equals ||
+		node.Operator.Kind == lexer.NotEquals ||
+		node.Operator.Kind == lexer.And ||
+		node.Operator.Kind == lexer.Or ||
+		node.Operator.Kind == lexer.LessThan ||
+		node.Operator.Kind == lexer.LessThanEquals ||
+		node.Operator.Kind == lexer.GreaterThan ||
+		node.Operator.Kind == lexer.GreaterThanEquals {
+		resultingSwaType = &ast.BoolType{}
+	}
+
 	node.SwaType = resultingSwaType
 	res.SwaType = resultingSwaType
+
 	g.setLastResult(res)
 
 	return nil

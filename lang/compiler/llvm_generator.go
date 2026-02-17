@@ -19,11 +19,12 @@ type CompilerResultType struct {
 }
 
 type LLVMGenerator struct {
-	Ctx            *CompilerCtx
-	lastResult     *CompilerResult
-	lastTypeResult *CompilerResultType
-	zeroValues     map[reflect.Type]*CompilerResult
-	logger         *Logger
+	Ctx                   *CompilerCtx
+	lastResult            *CompilerResult
+	lastTypeResult        *CompilerResultType
+	zeroValues            map[reflect.Type]*CompilerResult
+	logger                *Logger
+	currentFuncReturnType ast.Type
 }
 
 func (g *LLVMGenerator) VisitBooleanExpression(node *ast.BooleanExpression) error {
@@ -228,7 +229,16 @@ func (g *LLVMGenerator) VisitMainStatement(node *ast.MainStatement) error {
 	block := g.Ctx.Context.AddBasicBlock(fn, "entry")
 	g.Ctx.Builder.SetInsertPointAtEnd(block)
 
-	return node.Body.Accept(g)
+	g.currentFuncReturnType = &ast.NumberType{}
+
+	err := node.Body.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	g.currentFuncReturnType = nil
+
+	return nil
 }
 
 // VisitNumberExpression implements [ast.CodeGenerator].
@@ -284,12 +294,26 @@ func (g *LLVMGenerator) VisitReturnStatement(node *ast.ReturnStatement) error {
 		return err
 	}
 
+	retValType := node.Value.VisitedSwaType()
+
+	if !retValType.Equals(g.currentFuncReturnType) {
+		return fmt.Errorf(
+			"expected return value of function to be %s, but got %s",
+			g.currentFuncReturnType,
+			retValType,
+		)
+	}
+
+	g.Debugf(
+		"Func return type %s, Func return type %s",
+		g.currentFuncReturnType.Value().String(),
+		retValType.Value().String())
+
 	g.Ctx.Builder.CreateRet(retVal)
 
 	return nil
 }
 
-// VisitStringExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitStringExpression(node *ast.StringExpression) error {
 	old := g.logger.Step("StringExpr")
 
@@ -542,7 +566,8 @@ func (g *LLVMGenerator) prepareReturnValue(expr ast.Expression, res *CompilerRes
 		return alloc, nil
 	case *ast.SymbolExpression, *ast.BinaryExpression, *ast.FunctionCallExpression,
 		*ast.NumberExpression, *ast.FloatExpression, *ast.TupleExpression,
-		*ast.ErrorExpression, *ast.ZeroExpression, *ast.BooleanExpression:
+		*ast.ErrorExpression, *ast.ZeroExpression, *ast.BooleanExpression,
+		*ast.PrefixExpression:
 		return *res.Value, nil
 	default:
 		key := "VisitReturnStatement.UnsupportedExpression"

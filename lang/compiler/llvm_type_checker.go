@@ -9,21 +9,6 @@ type LLVMTypeChecker struct {
 	ctx *CompilerCtx
 }
 
-// ZeroOfBoolType implements [ast.CodeGenerator].
-func (l *LLVMTypeChecker) ZeroOfBoolType(node *ast.BoolType) error {
-	panic("unimplemented")
-}
-
-// VisitBoolType implements [ast.CodeGenerator].
-func (l *LLVMTypeChecker) VisitBoolType(node *ast.BoolType) error {
-	panic("unimplemented")
-}
-
-// VisitBooleanExpression implements [ast.CodeGenerator].
-func (l *LLVMTypeChecker) VisitBooleanExpression(node *ast.BooleanExpression) error {
-	panic("unimplemented")
-}
-
 var _ ast.CodeGenerator = (*LLVMTypeChecker)(nil)
 
 func NewLLVMTypeChecker(ctx *CompilerCtx) *LLVMTypeChecker {
@@ -82,6 +67,11 @@ func (l *LLVMTypeChecker) VisitVarDeclaration(node *ast.VarDeclarationStatement)
 		return nil
 	}
 
+	err := node.Value.Accept(l)
+	if err != nil {
+		return err
+	}
+
 	// TODO visited swa type should not be nil
 	// All visited expressions should have the field set
 	if node.Value.VisitedSwaType() == nil {
@@ -132,6 +122,16 @@ func (l *LLVMTypeChecker) VisitArrayAccessExpression(node *ast.ArrayAccessExpres
 	return nil
 }
 func (l *LLVMTypeChecker) VisitArrayInitializationExpression(node *ast.ArrayInitializationExpression) error {
+	typ, _ := node.Underlying.(ast.ArrayType)
+
+	for _, v := range node.Contents {
+		if v.VisitedSwaType() != typ.Underlying {
+			return fmt.Errorf("cannot insert %s in array of %s",
+				v.VisitedSwaType().Value().String(),
+				typ.Underlying.Value().String())
+		}
+	}
+
 	return nil
 }
 func (l *LLVMTypeChecker) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStructsAccessExpression) error {
@@ -173,6 +173,9 @@ func (l *LLVMTypeChecker) ZeroOfVoidType(node *ast.VoidType) error              
 func (l *LLVMTypeChecker) ZeroOfTupleType(node *ast.TupleType) error                 { return nil }
 func (l *LLVMTypeChecker) VisitZeroExpression(node *ast.ZeroExpression) error        { return nil }
 func (l *LLVMTypeChecker) VisitBinaryExpression(node *ast.BinaryExpression) error    { return nil }
+func (l *LLVMTypeChecker) ZeroOfBoolType(node *ast.BoolType) error                   { return nil }
+func (l *LLVMTypeChecker) VisitBoolType(node *ast.BoolType) error                    { return nil }
+func (l *LLVMTypeChecker) VisitBooleanExpression(node *ast.BooleanExpression) error  { return nil }
 
 func (l *LLVMTypeChecker) VisitSymbolAdressExpression(node *ast.SymbolAdressExpression) error {
 	return nil
