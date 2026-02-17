@@ -134,12 +134,14 @@ func (g *LLVMGenerator) coerceOperands(left, right llvm.Value) (llvm.Value, llvm
 		targetType := g.Ctx.Context.DoubleType()
 		lCasted := g.castToFloat(left, targetType)
 		rCasted := g.castToFloat(right, targetType)
+
 		return lCasted, rCasted, nil
 	}
 
 	// Logic: Promote smaller integers to 32-bit (or your language's default int)
 	if lk == llvm.IntegerTypeKind && rk == llvm.IntegerTypeKind {
 		targetType := g.Ctx.Context.Int32Type()
+
 		return g.Ctx.Builder.CreateIntCast(left, targetType, "l.ext"),
 			g.Ctx.Builder.CreateIntCast(right, targetType, "r.ext"), nil
 	}
@@ -186,6 +188,7 @@ func (g *LLVMGenerator) handlePrefixMinus(val llvm.Value) llvm.Value {
 	if val.Type().TypeKind() == llvm.FloatTypeKind || val.Type().TypeKind() == llvm.DoubleTypeKind {
 		return g.Ctx.Builder.CreateFNeg(val, "")
 	}
+
 	return g.Ctx.Builder.CreateNeg(val, "")
 }
 
