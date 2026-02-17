@@ -150,19 +150,19 @@ func TestArrayAccessWithPrefixExpression(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./arrays/prefix-expression/source.french.swa",
-			"Seuls les nombres positif sont permis comme indice de tableau, valeur courante: (-4)\n")
+			"Seuls les nombres positif sont permis comme indice de tableau, valeur courante: (- 4)\n")
 	})
 
 	t.Run("English", func(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./arrays/prefix-expression/source.english.swa",
-			"Only numbers are supported as array index, current: (-4)\n")
+			"Only numbers are supported as array index, current: (- 4)\n")
 	})
 
 	t.Run("Soussou", func(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./arrays/prefix-expression/source.soussou.swa",
-			"Konti nan lanné tableau kui, yakosi: (-4)\n")
+			"Konti nan lanné tableau kui, yakosi: (- 4)\n")
 	})
 }
 
