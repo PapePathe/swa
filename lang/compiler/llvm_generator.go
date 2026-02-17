@@ -579,7 +579,8 @@ func (g *LLVMGenerator) prepareReturnValue(expr ast.Expression, res *CompilerRes
 // resolveGepIndices prepares the indices for a CreateGEP call.
 // It ensures the first index is 0 (dereference) and the second is the evaluated index.
 func (g *LLVMGenerator) resolveGepIndices(indexNode ast.Node) (error, []llvm.Value) {
-	if err := indexNode.Accept(g); err != nil {
+	err := indexNode.Accept(g)
+	if err != nil {
 		return err, nil
 	}
 
