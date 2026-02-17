@@ -267,6 +267,7 @@ func (g *LLVMGenerator) VisitNumberExpression(node *ast.NumberExpression) error 
 		signed,
 	)
 	node.SwaType = ast.NumberType{}
+
 	g.setLastResult(&CompilerResult{Value: &res, SwaType: node.SwaType})
 
 	return nil
@@ -535,6 +536,7 @@ func (g *LLVMGenerator) VisitPrefixExpression(node *ast.PrefixExpression) error 
 
 	val := handler(g, *res.Value)
 	node.SwaType = res.SwaType
+
 	g.setLastResult(&CompilerResult{Value: &val})
 
 	return nil
