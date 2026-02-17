@@ -7,6 +7,8 @@ type Type interface {
 	Accept(g CodeGenerator) error
 	AcceptZero(g CodeGenerator) error
 	Value() DataType
+	Equals(Type) bool
+	String() string
 }
 
 type ExpressionType interface {

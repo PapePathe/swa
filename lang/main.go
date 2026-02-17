@@ -41,6 +41,8 @@ func main() {
 		StringP("server", "l", "", "start a web server")
 
 	compileCmd.Flags().
+		StringP("codegen", "g", "llvm", "code generator to use. llvm or swa")
+	compileCmd.Flags().
 		StringP("source", "s", "", "location of the file containing the source code")
 	compileCmd.Flags().
 		StringP("output", "o", "start", "location of the compiled executable")
@@ -72,6 +74,7 @@ var compileCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, _ []string) {
 		source, _ := cmd.Flags().GetString("source")
 		output, _ := cmd.Flags().GetString("output")
+		codegen, _ := cmd.Flags().GetString("codegen")
 
 		bytes, err := os.ReadFile(source)
 		if err != nil {
@@ -90,17 +93,35 @@ var compileCmd = &cobra.Command{
 			Architecture:    "X86-64",
 			Output:          output,
 		}
-		req := compiler.LLVMCompilerRequest{
-			Tree:     &tree,
-			Target:   target,
-			Dialect:  dialect,
-			Filename: source,
-		}
 
-		err = compiler.Compile(&req)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+		switch codegen {
+		case "swa":
+			req := compiler.ASMCompilerRequest{
+				Tree:     &tree,
+				Target:   target,
+				Dialect:  dialect,
+				Filename: source,
+			}
+			cmp := compiler.NewASMCompiler(&req)
+
+			err := cmp.Run()
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+		case "llvm":
+			req := compiler.LLVMCompilerRequest{
+				Tree:     &tree,
+				Target:   target,
+				Dialect:  dialect,
+				Filename: source,
+			}
+
+			err = compiler.Compile(&req)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 		}
 	},
 }

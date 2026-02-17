@@ -63,7 +63,20 @@ type SymbolType struct {
 	Name string
 }
 
-// AcceptZero implements [Type].
+func (typ SymbolType) Equals(other Type) bool {
+	if typ.Value() != other.Value() {
+		return false
+	}
+
+	oth, _ := other.(*SymbolType)
+
+	if typ.Name != oth.Name {
+		return false
+	}
+
+	return true
+}
+
 func (typ SymbolType) AcceptZero(g CodeGenerator) error {
 	return g.ZeroOfSymbolType(&typ)
 }
@@ -78,13 +91,24 @@ func (typ SymbolType) Accept(g CodeGenerator) error {
 	return g.VisitSymbolType(&typ)
 }
 
+func (t SymbolType) String() string {
+	return fmt.Sprintf("%s(%s)", t.Value(), t.Name)
+}
+
 type ArrayType struct {
 	Underlying        Type
 	Size              int
 	DynSizeIdentifier Expression
 }
 
-// AcceptZero implements [Type].
+func (typ ArrayType) Equals(Type) bool {
+	panic("unimplemented")
+}
+
+func (t ArrayType) String() string {
+	return fmt.Sprintf("%s(%s)", t.Value(), t.Underlying.Value())
+}
+
 func (typ ArrayType) AcceptZero(g CodeGenerator) error {
 	return g.ZeroOfArrayType(&typ)
 }
@@ -101,7 +125,14 @@ func (typ ArrayType) Accept(g CodeGenerator) error {
 
 type NumberType struct{}
 
-// AcceptZero implements [Type].
+func (t NumberType) String() string {
+	return t.Value().String()
+}
+
+func (typ NumberType) Equals(other Type) bool {
+	return typ.Value() == other.Value()
+}
+
 func (typ NumberType) AcceptZero(g CodeGenerator) error {
 	return g.ZeroOfNumberType(&typ)
 }
@@ -117,6 +148,21 @@ func (typ NumberType) Accept(g CodeGenerator) error {
 }
 
 type StringType struct{}
+
+// Equals implements [Type].
+func (typ StringType) Equals(other Type) bool {
+	if typ.Value() != other.Value() {
+		return false
+	}
+
+	_, ok := other.(StringType)
+
+	return ok
+}
+
+func (t StringType) String() string {
+	return t.Value().String()
+}
 
 // AcceptZero implements [Type].
 func (typ StringType) AcceptZero(g CodeGenerator) error {
@@ -135,7 +181,20 @@ func (typ StringType) Accept(g CodeGenerator) error {
 
 type FloatType struct{}
 
-// AcceptZero implements [Type].
+func (typ FloatType) Equals(other Type) bool {
+	if typ.Value() != other.Value() {
+		return false
+	}
+
+	_, ok := other.(FloatType)
+
+	return ok
+}
+
+func (t FloatType) String() string {
+	return t.Value().String()
+}
+
 func (typ FloatType) AcceptZero(g CodeGenerator) error {
 	return g.ZeroOfFloatType(&typ)
 }
@@ -154,7 +213,24 @@ type PointerType struct {
 	Underlying Type
 }
 
-// AcceptZero implements [Type].
+func (t PointerType) String() string {
+	return fmt.Sprintf("%s(%s)", t.Value(), t.Underlying.Value())
+}
+
+func (typ PointerType) Equals(other Type) bool {
+	if typ.Value() != other.Value() {
+		return false
+	}
+
+	oth, ok := other.(PointerType)
+
+	if !ok {
+		return false
+	}
+
+	return typ.Underlying.Equals(oth.Underlying)
+}
+
 func (typ PointerType) AcceptZero(g CodeGenerator) error {
 	return g.ZeroOfPointerType(&typ)
 }
@@ -171,7 +247,20 @@ func (PointerType) Value() DataType {
 
 type VoidType struct{}
 
-// AcceptZero implements [Type].
+func (t VoidType) String() string {
+	return t.Value().String()
+}
+
+func (typ VoidType) Equals(other Type) bool {
+	if typ.Value() != other.Value() {
+		return false
+	}
+
+	_, ok := other.(VoidType)
+
+	return ok
+}
+
 func (typ VoidType) AcceptZero(g CodeGenerator) error {
 	return g.ZeroOfVoidType(&typ)
 }
@@ -188,7 +277,20 @@ func (typ VoidType) Accept(g CodeGenerator) error {
 
 type Number64Type struct{}
 
-// AcceptZero implements [Type].
+func (typ Number64Type) Equals(other Type) bool {
+	if typ.Value() != other.Value() {
+		return false
+	}
+
+	_, ok := other.(VoidType)
+
+	return ok
+}
+
+func (t Number64Type) String() string {
+	return t.Value().String()
+}
+
 func (typ Number64Type) AcceptZero(g CodeGenerator) error {
 	return g.ZeroOfNumber64Type(&typ)
 }
@@ -205,7 +307,20 @@ func (typ Number64Type) Accept(g CodeGenerator) error {
 
 type ErrorType struct{}
 
-// AcceptZero implements [Type].
+func (t ErrorType) String() string {
+	return t.Value().String()
+}
+
+func (typ ErrorType) Equals(other Type) bool {
+	if typ.Value() != other.Value() {
+		return false
+	}
+
+	_, ok := other.(ErrorType)
+
+	return ok
+}
+
 func (typ ErrorType) AcceptZero(g CodeGenerator) error {
 	return g.ZeroOfErrorType(&typ)
 }
@@ -223,6 +338,29 @@ func (typ ErrorType) Accept(g CodeGenerator) error {
 type TupleType struct {
 	Types  []Type
 	Tokens []lexer.Token
+}
+
+func (t TupleType) Equals(other Type) bool {
+	if t.Value() != other.Value() {
+		return false
+	}
+
+	oth, ok := other.(*TupleType)
+	if !ok {
+		return false
+	}
+
+	if len(t.Types) != len(oth.Types) {
+		return false
+	}
+
+	for i, v := range t.Types {
+		if !v.Equals(oth.Types[i]) {
+			return false
+		}
+	}
+
+	return true
 }
 
 var _ Type = (*TupleType)(nil)
@@ -260,6 +398,20 @@ func (t *TupleType) String() string {
 }
 
 type BoolType struct{}
+
+func (b BoolType) Equals(other Type) bool {
+	if b.Value() != other.Value() {
+		return false
+	}
+
+	_, ok := other.(*BoolType)
+
+	return ok
+}
+
+func (t *BoolType) String() string {
+	return t.Value().String()
+}
 
 var _ Type = (*BoolType)(nil)
 
