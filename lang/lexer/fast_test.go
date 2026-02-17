@@ -124,13 +124,13 @@ func TestFastumbers(t *testing.T) {
 		{
 			name:     "integers",
 			source:   "0 42 -123 999",
-			expected: []string{"0", "42", "-123", "999"},
+			expected: []string{"0", "42", "123", "999"},
 			kind:     Number,
 		},
 		{
 			name:     "floats",
 			source:   "3.14 -2.718 0.0 100.001",
-			expected: []string{"3.14", "-2.718", "0.0", "100.001"},
+			expected: []string{"3.14", "2.718", "0.0", "100.001"},
 			kind:     Float,
 		},
 		{
@@ -145,6 +145,7 @@ func TestFastumbers(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			src := fmt.Sprintf("dialect:english;\n%s", tt.source)
 			fastLex, _, err := NewFastLexer(src)
+
 			if err != nil {
 				t.Fatalf("Failed to create  %v", err)
 			}
@@ -170,6 +171,7 @@ func TestFastumbers(t *testing.T) {
 				if i >= len(numberTokens) {
 					break
 				}
+
 				if numberTokens[i].Value != expected {
 					t.Errorf("Token %d: expected %q, got %q", i, expected, numberTokens[i].Value)
 				}

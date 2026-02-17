@@ -76,7 +76,7 @@ func (lex *FastLexer) Lex() error {
 		case lex.isIdentifierStart(ch):
 			lex.lexIdentifierOrKeyword()
 
-		case unicode.IsDigit(ch) || (ch == '-' && unicode.IsDigit(lex.peek())):
+		case unicode.IsDigit(ch):
 			lex.lexNumber()
 
 		case ch == '"':
@@ -171,11 +171,6 @@ func (lex *FastLexer) isIdentifierPart(ch rune) bool {
 
 func (lex *FastLexer) lexNumber() {
 	hadDecimal := false
-
-	// Handle negative numbers
-	if lex.currentText() == "-" {
-		lex.advance() // Skip the minus that started this token
-	}
 
 	for !lex.atEOF() {
 		ch := lex.peek()
