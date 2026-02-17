@@ -337,7 +337,6 @@ func (g *LLVMGenerator) VisitStringExpression(node *ast.StringExpression) error 
 	return nil
 }
 
-// VisitStructDeclaration implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatement) error {
 	old := g.logger.Step("StructDeclExpr")
 
@@ -420,7 +419,6 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 	return nil
 }
 
-// VisitSymbolExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error {
 	old := g.logger.Step("SymbolExpr")
 
