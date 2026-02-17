@@ -1,0 +1,14 @@
+dialect:english;
+
+// Test 11: Ignoring some values with underscore (if supported)
+func three() (int, int, int) {
+  return 10, 20, 30;
+}
+start() int {
+  let first: int;
+  let third: int;
+  // Ignore second value
+  (first, _, third) = three();
+  print("first=%d, third=%d", first, third); // Expected: 10, 30
+  return 0;
+}

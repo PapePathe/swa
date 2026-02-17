@@ -1,0 +1,14 @@
+dialect:english;
+
+// Test 8: Passing tuple as argument to function that expects two ints
+func add(a: int, b: int) int {
+  return a + b;
+}
+func two() (int, int) {
+  return 5, 6;
+}
+start() int {
+  let result: int;
+  result = add(two()); 
+  return 0;
+}

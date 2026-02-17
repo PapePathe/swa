@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 7: Using tuple in arithmetic – error
+func twoInts() (int, int) {
+  return 3, 4;
+}
+start() int {
+  let sum: int;
+  // ERROR: cannot add (int,int) to int
+  sum = twoInts() + 5; 
+  return 0;
+}

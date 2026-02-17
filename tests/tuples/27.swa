@@ -1,0 +1,16 @@
+dialect:english;
+
+// Test 28: Nested tuple expansion in function call – if allowed
+func outer() (int, int) {
+  return 10,20;
+}
+func inner(a: int, b: int) (int, int) {
+  return a+b, a-b;
+}
+start() int {
+  let x: int;
+  let y: int;
+  (x, y) = inner(outer()); // outer() expands to two arguments
+  print("x=%d, y=%d", x, y); // Expected: 30, -10 if allowed
+  return 0;
+}

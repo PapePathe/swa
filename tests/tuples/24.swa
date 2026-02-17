@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 25: Binary operation with two tuples – error
+func a() (int, int) { return 1,2; }
+func b() (int, int) { return 3,4; }
+start() int {
+  let x: (int,int); // No tuple type
+  x = a() + b(); // ERROR: cannot add tuples
+  return 0;
+}

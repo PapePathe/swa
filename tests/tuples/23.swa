@@ -1,0 +1,18 @@
+dialect:english;
+
+let n: int = 0;
+func getPair() (int, bool) {
+  n = n + 1;
+  return n, (n < 5);
+}
+
+start() int {
+  let i: int;
+  let cond: bool;
+  (i, cond) = getPair();
+  while (cond) {
+    print("loop\n");
+    (i, cond) = getPair();
+  }
+  return 0;
+}

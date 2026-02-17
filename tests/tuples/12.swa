@@ -1,0 +1,18 @@
+dialect:english;
+
+// Test 13: Tuple assignment inside condition – if allowed?
+func minmax(a: int, b: int) (int, int) {
+  if (a < b) { return a, b; }
+  else { return b, a; }
+}
+start() int {
+  let mn: int;
+  let mx: int;
+  (mn, mx) = minmax(7, 3);
+  if (mn < mx) { // valid
+    print("min=%d, max=%d", mn, mx);
+  }
+  return 0;
+}
+
+

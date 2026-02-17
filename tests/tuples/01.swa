@@ -1,0 +1,17 @@
+dialect:english;
+
+// Test 3: Tuple assignment with mixed types
+func person() (string, int, bool) {
+  return "Alice", 30, true;
+}
+start() int {
+  let name: string;
+  let age: int;
+  let active: bool;
+
+  (name, age, active) = person();
+
+  print("%s is %d years old, active = %d", name, age, active);
+
+  return 0;
+}

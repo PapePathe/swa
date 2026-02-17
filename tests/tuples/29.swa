@@ -1,0 +1,14 @@
+dialect:english;
+
+// Test 30: Function returning too many values in return statement
+func badCount() (int, int) {
+  // ERROR: too many values in return
+  return 1,2,3;
+}
+
+start() int {
+  let x: int;
+  let y: int;
+  (x, y) = badCount();
+  return 0;
+}

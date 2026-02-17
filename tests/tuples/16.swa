@@ -1,0 +1,13 @@
+// dialect:english;
+
+// Test 17: Returning structs in a tuple
+// struct Point { x: int, y: int }
+// func getPoints() (Point, Point) {
+//   return Point{x:1,y:2}, Point{x:3,y:4};
+// }
+// start() int {
+//   let p1: Point, p2: Point;
+//   (p1, p2) = getPoints();
+//   print("p1=(%d,%d), p2=(%d,%d)", p1.x, p1.y, p2.x, p2.y);
+//   return 0;
+// }

@@ -1,0 +1,17 @@
+dialect:english;
+
+// Test 14: Tuple assignment in a loop – each iteration
+func nextPair(n: int) (int, int) {
+  return n, n*2;
+}
+start() int {
+  let i: int = 0;
+  while (i < 3) {
+    let a: int;
+    let b: int;
+    (a, b) = nextPair(i);
+    print("i=%d: (%d,%d)", i, a, b);
+    i = i + 1;
+  }
+  return 0;
+}

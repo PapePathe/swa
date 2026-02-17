@@ -1,0 +1,13 @@
+dialect:english;
+
+// Test 6: Type mismatch in one variable – error
+func mix() (int, string) {
+  return 42, "hello";
+}
+start() int {
+  let i: int;
+  let s: int;
+  // ERROR: second value is string, but variable is int
+  (i, s) = mix();
+  return 0;
+}

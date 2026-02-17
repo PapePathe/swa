@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 19: Tuple used in struct field initializer – error
+func vals() (int, int) { return 7,8; }
+struct Pair { a: int, b: int, }
+start() int {
+  // ERROR: field expects int, got (int,int)
+  let p: Pair = Pair{a: vals()}; 
+  return 0;
+}

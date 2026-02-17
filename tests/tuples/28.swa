@@ -1,0 +1,23 @@
+dialect:english;
+
+// Test 29: Tuple with a large number of values (stress)
+func many() (int, int, int, int, int, int, int, int, int, int) {
+  return 1,2,3,4,5,6,7,8,9,10;
+}
+start() int {
+  let a1: int; 
+  let a2: int;
+  let a3: int;
+  let a4: int;
+  let a5: int;
+  let a6: int;
+  let a7: int;
+  let a8: int;
+  let a9: int;
+  let a10: int;
+  (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) = many();
+  print("%d %d %d %d %d %d %d %d %d %d", a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+  return 0;
+}
+
+
