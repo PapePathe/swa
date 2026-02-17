@@ -19,6 +19,7 @@ var ArrayInitializationExpressionInjectors = map[reflect.Type]ElementInjector{
 	reflect.TypeFor[*ast.ZeroExpression]():                 injectLiteral,
 	reflect.TypeFor[*ast.NumberExpression]():               injectLiteral,
 	reflect.TypeFor[*ast.FloatExpression]():                injectLiteral,
+	reflect.TypeFor[*ast.FunctionCallExpression]():         injectLiteral,
 	reflect.TypeFor[*ast.StringExpression]():               injectLiteral,
 	reflect.TypeFor[*ast.StructInitializationExpression](): injectStruct,
 }

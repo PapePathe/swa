@@ -48,6 +48,8 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 		return err
 	}
 
+	g.currentFuncReturnType = node.ReturnType
+
 	if len(node.Body.Body) > 0 {
 		// Create entry block
 		entryBlock := g.Ctx.Context.AddBasicBlock(newFunc, "entry")
@@ -112,6 +114,8 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 	} else {
 		newFunc.SetLinkage(llvm.ExternalLinkage)
 	}
+
+	g.currentFuncReturnType = nil
 
 	return nil
 }

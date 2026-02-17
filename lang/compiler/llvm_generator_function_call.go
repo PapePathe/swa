@@ -127,7 +127,8 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 			args = append(args, *val.Value)
 
 		case *ast.FloatExpression, *ast.NumberExpression,
-			*ast.StringExpression, *ast.BinaryExpression, *ast.FunctionCallExpression:
+			*ast.StringExpression, *ast.BinaryExpression,
+			*ast.FunctionCallExpression, *ast.PrefixExpression:
 			args = append(args, *val.Value)
 		default:
 			key := "LLVMGenerator.VisitFunctionCall.UnsupportedType"
