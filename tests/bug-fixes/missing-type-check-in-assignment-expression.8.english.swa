@@ -1,6 +1,6 @@
 dialect:english;
 
-func multiply(first : float, last: float) int {
+func multiply(first : float, last: float) float {
   return first * last;
 }
 

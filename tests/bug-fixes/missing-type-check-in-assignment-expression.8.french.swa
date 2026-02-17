@@ -1,6 +1,6 @@
 dialecte:français;
 
-fonction multiply(first : decimal, last: decimal) entier {
+fonction multiply(first : decimal, last: decimal) decimal {
   retourner first * last;
 }
 

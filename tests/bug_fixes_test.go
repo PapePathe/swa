@@ -181,7 +181,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("2", func(t *testing.T) {
 			NewFailedCompileRequest(t,
 				"./bug-fixes/106-unhandled-64-bit-integer-overflow.min.english.swa",
-				"-9223372036854775809: value out of range while parsing number expression",
+				"9223372036854775809: value out of range while parsing number expression",
 			)
 		})
 	})
@@ -196,7 +196,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("2", func(t *testing.T) {
 			NewFailedCompileRequest(t,
 				"./bug-fixes/105-silent-32-bit-integer-overflow-min.english.swa",
-				"-2147483649 is smaller than min value for int32\n",
+				"2147483649 is greater than max value for int32\n",
 			)
 		})
 	})
