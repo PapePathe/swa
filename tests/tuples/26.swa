@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 27: Tuple as expression statement (values discarded) – allowed?
+func get() (int, int) { return 7,8; }
+start() int {
+  get(); // Allowed? The values are discarded.
+  print("done");
+  return 0;
+}
+
+

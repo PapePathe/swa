@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 12: Using underscore as variable – should error if used later
+start() int {
+  let _, val: int;
+  (_, val) = two();
+  print("%d", _);
+  // ERROR: _ is not a valid identifier
+  return 0;
+}
+
+

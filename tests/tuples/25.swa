@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 26: Assign tuple to variables with implicit conversion (int to float) – error if no conversion
+func twoInts() (int, int) { return 5,6; }
+start() int {
+  let f: float;
+  let g: float;
+  // ERROR: cannot assign int to float (if no implicit conversion)
+  (f, g) = twoInts(); 
+  return 0;
+}

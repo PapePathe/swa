@@ -1,0 +1,13 @@
+dialect:english;
+
+// Test 16: Returning arrays in a tuple
+func splitArray() ([3]int, [2]int) {
+  return [3]int{1,2,3}, [2]int{4,5};
+}
+start() int {
+  let a: [3]int;
+  let b: [2]int;
+  (a, b) = splitArray();
+  print("a[0]=%d, b[1]=%d", a[0], b[1]); // Expected: 1, 5
+  return 0;
+}

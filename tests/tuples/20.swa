@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 21: Function declared to return two but actually returns one – error
+func bad() (int, int) {
+  return 42; // ERROR: missing one value
+}
+start() int {
+  let x: int;
+  let y: int;
+  (x, y) = bad();
+  return 0;
+}

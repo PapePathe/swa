@@ -1,0 +1,22 @@
+dialect:english;
+
+// Test 20: Tuple assignment with side effects (order unspecified)
+let counter: int = 0;
+
+func tick(label: string) int {
+  counter = counter + 1;
+  print("%s called (%d)\n", label, counter);
+  return counter;
+}
+
+func getTwo() (int, int) {
+  return tick("first"), tick("second");
+}
+
+start() int {
+  let a: int;
+  let b: int;
+  (a, b) = getTwo();
+  print("a=%d, b=%d\n", a, b); // Both called, order unspecified
+  return 0;
+}

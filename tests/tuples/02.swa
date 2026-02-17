@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 4: Too few variables on left – should cause compile error
+func two() (int, int) {
+  return 1, 2;
+}
+start() int {
+  let a: int;
+  // ERROR: single variable cannot receive two values
+  (a) = two();
+  return 0;
+}

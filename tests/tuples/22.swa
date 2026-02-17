@@ -1,0 +1,25 @@
+dialect:english;
+
+// Test 23: Early returns in a multiple-return function
+func early(x: int) (int, int) {
+  if (x < 0) {
+    return 0, 0;
+  }
+  if (x == 0) {
+    return 1, 1;
+  }
+  return x, x*2;
+}
+start() int {
+  let a: int;
+  let b: int;
+  (a, b) = early(-1);
+  print("(-1): %d,%d\n", a, b); // Expected: 0,0 
+  (a, b) = early(0);
+  print("(0): %d,%d\n", a, b); // Expected: 1,1 
+  (a, b) = early(5);
+  print("(5): %d,%d\n", a, b); // Expected: 5,10
+  (a, b) = early(-3);
+  print("(-3): %d,%d\n", a, b); // Expected: 0,0
+  return 0;
+}

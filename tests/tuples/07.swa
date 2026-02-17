@@ -1,0 +1,19 @@
+dialect:english;
+
+func two() (int, int) {
+  return 1, 1;
+}
+
+func one(a: int) int {
+  return a;
+}
+
+// Test 9: Tuple as argument to function expecting one value – error
+start() int {
+  let x: int;
+  // ERROR: two() returns two, one expects one
+  x = one(two());
+  return 0;
+}
+
+
