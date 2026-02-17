@@ -252,10 +252,24 @@ func TestBugFixes(t *testing.T) {
 		})
 
 		t.Run("8", func(t *testing.T) {
-			NewFailedCompileRequest(t,
-				"./bug-fixes/missing-type-check-in-assignment-expression.8.english.swa",
-				"Expected assignment of Float but got Number\n",
-			)
+			t.Run("English", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./bug-fixes/missing-type-check-in-assignment-expression.8.english.swa",
+					"",
+				)
+			})
+			t.Run("French", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./bug-fixes/missing-type-check-in-assignment-expression.8.french.swa",
+					"",
+				)
+			})
+			t.Run("Soussou", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./bug-fixes/missing-type-check-in-assignment-expression.8.soussou.swa",
+					"",
+				)
+			})
 		})
 	})
 
