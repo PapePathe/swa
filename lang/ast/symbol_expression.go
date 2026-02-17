@@ -29,6 +29,10 @@ func (expr SymbolExpression) VisitedSwaType() Type {
 	return expr.SwaType
 }
 
+func (expr SymbolExpression) InstructionArg() string {
+	return expr.String()
+}
+
 type SymbolAdressExpression struct {
 	Exp     Expression
 	Tokens  []lexer.Token
