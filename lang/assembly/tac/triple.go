@@ -3,62 +3,62 @@ package tac
 import (
 	"fmt"
 	"swahili/lang/ast"
+	"swahili/lang/lexer"
 )
 
-type InstArg interface {
-	InstructionArg() string
+type Label struct {
+	Name  string
+	Insts []Inst
 }
 
-type BoolVal struct {
-	value string
-}
+var _ InstArg = (*Label)(nil)
 
-var _ InstArg = (*BoolVal)(nil)
-
-func (b BoolVal) InstructionArg() string {
-	return b.value
-}
-
-type InstID struct {
-	id uint32
-}
-
-var _ InstArg = (*InstID)(nil)
-
-func (i InstID) InstructionArg() string {
-	return fmt.Sprintf("(%d)", i.id)
-}
-
-type TypeID struct {
-	T ast.Type
-}
-
-var _ InstArg = (*TypeID)(nil)
-
-func (t *TypeID) InstructionArg() string {
-	return t.T.String()
-}
-
-type Inst struct {
-	Operation Op
-	ArgOne    InstArg
-	ArgTwo    InstArg
+func (l *Label) InstructionArg() string {
+	return l.Name
 }
 
 type Proc struct {
-	Name  string
-	Ret   ast.Type
-	Args  []ast.Type
-	Insts []Inst
-	Table map[string]InstID
+	Labels       []*Label
+	Name         string
+	Ret          ast.Type
+	Args         []ast.FuncArg
+	Table        map[string]InstID
+	currentLabel *Label
+	lmap         map[string]int
 }
 
-func (p Proc) Append(i Inst) {
-	p.Insts = append(p.Insts, i)
+func (p *Proc) Append(i Inst) {
+	p.currentLabel.Insts = append(p.currentLabel.Insts, i)
+}
+
+func (p *Proc) addLabel(name string) *Label {
+	id, ok := p.lmap[name]
+	if !ok {
+		p.lmap[name] = 0
+		id = 0
+	}
+
+	p.lmap[name]++
+
+	newname := fmt.Sprintf("%s-%d", name, id)
+
+	l := &Label{Name: newname, Insts: []Inst{}}
+
+	p.Labels = append(p.Labels, l)
+
+	return l
+}
+
+func (p *Proc) setCurrentLabel(l *Label) {
+	if l == nil {
+		panic("Developer Error label is nil")
+	}
+
+	p.currentLabel = l
 }
 
 func (p Proc) LastInstID() InstID {
-	id := uint32(len(p.Insts) - 1)
+	id := uint32(len(p.currentLabel.Insts) - 1)
 
 	return InstID{id: id}
 }
@@ -89,15 +89,23 @@ func (gen *Triple) setLastValue(a InstArg) {
 }
 
 func appendToCurrentProc(gen *Triple, i Inst) {
-	gen.currproc.Insts = append(gen.currproc.Insts, i)
+	gen.currproc.Append(i)
+}
+
+func getLastGlobalInstID(gen *Triple) GlobalId {
+	if len(gen.Insts) == 0 {
+		return GlobalId{id: uint32(0)}
+	}
+
+	return GlobalId{id: uint32(len(gen.Insts) - 1)}
 }
 
 func getLastInstID(gen *Triple) InstID {
-	if len(gen.currproc.Insts) == 0 {
+	if len(gen.currproc.currentLabel.Insts) == 0 {
 		return InstID{id: uint32(0)}
 	}
 
-	return InstID{id: uint32(len(gen.currproc.Insts) - 1)}
+	return InstID{id: uint32(len(gen.currproc.currentLabel.Insts) - 1)}
 }
 
 func (gen *Triple) VisitArrayAccessExpression(node *ast.ArrayAccessExpression) error {
@@ -206,27 +214,67 @@ func (gen *Triple) VisitBooleanExpression(node *ast.BooleanExpression) error {
 	return nil
 }
 
-// VisitCallExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitCallExpression(node *ast.CallExpression) error {
 	panic("unimplemented")
 }
 
-// VisitConditionalStatement implements [ast.CodeGenerator].
 func (gen *Triple) VisitConditionalStatement(node *ast.ConditionalStatetement) error {
-	panic("unimplemented")
+	err := node.Condition.Accept(gen)
+	if err != nil {
+		return err
+	}
+
+	ifblock := gen.currproc.addLabel("if.block")
+	elseblock := gen.currproc.addLabel("else.block")
+	mergeblock := gen.currproc.addLabel("merge.block")
+
+	appendToCurrentProc(gen, Inst{
+		Operation: OpJumpCond,
+		ArgOne:    getLastInstID(gen),
+		ArgTwo: &JumpCond{
+			Success: ifblock.Name,
+			Failure: elseblock.Name,
+		},
+	})
+
+	gen.currproc.setCurrentLabel(ifblock)
+
+	err = node.Success.Accept(gen)
+	if err != nil {
+		return err
+	}
+
+	appendToCurrentProc(gen, Inst{
+		Operation: OpJump,
+		ArgOne:    mergeblock,
+	})
+
+	gen.currproc.setCurrentLabel(elseblock)
+
+	if node.Failure.Body != nil {
+		err := node.Failure.Accept(gen)
+		if err != nil {
+			return err
+		}
+	}
+	appendToCurrentProc(gen, Inst{
+		Operation: OpJump,
+		ArgOne:    mergeblock,
+	})
+
+	gen.currproc.setCurrentLabel(mergeblock)
+
+	return nil
 }
 
-// VisitErrorExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitErrorExpression(node *ast.ErrorExpression) error {
 	panic("unimplemented")
 }
 
-// VisitErrorType implements [ast.CodeGenerator].
 func (gen *Triple) VisitErrorType(node *ast.ErrorType) error {
 	panic("unimplemented")
 }
 
-// VisitExpressionStatement implements [ast.CodeGenerator].
 func (gen *Triple) VisitExpressionStatement(node *ast.ExpressionStatement) error {
 	return node.Exp.Accept(gen)
 }
@@ -237,27 +285,49 @@ func (gen *Triple) VisitFloatExpression(node *ast.FloatExpression) error {
 	return nil
 }
 
-// VisitFloatType implements [ast.CodeGenerator].
 func (gen *Triple) VisitFloatType(node *ast.FloatType) error {
 	panic("unimplemented")
 }
 
-// VisitFloatingBlockExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitFloatingBlockExpression(node *ast.FloatingBlockExpression) error {
 	panic("unimplemented")
 }
 
-// VisitFunctionCall implements [ast.CodeGenerator].
 func (gen *Triple) VisitFunctionCall(node *ast.FunctionCallExpression) error {
-	panic("unimplemented")
+	for _, arg := range node.Args {
+		err := arg.Accept(gen)
+		if err != nil {
+			return err
+		}
+
+		appendToCurrentProc(gen, Inst{
+			Operation: OpFunCallArg,
+			ArgOne:    gen.getLastValue(),
+		})
+	}
+
+	sym, _ := node.Name.(*ast.SymbolExpression)
+	sym.Value = fmt.Sprintf("@%s", sym.Value)
+
+	appendToCurrentProc(gen, Inst{
+		Operation: OpFunCall,
+		ArgOne:    sym,
+	})
+
+	gen.setLastValue(getLastInstID(gen))
+
+	return nil
 }
 
-// VisitFunctionDefinition implements [ast.CodeGenerator].
 func (gen *Triple) VisitFunctionDefinition(node *ast.FuncDeclStatement) error {
+	lab := &Label{Name: "default", Insts: []Inst{}}
 	proc := &Proc{
-		Name:  node.Name,
-		Ret:   node.ReturnType,
-		Insts: []Inst{},
+		Name:         node.Name,
+		Ret:          node.ReturnType,
+		Args:         node.Args,
+		Labels:       []*Label{lab},
+		currentLabel: lab,
+		lmap:         map[string]int{"default": 0},
 	}
 	gen.Procs = append(gen.Procs, proc)
 	gen.currproc = proc
@@ -273,7 +343,15 @@ func (gen *Triple) VisitFunctionDefinition(node *ast.FuncDeclStatement) error {
 }
 
 func (gen *Triple) VisitMainStatement(node *ast.MainStatement) error {
-	gen.Main = &Proc{}
+	lab := &Label{Name: "default", Insts: []Inst{}}
+	proc := &Proc{
+		Name:         "main",
+		Labels:       []*Label{lab},
+		currentLabel: lab,
+		lmap:         map[string]int{"default": 0},
+	}
+	gen.Main = proc
+
 	gen.currproc = gen.Main
 
 	err := node.Body.Accept(gen)
@@ -286,15 +364,11 @@ func (gen *Triple) VisitMainStatement(node *ast.MainStatement) error {
 	return nil
 }
 
-// VisitMemberExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitMemberExpression(node *ast.MemberExpression) error {
 	panic("unimplemented")
 }
 
-// VisitNumber64Type implements [ast.CodeGenerator].
-func (gen *Triple) VisitNumber64Type(node *ast.Number64Type) error {
-	panic("unimplemented")
-}
+func (gen *Triple) VisitNumber64Type(node *ast.Number64Type) error { return nil }
 
 func (gen *Triple) VisitNumberExpression(node *ast.NumberExpression) error {
 	gen.setLastValue(node)
@@ -302,27 +376,55 @@ func (gen *Triple) VisitNumberExpression(node *ast.NumberExpression) error {
 	return nil
 }
 
-// VisitNumberType implements [ast.CodeGenerator].
-func (gen *Triple) VisitNumberType(node *ast.NumberType) error {
-	panic("unimplemented")
-}
+func (gen *Triple) VisitNumberType(node *ast.NumberType) error   { return nil }
+func (gen *Triple) VisitPointerType(node *ast.PointerType) error { return nil }
 
-// VisitPointerType implements [ast.CodeGenerator].
-func (gen *Triple) VisitPointerType(node *ast.PointerType) error {
-	panic("unimplemented")
-}
-
-// VisitPrefixExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitPrefixExpression(node *ast.PrefixExpression) error {
-	panic("unimplemented")
+	switch node.Operator.Kind {
+	case lexer.Not:
+		err := node.RightExpression.Accept(gen)
+		if err != nil {
+			return err
+		}
+
+		res := gen.getLastValue()
+
+		appendToCurrentProc(gen, Inst{
+			Operation: OpNegation,
+			ArgOne:    res,
+		})
+
+		gen.setLastValue(getLastInstID(gen))
+	default:
+		return fmt.Errorf("Unsupported prefix %s", node.Operator.Kind)
+	}
+
+	return nil
 }
 
-// VisitPrintStatement implements [ast.CodeGenerator].
 func (gen *Triple) VisitPrintStatement(node *ast.PrintStatetement) error {
-	panic("unimplemented")
+	for _, expr := range node.Values {
+		err := expr.Accept(gen)
+		if err != nil {
+			return err
+		}
+
+		val := gen.getLastValue()
+
+		appendToCurrentProc(gen, Inst{
+			Operation: OpFunCallArg,
+			ArgOne:    val,
+		})
+	}
+
+	appendToCurrentProc(gen, Inst{
+		Operation: OpFunCall,
+		ArgOne:    ast.SymbolExpression{Value: "@printf"},
+	})
+
+	return nil
 }
 
-// VisitReturnStatement implements [ast.CodeGenerator].
 func (gen *Triple) VisitReturnStatement(node *ast.ReturnStatement) error {
 	err := node.Value.Accept(gen)
 	if err != nil {
@@ -339,59 +441,58 @@ func (gen *Triple) VisitReturnStatement(node *ast.ReturnStatement) error {
 	return nil
 }
 
-// VisitStringExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitStringExpression(node *ast.StringExpression) error {
-	panic("unimplemented")
+	gen.Insts = append(gen.Insts, Inst{
+		Operation: OpGlobal,
+		ArgOne: &GlobalString{
+			Value:  node.Value,
+			Length: len(node.Value),
+		},
+	})
+
+	id := getLastGlobalInstID(gen)
+
+	gen.setLastValue(id)
+
+	return nil
 }
 
-// VisitStringType implements [ast.CodeGenerator].
-func (gen *Triple) VisitStringType(node *ast.StringType) error {
-	panic("unimplemented")
-}
+func (gen *Triple) VisitStringType(node *ast.StringType) error { return nil }
 
-// VisitStructDeclaration implements [ast.CodeGenerator].
 func (gen *Triple) VisitStructDeclaration(node *ast.StructDeclarationStatement) error {
 	panic("unimplemented")
 }
 
-// VisitStructInitializationExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitStructInitializationExpression(node *ast.StructInitializationExpression) error {
 	panic("unimplemented")
 }
 
-// VisitSymbolAdressExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitSymbolAdressExpression(node *ast.SymbolAdressExpression) error {
 	panic("unimplemented")
 }
 
-// VisitSymbolExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitSymbolExpression(node *ast.SymbolExpression) error {
 	gen.setLastValue(node)
 
 	return nil
 }
 
-// VisitSymbolType implements [ast.CodeGenerator].
-func (gen *Triple) VisitSymbolType(node *ast.SymbolType) error {
-	panic("unimplemented")
-}
+func (gen *Triple) VisitSymbolType(node *ast.SymbolType) error { return nil }
 
-// VisitSymbolValueExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitSymbolValueExpression(node *ast.SymbolValueExpression) error {
 	panic("unimplemented")
 }
 
-// VisitTupleAssignmentExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitTupleAssignmentExpression(node *ast.TupleAssignmentExpression) error {
 	panic("unimplemented")
 }
 
-// VisitTupleExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitTupleExpression(node *ast.TupleExpression) error {
-	panic("unimplemented")
+	gen.setLastValue(node)
+
+	return nil
 }
 
-// VisitTupleType implements [ast.CodeGenerator].
 func (gen *Triple) VisitTupleType(node *ast.TupleType) error {
 	panic("unimplemented")
 }
@@ -427,12 +528,8 @@ func (gen *Triple) VisitVarDeclaration(node *ast.VarDeclarationStatement) error 
 	return nil
 }
 
-// VisitVoidType implements [ast.CodeGenerator].
-func (gen *Triple) VisitVoidType(node *ast.VoidType) error {
-	panic("unimplemented")
-}
+func (gen *Triple) VisitVoidType(node *ast.VoidType) error { return nil }
 
-// VisitWhileStatement implements [ast.CodeGenerator].
 func (gen *Triple) VisitWhileStatement(node *ast.WhileStatement) error {
 	panic("unimplemented")
 }
@@ -451,58 +548,50 @@ func (gen *Triple) ZeroOfArrayType(node *ast.ArrayType) error {
 	panic("unimplemented")
 }
 
-// ZeroOfBoolType implements [ast.CodeGenerator].
 func (gen *Triple) ZeroOfBoolType(node *ast.BoolType) error {
-	panic("unimplemented")
+	gen.setLastValue(BoolVal{value: "false"})
+
+	return nil
 }
 
-// ZeroOfErrorType implements [ast.CodeGenerator].
 func (gen *Triple) ZeroOfErrorType(node *ast.ErrorType) error {
 	panic("unimplemented")
 }
 
-// ZeroOfFloatType implements [ast.CodeGenerator].
 func (gen *Triple) ZeroOfFloatType(node *ast.FloatType) error {
 	gen.setLastValue(ast.FloatExpression{Value: 0.0})
 
 	return nil
 }
 
-// ZeroOfNumber64Type implements [ast.CodeGenerator].
 func (gen *Triple) ZeroOfNumber64Type(node *ast.Number64Type) error {
 	gen.setLastValue(ast.NumberExpression{Value: 0.0})
 
 	return nil
 }
 
-// ZeroOfNumberType implements [ast.CodeGenerator].
 func (gen *Triple) ZeroOfNumberType(node *ast.NumberType) error {
 	gen.setLastValue(ast.NumberExpression{Value: 0})
 
 	return nil
 }
 
-// ZeroOfPointerType implements [ast.CodeGenerator].
 func (gen *Triple) ZeroOfPointerType(node *ast.PointerType) error {
 	panic("unimplemented")
 }
 
-// ZeroOfStringType implements [ast.CodeGenerator].
 func (gen *Triple) ZeroOfStringType(node *ast.StringType) error {
 	panic("unimplemented")
 }
 
-// ZeroOfSymbolType implements [ast.CodeGenerator].
 func (gen *Triple) ZeroOfSymbolType(node *ast.SymbolType) error {
 	panic("unimplemented")
 }
 
-// ZeroOfTupleType implements [ast.CodeGenerator].
 func (gen *Triple) ZeroOfTupleType(node *ast.TupleType) error {
 	panic("unimplemented")
 }
 
-// ZeroOfVoidType implements [ast.CodeGenerator].
 func (gen *Triple) ZeroOfVoidType(node *ast.VoidType) error {
 	panic("unimplemented")
 }
