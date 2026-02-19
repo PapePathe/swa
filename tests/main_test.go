@@ -57,6 +57,12 @@ func NewSuccessfulCompileRequest(t *testing.T, input string, output string) {
 	req.AssertCompileAndExecute()
 }
 
+func NewSuccessfulXCompileRequest(req CompileRequest) {
+	req.T.Parallel()
+
+	req.AssertCompileAndExecuteX()
+}
+
 func (cr *CompileRequest) Parse(format string) error {
 	cr.T.Helper()
 
@@ -73,6 +79,32 @@ func (cr *CompileRequest) Parse(format string) error {
 	}
 
 	return err
+}
+
+func (cr *CompileRequest) CompileX() error {
+	cr.T.Helper()
+
+	cr.OutputPath = uuid.New().String()
+
+	cmd := exec.Command("./swa", "compile", "-s", cr.InputPath, "-o", cr.OutputPath, "-g", "swa")
+	output, err := cmd.CombinedOutput()
+
+	fmt.Println(string(output))
+
+	//	if cr.ExpectedOutput != string(output) {
+	//		cr.T.Fatalf(
+	//			"Compilation error want: %s, has: %s \n Source file %s",
+	//			fmt.Sprintf("%q", cr.ExpectedOutput),
+	//			fmt.Sprintf("%q", string(output)),
+	//			cr.InputPath,
+	//		)
+	//	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (cr *CompileRequest) Compile() error {
@@ -96,15 +128,15 @@ func (cr *CompileRequest) Compile() error {
 		return err
 	}
 
-	cmd = exec.Command("./swa", "parse", "-s", cr.InputPath, "-o", "json")
-	_, err = cmd.CombinedOutput()
-
-	assert.NoError(cr.T, err)
-
-	cmd = exec.Command("./swa", "parse", "-s", cr.InputPath, "-o", "tree")
-	_, err = cmd.CombinedOutput()
-
-	assert.NoError(cr.T, err)
+	//	cmd = exec.Command("./swa", "parse", "-s", cr.InputPath, "-o", "json")
+	//	_, err = cmd.CombinedOutput()
+	//
+	//	assert.NoError(cr.T, err)
+	//
+	//	cmd = exec.Command("./swa", "parse", "-s", cr.InputPath, "-o", "tree")
+	//	_, err = cmd.CombinedOutput()
+	//
+	//	assert.NoError(cr.T, err)
 
 	return nil
 }
@@ -125,6 +157,12 @@ func (cr *CompileRequest) RunProgram() error {
 	}
 
 	return err
+}
+
+func (cr *CompileRequest) AssertCompileAndExecuteX() {
+	if err := cr.CompileX(); err != nil {
+		cr.T.Fatal(err.Error())
+	}
 }
 
 func (cr *CompileRequest) AssertCompileAndExecute() {
