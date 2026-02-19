@@ -35,7 +35,8 @@ func (g *LLVMGenerator) VisitBooleanExpression(node *ast.BooleanExpression) erro
 	}
 
 	g.setLastResult(&CompilerResult{
-		Value: &value,
+		Value:   &value,
+		SwaType: &ast.BoolType{},
 	})
 
 	return nil
