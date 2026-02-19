@@ -1,0 +1,6 @@
+dialect:english;
+
+start() int {
+    print("-5 + 3 = ", -5 + 3);
+    return 0;
+}

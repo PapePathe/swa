@@ -460,4 +460,25 @@ func TestBugFixes(t *testing.T) {
 			)
 		})
 	})
+
+	t.Run("operator-precedence-unary-minus", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./bug-fixes/precedence_bug.english.swa",
+			"-5 + 3 = -2",
+		)
+	})
+
+	t.Run("operator-precedence-unary-extra", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./bug-fixes/precedence_extra.english.swa",
+			"-5 + 3 = -23 + -5 = -2-5 * 3 = -153 * -5 = -15!true = 0!!true = 1-5 + 3 * 2 = 1-(5 + 3) * 2 = -16- -5 = 5!(!true) = 12 * (3 + 4 * (5 - 6)) = -2! (5 > 3) = 0- (5 + 3) + 10 = 2",
+		)
+	})
+
+	t.Run("operator-precedence-nested-groups", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./bug-fixes/nested_groups.english.swa",
+			"((1 + 2) * (3 + 4)) = 21(1 + (2 * (3 + (4 * 5)))) = 47-(1 + -2) = 1!(! (5 > 3)) = 110 / (2 + 3) * 4 = 810 / ((2 + 3) * 4) = 0",
+		)
+	})
 }

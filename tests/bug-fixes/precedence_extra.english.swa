@@ -1,0 +1,29 @@
+dialect:english;
+
+start() int {
+    // Unary minus and additive
+    print("-5 + 3 = ", -5 + 3);
+    print("3 + -5 = ", 3 + -5);
+
+    // Unary minus and multiplicative
+    print("-5 * 3 = ", -5 * 3);
+    print("3 * -5 = ", 3 * -5);
+
+    // Unary Not
+    let b: bool = !true;
+    print("!true = ", b);
+    print("!!true = ", !b);
+
+    // Complex expressions
+    print("-5 + 3 * 2 = ", -5 + 3 * 2);
+    print("-(5 + 3) * 2 = ", -(5 + 3) * 2);
+
+    // New Edge Cases
+    print("- -5 = ", - -5);
+    print("!(!true) = ", !(!true));
+    print("2 * (3 + 4 * (5 - 6)) = ", 2 * (3 + 4 * (5 - 6))); // 2 * (3 + 4 * -1) = 2 * (3 - 4) = 2 * -1 = -2
+    print("! (5 > 3) = ", ! (5 > 3)); // ! (true) = false (0)
+    print("- (5 + 3) + 10 = ", - (5 + 3) + 10); // -8 + 10 = 2
+
+    return 0;
+}
