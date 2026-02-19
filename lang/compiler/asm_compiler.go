@@ -2,7 +2,6 @@ package compiler
 
 import (
 	"fmt"
-	"os"
 	"swahili/lang/assembly/tac"
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
@@ -34,28 +33,9 @@ func (c *ASMCompiler) Run() error {
 		return err
 	}
 
-	for _, proc := range gen.Procs {
-		fmt.Printf("%s @%s() \n\n", proc.Ret.String(), proc.Name)
+	fmt.Println("header:")
 
-		for i, v := range proc.Insts {
-			var ArgOne string
-			if v.ArgOne != nil {
-				ArgOne = v.ArgOne.InstructionArg()
-			}
-
-			var ArgTwo string
-			if v.ArgTwo != nil {
-				ArgTwo = v.ArgTwo.InstructionArg()
-			}
-
-			fmt.Printf(" %5d %10s  %10s  %10s\n", i, v.Operation, ArgOne, ArgTwo)
-		}
-
-		fmt.Println()
-	}
-
-	fmt.Println("main:")
-	for i, v := range gen.Main.Insts {
+	for i, v := range gen.Insts {
 		var ArgOne string
 		if v.ArgOne != nil {
 			ArgOne = v.ArgOne.InstructionArg()
@@ -66,7 +46,57 @@ func (c *ASMCompiler) Run() error {
 			ArgTwo = v.ArgTwo.InstructionArg()
 		}
 
-		fmt.Printf(" %5d %10s  %10s  %10s\n", i, v.Operation, ArgOne, ArgTwo)
+		fmt.Printf(" %5d %20s  %10s  %10s\n", i, v.Operation, ArgOne, ArgTwo)
+	}
+
+	fmt.Println()
+
+	for _, proc := range gen.Procs {
+		fmt.Printf("%s @%s( ", proc.Ret.String(), proc.Name)
+
+		for _, arg := range proc.Args {
+			fmt.Printf("%s:%s ", arg.Name, arg.ArgType.Value())
+		}
+
+		fmt.Println(")")
+
+		for _, label := range proc.Labels {
+			fmt.Printf("  %s:\n", label.Name)
+			for i, v := range label.Insts {
+				var ArgOne string
+				if v.ArgOne != nil {
+					ArgOne = v.ArgOne.InstructionArg()
+				}
+
+				var ArgTwo string
+				if v.ArgTwo != nil {
+					ArgTwo = v.ArgTwo.InstructionArg()
+				}
+
+				fmt.Printf(" %5d %20s  %10s  %10s\n", i, v.Operation, ArgOne, ArgTwo)
+			}
+		}
+
+		fmt.Println()
+	}
+
+	fmt.Println("main:")
+	for _, label := range gen.Main.Labels {
+		fmt.Printf("  %s:\n", label.Name)
+
+		for i, v := range label.Insts {
+			var ArgOne string
+			if v.ArgOne != nil {
+				ArgOne = v.ArgOne.InstructionArg()
+			}
+
+			var ArgTwo string
+			if v.ArgTwo != nil {
+				ArgTwo = v.ArgTwo.InstructionArg()
+			}
+
+			fmt.Printf(" %5d %20s  %10s  %10s\n", i, v.Operation, ArgOne, ArgTwo)
+		}
 	}
 
 	//	clang := findCommand("clang-19", "clang")
