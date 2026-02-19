@@ -142,6 +142,12 @@ func TestFunctions(t *testing.T) {
 		})
 
 		t.Run("Add", func(t *testing.T) {
+			t.Run("Float.X", func(t *testing.T) {
+				NewSuccessfulXCompileRequest(CompileRequest{
+					T:         t,
+					InputPath: "./functions/add.float.english.swa"})
+			})
+
 			t.Run("Float", func(t *testing.T) {
 				NewSuccessfulCompileRequest(t,
 					"./functions/add.float.english.swa",
@@ -155,6 +161,12 @@ func TestFunctions(t *testing.T) {
 					"10 + 5 = 15",
 				)
 			})
+
+			t.Run("Integer.X", func(t *testing.T) {
+				NewSuccessfulXCompileRequest(CompileRequest{
+					T:         t,
+					InputPath: "./functions/add.integer.english.swa"})
+			})
 		})
 
 		t.Run("Divide", func(t *testing.T) {
@@ -165,6 +177,12 @@ func TestFunctions(t *testing.T) {
 				)
 			})
 
+			t.Run("Integer.X", func(t *testing.T) {
+				NewSuccessfulXCompileRequest(CompileRequest{
+					T:         t,
+					InputPath: "./functions/divide.integer.english.swa"})
+			})
+
 			t.Run("Float", func(t *testing.T) {
 				NewSuccessfulCompileRequest(t,
 					"./functions/divide.float.english.swa",
@@ -172,6 +190,11 @@ func TestFunctions(t *testing.T) {
 				)
 			})
 
+			t.Run("Float.X", func(t *testing.T) {
+				NewSuccessfulXCompileRequest(CompileRequest{
+					T:         t,
+					InputPath: "./functions/divide.float.english.swa"})
+			})
 		})
 
 		t.Run("Multiply", func(t *testing.T) {
@@ -182,11 +205,23 @@ func TestFunctions(t *testing.T) {
 				)
 			})
 
+			t.Run("Float.X", func(t *testing.T) {
+				NewSuccessfulXCompileRequest(CompileRequest{
+					T:         t,
+					InputPath: "./functions/multiply.float.english.swa"})
+			})
+
 			t.Run("Integer", func(t *testing.T) {
 				NewSuccessfulCompileRequest(t,
 					"./functions/multiply.integer.english.swa",
 					"10 * 5 = 50",
 				)
+			})
+
+			t.Run("Integer.X", func(t *testing.T) {
+				NewSuccessfulXCompileRequest(CompileRequest{
+					T:         t,
+					InputPath: "./functions/multiply.integer.english.swa"})
 			})
 		})
 
