@@ -10,7 +10,7 @@ func ParsePrefixExpression(p *Parser) (ast.Expression, error) {
 	operatorToken := p.advance()
 	tokens = append(tokens, operatorToken)
 
-	rightHandSide, err := parseExpression(p, DefaultBindingPower)
+	rightHandSide, err := parseExpression(p, Unary)
 	if err != nil {
 		return nil, err
 	}
