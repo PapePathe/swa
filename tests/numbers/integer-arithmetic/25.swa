@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 25: Division of negative by positive
+start() int {
+  let a: int = -7 / 2;
+  print("-7 / 2 = %d", a); // Expected: -3 (toward zero)
+  return 0;
+}

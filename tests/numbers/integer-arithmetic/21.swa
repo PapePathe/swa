@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 21: Nested unary minus
+start() int {
+  let a: int = -(-5);
+  print("-(-5) = %d", a); // Expected: 5
+  return 0;
+}

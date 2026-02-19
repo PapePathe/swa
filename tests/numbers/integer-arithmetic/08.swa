@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 9: Left associativity of multiplication/division
+start() int {
+  let a: int = 16 / 4 / 2;
+  print("16 / 4 / 2 = %d", a); // Expected: 2 ( (16/4)/2 )
+  return 0;
+}

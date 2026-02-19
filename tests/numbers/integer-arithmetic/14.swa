@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 15: Multiplication with negatives
+start() int {
+  let a: int = -4 * 6;
+  print("-4 * 6 = %d", a); // Expected: -24
+  return 0;
+}

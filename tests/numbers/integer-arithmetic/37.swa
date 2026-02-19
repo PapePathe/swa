@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 39: Unary minus on a large expression
+start() int {
+  let a: int = -(2 + 3 * 4 - 5);
+  // 2+12-5=9, -9
+  print("-(2 + 3 * 4 - 5) = %d", a); // Expected: -9
+  return 0;
+}

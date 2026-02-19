@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 23: Modulo with negative numbers and variable
+start() int {
+  let a: int = -17;
+  let b: int = 5;
+  let c: int = a % b;
+  print("-17 %% 5 = %d", c); // Typical: -2
+  return 0;
+}

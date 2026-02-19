@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 29: Associativity of multiplication and division with same precedence
+start() int {
+  let a: int = 12 * 3 / 4;
+  // (12*3)/4 = 36/4 = 9
+  print("12 * 3 / 4 = %d", a); // Expected: 9
+  return 0;
+}

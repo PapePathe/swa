@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 16: Division with negative numbers (integer division)
+start() int {
+  let a: int = -15 / 4;
+  print("-15 / 4 = %d", a); // Expected: -3 (truncation toward zero)
+  return 0;
+}

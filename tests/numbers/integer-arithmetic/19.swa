@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 19: Both operands negative modulo
+start() int {
+  let a: int = -15 % -4;
+  print("-15 %% -4 = %d", a); // Typical: -3
+  return 0;
+}

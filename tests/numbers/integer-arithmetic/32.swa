@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 32: Multiple unary minuses
+start() int {
+  let a: int = - -5;
+  // Expected: 5 (two negatives make positive)
+  print("- -5 = %d", a); 
+  return 0;
+}

@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 17: Modulo with negative numbers
+// (implementation defined, but test)
+start() int {
+  let a: int = -15 % 4;
+  print("-15 %% 4 = %d", a); // Result depends on language; typical: -3
+  return 0;
+}
+
+

@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 35: Modulo with negative dividend less than divisor
+start() int {
+  let a: int = -3 % 7;
+  print("-3 %% 7 = %d", a); // Typical: -3
+  return 0;
+}
+
+
