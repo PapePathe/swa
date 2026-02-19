@@ -16,6 +16,15 @@ func TestEarlyReturnStatements(t *testing.T) {
 
 				req.AssertCompileAndExecute()
 			})
+			//	t.Run("Condition is true.X", func(t *testing.T) {
+			//		req := CompileRequest{
+			//			InputPath: "./conditionals/early-return/1-condition-true.english.swa",
+			//			T:         t,
+			//		}
+
+			//		req.AssertCompileAndExecuteX()
+			//	})
+
 			t.Run("Condition is false", func(t *testing.T) {
 				req := CompileRequest{
 					InputPath:               "./conditionals/early-return/1-condition-false.english.swa",
@@ -25,75 +34,15 @@ func TestEarlyReturnStatements(t *testing.T) {
 
 				req.AssertCompileAndExecute()
 			})
-		})
 
-		t.Run("Wolof", func(t *testing.T) {
-			t.Run("1", func(t *testing.T) {
-				t.Run("Condition is true", func(t *testing.T) {
-					req := CompileRequest{
-						InputPath:               "./conditionals/early-return/1-condition-true.wolof.swa",
-						ExpectedExecutionOutput: "program interrupted by early return",
-						T:                       t,
-					}
+			//	t.Run("Condition is false.X", func(t *testing.T) {
+			//		req := CompileRequest{
+			//			InputPath: "./conditionals/early-return/1-condition-false.english.swa",
+			//			T:         t,
+			//		}
 
-					req.AssertCompileAndExecute()
-				})
-				t.Run("Condition is false", func(t *testing.T) {
-					req := CompileRequest{
-						InputPath:               "./conditionals/early-return/1-condition-false.wolof.swa",
-						ExpectedExecutionOutput: "program not interrupted by early return",
-						T:                       t,
-					}
-
-					req.AssertCompileAndExecute()
-				})
-			})
-		})
-
-		t.Run("French", func(t *testing.T) {
-			t.Run("1", func(t *testing.T) {
-				t.Run("Condition is true", func(t *testing.T) {
-					req := CompileRequest{
-						InputPath:               "./conditionals/early-return/1-condition-true.french.swa",
-						ExpectedExecutionOutput: "program interrupted by early retourner",
-						T:                       t,
-					}
-
-					req.AssertCompileAndExecute()
-				})
-				t.Run("Condition is false", func(t *testing.T) {
-					req := CompileRequest{
-						InputPath:               "./conditionals/early-return/1-condition-false.french.swa",
-						ExpectedExecutionOutput: "program not interrupted by early retourner",
-						T:                       t,
-					}
-
-					req.AssertCompileAndExecute()
-				})
-			})
-		})
-
-		t.Run("Soussou", func(t *testing.T) {
-			t.Run("1", func(t *testing.T) {
-				t.Run("Condition is true", func(t *testing.T) {
-					req := CompileRequest{
-						InputPath:               "./conditionals/early-return/1-condition-true.soussou.swa",
-						ExpectedExecutionOutput: "program interrupted by early return",
-						T:                       t,
-					}
-
-					req.AssertCompileAndExecute()
-				})
-				t.Run("Condition is false", func(t *testing.T) {
-					req := CompileRequest{
-						InputPath:               "./conditionals/early-return/1-condition-false.soussou.swa",
-						ExpectedExecutionOutput: "program not interrupted by early return",
-						T:                       t,
-					}
-
-					req.AssertCompileAndExecute()
-				})
-			})
+			//		req.AssertCompileAndExecuteX()
+			//	})
 		})
 	})
 
@@ -108,6 +57,15 @@ func TestEarlyReturnStatements(t *testing.T) {
 
 				req.AssertCompileAndExecute()
 			})
+			//	t.Run("Condition is true.X", func(t *testing.T) {
+			//		req := CompileRequest{
+			//			InputPath: "./conditionals/early-return/1-condition-true.wolof.swa",
+			//			T:         t,
+			//		}
+
+			//		req.AssertCompileAndExecuteX()
+			//	})
+
 			t.Run("Condition is false", func(t *testing.T) {
 				req := CompileRequest{
 					InputPath:               "./conditionals/early-return/1-condition-false.wolof.swa",
@@ -117,6 +75,14 @@ func TestEarlyReturnStatements(t *testing.T) {
 
 				req.AssertCompileAndExecute()
 			})
+			//	t.Run("Condition is false.X", func(t *testing.T) {
+			//		req := CompileRequest{
+			//			InputPath: "./conditionals/early-return/1-condition-false.wolof.swa",
+			//			T:         t,
+			//		}
+
+			//		req.AssertCompileAndExecuteX()
+			//	})
 		})
 	})
 
@@ -180,6 +146,15 @@ func TestGreaterThanEquals(t *testing.T) {
 		req.AssertCompileAndExecute()
 	})
 
+	t.Run("English.X", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath: "./conditionals/greater-than-equals/source.english.swa",
+			T:         t,
+		}
+
+		req.AssertCompileAndExecuteX()
+	})
+
 	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./conditionals/greater-than-equals/source.french.swa",
@@ -188,6 +163,15 @@ func TestGreaterThanEquals(t *testing.T) {
 		}
 
 		req.AssertCompileAndExecute()
+	})
+
+	t.Run("French.X", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath: "./conditionals/greater-than-equals/source.french.swa",
+			T:         t,
+		}
+
+		req.AssertCompileAndExecuteX()
 	})
 }
 
@@ -202,6 +186,15 @@ func TestGreaterThanEqualsWithPointerAndInt(t *testing.T) {
 		}
 
 		req.AssertCompileAndExecute()
+	})
+
+	t.Run("English.X", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath: "./conditionals/greater-than-equals-pointer-and-int/source.english.swa",
+			T:         t,
+		}
+
+		req.AssertCompileAndExecuteX()
 	})
 
 	t.Run("French", func(t *testing.T) {
@@ -228,6 +221,15 @@ func TestLessThanEquals(t *testing.T) {
 		req.AssertCompileAndExecute()
 	})
 
+	t.Run("English.X", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath: "./conditionals/less-than-equals/source.english.swa",
+			T:         t,
+		}
+
+		req.AssertCompileAndExecuteX()
+	})
+
 	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./conditionals/less-than-equals/source.french.swa",
@@ -236,6 +238,15 @@ func TestLessThanEquals(t *testing.T) {
 		}
 
 		req.AssertCompileAndExecute()
+	})
+
+	t.Run("French.X", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath: "./conditionals/less-than-equals/source.french.swa",
+			T:         t,
+		}
+
+		req.AssertCompileAndExecuteX()
 	})
 }
 
@@ -252,6 +263,15 @@ func TestEquals(t *testing.T) {
 		req.AssertCompileAndExecute()
 	})
 
+	t.Run("English.X", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath: "./conditionals/equals/source.english.swa",
+			T:         t,
+		}
+
+		req.AssertCompileAndExecuteX()
+	})
+
 	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./conditionals/equals/source.french.swa",
@@ -260,5 +280,14 @@ func TestEquals(t *testing.T) {
 		}
 
 		req.AssertCompileAndExecute()
+	})
+
+	t.Run("French.X", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath: "./conditionals/equals/source.french.swa",
+			T:         t,
+		}
+
+		req.AssertCompileAndExecuteX()
 	})
 }
