@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 28: Large expression mixing all operators
+start() int {
+  let a: int = 2 + 3 * 4 - (6 / 2) + -5 % 3;
+  // 3*4=12, 6/2=3, -5%3 = -2 (typical), then 2+12=14, 14-3=11, 11+(-2)=9
+  print("2 + 3*4 - (6/2) + -5%%3 = %d", a); // Expected: 9
+  return 0;
+}

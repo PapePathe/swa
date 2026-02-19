@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 30: Associativity of addition and subtraction with negatives
+start() int {
+  let a: int = 5 - 3 + 2;
+  // (5-3)+2 = 2+2 = 4
+  print("5 - 3 + 2 = %d", a); // Expected: 4
+  return 0;
+}

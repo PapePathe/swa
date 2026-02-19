@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 8: Left associativity of addition/subtraction
+start() int {
+  let a: int = 10 - 3 - 2;
+  print("10 - 3 - 2 = %d", a); // Expected: 5 ( (10-3)-2 )
+  return 0;
+}

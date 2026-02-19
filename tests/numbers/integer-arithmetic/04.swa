@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 4: Division (integer)
+start() int {
+  let a: int = 15 / 4;
+  print("15 / 4 = %d", a); // Expected: 3 (integer division truncates toward zero)
+  return 0;
+}

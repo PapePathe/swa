@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 3: Multiplication
+start() int {
+  let a: int = 7 * 6;
+  print("7 * 6 = %d", a); // Expected: 42
+  return 0;
+}

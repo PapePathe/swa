@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 1: Simple addition of positive integers
+start() int {
+  let a: int = 5 + 3;
+  print("5 + 3 = %d", a); // Expected: 8
+  return 0;
+}

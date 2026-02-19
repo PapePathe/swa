@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 22: Unary minus applied to variable
+start() int {
+  let x: int = 7;
+  let y: int = -x;
+  print("-x (x=7) = %d", y); // Expected: -7
+  return 0;
+}
+
+

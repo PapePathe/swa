@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 38: Expression with all operators and signed numbers
+start() int {
+  let a: int = -2 * 3 + 4 / -2 - (-5) % 3;
+  // -2*3 = -6, 4/-2 = -2, (-5)%3 = -2 (typical), then -6 + (-2) = -8, -8 - (-2) = -6
+  print("-2 * 3 + 4 / -2 - (-5) %% 3 = %d", a); // Expected: -6
+  return 0;
+}

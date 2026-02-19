@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 2: Simple subtraction
+start() int {
+  let a: int = 10 - 4;
+  print("10 - 4 = %d", a); // Expected: 6
+  return 0;
+}
+
+

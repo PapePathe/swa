@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 10: Mix of operators with different precedence
+start() int {
+  let a: int = 5 + 3 * 2 - 8 / 4;
+  // 3*2=6, 8/4=2, then 5+6=11, 11-2=9
+  print("5 + 3 * 2 - 8 / 4 = %d", a); // Expected: 9
+  return 0;
+}
