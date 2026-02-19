@@ -63,7 +63,12 @@ func (p Proc) LastInstID() InstID {
 	return InstID{id: id}
 }
 
+type CustomType struct {
+	Types []ast.Type
+}
+
 type Triple struct {
+	types     map[string]CustomType
 	Insts     []Inst
 	lastValue InstArg
 	Main      *Proc
@@ -74,7 +79,10 @@ type Triple struct {
 var _ ast.CodeGenerator = (*Triple)(nil)
 
 func NewTripleGenerator() *Triple {
-	return &Triple{}
+	return &Triple{
+		Insts: []Inst{},
+		types: map[string]CustomType{},
+	}
 }
 
 func (gen Triple) getLastValue() InstArg {
@@ -460,7 +468,9 @@ func (gen *Triple) VisitStringExpression(node *ast.StringExpression) error {
 func (gen *Triple) VisitStringType(node *ast.StringType) error { return nil }
 
 func (gen *Triple) VisitStructDeclaration(node *ast.StructDeclarationStatement) error {
-	panic("unimplemented")
+	gen.types[node.Name] = CustomType{Types: node.Types}
+
+	return nil
 }
 
 func (gen *Triple) VisitStructInitializationExpression(node *ast.StructInitializationExpression) error {
