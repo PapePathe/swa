@@ -1,0 +1,15 @@
+dialect:english;
+
+// Test 35: Returning tuple but outer expects single – error
+func inner2() (int, int) {
+  return 1, 2;
+}
+func outer2() int {
+  return inner2(); // ERROR: outer expects int, but inner returns (int,int)
+}
+start() int {
+  let x: int = outer2();
+  return 0;
+}
+
+

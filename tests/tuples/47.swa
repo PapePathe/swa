@@ -1,0 +1,18 @@
+dialect:english;
+
+func two()(int, int) { return 2, 3; }
+// Test 48: Multiple tuple assignments in one statement – error
+start() int {
+  let a: int;
+  let b: int;
+  let c: int;
+  let d: int;
+
+  // Should be two statements
+   (a, b) = two(); 
+   (c, d) = two();
+
+   print("a =", a, " b =", b);
+   print("c =", c, " d =", d);
+  return 0;
+}

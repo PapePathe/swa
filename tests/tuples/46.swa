@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 47: Tuple assignment with literal tuple on right (if allowed) – but not a function call
+start() int {
+  let a: int;
+  let b: int;
+  // Might be allowed? But spec says callfn() only.
+  (a, b) = (1, 2); 
+  return 0;
+}

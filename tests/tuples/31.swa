@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 32: Function returning single but used in tuple assignment – error
+func retOne() int {
+  return 1;
+}
+start() int {
+  let x: int;
+  let y: int;
+  (x, y) = retOne(); // ERROR: function returns one, expecting two
+  return 0;
+}

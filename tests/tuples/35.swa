@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 36: Tuple used as argument 
+// to print (if print is variadic)
+
+func two() (int, int) { return 7,8; }
+
+start() int {
+  print("%d %d", two());
+  return 0;
+}

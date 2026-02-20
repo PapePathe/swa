@@ -1,0 +1,20 @@
+dialect:english;
+
+// Test 34: Returning tuple from another function that returns tuple (direct)
+func inner() (int, int) {
+  return 1, 2;
+}
+
+func outer() (int, int) {
+  return inner(); 
+  // This should be allowed: returning the tuple directly.
+}
+start() int {
+  let a: int;
+  let b: int;
+  (a, b) = outer();
+  print("%d %d", a, b);
+  return 0;
+}
+
+

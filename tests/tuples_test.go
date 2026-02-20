@@ -81,78 +81,132 @@ func TestTuples(t *testing.T) {
 			"cannot insert Tuple in array of Number\n")
 	})
 
-	// FIXME implement type checker for struct initializer
-	//	t.Run("18", func(t *testing.T) {
-	//		NewFailedCompileRequest(t, "./tuples/18.swa",
-	//			"")
-	//	})
+	t.Run("18", func(t *testing.T) {
+		NewFailedCompileRequest(t, "./tuples/18.swa",
+			"Cannot assign tuple to struct property\n")
+	})
 
 	t.Run("19", func(t *testing.T) {
 		NewSuccessfulCompileRequest(t, "./tuples/19.swa",
 			"first called (1)\nsecond called (2)\na=1, b=2\n")
 	})
-
-	//	FIXME
-	//
-	// Function return type does not match operand type of return inst!\n
-	// ret i32 42\n { i32, i32 }\n
-	//
-	//	t.Run("20", func(t *testing.T) {
-	//		NewFailedCompileRequest(t, "./tuples/20.swa",
-	//			"")
-	//	})
-
-	// FIXME
-	//
-	// /usr/bin/ld: 1ea1d6bf-2779-459f-848e-9842056abb8d.o: in function
-	// `main':\n21.swa:(.text+0x11): undefined reference to `empty'\n
-	// clang: error: linker command failed with exit code 1
-	// (use -v to see invocation)\nError durrn g linking <exit status 1>\n
-	//
-	// 	t.Run("21", func(t *testing.T) {
-	// 		NewSuccessfulCompileRequest(t, "./tuples/21.swa",
-	// 			"")
-	// 	})
-
+	t.Run("20", func(t *testing.T) {
+		NewFailedCompileRequest(t, "./tuples/20.swa",
+			"expected return value of function to be Tuple(Number,Number), but got Number\n")
+	})
+	t.Run("21", func(t *testing.T) {
+		NewFailedCompileRequest(t, "./tuples/21.swa",
+			"function has no return statement\n")
+	})
 	t.Run("22", func(t *testing.T) {
 		NewSuccessfulCompileRequest(t, "./tuples/22.swa",
 			"(-1): 0,0\n(0): 1,1\n(5): 5,10\n(-3): 0,0\n")
 	})
-
 	t.Run("23", func(t *testing.T) {
 		NewSuccessfulCompileRequest(t, "./tuples/23.swa",
 			"loop\nloop\nloop\nloop\n")
 	})
-
-	//	FIXME
-	//	t.Run("24", func(t *testing.T) {
-	//		NewFailedCompileRequest(t, "./tuples/24.swa",
-	//			"")
-	//	})
-
+	t.Run("24", func(t *testing.T) {
+		NewFailedCompileRequest(t, "./tuples/24.swa",
+			"\x1b[33mexpected ASSIGNMENT, but got OPEN_PAREN at line 7\x1b[0m\n\n\x1b[34m7\x1b[0m \x1b[32mx\x1b[0m \x1b[32m:\x1b[0m \x1b[31m(\x1b[0m \n")
+	})
 	t.Run("25", func(t *testing.T) {
 		NewFailedCompileRequest(t, "./tuples/25.swa",
 			"Values mismatch in tuple expected Number got Float at index 0\n")
 	})
-
 	t.Run("26", func(t *testing.T) {
 		NewSuccessfulCompileRequest(t, "./tuples/26.swa",
 			"done")
 	})
-
 	t.Run("27", func(t *testing.T) {
 		NewFailedCompileRequest(t, "./tuples/27.swa",
 			"function inner expect 2 arguments but was given 1\n")
 	})
-
 	t.Run("28", func(t *testing.T) {
 		NewSuccessfulCompileRequest(t, "./tuples/28.swa",
 			"1 2 3 4 5 6 7 8 9 10")
 	})
-
 	t.Run("29", func(t *testing.T) {
 		NewFailedCompileRequest(t, "./tuples/29.swa",
 			"expected return value of function to be Tuple(Number,Number), but got Tuple(Number,Number,Number)\n")
+	})
+	t.Run("30", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t, "./tuples/30.swa",
+			"a=5, b=6")
+	})
+	t.Run("31", func(t *testing.T) {
+		NewFailedCompileRequest(t, "./tuples/31.swa",
+			"Expected right side of tuple assignment to be tuple\n")
+	})
+	// FIXME the typechecker should catch this error
+	t.Run("32", func(t *testing.T) {
+		NewFailedCompileRequest(t, "./tuples/32.swa",
+			"Branch condition is not 'i1' type!\n  br { i1, i32 } %0, label %if, label %else\n  %0 = call { i1, i32 } @cond()\n\n")
+	})
+	t.Run("33", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t, "./tuples/33.swa",
+			"1 2")
+	})
+	t.Run("34", func(t *testing.T) {
+		NewFailedCompileRequest(t, "./tuples/34.swa",
+			"expected return value of function to be Number, but got Tuple(Number,Number)\n")
+	})
+	t.Run("35", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t, "./tuples/35.swa",
+			"7 8")
+	})
+	t.Run("36", func(t *testing.T) {
+		NewFailedCompileRequest(t, "./tuples/36.swa",
+			"ArrayAccessExpression not implemented for *ast.FunctionCallExpression\n")
+	})
+	t.Run("37", func(t *testing.T) {
+		NewFailedCompileRequest(t, "./tuples/37.swa",
+			"\x1b[33mexpected CLOSE_PAREN, but got RETURN at line 8\x1b[0m\n\n\x1b[34m0\x1b[0m \n\x1b[34m8\x1b[0m \x1b[31mreturn\x1b[0m \n")
+	})
+	// FIXME the error message is not user friendly
+	t.Run("38", func(t *testing.T) {
+		NewFailedCompileRequest(t, "./tuples/38.swa",
+			"nud handler expected for token COMMA and binding power 0 \n 7")
+	})
+	t.Run("39", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t, "./tuples/39.swa",
+			"b=1, c=2a=0")
+	})
+	t.Run("40", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t, "./tuples/40.swa",
+			"g1=100, g2=200")
+	})
+	t.Run("41", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t, "./tuples/41.swa",
+			"arr[0]=2, arr[1]=3")
+	})
+	t.Run("42", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t, "./tuples/42.swa",
+			"p.x=2, p.y=3")
+	})
+	t.Run("43", func(t *testing.T) {
+		NewFailedCompileRequest(t, "./tuples/43.swa",
+			"struct with pointer reference to self not supported, property: next\n")
+	})
+	t.Run("44", func(t *testing.T) {
+		NewFailedCompileRequest(t, "./tuples/44.swa",
+			"Only numbers are supported as array index, current: (&{nextIndex [] [IDENTIFIER (nextIndex) (12:8) OPEN_PAREN (12:17) CLOSE_PAREN (12:18)] <nil>})\n")
+	})
+	t.Run("45", func(t *testing.T) {
+		NewFailedCompileRequest(t, "./tuples/45.swa",
+			"nud handler expected for token COMMA and binding power 0 \n 9")
+	})
+	t.Run("46", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t, "./tuples/46.swa",
+			"")
+	})
+	t.Run("47", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t, "./tuples/47.swa",
+			"a =2 b =3c =2 d =3")
+	})
+	t.Run("48", func(t *testing.T) {
+		NewFailedCompileRequest(t, "./tuples/48.swa",
+			"function takeTwo expect 2 arguments but was given 1\n")
 	})
 }
 

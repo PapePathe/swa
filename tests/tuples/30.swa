@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 31: Tuple assignment after variable declaration (no initializer)
+start() int {
+  let a: int;
+  let b: int;
+  (a, b) = (5, 6); // This should be allowed (simple assignment)
+  print("a=%d, b=%d", a, b);
+  return 0;
+}

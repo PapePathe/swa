@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 39: Tuple assignment with no parentheses – should be syntax error if not allowed
+start() int {
+  let a: int;
+  let b: int;
+  a, b = two(); // syntax error 
+  return 0;
+}

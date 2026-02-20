@@ -1,0 +1,11 @@
+dialect:english;
+
+func two()(int, int) { return 2, 3; }
+// Test 46: Tuple assignment with mixed literal and function call on right – error
+start() int {
+  let a: int;
+  let b: int;
+  // ERROR: right side must be a single tuple-returning call, not mixed
+  (a, b) = 5, two(); 
+  return 0;
+}
