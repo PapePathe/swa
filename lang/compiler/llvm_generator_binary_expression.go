@@ -70,6 +70,11 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 			rightRes.SwaType.Value() == ast.DataTypeFloat {
 			resultingSwaType = ast.FloatType{}
 		}
+
+		//	if leftRes.SwaType.Value() == ast.DataTypeNumber ||
+		//		rightRes.SwaType.Value() == ast.DataTypeNumber {
+		//		resultingSwaType = ast.NumberType{}
+		//	}
 	}
 
 	if node.Operator.Kind == lexer.Equals ||
