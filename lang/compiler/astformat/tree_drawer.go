@@ -258,9 +258,19 @@ func (t *TreeDrawer) VisitTupleExpression(node *ast.TupleExpression) error {
 func (t *TreeDrawer) VisitTupleAssignmentExpression(node *ast.TupleAssignmentExpression) error {
 	t.writeLine("TupleAssignmentExpression")
 	t.isLast = append(t.isLast, false)
-	t.visitChild(node.Assignees, false)
+
+	err := t.visitChild(node.Assignees, false)
+	if err != nil {
+		return err
+	}
+
 	t.isLast[len(t.isLast)-1] = true
-	t.visitChild(node.Value, true)
+
+	err = t.visitChild(node.Value, true)
+	if err != nil {
+		return err
+	}
+
 	t.isLast = t.isLast[:len(t.isLast)-1]
 	return nil
 }
