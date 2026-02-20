@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 24: Function call with wrong argument type (should not compile)
+func takes_int(a: int) int { return a; }
+start() int {
+  let x: int = takes_int("hello");
+  return 0;
+}

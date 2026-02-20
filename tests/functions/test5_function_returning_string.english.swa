@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 5: Function returning string
+func greet() string {
+  return "hello";
+}
+start() int {
+  let s: string = greet();
+  print("greet() = %s", s); // Expected: hello
+  return 0;
+}

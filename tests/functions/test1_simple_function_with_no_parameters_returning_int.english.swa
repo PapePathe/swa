@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 1: Simple function with no parameters, returning int
+func one() int {
+  return 1;
+}
+start() int {
+  let x: int = one();
+  print("one() = %d", x); // Expected: 1
+  return 0;
+}

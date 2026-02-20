@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 22: Function call with too few arguments (should not compile)
+func two_args(a: int, b: int) int { return a+b; }
+start() int {
+  let x: int = two_args(5); // missing second
+  return 0;
+}

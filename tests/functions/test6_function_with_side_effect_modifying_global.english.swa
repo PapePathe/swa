@@ -1,0 +1,13 @@
+dialect:english;
+
+// Test 6: Function with side effect (modifying global)
+let global: int = 0;
+func set_global(val: int) int {
+  global = val;
+  return 0;
+}
+start() int {
+  set_global(42);
+  print("global = %d", global); // Expected: 42
+  return 0;
+}

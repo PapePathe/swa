@@ -1,0 +1,14 @@
+dialect:english;
+
+// Test 11: Recursion – factorial
+func factorial(n: int) int {
+  if (n <= 1) {
+    return 1;
+  }
+  return n * factorial(n - 1);
+}
+start() int {
+  let f: int = factorial(5);
+  print("5! = %d", f); // Expected: 120
+  return 0;
+}

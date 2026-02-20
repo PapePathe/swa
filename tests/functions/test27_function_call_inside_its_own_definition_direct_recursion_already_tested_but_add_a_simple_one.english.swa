@@ -1,0 +1,15 @@
+dialect:english;
+
+// Test 27: Function call inside its own definition (direct recursion) – already tested, but add a simple one
+func countdown(n: int) int {
+  if (n == 0) {
+    print("0");
+    return 0;
+  }
+  print("%d ", n);
+  return countdown(n-1);
+}
+start() int {
+  countdown(5); // Expected: 5 4 3 2 1 0
+  return 0;
+}

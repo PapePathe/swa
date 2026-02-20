@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 49: Function call inside struct literal initialization
+struct Wrapper { val: int, }
+func get_val() int {
+  return 42;
+}
+start() int {
+  let w: Wrapper = Wrapper{val: get_val()};
+  print("w.val = %d", w.val);
+  return 0;
+}

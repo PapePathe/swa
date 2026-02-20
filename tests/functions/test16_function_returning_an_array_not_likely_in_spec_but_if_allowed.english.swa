@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 16: Function returning an array? Not likely in spec, but if allowed:
+// func make_array() [3]int { return [3]int{1,2,3}; }
+// start() int {
+//   let a: [3]int = make_array();
+//   print("%d", a[0]);
+//   return 0;
+// }

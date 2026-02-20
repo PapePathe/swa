@@ -1,0 +1,13 @@
+dialect:english;
+
+// Test 18: Function with large local array (stack usage)
+func large_local() int {
+  let arr: [1000]int;
+  arr[0] = 42;
+  return arr[0];
+}
+start() int {
+  let x: int = large_local();
+  print("large_local = %d", x); // Expected: 42
+  return 0;
+}

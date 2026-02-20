@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 41: Function call with a lot of recursion to test stack limit
+func deep(n: int) int {
+  if (n == 0) return 0;
+  return deep(n-1) + 1;
+}
+start() int {
+  let r: int = deep(10000); // may cause stack overflow; expected behavior depends on implementation
+  print("deep(10000) = %d", r);
+  return 0;
+}
