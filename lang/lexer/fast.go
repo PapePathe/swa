@@ -9,16 +9,18 @@ import (
 
 // FastLexer is a high-performance lexer that doesn't use regular expressions
 type FastLexer struct {
-	Tokens        []Token              // The tokens
-	source        string               // The source code
-	position      int                  // The current position of the lexer
-	line          int                  // Current line number
-	column        int                  // Current column number
-	reservedWords map[string]TokenKind // list of reserved words
-	dialect       Dialect
-	start         int // start position of current token
-	startLine     int // line at start of current token
-	startColumn   int // column at start of current token
+	Tokens         []Token              // The tokens
+	source         string               // The source code
+	position       int                  // The current position of the lexer
+	line           int                  // Current line number
+	column         int                  // Current column number
+	reservedWords  map[string]TokenKind // list of reserved words
+	dialect        Dialect
+	start          int // start position of current token
+	startLine      int // line at start of current token
+	startColumn    int // column at start of current token
+	ShowWhitespace bool
+	ShowComments   bool
 }
 
 // NewFastLexer creates a new FastLexer instance
@@ -68,10 +70,13 @@ func (lex *FastLexer) Lex() error {
 		ch := lex.advance()
 
 		switch {
-		case ch == '\n':
-
 		case unicode.IsSpace(ch) && ch != '\n':
 			lex.skipWhitespace()
+
+		case ch == '\n':
+			if lex.ShowWhitespace {
+				lex.push(Newline, "\n")
+			}
 
 		case lex.isIdentifierStart(ch):
 			lex.lexIdentifierOrKeyword()
@@ -135,6 +140,10 @@ func (lex *FastLexer) skipWhitespace() {
 		}
 
 		lex.advance()
+	}
+
+	if lex.ShowWhitespace {
+		lex.push(Whitespace, lex.currentText())
 	}
 }
 
@@ -292,6 +301,10 @@ func (lex *FastLexer) lexComment() {
 
 		lex.advance()
 	}
+
+	if lex.ShowComments {
+		lex.push(Comment, lex.currentText())
+	}
 }
 
 func (lex *FastLexer) lexOperator() {
@@ -422,6 +435,7 @@ func (lex *FastLexer) push(k TokenKind, v string) {
 		Value:  v,
 		Line:   lex.startLine,
 		Column: lex.startColumn,
+		Raw:    lex.currentText(),
 	})
 }
 
