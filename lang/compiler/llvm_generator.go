@@ -205,7 +205,7 @@ func (g *LLVMGenerator) VisitFloatExpression(node *ast.FloatExpression) error {
 	)
 	node.SwaType = ast.FloatType{}
 
-	g.setLastResult(&CompilerResult{Value: resVal, SwaType: node.SwaType})
+	g.setLastResult(&CompilerResult{Value: &res, SwaType: node.SwaType})
 
 	return nil
 }
@@ -568,10 +568,7 @@ func (g *LLVMGenerator) prepareReturnValue(expr ast.Expression, res *CompilerRes
 	case *ast.StructInitializationExpression:
 		return g.Ctx.Builder.CreateLoad(res.Value.AllocatedType(), *res.Value, ""), nil
 	case *ast.StringExpression:
-		alloc := g.Ctx.Builder.CreateAlloca(res.Value.Type(), "")
-		g.Ctx.Builder.CreateStore(*res.Value, alloc)
-
-		return alloc, nil
+		return *res.Value, nil
 	case *ast.SymbolExpression, *ast.BinaryExpression, *ast.FunctionCallExpression,
 		*ast.NumberExpression, *ast.FloatExpression, *ast.TupleExpression,
 		*ast.ErrorExpression, *ast.ZeroExpression, *ast.BooleanExpression,
