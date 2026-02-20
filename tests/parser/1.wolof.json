@@ -18,16 +18,7 @@
              },
              {
                "ReturnStatement": {
-                 "Value": "res",
-                 "Tokens": [
-                   {
-                     "Value": "res",
-                     "Name": "",
-                     "Line": 6,
-                     "Column": 10
-                   }
-                 ],
-                 "SwaType": null
+                 "SymbolExpression": "res"
                }
              }
            ]

@@ -58,12 +58,19 @@ func TestFunctions(t *testing.T) {
 	})
 
 	t.Run("English", func(t *testing.T) {
-
 		t.Run("static arrays as function parameter", func(t *testing.T) {
-			NewSuccessfulCompileRequest(t,
-				"./functions/array-sum.english.swa",
-				"sum: 15, sumf: 15.00",
-			)
+			t.Run("LLVM", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./functions/array-sum.english.swa",
+					"sum: 15, sumf: 15.00",
+				)
+			})
+			t.Run("SWA", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./functions/array-sum.english.swa",
+					"sum: 15, sumf: 15.00",
+				)
+			})
 		})
 
 		t.Run("Function taking struct as argument by reference", func(t *testing.T) {
