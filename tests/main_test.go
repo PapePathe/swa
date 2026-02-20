@@ -87,9 +87,9 @@ func (cr *CompileRequest) CompileX() error {
 	cr.OutputPath = uuid.New().String()
 
 	cmd := exec.Command("./swa", "compile", "-s", cr.InputPath, "-o", cr.OutputPath, "-g", "swa")
-	output, err := cmd.CombinedOutput()
+	_, err := cmd.CombinedOutput()
 
-	fmt.Println(string(output))
+	//	fmt.Println(string(output))
 
 	//	if cr.ExpectedOutput != string(output) {
 	//		cr.T.Fatalf(
