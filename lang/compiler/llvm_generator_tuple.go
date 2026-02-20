@@ -92,6 +92,10 @@ func (g *LLVMGenerator) VisitTupleAssignmentExpression(node *ast.TupleAssignment
 		return fmt.Errorf("RHS of tuple assignment evaluated to nil")
 	}
 
+	if node.Value.VisitedSwaType().Value() != ast.DataTypeTuple {
+		return fmt.Errorf("Expected right side of tuple assignment to be tuple")
+	}
+
 	rhsVal := *rhsRes.Value
 
 	// 2. Iterate Assignees
