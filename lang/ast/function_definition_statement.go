@@ -16,6 +16,7 @@ type FuncDeclStatement struct {
 	Args         []FuncArg
 	Tokens       []lexer.Token
 	ArgsVariadic bool
+	Declaration  bool
 }
 
 var _ Statement = (*FuncDeclStatement)(nil)
