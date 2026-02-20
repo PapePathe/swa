@@ -140,7 +140,8 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 	val := g.Ctx.Builder.CreateCall(funcType.lltype, funcVal, args, "")
 
 	g.setLastResult(&CompilerResult{
-		Value: &val,
+		Value:   &val,
+		SwaType: node.SwaType,
 	})
 
 	return nil
