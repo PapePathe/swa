@@ -41,12 +41,15 @@ func ParseFunctionDeclaration(p *Parser) (ast.Statement, error) {
 	funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.CloseParen))
 	curentToken := p.currentToken()
 
-	if curentToken.Kind == lexer.SemiColon || curentToken.Kind == lexer.OpenCurly { // void return type
+	if curentToken.Kind == lexer.SemiColon ||
+		curentToken.Kind == lexer.OpenCurly { // void return type
 		funDecl.ReturnType = ast.VoidType{}
 	} else if curentToken.Kind == lexer.OpenParen {
 		// Multiple return values: (type1, type2)
 		funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.OpenParen))
+
 		var types []ast.Type
+
 		for p.hasTokens() && p.currentToken().Kind != lexer.CloseParen {
 			retType, toks := parseType(p, DefaultBindingPower)
 			types = append(types, retType)
@@ -56,6 +59,7 @@ func ParseFunctionDeclaration(p *Parser) (ast.Statement, error) {
 				funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.Comma))
 			}
 		}
+
 		funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.CloseParen))
 		funDecl.ReturnType = &ast.TupleType{Types: types}
 	} else {
@@ -66,6 +70,7 @@ func ParseFunctionDeclaration(p *Parser) (ast.Statement, error) {
 
 	if p.currentToken().Kind == lexer.SemiColon {
 		funDecl.Tokens = append(funDecl.Tokens, p.expect(lexer.SemiColon))
+		funDecl.Declaration = true
 	} else {
 		body, err := ParseBlockStatement(p)
 		if err != nil {
@@ -82,8 +87,15 @@ func ParseFunctionDeclaration(p *Parser) (ast.Statement, error) {
 func ParseFunctionCall(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
 	expr := ast.FunctionCallExpression{}
 	p.currentExpression = &expr
+	expr.Name = left
 	expr.Tokens = append(expr.Tokens, left.TokenStream()...)
 	expr.Tokens = append(expr.Tokens, p.expect(lexer.OpenParen))
+
+	if p.currentToken().Kind == lexer.CloseParen {
+		expr.Tokens = append(expr.Tokens, p.expect(lexer.CloseParen))
+
+		return &expr, nil
+	}
 
 	for p.hasTokens() && p.currentToken().Kind != lexer.CloseParen {
 		arg, err := parseExpression(p, DefaultBindingPower)
@@ -100,7 +112,6 @@ func ParseFunctionCall(p *Parser, left ast.Expression, bp BindingPower) (ast.Exp
 	}
 
 	expr.Tokens = append(expr.Tokens, p.expect(lexer.CloseParen))
-	expr.Name = left
 
 	return &expr, nil
 }

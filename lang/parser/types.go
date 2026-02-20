@@ -109,6 +109,7 @@ func parseArrayType(p *Parser) (ast.Type, []lexer.Token) {
 
 		number, err := strconv.ParseInt(tok.Value, 10, 64)
 		if err != nil {
+			// FIXME return error instead of panic
 			panic(err)
 		}
 
@@ -116,6 +117,7 @@ func parseArrayType(p *Parser) (ast.Type, []lexer.Token) {
 	} else if p.currentToken().Kind == lexer.Identifier {
 		expr, err := parseExpression(p, DefaultBindingPower)
 		if err != nil {
+			// FIXME return error instead of panic
 			panic(err)
 		}
 
@@ -136,11 +138,14 @@ func parseType(p *Parser, bp BindingPower) (ast.Type, []lexer.Token) {
 	tokens := []lexer.Token{}
 
 	if !exists {
-		panic(fmt.Sprintf(
+		err := fmt.Errorf(
 			"type nud handler expected for token kind: %s, value: %s line %d\n",
 			tokenKind,
 			p.currentToken().Value,
-			p.currentToken().Line))
+			p.currentToken().Line)
+		p.errors = append(p.errors, err)
+
+		return ast.SymbolType{Name: "couldnotparsetype"}, tokens
 	}
 
 	left, toks := nudFn(p)
@@ -150,13 +155,13 @@ func parseType(p *Parser, bp BindingPower) (ast.Type, []lexer.Token) {
 		ledFn, exists := typeLedLookup[p.currentToken().Kind]
 
 		if !exists {
-			panic(
-				fmt.Sprintf(
-					"type led handler expected for token (%s: value(%s))\n",
-					tokenKind,
-					p.currentToken().Value,
-				),
+			// FIXME return error instead of panic
+			err := fmt.Errorf(
+				"type led handler expected for token (%s: value(%s))\n",
+				tokenKind,
+				p.currentToken().Value,
 			)
+			p.errors = append(p.errors, err)
 		}
 
 		left, toks = ledFn(p, left, typeBindingPowerLookup[p.currentToken().Kind])
