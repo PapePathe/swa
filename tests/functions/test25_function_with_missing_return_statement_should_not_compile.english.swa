@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 25: Function with missing return statement (should not compile)
+func no_return() int {
+  let x: int = 5;
+  // no return
+}
+start() int {
+  let y: int = no_return();
+  return 0;
+}

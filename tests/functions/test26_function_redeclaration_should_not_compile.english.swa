@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 26: Function redeclaration (should not compile)
+func foo() int { return 1; }
+func foo() int { return 2; } // duplicate
+start() int {
+  return foo();
+}

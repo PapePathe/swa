@@ -1,0 +1,13 @@
+dialect:english;
+
+// Test 7: Function that modifies parameter (call by value, should not affect caller)
+func modify_param(x: int) int {
+  x = 100;
+  return 0;
+}
+start() int {
+  let a: int = 5;
+  modify_param(a);
+  print("a = %d", a); // Expected: 5
+  return 0;
+}

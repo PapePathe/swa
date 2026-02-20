@@ -1,0 +1,17 @@
+dialect:english;
+
+// Test 40: Function call with side effect that modifies global used in argument
+let my_global: int = 0;
+func get_inc() int {
+  my_global = my_global + 1;
+  return my_global;
+}
+func add(a: int, b: int) int {
+  return a + b;
+}
+start() int {
+  let r: int = add(get_inc(), get_inc()); 
+  print("r = %d, g = %d", r, my_global);
+ // g should be 2, r depends on order: if first returns 1, second 2 => sum 3; if first 2, second 1 => sum 3 as well? Actually if order left-to-right, get_inc() returns 1, then get_inc() returns 2, sum=3. If right-to-left, first returns 2, second returns 1, sum=3. So always 3.
+  return 0;
+}

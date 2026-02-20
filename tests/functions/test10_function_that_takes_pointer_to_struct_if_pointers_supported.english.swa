@@ -1,0 +1,15 @@
+dialect:english;
+
+// Test 10: Function that takes pointer to struct (if pointers supported)
+struct Point { x: int, y: int }
+func move_point_ptr(p: *Point, dx: int, dy: int) int {
+  p.x = p.x + dx;
+  p.y = p.y + dy;
+  return 0;
+}
+start() int {
+  let pt: Point = Point{x: 1, y: 2};
+  move_point_ptr(pt, 5, 5);
+  print("after move: (%d,%d)", pt.x, pt.y); // Expected: (6,7)
+  return 0;
+}

@@ -1,0 +1,18 @@
+dialect:english;
+
+// Test 44: Function with empty parameter list (already done)
+
+// Test 45: Function returning void? Not in spec; all functions return a value.
+
+// Test 46: Function call in declaration of another function (nested function not allowed)
+
+// Test 47: Function that is declared after its first use (forward declaration needed?) – if no forward declaration, should compile if function is defined later in same file? In many languages, functions are hoisted. Test.
+start() int {
+  let x: int = later(); // called before definition
+  print("%d", x);
+  return 0;
+}
+func later() int {
+  return 99;
+}
+// Expected: 99 if hoisted, else compile error.

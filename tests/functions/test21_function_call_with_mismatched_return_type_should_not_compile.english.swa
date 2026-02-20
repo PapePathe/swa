@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 21: Function call with mismatched return type (should not compile)
+// Uncomment to test compiler error:
+func returns_int() int { return 42; }
+start() int {
+  let s: string = returns_int();
+  return 0;
+}

@@ -1,0 +1,18 @@
+dialect:english;
+
+// Test 12: Mutual recursion (even/odd)
+func isEven(n: int) int {
+  if (n == 0) { return 1; }
+  return isOdd(n - 1);
+}
+
+func isOdd(n: int) int {
+  if (n == 0) { return 0; }
+  return isEven(n - 1);
+}
+
+start() int {
+  print("isEven(4) = %d\n", isEven(4)); // Expected: 1
+  print("isOdd(4) = %d\n", isOdd(4));   // Expected: 0
+  return 0;
+}
