@@ -18,55 +18,64 @@ func TestTokenizer(t *testing.T) {
         "Name": "",
         "Value": "dialecte",
         "Column": 1,
-        "Line": 1
+        "Line": 1,
+        "Raw": "dialecte"
     },
     {
         "Name": "",
         "Column": 9,
         "Line": 1,
-        "Value": ":"
+        "Value": ":",
+        "Raw": ":"
     },
     {
         "Name": "",
         "Column": 10,
         "Line": 1,
-        "Value": "français"
+        "Value": "français",
+        "Raw": "français"
     },
     {
         "Name": "",
         "Column": 18,
         "Line": 1,
-        "Value": ";"
+        "Value": ";",
+        "Raw": ";"
     },
     {
         "Name": "",
         "Column": 20,
         "Line": 1,
-        "Value": "variable"
+        "Value": "variable",
+        "Raw": "variable"
     },
     {
         "Name": "",
         "Column": 29,
         "Line": 1,
-        "Value": "x"
+        "Value": "x",
+        "Raw": "x"
     },
     {
         "Name": "",
         "Column": 31,
         "Line": 1,
-        "Value": "="
+        "Value": "=",
+        "Raw": "="
     },
     {
         "Name": "",
         "Column": 33,
         "Line": 1,
-        "Value": "10"
+        "Value": "10",
+        "Raw": "10"
     },
     {
         "Name": "",
         "Column": 35,
         "Line": 1,
-        "Value": ";"
+        "Value": ";",
+        "Raw": ";"
     }]`
 
 	web.ServeHTTP(response, request)
