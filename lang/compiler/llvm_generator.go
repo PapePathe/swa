@@ -205,7 +205,7 @@ func (g *LLVMGenerator) VisitFloatExpression(node *ast.FloatExpression) error {
 	)
 	node.SwaType = ast.FloatType{}
 
-	g.setLastResult(&CompilerResult{Value: &res})
+	g.setLastResult(&CompilerResult{Value: resVal, SwaType: node.SwaType})
 
 	return nil
 }
@@ -297,6 +297,13 @@ func (g *LLVMGenerator) VisitReturnStatement(node *ast.ReturnStatement) error {
 	}
 
 	retValType := node.Value.VisitedSwaType()
+
+	if retValType != nil {
+		switch retValType.Value() {
+		case ast.DataTypeArray, ast.DataTypeStruct:
+			return fmt.Errorf("returning complex types (structs and arrays) from functions is currently not supported")
+		}
+	}
 
 	if !retValType.Equals(g.currentFuncReturnType) {
 		return fmt.Errorf(
