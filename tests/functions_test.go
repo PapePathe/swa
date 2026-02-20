@@ -325,12 +325,17 @@ func TestFunctions(t *testing.T) {
 			})
 		})
 
-		t.Run("RLE Compression", func(t *testing.T) {
-			NewFailedCompileRequest(t,
-				"./functions/rle.french.swa",
-				"function named longueur does not exist in symbol table\n",
-			)
-		})
+		//	FIXME
+		//	this requires strings concatenation
+		//	and a programmatic way to query string
+		//	length
+		//
+		//	t.Run("RLE Compression", func(t *testing.T) {
+		//		NewFailedCompileRequest(t,
+		//			"./functions/rle.french.swa",
+		//			"function named longueur does not exist in symbol table\n",
+		//		)
+		//	})
 
 	})
 

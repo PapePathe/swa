@@ -1,0 +1,59 @@
+dialecte:français;
+
+// Programme 15 : Compression simple par plages (RLE)
+// Prend une chaîne et la compresse.
+
+fonction compresser_rle(entrée: chaine) chaine {
+  variable sortie: chaine = "";
+  variable i: entier = 0;
+  variable long: entier = longueur(entrée);
+
+  tantque (i < long) {
+    variable c: chaine = entrée[i];
+    variable compteur: entier = 1;
+    tantque (i + 1 < long && entrée[i+1] == c) {
+      compteur = compteur + 1;
+      i = i + 1;
+    }
+    // Convertir compteur en chaîne (pas de fonction, on simule)
+    sortie = sortie + c + itoa(compteur); // itoa hypothétique
+    i = i + 1;
+  }
+
+  retourner sortie;
+}
+
+fonction décompresser_rle(entrée: chaine) chaine {
+  variable sortie: chaine = "";
+  variable i: entier = 0;
+  variable long: entier = longueur(entrée);
+
+  tantque (i < long) {
+    variable c: chaine = entrée[i];
+    i = i + 1;
+    variable nb_str: chaine = "";
+    tantque (i < long && entrée[i] >= "0" && entrée[i] <= "9") {
+      nb_str = nb_str + entrée[i];
+      i = i + 1;
+    }
+    variable nb: entier = atoi(nb_str); // atoi hypothétique
+    variable j: entier = 0;
+    tantque (j < nb) {
+      sortie = sortie + c;
+      j = j + 1;
+    }
+  }
+
+  retourner sortie;
+}
+
+demarrer() entier {
+  variable original: chaine = "aaabbbcccaaa";
+  variable compressé: chaine = compresser_rle(original);
+  variable décompressé: chaine = décompresser_rle(compressé);
+  afficher("Original : %s", original);
+  afficher("Compressé : %s", compressé);
+  afficher("Décompressé : %s", décompressé);
+
+  retourner 0;
+}
