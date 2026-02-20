@@ -63,6 +63,9 @@ var tks = map[TokenKind]string{
 	TypeError:          "TYPE_ERROR",
 	Variadic:           "VARIADIC",
 	Zero:               "ZERO_OF",
+	Whitespace:         "WHITESPACE",
+	Comment:            "COMMENT",
+	Newline:            "NEWLINE",
 }
 
 // String s a string representation of the TokenKind.
@@ -186,4 +189,7 @@ const (
 	TypeBool
 	TypeByte
 	Zero
+	Whitespace
+	Comment
+	Newline
 )
