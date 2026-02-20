@@ -84,7 +84,11 @@ func (g *LLVMGenerator) VisitStructInitializationExpression(node *ast.StructInit
 		}
 
 		targetType := structType.PropertyTypes[propIndex]
-		injector(g, res, fieldAddr, targetType)
+
+		err = injector(g, res, fieldAddr, targetType)
+		if err != nil {
+			return err
+		}
 	}
 
 	node.SwaType = ast.SymbolType{Name: node.Name}
@@ -119,29 +123,33 @@ var structInjectors = map[reflect.Type]StructInitializationExpressionPropertyInj
 	reflect.TypeFor[*ast.StructInitializationExpression](): injectNestedStruct,
 }
 
-func injectNestedStruct(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+func injectNestedStruct(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) error {
 	load := g.Ctx.Builder.CreateLoad(res.Value.AllocatedType(), *res.Value, "nested-struct.load")
 	g.Ctx.Builder.CreateStore(load, fieldAddr)
 }
 
-func injectDirectly(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+func injectDirectly(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) error {
 	g.Ctx.Builder.CreateStore(*res.Value, fieldAddr)
+
+	return nil
 }
 
-func injectWithArrayDecay(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+func injectWithArrayDecay(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) error {
 	_, isArray := res.SymbolTableEntry.DeclaredType.(ast.ArrayType)
 
 	if isArray && targetType.TypeKind() == llvm.PointerTypeKind {
 		ptr := g.Ctx.Builder.CreateBitCast(*res.SymbolTableEntry.Address, targetType, "decay")
 		g.Ctx.Builder.CreateStore(ptr, fieldAddr)
 
-		return
+		return nil
 	}
 
 	g.Ctx.Builder.CreateStore(*res.Value, fieldAddr)
+
+	return nil
 }
 
-func injectArrayLiteral(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+func injectArrayLiteral(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) error {
 	g.Debugf("injectArrayLiteral %s %v", fieldAddr, res)
 
 	if targetType.TypeKind() == llvm.PointerTypeKind {
@@ -160,9 +168,13 @@ func injectArrayLiteral(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Va
 		load := g.Ctx.Builder.CreateLoad(res.ArraySymbolTableEntry.Type, *res.Value, "array.load")
 		g.Ctx.Builder.CreateStore(load, fieldAddr)
 	}
+
+	return nil
 }
 
-func injectArrayAccess(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) {
+func injectArrayAccess(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) error {
 	load := g.Ctx.Builder.CreateLoad(res.ArraySymbolTableEntry.UnderlyingType, *res.Value, "access.load")
 	g.Ctx.Builder.CreateStore(load, fieldAddr)
+
+	return nil
 }
