@@ -136,7 +136,6 @@ func (g *LLVMGenerator) coerceOperands(left, right llvm.Value) (llvm.Value, llvm
 	lk := lt.TypeKind()
 	rk := rt.TypeKind()
 
-	// Logic: Promote Integer to Float/Double if one side is a float
 	if g.isFloat(lk) || g.isFloat(rk) {
 		targetType := g.Ctx.Context.DoubleType()
 		lCasted := g.castToFloat(left, targetType)
@@ -145,7 +144,6 @@ func (g *LLVMGenerator) coerceOperands(left, right llvm.Value) (llvm.Value, llvm
 		return lCasted, rCasted, nil
 	}
 
-	// Logic: Promote smaller integers to 32-bit (or your language's default int)
 	if lk == llvm.IntegerTypeKind && rk == llvm.IntegerTypeKind {
 		targetType := g.Ctx.Context.Int32Type()
 
