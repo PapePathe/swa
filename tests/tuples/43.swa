@@ -1,0 +1,10 @@
+dialect:english;
+
+func two()(int, int) { return 2, 3; }
+// Test 44: Tuple assignment with pointer dereference (if pointers exist)
+struct Node { val: int, next: *Node, }
+start() int {
+  let n: Node = Node{val: 0, next: 0};
+  (n.val, n.next.val) = two(); // n.next is nil -> runtime error
+  return 0;
+}

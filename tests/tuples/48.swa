@@ -1,0 +1,14 @@
+dialect:english;
+
+// Test 49: Tuple assignment in a function call (as argument) – error
+func takeTwo(a: int, b: int) int {
+  return a + b;
+}
+start() int {
+  // Allowed if tuple expands? Test 8 covers this.
+  let x: int = takeTwo(two()); 
+  return 0;
+}
+
+
+

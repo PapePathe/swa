@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 38: Tuple assignment with mismatched parentheses – syntax error
+start() int {
+  let a: int;
+  let b: int;
+  (a, b = two(); // Missing closing parenthesis
+  return 0;
+}

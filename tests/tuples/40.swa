@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 41: Tuple assignment with global variables
+let g1: int;
+let g2: int;
+func set() (int, int) { return 100,200; }
+start() int {
+  (g1, g2) = set();
+  print("g1=%d, g2=%d", g1, g2);
+  return 0;
+}

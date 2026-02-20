@@ -1,0 +1,11 @@
+dialect:english;
+
+func two()(int, int) { return 2, 3; }
+// Test 43: Tuple assignment with struct fields
+struct Pair { x: int, y: int, }
+start() int {
+  let p: Pair;
+  (p.x, p.y) = two();
+  print("p.x=%d, p.y=%d", p.x, p.y);
+  return 0;
+}

@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 33: Tuple used in if condition directly – error
+func cond() (bool, int) {
+  return true, 5;
+}
+start() int {
+  if (cond()) { // ERROR: condition expects bool, got (bool,int)
+    print("true");
+  }
+  return 0;
+}

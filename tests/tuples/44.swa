@@ -1,0 +1,15 @@
+dialect:english;
+
+func two()(int, int) { return 2, 3; }
+// Test 45: Tuple assignment where left side expressions have side effects (order)
+let idx: int = 0;
+func nextIndex() int {
+  idx = idx + 1;
+  return idx;
+}
+start() int {
+  let arr: [3]int;
+  (arr[nextIndex()], arr[nextIndex()]) = two(); // Which index gets first? Unspecified.
+  print("arr[1]=%d, arr[2]=%d", arr[1], arr[2]);
+  return 0;
+}

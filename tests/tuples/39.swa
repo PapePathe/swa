@@ -1,0 +1,15 @@
+dialect:english;
+
+// Test 40: Tuple assignment inside a block with variable shadowing
+func get() (int, int) { return 1,2; }
+start() int {
+  let a: int = 0;
+  {
+    let b: int;
+    let c: int;
+    (b, c) = get();
+    print("b=%d, c=%d", b, c);
+  }
+  print("a=%d", a);
+  return 0;
+}

@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 37: Indexing a tuple – error
+func getPair() (int, int) { return 10,20; }
+start() int {
+  let x: int = getPair()[0]; // ERROR: cannot index a tuple
+  return 0;
+}
