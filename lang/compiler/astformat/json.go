@@ -259,8 +259,8 @@ func (j *Json) VisitFloatingBlockExpression(node *ast.FloatingBlockExpression) e
 
 func (j *Json) VisitFunctionCall(node *ast.FunctionCallExpression) error {
 	m := make(map[string]any)
-	m["Name"] = node.Name
-
+	_ = node.Name.Accept(j)
+	m["Name"] = j.getLastResult()
 	m["Args"] = visitValuesArray(j, node.Args)
 
 	res := make(map[string]any)
@@ -384,7 +384,10 @@ func (j *Json) VisitPrintStatement(node *ast.PrintStatetement) error {
 
 func (j *Json) VisitReturnStatement(node *ast.ReturnStatement) error {
 	res := make(map[string]any)
-	res["ReturnStatement"] = node.Value
+
+	_ = node.Value.Accept(j)
+
+	res["ReturnStatement"] = j.getLastResult()
 
 	j.setLastResult(res)
 
