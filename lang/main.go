@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -49,13 +50,30 @@ func main() {
 	compileCmd.Flags().
 		BoolP("experimental", "e", false, "enable experimental features")
 
+	convertCmd.Flags().
+		StringP("source", "s", "", "location of the file containing the source code")
+	convertCmd.Flags().
+		StringP("target-dialect", "t", "english", "target dialect")
+	convertCmd.Flags().
+		StringP("out", "o", "", "location of the output file")
+
+	if err := convertCmd.MarkFlagRequired("source"); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	if err := convertCmd.MarkFlagRequired("target-dialect"); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	err := compileCmd.MarkFlagRequired("source")
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
-	rootCmd.AddCommand(compileCmd, parseCmd, tokenizeCmd, serverCmd)
+	rootCmd.AddCommand(compileCmd, parseCmd, tokenizeCmd, serverCmd, convertCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err.Error())
@@ -221,6 +239,99 @@ var parseCmd = &cobra.Command{
 			}
 
 			fmt.Println(string(result))
+		}
+	},
+}
+
+var convertCmd = &cobra.Command{
+	Use:   "convert",
+	Short: "Convert the source code from one dialect to another",
+	Run: func(cmd *cobra.Command, _ []string) {
+		sourcePath, _ := cmd.Flags().GetString("source")
+		targetDialectName, _ := cmd.Flags().GetString("target-dialect")
+		outPath, _ := cmd.Flags().GetString("out")
+
+		// Read source file
+		content, err := os.ReadFile(sourcePath)
+		if err != nil {
+			fmt.Printf("Error reading source file: %v\n", err)
+			os.Exit(1)
+		}
+		source := string(content)
+
+		// Get target dialect
+		targetDialect, ok := lexer.GetDialectByName(targetDialectName)
+		if !ok {
+			fmt.Printf("Error: Unknown target dialect '%s'\n", targetDialectName)
+			os.Exit(1)
+		}
+
+		// Initialize lexer with source
+		lex, _, err := lexer.NewFastLexer(source)
+		if err != nil {
+			fmt.Printf("Error initializing lexer: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Enable whitespace and comments
+		lex.ShowWhitespace = true
+		lex.ShowComments = true
+
+		tokens, err := lex.GetAllTokens()
+		if err != nil {
+			fmt.Printf("Error tokenizing source: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Create a reverse map for the target dialect: TokenKind -> Keyword
+		targetKeywords := make(map[lexer.TokenKind]string)
+		for keyword, kind := range targetDialect.Reserved() {
+			targetKeywords[kind] = keyword
+		}
+
+		// 1. Update dialect declaration
+		for i := 0; i < len(tokens); i++ {
+			if tokens[i].Kind == lexer.DialectDeclaration {
+				for j := i + 1; j < len(tokens); j++ {
+					k := tokens[j].Kind
+					if k == lexer.Whitespace || k == lexer.Comment || k == lexer.Newline {
+						continue
+					}
+					if k == lexer.Colon {
+						continue
+					}
+					if k == lexer.Identifier {
+						tokens[j].Raw = targetDialect.Name()
+						break
+					}
+					break
+				}
+			}
+		}
+
+		// 2. Update all translatable tokens (Keywords)
+		for i := 0; i < len(tokens); i++ {
+			if kw, ok := targetKeywords[tokens[i].Kind]; ok {
+				tokens[i].Raw = kw
+			}
+		}
+
+		// 3. Reconstruct source
+		var sb strings.Builder
+		for _, token := range tokens {
+			sb.WriteString(token.Raw)
+		}
+
+		output := sb.String()
+
+		if outPath != "" {
+			err := os.WriteFile(outPath, []byte(output), 0644)
+			if err != nil {
+				fmt.Printf("Error writing output file: %v\n", err)
+				os.Exit(1)
+			}
+		} else {
+			fmt.Println(output)
 		}
 	},
 }

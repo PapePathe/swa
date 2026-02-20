@@ -1,0 +1,43 @@
+dialect:english;
+
+struct Person {
+    age: int,
+}
+
+func add(a: int, b: int) int {
+    return a + b;
+}
+
+start() int {
+    // Variable declarations: let, const
+    let x: int = 10;
+    let y: int = 20;
+
+    // Function call
+    let sum: int = add(x, y);
+
+    // Conditional: if, else, true, false
+    let flag: bool = true;
+    if (flag) {
+        print("Flag is true");
+    } else {
+        print("Flag is false");
+    }
+
+    if (sum > 25) {
+        print("Sum is greater than 25");
+    }
+
+    // Loop: while
+    let i: int = 0;
+    while (i < 3) {
+        print(i);
+        i = i + 1;
+    }
+
+    // Struct usage: struct, zero
+    let p: Person = zero(Person);
+    // p.age = 50; // Simple check, keeping it minimal for now
+
+    return 0;
+}

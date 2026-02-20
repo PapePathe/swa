@@ -186,6 +186,52 @@ func (cr *CompileRequest) AssertCompileAndExecute() {
 	}
 }
 
+func (cr *CompileRequest) AssertConvertAndCompile(targetDialect string) {
+	cr.T.Helper()
+
+	// 1. Convert
+	convertedPath := strings.Replace(cr.InputPath, ".swa", fmt.Sprintf(".%s.swa", targetDialect), 1)
+	cmd := exec.Command("./swa", "convert", "--source", cr.InputPath, "--target-dialect", targetDialect, "--out", convertedPath)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		cr.T.Fatalf("Conversion failed: %v\n%s", err, output)
+	}
+
+	// Quick hack to fix the dialect name if the converter didn't do it
+	// This confirms the bug exists and allows us to proceed with compilation testing
+	// pending the fix in the converter itself.
+	// But actually, we want the test to fail if the converter is broken?
+	// The user asked to "add tests that make sure the converted file compiles correctly".
+	// If the converter is broken, this test SHOULD fail.
+
+	// 2. Update InputPath to point to converted file
+	cr.InputPath = convertedPath
+
+	// 3. Compile and Execute
+	if err := cr.Compile(); err != nil {
+		sb := strings.Builder{}
+		fmt.Fprintf(&sb, "Compiler error (%s)\n Source file %s", err, cr.InputPath)
+
+		data, err := os.ReadFile(convertedPath)
+		if err == nil {
+			sb.WriteString("\nConverted Content:\n")
+			sb.WriteString(string(data))
+		}
+
+		cr.T.Fatal(sb.String())
+	}
+	// cr.AssertCompileAndExecute()
+
+	defer cr.Cleanup()
+
+	if err := cr.RunProgram(); err != nil {
+		cr.T.Fatalf("Runtime error (%s)", err)
+	}
+
+	// Cleanup converted file
+	os.Remove(convertedPath)
+}
+
 func (cr *CompileRequest) Cleanup() {
 	cr.T.Helper()
 
