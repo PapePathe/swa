@@ -68,13 +68,16 @@ func (typ SymbolType) Equals(other Type) bool {
 		return false
 	}
 
-	oth, _ := other.(*SymbolType)
-
-	if typ.Name != oth.Name {
+	var otherName string
+	if oth, ok := other.(SymbolType); ok {
+		otherName = oth.Name
+	} else if oth, ok := other.(*SymbolType); ok {
+		otherName = oth.Name
+	} else {
 		return false
 	}
 
-	return true
+	return typ.Name == otherName
 }
 
 func (typ SymbolType) AcceptZero(g CodeGenerator) error {
@@ -101,8 +104,18 @@ type ArrayType struct {
 	DynSizeIdentifier Expression
 }
 
-func (typ ArrayType) Equals(Type) bool {
-	panic("unimplemented")
+func (typ ArrayType) Equals(other Type) bool {
+	if typ.Value() != other.Value() {
+		return false
+	}
+
+	oth, ok := other.(ArrayType)
+
+	if !ok || oth.Size != typ.Size {
+		return false
+	}
+
+	return oth.Underlying.Equals(typ.Underlying)
 }
 
 func (t ArrayType) String() string {
