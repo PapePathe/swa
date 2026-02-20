@@ -32,7 +32,13 @@ func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) e
 		}
 
 		typeresult := g.getLastTypeVisitResult()
-		alloc := g.Ctx.Builder.CreateAlloca(typeresult.Type, fmt.Sprintf("alloc.%s", node.Name))
+
+		alloc := llvm.Value{}
+		if g.Ctx.InsideFunction {
+			alloc = g.Ctx.Builder.CreateAlloca(typeresult.Type, fmt.Sprintf("alloc.%s", node.Name))
+		} else {
+			alloc = llvm.AddGlobal(*g.Ctx.Module, typeresult.Type, node.Name)
+		}
 
 		err = node.ExplicitType.AcceptZero(g)
 		if err != nil {
@@ -41,7 +47,11 @@ func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) e
 
 		zero := g.getLastResult()
 
-		g.Ctx.Builder.CreateStore(*zero.Value, alloc)
+		if g.Ctx.InsideFunction {
+			g.Ctx.Builder.CreateStore(*zero.Value, alloc)
+		} else {
+			alloc.SetInitializer(*zero.Value)
+		}
 
 		entry := &SymbolTableEntry{
 			Value:        alloc,
