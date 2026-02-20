@@ -6,7 +6,8 @@ import (
 )
 
 type LLVMTypeChecker struct {
-	ctx *CompilerCtx
+	ctx                   *CompilerCtx
+	returnStatementsCount int
 }
 
 var _ ast.CodeGenerator = (*LLVMTypeChecker)(nil)
@@ -137,45 +138,68 @@ func (l *LLVMTypeChecker) VisitArrayInitializationExpression(node *ast.ArrayInit
 func (l *LLVMTypeChecker) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStructsAccessExpression) error {
 	return nil
 }
-func (l *LLVMTypeChecker) VisitArrayType(node *ast.ArrayType) error                  { return nil }
-func (l *LLVMTypeChecker) VisitCallExpression(node *ast.CallExpression) error        { return nil }
-func (l *LLVMTypeChecker) VisitErrorExpression(node *ast.ErrorExpression) error      { return nil }
-func (l *LLVMTypeChecker) VisitFloatExpression(node *ast.FloatExpression) error      { return nil }
-func (l *LLVMTypeChecker) VisitFloatType(node *ast.FloatType) error                  { return nil }
-func (l *LLVMTypeChecker) VisitFunctionCall(node *ast.FunctionCallExpression) error  { return nil }
-func (l *LLVMTypeChecker) VisitFunctionDefinition(node *ast.FuncDeclStatement) error { return nil }
-func (l *LLVMTypeChecker) VisitMemberExpression(node *ast.MemberExpression) error    { return nil }
-func (l *LLVMTypeChecker) VisitNumber64Type(node *ast.Number64Type) error            { return nil }
-func (l *LLVMTypeChecker) VisitNumberExpression(node *ast.NumberExpression) error    { return nil }
-func (l *LLVMTypeChecker) VisitNumberType(node *ast.NumberType) error                { return nil }
-func (l *LLVMTypeChecker) VisitPointerType(node *ast.PointerType) error              { return nil }
-func (l *LLVMTypeChecker) VisitPrefixExpression(node *ast.PrefixExpression) error    { return nil }
-func (l *LLVMTypeChecker) VisitPrintStatement(node *ast.PrintStatetement) error      { return nil }
-func (l *LLVMTypeChecker) VisitReturnStatement(node *ast.ReturnStatement) error      { return nil }
-func (l *LLVMTypeChecker) VisitStringExpression(node *ast.StringExpression) error    { return nil }
-func (l *LLVMTypeChecker) VisitStringType(node *ast.StringType) error                { return nil }
-func (l *LLVMTypeChecker) VisitErrorType(node *ast.ErrorType) error                  { return nil }
-func (l *LLVMTypeChecker) VisitTupleType(node *ast.TupleType) error                  { return nil }
-func (l *LLVMTypeChecker) VisitSymbolExpression(node *ast.SymbolExpression) error    { return nil }
-func (l *LLVMTypeChecker) VisitSymbolType(node *ast.SymbolType) error                { return nil }
-func (l *LLVMTypeChecker) VisitTupleExpression(node *ast.TupleExpression) error      { return nil }
-func (l *LLVMTypeChecker) VisitVoidType(node *ast.VoidType) error                    { return nil }
-func (l *LLVMTypeChecker) VisitWhileStatement(node *ast.WhileStatement) error        { return nil }
-func (l *LLVMTypeChecker) ZeroOfArrayType(node *ast.ArrayType) error                 { return nil }
-func (l *LLVMTypeChecker) ZeroOfErrorType(node *ast.ErrorType) error                 { return nil }
-func (l *LLVMTypeChecker) ZeroOfFloatType(node *ast.FloatType) error                 { return nil }
-func (l *LLVMTypeChecker) ZeroOfNumber64Type(node *ast.Number64Type) error           { return nil }
-func (l *LLVMTypeChecker) ZeroOfNumberType(node *ast.NumberType) error               { return nil }
-func (l *LLVMTypeChecker) ZeroOfPointerType(node *ast.PointerType) error             { return nil }
-func (l *LLVMTypeChecker) ZeroOfStringType(node *ast.StringType) error               { return nil }
-func (l *LLVMTypeChecker) ZeroOfSymbolType(node *ast.SymbolType) error               { return nil }
-func (l *LLVMTypeChecker) ZeroOfVoidType(node *ast.VoidType) error                   { return nil }
-func (l *LLVMTypeChecker) ZeroOfTupleType(node *ast.TupleType) error                 { return nil }
-func (l *LLVMTypeChecker) VisitZeroExpression(node *ast.ZeroExpression) error        { return nil }
-func (l *LLVMTypeChecker) VisitBinaryExpression(node *ast.BinaryExpression) error    { return nil }
-func (l *LLVMTypeChecker) ZeroOfBoolType(node *ast.BoolType) error                   { return nil }
-func (l *LLVMTypeChecker) VisitBoolType(node *ast.BoolType) error                    { return nil }
-func (l *LLVMTypeChecker) VisitBooleanExpression(node *ast.BooleanExpression) error  { return nil }
+func (l *LLVMTypeChecker) VisitArrayType(node *ast.ArrayType) error                 { return nil }
+func (l *LLVMTypeChecker) VisitCallExpression(node *ast.CallExpression) error       { return nil }
+func (l *LLVMTypeChecker) VisitErrorExpression(node *ast.ErrorExpression) error     { return nil }
+func (l *LLVMTypeChecker) VisitFloatExpression(node *ast.FloatExpression) error     { return nil }
+func (l *LLVMTypeChecker) VisitFloatType(node *ast.FloatType) error                 { return nil }
+func (l *LLVMTypeChecker) VisitFunctionCall(node *ast.FunctionCallExpression) error { return nil }
+func (l *LLVMTypeChecker) VisitFunctionDefinition(node *ast.FuncDeclStatement) error {
+	if node.Declaration {
+		return nil
+	}
+
+	l.returnStatementsCount = 0
+
+	err := node.Body.Accept(l)
+	if err != nil {
+		return err
+	}
+
+	if l.returnStatementsCount == 0 {
+		return fmt.Errorf("function has no return statement")
+	}
+
+	l.returnStatementsCount = 0
+
+	return nil
+}
+func (l *LLVMTypeChecker) VisitMemberExpression(node *ast.MemberExpression) error { return nil }
+func (l *LLVMTypeChecker) VisitNumber64Type(node *ast.Number64Type) error         { return nil }
+func (l *LLVMTypeChecker) VisitNumberExpression(node *ast.NumberExpression) error { return nil }
+func (l *LLVMTypeChecker) VisitNumberType(node *ast.NumberType) error             { return nil }
+func (l *LLVMTypeChecker) VisitPointerType(node *ast.PointerType) error           { return nil }
+func (l *LLVMTypeChecker) VisitPrefixExpression(node *ast.PrefixExpression) error { return nil }
+func (l *LLVMTypeChecker) VisitPrintStatement(node *ast.PrintStatetement) error   { return nil }
+func (l *LLVMTypeChecker) VisitReturnStatement(node *ast.ReturnStatement) error {
+	l.returnStatementsCount++
+
+	return nil
+}
+func (l *LLVMTypeChecker) VisitStringExpression(node *ast.StringExpression) error   { return nil }
+func (l *LLVMTypeChecker) VisitStringType(node *ast.StringType) error               { return nil }
+func (l *LLVMTypeChecker) VisitErrorType(node *ast.ErrorType) error                 { return nil }
+func (l *LLVMTypeChecker) VisitTupleType(node *ast.TupleType) error                 { return nil }
+func (l *LLVMTypeChecker) VisitSymbolExpression(node *ast.SymbolExpression) error   { return nil }
+func (l *LLVMTypeChecker) VisitSymbolType(node *ast.SymbolType) error               { return nil }
+func (l *LLVMTypeChecker) VisitTupleExpression(node *ast.TupleExpression) error     { return nil }
+func (l *LLVMTypeChecker) VisitVoidType(node *ast.VoidType) error                   { return nil }
+func (l *LLVMTypeChecker) VisitWhileStatement(node *ast.WhileStatement) error       { return nil }
+func (l *LLVMTypeChecker) ZeroOfArrayType(node *ast.ArrayType) error                { return nil }
+func (l *LLVMTypeChecker) ZeroOfErrorType(node *ast.ErrorType) error                { return nil }
+func (l *LLVMTypeChecker) ZeroOfFloatType(node *ast.FloatType) error                { return nil }
+func (l *LLVMTypeChecker) ZeroOfNumber64Type(node *ast.Number64Type) error          { return nil }
+func (l *LLVMTypeChecker) ZeroOfNumberType(node *ast.NumberType) error              { return nil }
+func (l *LLVMTypeChecker) ZeroOfPointerType(node *ast.PointerType) error            { return nil }
+func (l *LLVMTypeChecker) ZeroOfStringType(node *ast.StringType) error              { return nil }
+func (l *LLVMTypeChecker) ZeroOfSymbolType(node *ast.SymbolType) error              { return nil }
+func (l *LLVMTypeChecker) ZeroOfVoidType(node *ast.VoidType) error                  { return nil }
+func (l *LLVMTypeChecker) ZeroOfTupleType(node *ast.TupleType) error                { return nil }
+func (l *LLVMTypeChecker) VisitZeroExpression(node *ast.ZeroExpression) error       { return nil }
+func (l *LLVMTypeChecker) VisitBinaryExpression(node *ast.BinaryExpression) error   { return nil }
+func (l *LLVMTypeChecker) ZeroOfBoolType(node *ast.BoolType) error                  { return nil }
+func (l *LLVMTypeChecker) VisitBoolType(node *ast.BoolType) error                   { return nil }
+func (l *LLVMTypeChecker) VisitBooleanExpression(node *ast.BooleanExpression) error { return nil }
 
 func (l *LLVMTypeChecker) VisitSymbolAdressExpression(node *ast.SymbolAdressExpression) error {
 	return nil
