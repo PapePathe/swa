@@ -61,6 +61,8 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 	}
 
 	// Determine resulting type
+	// FIXME we can do better than this,
+	// at least in a mor idiomatic way
 	resultingSwaType := leftRes.SwaType
 
 	if leftRes.SwaType != nil && rightRes.SwaType != nil {
