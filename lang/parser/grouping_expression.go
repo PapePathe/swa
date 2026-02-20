@@ -31,6 +31,7 @@ func ParseGroupingExpression(p *Parser) (ast.Expression, error) {
 	if len(expressions) == 0 {
 		return nil, fmt.Errorf("empty grouping expression")
 	}
+
 	if len(expressions) == 1 {
 		return expressions[0], nil
 	}

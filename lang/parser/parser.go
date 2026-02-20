@@ -17,6 +17,7 @@ type Parser struct {
 	currentExpression ast.Expression
 	logger            trc.Logger
 	tracing           bool
+	errors            []error
 }
 
 // Parse ...
@@ -31,6 +32,7 @@ func Parse(tokens []lexer.Token) (ast.BlockStatement, error) {
 		logger: *trc.NewLogger("PARSER"),
 		//	tracing: true,
 		tracing: false,
+		errors:  []error{},
 	}
 
 	if psr.hasTokens() {
@@ -47,6 +49,10 @@ func Parse(tokens []lexer.Token) (ast.BlockStatement, error) {
 		}
 
 		body = append(body, stmt)
+	}
+
+	if len(psr.errors) > 0 {
+		return ast.BlockStatement{}, fmt.Errorf("Parsing errors %+v", psr.errors)
 	}
 
 	return ast.BlockStatement{
