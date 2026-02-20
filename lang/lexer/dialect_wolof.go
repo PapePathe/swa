@@ -15,6 +15,10 @@ func (m Wolof) DetectionPattern() *regexp.Regexp {
 	return regexp.MustCompile(`laak:wolof;`)
 }
 
+func (m Wolof) Name() string {
+	return "wolof"
+}
+
 func (m Wolof) Error(key string, args ...any) error {
 	formatted, ok := m.translations()[key]
 
