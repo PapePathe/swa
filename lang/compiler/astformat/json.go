@@ -8,12 +8,10 @@ type Json struct {
 	Element map[string]any
 }
 
-// ZeroOfBoolType implements [ast.CodeGenerator].
 func (j *Json) ZeroOfBoolType(node *ast.BoolType) error {
 	panic("unimplemented")
 }
 
-// VisitBoolType implements [ast.CodeGenerator].
 func (j *Json) VisitBoolType(node *ast.BoolType) error {
 	res := make(map[string]any)
 	res["BoolType"] = node.Value().String()
