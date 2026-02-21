@@ -12,11 +12,12 @@ type Token struct {
 	Kind   TokenKind `json:"-"`
 	Line   int
 	Column int
+	Raw    string
 }
 
 // NewToken ...
 func NewToken(kind TokenKind, value string, line int) Token {
-	return Token{Kind: kind, Value: value, Name: kind.String(), Line: line}
+	return Token{Kind: kind, Value: value, Name: kind.String(), Line: line, Raw: value}
 }
 
 // Debug ...

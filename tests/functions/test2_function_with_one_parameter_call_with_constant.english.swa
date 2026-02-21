@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 2: Function with one parameter, call with constant
+func double(a: int) int {
+  return a * 2;
+}
+start() int {
+  let x: int = double(5);
+  print("double(5) = %d", x); // Expected: 10
+  return 0;
+}

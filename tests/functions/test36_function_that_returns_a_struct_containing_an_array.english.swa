@@ -1,0 +1,14 @@
+dialect:english;
+
+// Test 36: Function that returns a struct containing an array
+struct Data { arr: [3]int, id: int, }
+func make_data(id: int) Data {
+  let d: Data = Data{arr: [3]int{id, id+1, id+2}, id: id};
+  return d;
+}
+start() int {
+  let d: Data = make_data(10);
+  print("id=%d, arr[0]=%d, arr[1]=%d, arr[2]=%d", d.id, d.arr[0], d.arr[1], d.arr[2]);
+  // Expected: id=10, arr[0]=10, arr[1]=11, arr[2]=12
+  return 0;
+}

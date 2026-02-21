@@ -1,0 +1,15 @@
+dialect:english;
+
+// Test 8: Function that takes array by value (if allowed) – arrays might be passed by reference? Need to test.
+// Assume arrays are passed by reference (like in C) or by value? In the sample, they appear to be passed by reference (bubble_sort modifies the array). So we test that.
+func zero_first(arr: [5]int) int {
+  arr[0] = 0;
+  return 0;
+}
+
+start() int {
+  let a: [5]int = [5]int{1,2,3,4,5};
+  zero_first(a);
+  print("a[0] = %d", a[0]); // If by reference: 0; if by value: 1
+  return 0;
+}

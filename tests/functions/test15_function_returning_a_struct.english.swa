@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 15: Function returning a struct
+struct Pair { first: int, second: int, }
+func make_pair(a: int, b: int) Pair {
+  return Pair{first: a, second: b};
+}
+start() int {
+  let p: Pair = make_pair(10, 20);
+  print("(%d,%d)", p.first, p.second); // Expected: (10,20)
+  return 0;
+}

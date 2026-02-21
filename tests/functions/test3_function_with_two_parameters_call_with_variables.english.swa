@@ -1,0 +1,13 @@
+dialect:english;
+
+// Test 3: Function with two parameters, call with variables
+func add(a: int, b: int) int {
+  return a + b;
+}
+start() int {
+  let x: int = 3;
+  let y: int = 4;
+  let z: int = add(x, y);
+  print("add(3,4) = %d", z); // Expected: 7
+  return 0;
+}

@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 19: Function that returns a pointer (if supported)
+// var global_var: int = 99;
+// func get_global_ptr() *int {
+//   return global_var;
+// }
+// start() int {
+//   let p: *int = get_global_ptr();
+//   print("%d", p); // prints address or value? Probably address
+//   return 0;
+// }

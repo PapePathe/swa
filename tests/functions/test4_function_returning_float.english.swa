@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 4: Function returning float
+func pi() float {
+  return 3.14159;
+}
+start() int {
+  let p: float = pi();
+  print("pi() = %f", p); // Expected: 3.14159
+  return 0;
+}

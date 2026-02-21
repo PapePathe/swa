@@ -1,0 +1,14 @@
+dialect:english;
+
+// Test 39: Function call inside a loop
+func inc(x: int) int {
+  return x + 1;
+}
+start() int {
+  let i: int = 0;
+  while (i < 5) {
+    print("i=%d\n", i);
+    i = inc(i);
+  }
+  return 0;
+}
