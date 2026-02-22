@@ -1,7 +1,8 @@
 dialect:english;
 
-// Test 20: Function call with side effects in arguments (order of evaluation)
-var order: int = 0;
+// Test 20: Function call with side effects in arguments
+// (order of evaluation)
+let order: int = 0;
 func side_effect(id: int) int {
   order = order + 1;
   print("side_effect %d called (order=%d)", id, order);
@@ -13,7 +14,5 @@ func add_side(a: int, b: int) int {
 start() int {
   let result: int = add_side(side_effect(1), side_effect(2));
   print("result = %d", result);
-  // The order of evaluation of arguments is unspecified; but we can observe.
-  // This test checks that the compiler doesn't crash and produces some output.
   return 0;
 }

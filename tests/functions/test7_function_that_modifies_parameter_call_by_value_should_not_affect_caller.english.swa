@@ -1,6 +1,7 @@
 dialect:english;
 
-// Test 7: Function that modifies parameter (call by value, should not affect caller)
+// Test 7: Function that modifies parameter 
+// (call by value, should not affect caller)
 func modify_param(x: int) int {
   x = 100;
   return 0;

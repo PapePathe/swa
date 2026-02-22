@@ -4,6 +4,10 @@ struct Person {
     age: int,
 }
 
+func safeadd(a: int, b: int) (int, error) {
+    return a + b, zero(error);
+}
+
 func add(a: int, b: int) int {
     return a + b;
 }
@@ -19,13 +23,13 @@ start() int {
     // Conditional: if, else, true, false
     let flag: bool = true;
     if (flag) {
-        print("Flag is true");
+        print("Flag is true\n");
     } else {
         print("Flag is false");
     }
 
     if (sum > 25) {
-        print("Sum is greater than 25");
+        print("Sum is greater than 25\n");
     }
 
     // Loop: while

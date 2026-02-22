@@ -364,6 +364,12 @@ func TestFunctions(t *testing.T) {
 		})
 
 		t.Run("Recursion", func(t *testing.T) {
+			t.Run("Test 20: Side effect", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./functions/test20_function_call_with_side_effects_in_arguments_order_of_evaluation.english.swa",
+					"side_effect 1 called (order=1)side_effect 2 called (order=2)result = 3")
+			})
+
 			t.Run("Test 11: Factorial", func(t *testing.T) {
 				NewSuccessfulCompileRequest(t,
 					"./functions/test11_recursion_factorial.english.swa", "5! = 120")
@@ -414,14 +420,33 @@ func TestFunctions(t *testing.T) {
 
 		t.Run("Control Flow and Side Effects", func(t *testing.T) {
 			t.Run("Test 7: Call by value", func(t *testing.T) {
-				NewSuccessfulCompileRequest(t, "./functions/test7_function_that_modifies_parameter_call_by_value_should_not_affect_caller.english.swa", "a = 5")
+				NewSuccessfulCompileRequest(t,
+					"./functions/test7_function_that_modifies_parameter_call_by_value_should_not_affect_caller.english.swa",
+					"a = 5")
+			})
+			t.Run("Test 38: ", func(t *testing.T) {
+				NewFailedCompileRequest(t,
+					"./functions/test38_function_that_returns_a_pointer_to_a_local_variable_dangerous_if_allowed_should_cause_issues.english.swa",
+					// FIXME
+					// this should be fixed when we decide to
+					// enable storage on the heap
+					"expected return value of function to be Pointer(Number), but got Number\n")
 			})
 			t.Run("Test 39: Call in loop", func(t *testing.T) {
-				NewSuccessfulCompileRequest(t, "./functions/test39_function_call_inside_a_loop.english.swa", "i=0\ni=1\ni=2\ni=3\ni=4\n")
+				NewSuccessfulCompileRequest(t,
+					"./functions/test39_function_call_inside_a_loop.english.swa", "i=0\ni=1\ni=2\ni=3\ni=4\n")
 			})
 			t.Run("Test 40: Dual side effects", func(t *testing.T) {
-				NewSuccessfulCompileRequest(t, "./functions/test40_function_call_with_side_effect_that_modifies_global_used_in_argument.english.swa", "r = 3, g = 2")
+				NewSuccessfulCompileRequest(t,
+					"./functions/test40_function_call_with_side_effect_that_modifies_global_used_in_argument.english.swa",
+					"r = 3, g = 2")
 			})
+			t.Run("Test 42: unnamed arg", func(t *testing.T) {
+				NewFailedCompileRequest(t,
+					"./functions/test42_function_that_takes_another_function_as_parameter_unlikely.english.swa",
+					"\x1b[33mexpected IDENTIFIER, but got TYPE_INT at line 6\x1b[0m\n\n\x1b[34m6\x1b[0m \x1b[32mfunc\x1b[0m \x1b[32munnamed\x1b[0m \x1b[32m(\x1b[0m \x1b[31mint\x1b[0m \n")
+			})
+
 		})
 
 		t.Run("Initializers", func(t *testing.T) {
