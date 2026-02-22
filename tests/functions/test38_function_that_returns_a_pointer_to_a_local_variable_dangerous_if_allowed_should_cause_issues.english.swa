@@ -1,12 +1,14 @@
 dialect:english;
 
-// Test 38: Function that returns a pointer to a local variable (dangerous) – if allowed, should cause issues
-// func bad() *int {
-//   let x: int = 42;
-//   return x;
-// }
-// start() int {
-//   let p: *int = bad();
-//   print("%d", p); // undefined behavior
-//   return 0;
-// }
+// Test 38: Function that returns a pointer to a local variable
+// (dangerous) – if allowed, should cause issues
+
+func bad() *int {
+  let x: int = 42;
+  return x;
+}
+start() int {
+  let p: *int = bad();
+  print("%d", p); // undefined behavior
+  return 0;
+}

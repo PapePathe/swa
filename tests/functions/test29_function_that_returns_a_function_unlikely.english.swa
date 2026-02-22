@@ -1,29 +1,22 @@
 dialect:english;
 
-// Test 29: Function that returns a function? Unlikely.
-
-// Test 30: Function with static local variable? Not in spec.
-
-// Test 31: Function with default arguments? Not in spec.
-
-// Test 32: Variadic function? Not in spec.
-
-// Test 33: Function call in global scope? Not allowed.
-
-// Test 34: Function call as initializer for global? Not allowed.
-
 // Test 35: Function that calls itself indirectly through another function
+
 func foo(x: int) int {
   if (x <= 0) return 0;
   print("foo ", x);
   return bar(x-1);
 }
+
 func bar(x: int) int {
   if (x <= 0) return 0;
   print("bar ", x);
   return foo(x-1);
 }
+
 start() int {
-  foo(5); // Should print: foo 5 bar 4 foo 3 bar 2 foo 1 bar 0? Actually careful: recursion stops at 0.
+  foo(5); 
+  // Should print: foo 5 bar 4 foo 3 bar 2 foo 1 bar 0? 
+  // Actually careful: recursion stops at 0.
   return 0;
 }

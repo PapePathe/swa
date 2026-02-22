@@ -197,13 +197,6 @@ func (cr *CompileRequest) AssertConvertAndCompile(targetDialect string) {
 		cr.T.Fatalf("Conversion failed: %v\n%s", err, output)
 	}
 
-	// Quick hack to fix the dialect name if the converter didn't do it
-	// This confirms the bug exists and allows us to proceed with compilation testing
-	// pending the fix in the converter itself.
-	// But actually, we want the test to fail if the converter is broken?
-	// The user asked to "add tests that make sure the converted file compiles correctly".
-	// If the converter is broken, this test SHOULD fail.
-
 	// 2. Update InputPath to point to converted file
 	cr.InputPath = convertedPath
 
@@ -220,7 +213,6 @@ func (cr *CompileRequest) AssertConvertAndCompile(targetDialect string) {
 
 		cr.T.Fatal(sb.String())
 	}
-	// cr.AssertCompileAndExecute()
 
 	defer cr.Cleanup()
 
