@@ -1,0 +1,17 @@
+dialect:english;
+
+// Test 26: Boolean operations on bool variables
+start() int {
+  let b1: bool = true;
+  let b2: bool = false;
+  if (b1 || b2) {
+    print("true");
+  }
+  if (b1 && b2) {
+    print("false");
+  }
+  if (!b1) {
+    print("false");
+  }
+  return 0;
+}

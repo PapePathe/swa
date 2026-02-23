@@ -1,0 +1,13 @@
+dialect:english;
+
+// Test 31: String comparison with different lengths
+start() int {
+  let s1: string = "abc";
+  let s2: string = "abcd";
+  if (s1 == s2) {
+    print("Equal");
+  } else {
+    print("Not equal");
+  }
+  return 0;
+}

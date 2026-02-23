@@ -1,0 +1,16 @@
+dialect:english;
+
+// Test 11: Boolean logic and short-circuit evaluation
+start() int {
+  let flag: bool = true;
+  let x: int = 0;
+  if (flag || (10 / x == 0)) {
+    print("Short-circuit works");
+  } else {
+    print("Short-circuit failed");
+  }
+  if (!flag && (x == 0)) {
+    print("Should not print");
+  }
+  return 0;
+}

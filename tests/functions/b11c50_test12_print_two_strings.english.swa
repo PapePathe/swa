@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 12: Print two strings together (no concatenation operator)
+start() int {
+  let s1: string = "Hello";
+  let s2: string = "World";
+  print("%s %s", s1, s2);
+  return 0;
+}

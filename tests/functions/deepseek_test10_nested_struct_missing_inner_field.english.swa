@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 10: Nested struct missing inner field
+struct Inner { a: int, b: int, }
+struct Outer { inner: Inner, }
+start() int {
+  let o: Outer = Outer{inner: Inner{a: 5}};
+  return 0;
+}

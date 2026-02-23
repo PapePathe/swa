@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 20: Escape sequences in strings
+// Should print newline, tab, etc.
+start() int {
+  let s: string = "Hello\nWorld\tTab\\Backslash\"Quote";
+  print("%s", s);
+  return 0;
+}

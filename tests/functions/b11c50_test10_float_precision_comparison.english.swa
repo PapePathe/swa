@@ -1,0 +1,19 @@
+dialect:english;
+
+// Test 10: Floating point precision and comparisons
+start() int {
+  let a: float = 1.0 / 3.0;
+  let b: float = 0.3333333333;
+  if (a == b) {
+    print("Equal");
+  } else {
+    print("Not equal (difference: %f)", a - b);
+  }
+  let sum: float = 0.1 + 0.2;
+  if (sum == 0.3) {
+    print("0.1+0.2 == 0.3");
+  } else {
+    print("0.1+0.2 = %f", sum);
+  }
+  return 0;
+}

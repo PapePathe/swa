@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 43: Modulo with negative divisor
+start() int {
+  let a: int = 7;
+  let b: int = -3;
+  let c: int = a % b;
+  print("7 %% -3 = %d", c);
+  return 0;
+}

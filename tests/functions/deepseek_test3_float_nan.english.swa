@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 3: Float NaN (e.g., 0.0/0.0)
+// Expected: prints "nan" or "-nan"
+start() int {
+  let a: float = 0.0;
+  let b: float = 0.0;
+  let c: float = a / b;
+  print("0.0/0.0 = %f", c);
+  return 0;
+}

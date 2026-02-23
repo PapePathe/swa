@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 42: Float literal with many decimals
+start() int {
+  let pi: float = 3.14159265358979323846;
+  print("pi = %.20f", pi);
+  return 0;
+}

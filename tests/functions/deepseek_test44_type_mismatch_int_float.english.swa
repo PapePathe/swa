@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 44: Type mismatch: int compared with float
+// Should cause compile error
+start() int {
+  let i: int = 5;
+  let f: float = 5.0;
+  if (i == f) {
+    print("equal");
+  }
+  return 0;
+}

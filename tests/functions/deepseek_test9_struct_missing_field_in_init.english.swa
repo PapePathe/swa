@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 9: Struct field missing in initialization
+// Should cause compile error
+struct Point { x: int, y: int, }
+start() int {
+  let p: Point = Point{x: 1};
+  return 0;
+}

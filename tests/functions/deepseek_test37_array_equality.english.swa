@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 37: Array equality (if allowed)
+// Probably not allowed
+start() int {
+  let a1: [3]int = [3]int{1,2,3};
+  let a2: [3]int = [3]int{1,2,3};
+  if (a1 == a2) {
+    print("equal");
+  }
+  return 0;
+}

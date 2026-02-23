@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 26: Division by zero (runtime error)
+start() int {
+  let a: int = 10;
+  let b: int = 0;
+  let c: int = a / b;
+  print("%d", c);
+  return 0;
+}

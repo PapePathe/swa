@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 28: Struct with zero fields
+struct Empty {}
+start() int {
+  let e: Empty = Empty{};
+  return 0;
+}

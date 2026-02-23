@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 41: Large integer literal (beyond 32-bit)
+// If language supports 64-bit, should work
+start() int {
+  let big: int = 1234567890123456789;
+  print("big = %d", big);
+  return 0;
+}
