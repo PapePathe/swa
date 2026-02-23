@@ -132,6 +132,14 @@ func (g *LLVMGenerator) printfFunctionType() llvm.Type {
 	)
 }
 
+func (g *LLVMGenerator) exitFunctionType() llvm.Type {
+	return llvm.FunctionType(
+		llvm.GlobalContext().VoidType(),
+		[]llvm.Type{llvm.GlobalContext().Int64Type()},
+		false,
+	)
+}
+
 var printableValueExtractors = map[reflect.Type]PrintableValueExtractor{
 	// Accessors: These return pointers/addresses and MUST be loaded
 	reflect.TypeFor[*ast.MemberExpression]():               extractWithStructType,
