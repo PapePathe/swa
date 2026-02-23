@@ -65,7 +65,7 @@ func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpressi
 		g.exitFunctionType(),
 		g.Ctx.Module.NamedFunction("exit"),
 		[]llvm.Value{
-			llvm.ConstInt(llvm.GlobalContext().Int64Type(), uint64(13), true),
+			llvm.ConstInt(llvm.GlobalContext().Int64Type(), uint64(0), true),
 		}, "")
 
 	if g.currentFuncReturnType != nil {
