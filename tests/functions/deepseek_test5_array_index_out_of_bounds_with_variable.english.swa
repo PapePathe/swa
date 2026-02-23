@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 5: Array index with variable out of bounds
+// Expected: runtime error (index 5 in array of size 5)
+start() int {
+  let arr: [5]int = [5]int{1,2,3,4,5};
+  let i: int = 5;
+  arr[i] = 0;
+  return 0;
+}

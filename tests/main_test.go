@@ -186,6 +186,44 @@ func (cr *CompileRequest) AssertCompileAndExecute() {
 	}
 }
 
+func (cr *CompileRequest) AssertConvertAndCompile(targetDialect string) {
+	cr.T.Helper()
+
+	// 1. Convert
+	convertedPath := strings.Replace(cr.InputPath, ".swa", fmt.Sprintf(".%s.swa", targetDialect), 1)
+	cmd := exec.Command("./swa", "convert", "--source", cr.InputPath, "--target-dialect", targetDialect, "--out", convertedPath)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		cr.T.Fatalf("Conversion failed: %v\n%s", err, output)
+	}
+
+	// 2. Update InputPath to point to converted file
+	cr.InputPath = convertedPath
+
+	// 3. Compile and Execute
+	if err := cr.Compile(); err != nil {
+		sb := strings.Builder{}
+		fmt.Fprintf(&sb, "Compiler error (%s)\n Source file %s", err, cr.InputPath)
+
+		data, err := os.ReadFile(convertedPath)
+		if err == nil {
+			sb.WriteString("\nConverted Content:\n")
+			sb.WriteString(string(data))
+		}
+
+		cr.T.Fatal(sb.String())
+	}
+
+	defer cr.Cleanup()
+
+	if err := cr.RunProgram(); err != nil {
+		cr.T.Fatalf("Runtime error (%s)", err)
+	}
+
+	// Cleanup converted file
+	os.Remove(convertedPath)
+}
+
 func (cr *CompileRequest) Cleanup() {
 	cr.T.Helper()
 

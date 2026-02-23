@@ -1,0 +1,7 @@
+dialect:english;
+
+// Test 21: Using undeclared struct type (should error)
+start() int {
+  let p: UnknownStruct = UnknownStruct{};
+  return 0;
+}

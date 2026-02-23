@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 48: Function call with wrong argument type
+func foo(a: int) int {
+  return a;
+}
+start() int {
+  let x: int = foo("hello");
+  return 0;
+}

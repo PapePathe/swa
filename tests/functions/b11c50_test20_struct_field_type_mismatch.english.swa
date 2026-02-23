@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 20: Struct field type mismatch in initialization (should error)
+struct Point {
+  x: int,
+  y: int,
+}
+start() int {
+  let p: Point = Point{x: 1.0, y: 2};
+  return 0;
+}

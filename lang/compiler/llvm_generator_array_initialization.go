@@ -15,6 +15,7 @@ type ElementInjector func(
 
 var ArrayInitializationExpressionInjectors = map[reflect.Type]ElementInjector{
 	reflect.TypeFor[*ast.SymbolExpression]():               injectSymbol,
+	reflect.TypeFor[*ast.BinaryExpression]():               injectLiteral,
 	reflect.TypeFor[*ast.BooleanExpression]():              injectLiteral,
 	reflect.TypeFor[*ast.ZeroExpression]():                 injectLiteral,
 	reflect.TypeFor[*ast.NumberExpression]():               injectLiteral,
@@ -42,6 +43,7 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 
 	llvmtyp := g.getLastTypeVisitResult()
 	arrayPointer := g.Ctx.Builder.CreateAlloca(llvmtyp.Type, "array_alloc")
+	g.Ctx.Builder.CreateStore(llvm.ConstNull(llvmtyp.Type), arrayPointer)
 
 	var discoveredEntry *StructSymbolTableEntry
 

@@ -1,0 +1,16 @@
+dialect:english;
+
+// Test 9: Function that takes struct by value – should copy? In sample, structs might be passed by value.
+struct Point { x: int, y: int }
+func move_point(p: Point, dx: int, dy: int) Point {
+  p.x = p.x + dx;
+  p.y = p.y + dy;
+  return p;
+}
+start() int {
+  let pt: Point = Point{x: 1, y: 2};
+  let new_pt: Point = move_point(pt, 5, 5);
+  print("original: (%d,%d)", pt.x, pt.y);   // Expected: (1,2) if by value
+  print("new: (%d,%d)", new_pt.x, new_pt.y); // Expected: (6,7)
+  return 0;
+}

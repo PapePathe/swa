@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 19: Empty statement (lone semicolon)
+// Should be allowed
+start() int {
+  let a: int = 5;
+  ;
+  print("%d", a);
+  return 0;
+}

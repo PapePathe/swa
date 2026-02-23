@@ -1,0 +1,14 @@
+dialect:english;
+
+// Test 14: Nested function calls (composition)
+func square(x: int) int {
+  return x * x;
+}
+func twice(x: int) int {
+  return 2 * x;
+}
+start() int {
+  let a: int = twice(square(3)); // 2 * 9 = 18
+  print("twice(square(3)) = %d", a); // Expected: 18
+  return 0;
+}

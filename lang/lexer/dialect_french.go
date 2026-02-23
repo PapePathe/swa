@@ -15,6 +15,10 @@ func (French) DetectionPattern() *regexp.Regexp {
 	return regexp.MustCompile(`dialecte:français;`)
 }
 
+func (French) Name() string {
+	return "français"
+}
+
 func (m French) Reserved() map[string]TokenKind {
 	return map[string]TokenKind{
 		"constante":  Const,

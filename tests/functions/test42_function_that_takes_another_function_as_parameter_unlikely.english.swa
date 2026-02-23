@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 42: Function that takes another function as parameter? Unlikely.
+
+// Test 43: Function with unnamed parameters (if allowed)
+func unnamed(int) int {
+  return 42;
+}
+start() int {
+  print("%d", unnamed(5));
+  return 0;
+}

@@ -1,0 +1,18 @@
+dialect:english;
+
+// Test 20: Function call with side effects in arguments
+// (order of evaluation)
+let order: int = 0;
+func side_effect(id: int) int {
+  order = order + 1;
+  print("side_effect %d called (order=%d)", id, order);
+  return id;
+}
+func add_side(a: int, b: int) int {
+  return a + b;
+}
+start() int {
+  let result: int = add_side(side_effect(1), side_effect(2));
+  print("result = %d", result);
+  return 0;
+}

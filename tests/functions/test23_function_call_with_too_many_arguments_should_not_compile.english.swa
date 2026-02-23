@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 23: Function call with too many arguments (should not compile)
+func two_args(a: int, b: int) int { return a+b; }
+start() int {
+  let x: int = two_args(1,2,3);
+  return 0;
+}

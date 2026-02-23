@@ -1,6 +1,7 @@
 package compiler
 
 import (
+	"fmt"
 	"swahili/lang/ast"
 	"swahili/lang/lexer"
 
@@ -19,12 +20,14 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 	}
 
 	leftRes := g.getLastResult()
+	leftResIsString := false
 	// For strings, don't call extractRValue - they're already values (pointers)
 	var leftVal llvm.Value
 
 	if leftRes.SwaType != nil {
 		if _, ok := leftRes.SwaType.(ast.StringType); ok {
 			leftVal = *leftRes.Value
+			leftResIsString = true
 		} else {
 			leftVal = g.extractRValue(leftRes)
 		}
@@ -37,12 +40,14 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 	}
 
 	rightRes := g.getLastResult()
+	rightResIsString := false
 	// For strings, don't call extractRValue - they're already values (pointers)
 	var rightVal llvm.Value
 
 	if rightRes.SwaType != nil {
 		if _, ok := rightRes.SwaType.(ast.StringType); ok {
 			rightVal = *rightRes.Value
+			rightResIsString = true
 		} else {
 			rightVal = g.extractRValue(rightRes)
 		}
@@ -53,6 +58,15 @@ func (g *LLVMGenerator) VisitBinaryExpression(node *ast.BinaryExpression) error 
 	finalLeft, finalRight, err := g.coerceOperands(leftVal, rightVal)
 	if err != nil {
 		return err
+	}
+
+	if leftResIsString || rightResIsString {
+		switch node.Operator.Kind {
+		case lexer.Equals, lexer.NotEquals:
+			// we good !
+		default:
+			return fmt.Errorf("Operation %s not supported on strings", node.Operator.Kind)
+		}
 	}
 
 	err, res := g.handleBinaryOp(node.Operator.Kind, finalLeft, finalRight)

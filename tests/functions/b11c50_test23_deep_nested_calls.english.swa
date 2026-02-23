@@ -1,0 +1,14 @@
+dialect:english;
+
+// Test 23: Large number of nested function calls (stack depth)
+func depth(n: int) int {
+  if (n == 0) {
+    return 0;
+  }
+  return depth(n - 1) + 1;
+}
+start() int {
+  let d: int = depth(10000);
+  print("Depth: %d", d);
+  return 0;
+}

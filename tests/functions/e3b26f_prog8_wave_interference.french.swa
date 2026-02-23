@@ -1,0 +1,32 @@
+dialecte:français;
+
+// Programme 8 : Interférence de deux ondes
+// Calcul de l'amplitude résultante en différents points.
+
+structure Onde {
+  amplitude: decimal,
+  longueur_d_onde: decimal,
+  phase: decimal,
+}
+
+fonction intensité(a1: decimal, a2: decimal, déphasage: decimal) decimal {
+  retourner a1*a1 + a2*a2 + 2*a1*a2*cos(déphasage);
+}
+
+demarrer() entier {
+  variable onde1: Onde = Onde{amplitude: 1.0, longueur_d_onde: 0.5, phase: 0.0};
+  variable onde2: Onde = Onde{amplitude: 1.0, longueur_d_onde: 0.5, phase: 0.0};
+  variable k: decimal = 2.0 * 3.14159 / onde1.longueur_d_onde;
+  variable positions: [5]decimal = [5]decimal{0.0, 0.125, 0.25, 0.375, 0.5};
+  variable i: entier = 0;
+  tantque (i < 5) {
+    variable x: decimal = positions[i];
+    variable phi1: decimal = onde1.phase - k * x;
+    variable phi2: decimal = onde2.phase - k * x;
+    variable dphi: decimal = phi2 - phi1;
+    variable I: decimal = intensité(onde1.amplitude, onde2.amplitude, dphi);
+    afficher("À x = %.3f m, intensité = %.2f", x, I);
+    i = i + 1;
+  }
+  retourner 0;
+}

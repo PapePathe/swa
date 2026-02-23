@@ -1,0 +1,13 @@
+dialect:english;
+
+// Test 34: Short-circuit evaluation (should not crash)
+start() int {
+  let a: int = 0;
+  let b: int = 5;
+  if (a != 0 && (b / a) > 0) {
+    print("never");
+  } else {
+    print("short-circuit works");
+  }
+  return 0;
+}

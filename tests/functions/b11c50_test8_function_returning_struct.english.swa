@@ -1,0 +1,20 @@
+dialect:english;
+
+// Test 8: Function returning struct (multiple return values via struct)
+struct Pair {
+  first: int,
+  second: int,
+}
+
+func swapAndSum(a: int, b: int) Pair {
+  let p: Pair = Pair{first: b, second: a};
+  return p;
+}
+
+start() int {
+  let x: int = 5;
+  let y: int = 10;
+  let res: Pair = swapAndSum(x, y);
+  print("Swapped: first=%d, second=%d", res.first, res.second);
+  return 0;
+}

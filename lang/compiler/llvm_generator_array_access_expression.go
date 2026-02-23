@@ -32,14 +32,61 @@ func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpressi
 		return g.Ctx.Dialect.Error(key)
 	}
 
+	length := llvm.ConstInt(llvm.GlobalContext().Int32Type(),
+		uint64(entry.ElementsCount), false)
+
+	icmp := g.Ctx.Builder.CreateICmp(llvm.IntULT, indices[0], length, "array-bounds-cmp")
+
+	bodyBlock := g.Ctx.Builder.GetInsertBlock()
+	parentFunc := bodyBlock.Parent()
+
+	mergeBlock := g.Ctx.Context.AddBasicBlock(parentFunc, "array-bounds-cmp-mergeBlock")
+	thenBlock := g.Ctx.Context.AddBasicBlock(parentFunc, "array-bounds-cmp-thenBlock")
+	g.Ctx.Builder.SetInsertPointAtEnd(thenBlock)
 	itemPtr := g.Ctx.Builder.CreateInBoundsGEP(
 		entry.UnderlyingType,
 		arrayAddr,
 		indices,
 		"",
 	)
+	g.Ctx.Builder.CreateBr(mergeBlock)
+
+	elseblock := g.Ctx.Context.AddBasicBlock(parentFunc, "array-bounds-cmp-elseblock")
+	g.Ctx.Builder.SetInsertPointAtEnd(elseblock)
+	str := g.Ctx.Builder.CreateGlobalStringPtr("SWA_ERROR: index %d out of bounds of array with size %d", "")
+	g.Ctx.Builder.CreateCall(
+		g.printfFunctionType(),
+		g.Ctx.Module.NamedFunction("printf"),
+		[]llvm.Value{str, indices[0], length},
+		"call.printf",
+	)
+
+	g.Ctx.Builder.CreateCall(
+		g.exitFunctionType(),
+		g.Ctx.Module.NamedFunction("exit"),
+		[]llvm.Value{
+			llvm.ConstInt(llvm.GlobalContext().Int64Type(), uint64(0), true),
+		}, "")
+
+	if g.currentFuncReturnType != nil {
+		err := g.currentFuncReturnType.Accept(g)
+		if err != nil {
+			return err
+		}
+
+		typ := g.getLastTypeVisitResult()
+		g.Ctx.Builder.CreateRet(llvm.ConstNull(typ.Type))
+	} else {
+		g.Ctx.Builder.CreateRet(
+			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false))
+	}
 
 	array.Address = &itemPtr
+
+	g.Ctx.Builder.SetInsertPointAtEnd(bodyBlock)
+	g.Ctx.Builder.CreateCondBr(icmp, thenBlock, elseblock)
+
+	g.Ctx.Builder.SetInsertPointAtEnd(mergeBlock)
 
 	g.setLastResult(&CompilerResult{
 		Value:                 &itemPtr,
@@ -254,6 +301,7 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 
 				break
 			}
+
 			load := g.Ctx.Builder.CreateLoad(res.Value.AllocatedType(), *res.Value, "")
 			indices = []llvm.Value{load}
 		} else {

@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 6: Array index with negative variable
+// Expected: runtime error
+start() int {
+  let arr: [5]int = [5]int{1,2,3,4,5};
+  let i: int = -1;
+  arr[i] = 0;
+  return 0;
+}

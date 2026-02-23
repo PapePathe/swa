@@ -1,0 +1,22 @@
+dialect:english;
+
+// Test 35: Function that calls itself indirectly through another function
+
+func foo(x: int) int {
+  if (x <= 0) return 0;
+  print("foo ", x);
+  return bar(x-1);
+}
+
+func bar(x: int) int {
+  if (x <= 0) return 0;
+  print("bar ", x);
+  return foo(x-1);
+}
+
+start() int {
+  foo(5); 
+  // Should print: foo 5 bar 4 foo 3 bar 2 foo 1 bar 0? 
+  // Actually careful: recursion stops at 0.
+  return 0;
+}

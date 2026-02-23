@@ -1,0 +1,13 @@
+dialect:english;
+
+// Test 13: Function with missing return statement
+// Should cause compile error or undefined behavior
+func foo() int {
+  let x: int = 5;
+  // no return
+}
+start() int {
+  let y: int = foo();
+  print("%d", y);
+  return 0;
+}

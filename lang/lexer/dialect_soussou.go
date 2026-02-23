@@ -15,6 +15,10 @@ func (m Soussou) DetectionPattern() *regexp.Regexp {
 	return regexp.MustCompile(`khuien:soussou;`)
 }
 
+func (m Soussou) Name() string {
+	return "soussou"
+}
+
 func (m Soussou) Reserved() map[string]TokenKind {
 	return map[string]TokenKind{
 		"danyi":    Const,

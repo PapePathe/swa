@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 24: Octal integer literal
+// Should print 63 if 077 is octal
+start() int {
+  let oct: int = 077;
+  print("077 = %d", oct);
+  return 0;
+}

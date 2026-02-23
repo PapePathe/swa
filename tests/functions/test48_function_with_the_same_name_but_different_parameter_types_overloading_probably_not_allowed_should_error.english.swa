@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 48: Function with the same name but different parameter types (overloading) – probably not allowed, should error
+func foo(a: int) int { return a; }
+func foo(a: float) int { return a; } // duplicate name
+start() int {
+  return foo(5);
+}

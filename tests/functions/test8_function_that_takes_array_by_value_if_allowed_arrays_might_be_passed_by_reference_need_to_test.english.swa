@@ -1,0 +1,13 @@
+dialect:english;
+
+func zero_first(arr: [5]int) int {
+  arr[0] = 0;
+  return 0;
+}
+
+start() int {
+  let a: [5]int = [5]int{1,2,3,4,5};
+  zero_first(a);
+  print("a[0] = %d", a[0]);
+  return 0;
+}

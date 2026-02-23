@@ -1,0 +1,15 @@
+dialect:english;
+
+// Test 37: Function that takes a struct with array by value – should copy?
+struct Data { arr: [3]int, id: int }
+func modify_data(d: Data) int {
+  d.arr[0] = 999;
+  d.id = 999;
+  return 0;
+}
+start() int {
+  let d: Data = Data{arr: [3]int{1,2,3}, id: 5};
+  modify_data(d);
+  print("after modify: id=%d, arr[0]=%d", d.id, d.arr[0]);
+  return 0;
+}
