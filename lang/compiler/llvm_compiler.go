@@ -56,6 +56,14 @@ func (c *LLVMCompiler) Run() error {
 	strcmpFunc := llvm.AddFunction(*c.context.Module, "strcmp", strcmpFuncType)
 	strcmpFunc.SetLinkage(llvm.ExternalLinkage)
 
+	exitFunctype := llvm.FunctionType(
+		llvm.GlobalContext().VoidType(),
+		[]llvm.Type{llvm.GlobalContext().Int64Type()},
+		false,
+	)
+	exitFunc := llvm.AddFunction(*c.context.Module, "exit", exitFunctype)
+	exitFunc.SetLinkage(llvm.ExternalLinkage)
+
 	for _, v := range c.passes {
 		err := c.req.Tree.Accept(v)
 		if err != nil {
