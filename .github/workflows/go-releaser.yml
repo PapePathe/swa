@@ -103,7 +103,7 @@ jobs:
       - name: Run GoReleaser
         shell: bash
         run: |
-          go install github.com/goreleaser/goreleaser/v2@latest
+          go install github.com/goreleaser/goreleaser/v2@v2.13.3
           export PATH=$PATH:$(go env GOPATH)/bin
           cd lang
           if command -v llvm-config >/dev/null 2>&1; then
