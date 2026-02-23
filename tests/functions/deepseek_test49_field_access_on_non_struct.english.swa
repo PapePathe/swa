@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 49: Accessing field of non-struct
+start() int {
+  let a: int = 5;
+  print("%d", a.field);
+  return 0;
+}

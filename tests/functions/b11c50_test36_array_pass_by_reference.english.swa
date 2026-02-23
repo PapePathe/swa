@@ -1,0 +1,13 @@
+dialect:english;
+
+// Test 36: Function that modifies array elements (array passed by reference?)
+func modifyArray(arr: [5]int) int {
+  arr[0] = 999;
+  return 0;
+}
+start() int {
+  let a: [5]int = [5]int{1,2,3,4,5};
+  modifyArray(a);
+  print("a[0] = %d", a[0]);
+  return 0;
+}

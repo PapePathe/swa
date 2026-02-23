@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 18: Function call with wrong number of arguments (should error)
+func foo(a: int, b: int) int {
+  return a + b;
+}
+start() int {
+  let x: int = foo(5);
+  return 0;
+}

@@ -1,0 +1,14 @@
+dialect:english;
+
+// Test 35: String comparison with accented characters
+// Should print "Not equal"
+start() int {
+  let s1: string = "élève";
+  let s2: string = "eleve";
+  if (s1 == s2) {
+    print("Equal");
+  } else {
+    print("Not equal");
+  }
+  return 0;
+}

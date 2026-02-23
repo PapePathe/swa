@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 31: Very deep recursion (stack overflow test)
+func depth(n: int) int {
+  return 0 if (n == 0);
+  return depth(n - 1) + 1;
+}
+start() int {
+  let d: int = depth(100000);
+  print("%d", d);
+  return 0;
+}

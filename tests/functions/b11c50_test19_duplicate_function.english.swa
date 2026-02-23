@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 19: Duplicate function definition (should error)
+func foo() int {
+  return 0;
+}
+func foo() int {
+  return 1;
+}
+start() int {
+  return 0;
+}

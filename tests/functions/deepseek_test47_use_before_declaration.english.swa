@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 47: Using a variable before declaration
+// Should cause compile error
+start() int {
+  x = 5;
+  let x: int;
+  return 0;
+}

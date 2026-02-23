@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 2: Float division producing infinity
+// Expected: prints "+Inf" or a large number
+start() int {
+  let a: float = 1.0;
+  let b: float = 0.0;
+  let c: float = a / b;
+  print("1.0/0.0 = %f", c);
+  return 0;
+}

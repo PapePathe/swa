@@ -1,0 +1,13 @@
+dialect:english;
+
+// Test 17: Break statement inside while loop (if supported)
+// If not supported, should cause compile error
+start() int {
+  let i: int = 0;
+  while (i < 10) {
+    if (i == 5) { break; }
+    i = i + 1;
+  }
+  print("i = %d", i);
+  return 0;
+}

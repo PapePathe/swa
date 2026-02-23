@@ -1,0 +1,13 @@
+dialect:english;
+
+// Test 9: Modulo with negative numbers (all combinations)
+start() int {
+  let a: int = -7;
+  let b: int = 3;
+  let c: int = 7;
+  let d: int = -3;
+  print("-7 %% 3 = %d", a % b);
+  print("7 %% -3 = %d", c % d);
+  print("-7 %% -3 = %d", a % d);
+  return 0;
+}

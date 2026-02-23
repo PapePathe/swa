@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 4: Modulo by zero (integer)
+// Expected: runtime error (division by zero)
+start() int {
+  let a: int = 10;
+  let b: int = 0;
+  let c: int = a % b;
+  print("%d", c);
+  return 0;
+}

@@ -1,0 +1,43 @@
+dialecte:français;
+
+// Programme 10 : Particule dans une boîte quantique (puits infini)
+// Calcul des niveaux d'énergie et de la fonction d'onde.
+
+structure PuitsQuantique {
+  largeur: decimal,
+  masse_particule: decimal,
+  constante_planck: decimal,
+  n_max: entier,
+}
+
+fonction énergie(p: *PuitsQuantique, n: entier) decimal {
+  variable h_barre: decimal = p.constante_planck / (2.0 * 3.14159);
+  retourner (n * n * 3.14159 * 3.14159 * h_barre * h_barre) / (2.0 * p.masse_particule * p.largeur * p.largeur);
+}
+
+fonction fonction_onde(p: *PuitsQuantique, n: entier, x: decimal) decimal {
+  retourner sqrt(2.0 / p.largeur) * sin(n * 3.14159 * x / p.largeur);
+}
+
+demarrer() entier {
+  variable puits: PuitsQuantique = PuitsQuantique{
+    largeur: 1e-9,
+    masse_particule: 9.109e-31,
+    constante_planck: 6.626e-34,
+    n_max: 3
+  };
+  variable n: entier = 1;
+  tantque (n <= puits.n_max) {
+    variable E: decimal = énergie(puits, n);
+    afficher("Niveau n=%d : énergie = %.4e J", n, E);
+    variable x: decimal = 0.0;
+    variable pas: decimal = puits.largeur / 5.0;
+    tantque (x <= puits.largeur) {
+      variable psi: decimal = fonction_onde(puits, n, x);
+      afficher("  x=%.2e m, psi=%.4f", x, psi);
+      x = x + pas;
+    }
+    n = n + 1;
+  }
+  retourner 0;
+}

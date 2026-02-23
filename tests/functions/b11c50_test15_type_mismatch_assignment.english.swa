@@ -1,0 +1,7 @@
+dialect:english;
+
+// Test 15: Type mismatch in assignment (should error)
+start() int {
+  let a: int = "hello";
+  return 0;
+}

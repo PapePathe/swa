@@ -1,0 +1,50 @@
+dialecte:français;
+
+// Programme 9 : Chaîne de désintégration radioactive (Bateman)
+// Résolution numérique des équations différentielles pour une chaîne à 3 isotopes.
+
+structure Isotope {
+  nom: chaine,
+  constante_désintégration: decimal,
+  quantité: decimal,
+  quantité_initiale: decimal,
+}
+
+fonction dériver(iso: [3]Isotope, dérivées: [3]decimal) entier {
+  dérivées[0] = -iso[0].constante_désintégration * iso[0].quantité;
+  dérivées[1] = iso[0].constante_désintégration * iso[0].quantité - iso[1].constante_désintégration * iso[1].quantité;
+  dérivées[2] = iso[1].constante_désintégration * iso[1].quantité;
+  retourner 0;
+}
+
+fonction euler(iso: [3]Isotope, dt: decimal) entier {
+  variable dérivées: [3]decimal;
+  dériver(iso, dérivées);
+  variable i: entier = 0;
+  tantque (i < 3) {
+    iso[i].quantité = iso[i].quantité + dérivées[i] * dt;
+    i = i + 1;
+  }
+  retourner 0;
+}
+
+demarrer() entier {
+  variable isotopes: [3]Isotope = [3]Isotope{
+    Isotope{nom: "Uranium-238", constante_désintégration: 1.55e-10, quantité: 1000.0, quantité_initiale: 1000.0},
+    Isotope{nom: "Thorium-234", constante_désintégration: 2.88e-6, quantité: 0.0, quantité_initiale: 0.0},
+    Isotope{nom: "Protactinium-234", constante_désintégration: 9.48e-3, quantité: 0.0, quantité_initiale: 0.0}
+  };
+  variable dt: decimal = 1.0;
+  variable t_max: decimal = 1e8;
+  variable t: decimal = 0.0;
+  tantque (t < t_max) {
+    euler(isotopes, dt);
+    t = t + dt;
+  }
+  variable i: entier = 0;
+  tantque (i < 3) {
+    afficher("%s : quantité = %.2e atomes", isotopes[i].nom, isotopes[i].quantité);
+    i = i + 1;
+  }
+  retourner 0;
+}

@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 41: Empty function (with explicit return)
+func empty() int {
+  return 0;
+}
+start() int {
+  empty();
+  return 0;
+}

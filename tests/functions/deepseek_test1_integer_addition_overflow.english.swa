@@ -1,0 +1,10 @@
+dialect:english;
+
+// Test 1: Integer addition overflow (if 32-bit, 2^31-1 + 1)
+// Expected: wraparound or error, depending on implementation
+start() int {
+  let max: int = 2147483647;
+  let result: int = max + 1;
+  print("max+1 = %d", result);
+  return 0;
+}

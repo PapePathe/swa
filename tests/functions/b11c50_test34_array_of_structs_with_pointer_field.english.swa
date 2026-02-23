@@ -1,0 +1,15 @@
+dialect:english;
+
+// Test 34: Array of structs with pointer field, init with inline array
+struct Data {
+  id: int,
+  values: *int,
+}
+start() int {
+  let arr: [2]Data = [2]Data{
+    Data{id: 1, values: [3]int{10,20,30}},
+    Data{id: 2, values: [3]int{40,50,60}},
+  };
+  print("Data[0].values[1] = %d", arr[0].values[1]);
+  return 0;
+}

@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 45: Type mismatch: bool with string
+start() int {
+  let b: bool = true;
+  let s: string = "true";
+  if (b == s) {
+    print("equal");
+  }
+  return 0;
+}

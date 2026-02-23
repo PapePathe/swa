@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 23: Hexadecimal integer literal
+// Should print 255
+start() int {
+  let hex: int = 0xFF;
+  print("0xFF = %d", hex);
+  return 0;
+}

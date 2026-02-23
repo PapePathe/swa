@@ -1,0 +1,18 @@
+dialect:english;
+
+// Test 25: Linked list traversal via pointer chain
+struct Node {
+  value: int,
+  next: *Node,
+}
+start() int {
+  let n1: Node = Node{value: 1, next: 0};
+  let n2: Node = Node{value: 2, next: n1};
+  let n3: Node = Node{value: 3, next: n2};
+  let current: *Node = n3;
+  while (current != 0) {
+    print("%d ", current.value);
+    current = current.next;
+  }
+  return 0;
+}

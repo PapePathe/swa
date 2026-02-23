@@ -1,0 +1,40 @@
+dialecte:français;
+
+// Programme 7 : Cycle de Carnot (moteur thermique)
+// Calcul du travail, de la chaleur échangée et du rendement.
+
+structure MachineCarnot {
+  T_chaude: decimal,
+  T_froide: decimal,
+  Q_chaud: decimal,
+  Q_froid: decimal,
+  W: decimal,
+}
+
+fonction cycle_carnot(m: *MachineCarnot, Q_entrée: decimal) entier {
+  m.Q_chaud = Q_entrée;
+  m.Q_froid = m.Q_chaud * m.T_froide / m.T_chaude;
+  m.W = m.Q_chaud - m.Q_froid;
+  retourner 0;
+}
+
+fonction rendement(m: *MachineCarnot) decimal {
+  retourner 1.0 - m.T_froide / m.T_chaude;
+}
+
+demarrer() entier {
+  variable moteur: MachineCarnot = MachineCarnot{
+    T_chaude: 500.0,
+    T_froide: 300.0,
+    Q_chaud: 0.0,
+    Q_froid: 0.0,
+    W: 0.0
+  };
+  variable chaleur_entrée: decimal = 1000.0;
+  cycle_carnot(moteur, chaleur_entrée);
+  afficher("Chaleur reçue : %.2f J", moteur.Q_chaud);
+  afficher("Chaleur rejetée : %.2f J", moteur.Q_froid);
+  afficher("Travail produit : %.2f J", moteur.W);
+  afficher("Rendement théorique : %.2f", rendement(moteur));
+  retourner 0;
+}

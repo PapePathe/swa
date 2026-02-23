@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 33: Operator precedence (2+3*4 should be 14)
+start() int {
+  let a: int = 2 + 3 * 4;
+  print("2+3*4 = %d", a);
+  return 0;
+}

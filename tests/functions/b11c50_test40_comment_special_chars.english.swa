@@ -1,0 +1,8 @@
+dialect:english;
+
+// Test 40: Comment with special characters
+start() int {
+  // This comment includes: !@#$%^&*()_+{}|:"<>?~`
+  print("Comment test");
+  return 0;
+}

@@ -1,0 +1,23 @@
+dialect:english;
+
+// Test 24: Complex initialization of structs with arrays of structs
+struct Inner {
+  val: int,
+  name: string,
+}
+struct Outer {
+  id: int,
+  items: [3]Inner,
+}
+start() int {
+  let o: Outer = Outer{
+    id: 1,
+    items: [3]Inner{
+      Inner{val: 10, name: "A"},
+      Inner{val: 20, name: "B"},
+      Inner{val: 30, name: "C"},
+    },
+  };
+  print("Outer %d: %s=%d, %s=%d, %s=%d", o.id, o.items[0].name, o.items[0].val, o.items[1].name, o.items[1].val, o.items[2].name, o.items[2].val);
+  return 0;
+}

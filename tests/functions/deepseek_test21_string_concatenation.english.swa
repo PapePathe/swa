@@ -1,0 +1,11 @@
+dialect:english;
+
+// Test 21: String concatenation using + (if supported)
+// If not, should cause compile error
+start() int {
+  let s1: string = "Hello";
+  let s2: string = "World";
+  let s3: string = s1 + " " + s2;
+  print("%s", s3);
+  return 0;
+}

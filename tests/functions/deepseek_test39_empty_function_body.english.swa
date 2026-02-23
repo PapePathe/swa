@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 39: Empty function body
+func empty() int {
+}
+start() int {
+  empty();
+  return 0;
+}

@@ -1,0 +1,13 @@
+dialect:english;
+
+// Test 36: Struct equality (if allowed)
+// Probably not allowed; should cause compile error
+struct Point { x: int, y: int, }
+start() int {
+  let p1: Point = Point{x:1, y:2};
+  let p2: Point = Point{x:1, y:2};
+  if (p1 == p2) {
+    print("equal");
+  }
+  return 0;
+}

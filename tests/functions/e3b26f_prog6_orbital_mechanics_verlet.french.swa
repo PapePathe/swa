@@ -1,0 +1,96 @@
+dialecte:français;
+
+// Programme 6 : Mécanique orbitale (problème à deux corps)
+// Utilisation de l'intégrateur de Verlet pour une meilleure conservation de l'énergie.
+
+structure CorpsOrbital {
+  masse: decimal,
+  position_x: decimal,
+  position_y: decimal,
+  vitesse_x: decimal,
+  vitesse_y: decimal,
+  accélération_x: decimal,
+  accélération_y: decimal,
+}
+
+fonction accélération_gravitationnelle(m1: decimal, m2: decimal, dx: decimal, dy: decimal, G: decimal) decimal {
+  variable r2: decimal = dx * dx + dy * dy;
+  variable r: decimal = sqrt(r2);
+   retourner 0.0 si (r == 0.0);
+  retourner G * m2 / r2;
+}
+
+fonction calculer_accélérations(c1: *CorpsOrbital, c2: *CorpsOrbital, G: decimal) entier {
+  variable dx: decimal = c2.position_x - c1.position_x;
+  variable dy: decimal = c2.position_y - c1.position_y;
+  variable a_mag1: decimal = accélération_gravitationnelle(c1.masse, c2.masse, dx, dy, G);
+  variable a_mag2: decimal = accélération_gravitationnelle(c2.masse, c1.masse, -dx, -dy, G);
+  variable r: decimal = sqrt(dx*dx + dy*dy);
+  si (r > 0.0) {
+    c1.accélération_x = a_mag1 * dx / r;
+    c1.accélération_y = a_mag1 * dy / r;
+    c2.accélération_x = -a_mag2 * dx / r;
+    c2.accélération_y = -a_mag2 * dy / r;
+  }
+  retourner 0;
+}
+
+fonction verlet(c1: *CorpsOrbital, c2: *CorpsOrbital, dt: decimal, G: decimal) entier {
+  variable x1: decimal = c1.position_x;
+  variable y1: decimal = c1.position_y;
+  variable x2: decimal = c2.position_x;
+  variable y2: decimal = c2.position_y;
+  calculer_accélérations(c1, c2, G);
+  c1.position_x = c1.position_x + c1.vitesse_x * dt + 0.5 * c1.accélération_x * dt * dt;
+  c1.position_y = c1.position_y + c1.vitesse_y * dt + 0.5 * c1.accélération_y * dt * dt;
+  c2.position_x = c2.position_x + c2.vitesse_x * dt + 0.5 * c2.accélération_x * dt * dt;
+  c2.position_y = c2.position_y + c2.vitesse_y * dt + 0.5 * c2.accélération_y * dt * dt;
+  variable a1x_nouv: decimal;
+  variable a1y_nouv: decimal;
+  variable a2x_nouv: decimal;
+  variable a2y_nouv: decimal;
+  variable dx: decimal = c2.position_x - c1.position_x;
+  variable dy: decimal = c2.position_y - c1.position_y;
+  variable a_mag1: decimal = accélération_gravitationnelle(c1.masse, c2.masse, dx, dy, G);
+  variable a_mag2: decimal = accélération_gravitationnelle(c2.masse, c1.masse, -dx, -dy, G);
+  variable r: decimal = sqrt(dx*dx + dy*dy);
+  si (r > 0.0) {
+    a1x_nouv = a_mag1 * dx / r;
+    a1y_nouv = a_mag1 * dy / r;
+    a2x_nouv = -a_mag2 * dx / r;
+    a2y_nouv = -a_mag2 * dy / r;
+  }
+  c1.vitesse_x = c1.vitesse_x + 0.5 * (c1.accélération_x + a1x_nouv) * dt;
+  c1.vitesse_y = c1.vitesse_y + 0.5 * (c1.accélération_y + a1y_nouv) * dt;
+  c2.vitesse_x = c2.vitesse_x + 0.5 * (c2.accélération_x + a2x_nouv) * dt;
+  c2.vitesse_y = c2.vitesse_y + 0.5 * (c2.accélération_y + a2y_nouv) * dt;
+  c1.accélération_x = a1x_nouv;
+  c1.accélération_y = a1y_nouv;
+  c2.accélération_x = a2x_nouv;
+  c2.accélération_y = a2y_nouv;
+  retourner 0;
+}
+
+demarrer() entier {
+  variable G: decimal = 6.6743e-11;
+  variable soleil: CorpsOrbital = CorpsOrbital{masse: 1.989e30, position_x: 0.0, position_y: 0.0, vitesse_x: 0.0, vitesse_y: 0.0, accélération_x: 0.0, accélération_y: 0.0};
+  variable terre: CorpsOrbital = CorpsOrbital{
+    masse: 5.972e24,
+    position_x: 1.496e11,
+    position_y: 0.0,
+    vitesse_x: 0.0,
+    vitesse_y: 29780.0,
+    accélération_x: 0.0,
+    accélération_y: 0.0
+  };
+  variable dt: decimal = 86400.0;
+  variable nb_pas: entier = 365;
+  variable i: entier = 0;
+  tantque (i < nb_pas) {
+    verlet(soleil, terre, dt, G);
+    i = i + 1;
+  }
+  afficher("Position de la Terre après %d jours : (%.2e, %.2e) m", nb_pas, terre.position_x, terre.position_y);
+  afficher("Distance au Soleil : %.2e m", sqrt(terre.position_x*terre.position_x + terre.position_y*terre.position_y));
+  retourner 0;
+}

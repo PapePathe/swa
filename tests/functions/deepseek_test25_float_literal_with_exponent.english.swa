@@ -1,0 +1,9 @@
+dialect:english;
+
+// Test 25: Float literal with exponent
+// Should print 12300.0
+start() int {
+  let f: float = 1.23e4;
+  print("%f", f);
+  return 0;
+}

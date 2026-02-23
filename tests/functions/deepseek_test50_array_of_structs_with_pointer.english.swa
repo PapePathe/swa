@@ -1,0 +1,12 @@
+dialect:english;
+
+// Test 50: Array of structs with pointer field 
+// – multiple levels
+struct Data { val: int; next: *Data }
+start() int {
+  let d1: Data = Data{val: 1, next: 0};
+  let d2: Data = Data{val: 2, next: d1};
+  let arr: [2]Data = [2]Data{d1, d2};
+  print("%d", arr[1].next.val);
+  return 0;
+}
