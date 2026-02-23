@@ -43,6 +43,7 @@ func (g *LLVMGenerator) VisitArrayInitializationExpression(node *ast.ArrayInitia
 
 	llvmtyp := g.getLastTypeVisitResult()
 	arrayPointer := g.Ctx.Builder.CreateAlloca(llvmtyp.Type, "array_alloc")
+	g.Ctx.Builder.CreateStore(llvm.ConstNull(llvmtyp.Type), arrayPointer)
 
 	var discoveredEntry *StructSymbolTableEntry
 
