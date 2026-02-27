@@ -7,15 +7,14 @@ import (
 	"tinygo.org/x/go-llvm"
 )
 
-// ZeroOfArrayType implements [ast.CodeGenerator].
 func (g *LLVMGenerator) ZeroOfArrayType(node *ast.ArrayType) error {
 	g.Debugf("ZeroOfArrayType")
 	defer g.Debugf("Finished ZeroOfArrayType")
 
-	if node.Size > 1000 {
-		key := "LLVMGenerator.ZeroOfArrayType.TooBigForZeroInitializer"
-		return g.Ctx.Dialect.Error(key, node.Size, 1000)
-	}
+	//	if node.Size > 1000 {
+	//		key := "LLVMGenerator.ZeroOfArrayType.TooBigForZeroInitializer"
+	//		return g.Ctx.Dialect.Error(key, node.Size, 1000)
+	//	}
 
 	err := node.Underlying.AcceptZero(g)
 	if err != nil {
