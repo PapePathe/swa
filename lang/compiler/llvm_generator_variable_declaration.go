@@ -143,7 +143,7 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 			}
 
 			lastres := g.getLastResult()
-			alloc := g.Ctx.Builder.CreateAlloca(res.Value.Type(), node.Name)
+			alloc := g.Ctx.Builder.CreateAlloca(lastres.Value.Type(), node.Name)
 			g.Ctx.Builder.CreateStore(*lastres.Value, alloc)
 			finalAddr = &alloc
 		case ast.DataTypeNumber:
