@@ -1,0 +1,20 @@
+dialect:english;
+
+start() int {
+  let fd : int = open("./libc/hello.txt", 0);
+
+  let buf : [1024]byte;
+  let size : int = 2048;
+  let off : int64 = 0;
+  let count : int64 = pread(fd, buf, size, off);
+
+  let i : int;
+  while(i < count) {
+    print("%c", buf[i]);
+    i = i + 1;
+  }
+
+  let res :int =close(fd);
+
+  return 0;
+}
