@@ -74,7 +74,6 @@ func (g *LLVMGenerator) ZeroOfFloatType(node *ast.FloatType) error {
 	return nil
 }
 
-// ZeroOfNumber64Type implements [ast.CodeGenerator].
 func (g *LLVMGenerator) ZeroOfNumber64Type(node *ast.Number64Type) error {
 	err := node.Accept(g)
 	if err != nil {
@@ -90,7 +89,6 @@ func (g *LLVMGenerator) ZeroOfNumber64Type(node *ast.Number64Type) error {
 	return nil
 }
 
-// ZeroOfNumberType implements [ast.CodeGenerator].
 func (g *LLVMGenerator) ZeroOfNumberType(node *ast.NumberType) error {
 	err := node.Accept(g)
 	if err != nil {
@@ -136,7 +134,6 @@ func (g *LLVMGenerator) ZeroOfPointerType(node *ast.PointerType) error {
 	return nil
 }
 
-// ZeroOfStringType implements [ast.CodeGenerator].
 func (g *LLVMGenerator) ZeroOfStringType(node *ast.StringType) error {
 	cache, ok := g.zeroValues[reflect.TypeFor[ast.StringType]()]
 	if ok {
@@ -155,7 +152,6 @@ func (g *LLVMGenerator) ZeroOfStringType(node *ast.StringType) error {
 	return nil
 }
 
-// ZeroOfSymbolType implements [ast.CodeGenerator].
 func (g *LLVMGenerator) ZeroOfSymbolType(node *ast.SymbolType) error {
 	err := node.Accept(g)
 	if err != nil {
@@ -223,7 +219,6 @@ func (g *LLVMGenerator) ZeroOfBoolType(node *ast.BoolType) error {
 	return nil
 }
 
-// ZeroOfVoidType implements [ast.CodeGenerator].
 func (g *LLVMGenerator) ZeroOfVoidType(node *ast.VoidType) error {
 	panic("ZeroOfVoidType unimplemented")
 }
