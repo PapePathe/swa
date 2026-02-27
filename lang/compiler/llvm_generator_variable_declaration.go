@@ -8,7 +8,6 @@ import (
 	"tinygo.org/x/go-llvm"
 )
 
-// VisitVarDeclaration implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) error {
 	old := g.logger.Step("VarDeclStmt")
 
