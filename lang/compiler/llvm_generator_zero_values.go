@@ -107,7 +107,21 @@ func (g *LLVMGenerator) ZeroOfNumberType(node *ast.NumberType) error {
 	return nil
 }
 
-// ZeroOfPointerType implements [ast.CodeGenerator].
+func (g *LLVMGenerator) ZeroOfByteType(node *ast.ByteType) error {
+	err := node.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	lastres := g.getLastTypeVisitResult()
+	zero := llvm.ConstNull(lastres.Type)
+	res := &CompilerResult{Value: &zero}
+
+	g.setLastResult(res)
+
+	return nil
+}
+
 func (g *LLVMGenerator) ZeroOfPointerType(node *ast.PointerType) error {
 	err := node.Accept(g)
 	if err != nil {

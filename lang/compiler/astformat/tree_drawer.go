@@ -12,6 +12,16 @@ type TreeDrawer struct {
 	isLast []bool
 }
 
+// VisitByteType implements [ast.CodeGenerator].
+func (t *TreeDrawer) VisitByteType(node *ast.ByteType) error {
+	panic("unimplemented")
+}
+
+// ZeroOfByteType implements [ast.CodeGenerator].
+func (t *TreeDrawer) ZeroOfByteType(node *ast.ByteType) error {
+	panic("unimplemented")
+}
+
 var _ ast.CodeGenerator = (*TreeDrawer)(nil)
 
 func NewTreeDrawer(w io.Writer) *TreeDrawer {

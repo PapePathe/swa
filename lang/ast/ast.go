@@ -95,6 +95,7 @@ type TypeVisitor interface {
 	VisitArrayType(node *ArrayType) error
 	VisitVoidType(node *VoidType) error
 	VisitBoolType(node *BoolType) error
+	VisitByteType(node *ByteType) error
 }
 
 type ZeroValueVisitor interface {
@@ -109,4 +110,5 @@ type ZeroValueVisitor interface {
 	ZeroOfArrayType(node *ArrayType) error
 	ZeroOfVoidType(node *VoidType) error
 	ZeroOfBoolType(node *BoolType) error
+	ZeroOfByteType(node *ByteType) error
 }

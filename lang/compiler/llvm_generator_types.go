@@ -36,6 +36,14 @@ func (g *LLVMGenerator) VisitNumberType(node *ast.NumberType) error {
 	return nil
 }
 
+func (g *LLVMGenerator) VisitByteType(node *ast.ByteType) error {
+	g.setLastTypeVisitResult(&CompilerResultType{
+		Type: llvm.GlobalContext().Int8Type(),
+	})
+
+	return nil
+}
+
 func (g *LLVMGenerator) VisitNumber64Type(node *ast.Number64Type) error {
 	old := g.logger.Step("Number64Type")
 
