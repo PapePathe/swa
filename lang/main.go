@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"swahili/lang/ast"
 	"swahili/lang/compiler"
 	"swahili/lang/compiler/astformat"
 	"swahili/lang/lexer"
@@ -86,6 +88,9 @@ var rootCmd = &cobra.Command{
 	Short: "Swahili Programming Environment",
 }
 
+//go:embed std/std.english.swa
+var fs embed.FS
+
 var compileCmd = &cobra.Command{
 	Use:   "compile",
 	Short: "Compile the source code to an executable",
@@ -99,6 +104,7 @@ var compileCmd = &cobra.Command{
 			os.Stdout.WriteString(err.Error())
 			os.Exit(1)
 		}
+
 		sourceCode := string(bytes)
 		tokens, dialect := lexer.Tokenize(sourceCode)
 		tree, err := parser.Parse(tokens)
@@ -106,6 +112,19 @@ var compileCmd = &cobra.Command{
 			os.Stdout.WriteString(err.Error())
 			os.Exit(1)
 		}
+
+		std, err := fs.ReadFile("std/std.english.swa")
+		if err != nil {
+			panic("error raading std")
+		}
+
+		stdtokens, _ := lexer.Tokenize(string(std))
+		stdtree, err := parser.Parse(stdtokens)
+		if err != nil {
+			os.Stdout.WriteString(err.Error())
+			os.Exit(1)
+		}
+
 		target := compiler.BuildTarget{
 			OperatingSystem: "Gnu/Linux",
 			Architecture:    "X86-64",
@@ -133,6 +152,9 @@ var compileCmd = &cobra.Command{
 				Target:   target,
 				Dialect:  dialect,
 				Filename: source,
+				Includes: []*ast.BlockStatement{
+					&stdtree,
+				},
 			}
 
 			err = compiler.Compile(&req)
