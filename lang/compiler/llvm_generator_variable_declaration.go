@@ -91,9 +91,10 @@ func (g *LLVMGenerator) VisitVarDeclaration(node *ast.VarDeclarationStatement) e
 type InitializationStyle int
 
 const (
-	StyleDefault   InitializationStyle = iota // Alloca + Store
-	StyleDirect                               // Use compiled value as address (Literals)
-	StyleLoadStore                            // Load from pointer, then Alloca + Store (Accessors)
+	StyleDefault          InitializationStyle = iota // Alloca + Store
+	StyleDirect                                      // Use compiled value as address (Literals)
+	StyleLoadStore                                   // Load from pointer, then Alloca + Store (Accessors)
+	StyleNumberExpression                            // handle the various sizes for numbers
 )
 
 var nodeVariableDeclarationStyles = map[reflect.Type]InitializationStyle{
@@ -101,7 +102,7 @@ var nodeVariableDeclarationStyles = map[reflect.Type]InitializationStyle{
 	reflect.TypeFor[*ast.ArrayOfStructsAccessExpression](): StyleLoadStore,
 	reflect.TypeFor[*ast.MemberExpression]():               StyleLoadStore,
 	reflect.TypeFor[*ast.StringExpression]():               StyleDefault,
-	reflect.TypeFor[*ast.NumberExpression]():               StyleDefault,
+	reflect.TypeFor[*ast.NumberExpression]():               StyleNumberExpression,
 	reflect.TypeFor[*ast.FloatExpression]():                StyleDefault,
 	reflect.TypeFor[*ast.FunctionCallExpression]():         StyleDefault,
 	reflect.TypeFor[*ast.SymbolExpression]():               StyleDefault,
@@ -132,6 +133,23 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 	var finalAddr *llvm.Value
 
 	switch style {
+	case StyleNumberExpression:
+		switch node.ExplicitType.Value() {
+		case ast.DataTypeNumber64:
+			typedn, _ := node.Value.(*ast.NumberExpression)
+
+			err := g.VisitNumberExpression64(typedn)
+			if err != nil {
+				return err
+			}
+
+			lastres := g.getLastResult()
+			finalAddr = lastres.Value
+		case ast.DataTypeNumber:
+			finalAddr = res.Value
+		default:
+			return fmt.Errorf("Unsupported number size %v", node.ExplicitType.Value())
+		}
 	case StyleDirect:
 		if !g.Ctx.InsideFunction {
 			key := "LLVMGenerator.VisitVarDeclaration.UnsupportedTypeAsGlobal"

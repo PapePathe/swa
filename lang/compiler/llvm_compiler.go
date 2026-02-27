@@ -21,6 +21,7 @@ type LLVMCompilerRequest struct {
 	Target   BuildTarget
 	Dialect  lexer.Dialect
 	Filename string
+	Includes []*ast.BlockStatement
 }
 
 func NewLLVMCompiler(req *LLVMCompilerRequest) *LLVMCompiler {
@@ -63,6 +64,13 @@ func (c *LLVMCompiler) Run() error {
 	)
 	exitFunc := llvm.AddFunction(*c.context.Module, "exit", exitFunctype)
 	exitFunc.SetLinkage(llvm.ExternalLinkage)
+
+	for _, include := range c.req.Includes {
+		err := include.Accept(c.passes[0])
+		if err != nil {
+			return err
+		}
+	}
 
 	for _, v := range c.passes {
 		err := c.req.Tree.Accept(v)
