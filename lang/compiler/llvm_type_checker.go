@@ -10,6 +10,14 @@ type LLVMTypeChecker struct {
 	returnStatementsCount int
 }
 
+func (l *LLVMTypeChecker) VisitByteType(node *ast.ByteType) error {
+	panic("unimplemented")
+}
+
+func (l *LLVMTypeChecker) ZeroOfByteType(node *ast.ByteType) error {
+	panic("unimplemented")
+}
+
 var _ ast.CodeGenerator = (*LLVMTypeChecker)(nil)
 
 func NewLLVMTypeChecker(ctx *CompilerCtx) *LLVMTypeChecker {

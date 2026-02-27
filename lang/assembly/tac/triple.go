@@ -76,6 +76,16 @@ type Triple struct {
 	currproc  *Proc
 }
 
+// VisitByteType implements [ast.CodeGenerator].
+func (gen *Triple) VisitByteType(node *ast.ByteType) error {
+	panic("unimplemented")
+}
+
+// ZeroOfByteType implements [ast.CodeGenerator].
+func (gen *Triple) ZeroOfByteType(node *ast.ByteType) error {
+	panic("unimplemented")
+}
+
 var _ ast.CodeGenerator = (*Triple)(nil)
 
 func NewTripleGenerator() *Triple {

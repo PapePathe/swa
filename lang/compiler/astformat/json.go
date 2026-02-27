@@ -8,6 +8,16 @@ type Json struct {
 	Element map[string]any
 }
 
+// VisitByteType implements [ast.CodeGenerator].
+func (j *Json) VisitByteType(node *ast.ByteType) error {
+	panic("unimplemented")
+}
+
+// ZeroOfByteType implements [ast.CodeGenerator].
+func (j *Json) ZeroOfByteType(node *ast.ByteType) error {
+	panic("unimplemented")
+}
+
 func (j *Json) ZeroOfBoolType(node *ast.BoolType) error {
 	panic("unimplemented")
 }
