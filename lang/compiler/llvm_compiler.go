@@ -132,7 +132,7 @@ func (c *LLVMCompiler) Run() error {
 		return fmt.Errorf("Error durrng object creation <%w>", err)
 	}
 
-	linkArgs := []string{c.objectFileName(), "-o", c.executableFileName()}
+	linkArgs := []string{c.objectFileName(), "-o", c.executableFileName(), "-lm"}
 	linkCmd := exec.Command(clang, linkArgs...)
 	linkCmd.Stdout = os.Stdout
 	linkCmd.Stderr = os.Stderr
