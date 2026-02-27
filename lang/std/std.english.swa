@@ -24,8 +24,6 @@ func pread(fd: int, buf: string, count: int, offset: int64) int64;
 
 func pwrite(fd: int, buf: string, count: int, offset: int64) int64;
 
-// ssize_t pread(int fd, void buf [.count], size_t count, off_t offset);
-// ssize_t pwrite(int fd, const void buf [.count], size_t count, off_t offset);
 // ############################
 // end file functions
 // ############################
