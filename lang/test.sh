@@ -29,4 +29,4 @@ if compgen -G "*.o"; then
     rm -rf *.o
 fi
 
-go test ./... -count=1 "$@"
+go test ./... -count=1 -race "$@"
