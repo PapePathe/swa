@@ -35,6 +35,7 @@ func (m English) Reserved() map[string]TokenKind {
 		"true":     True,
 		"false":    False,
 		"bool":     TypeBool,
+		"byte":     TypeByte,
 		"float":    TypeFloat,
 		"int":      TypeInt,
 		"int64":    TypeInt64,

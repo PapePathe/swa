@@ -50,6 +50,7 @@ const (
 	DataTypeFloat
 	DataTypeString
 	DataTypeStruct
+	DataTypeByte
 	DataTypeIntType
 	DataTypeSymbol
 	DataTypePointer
@@ -134,6 +135,30 @@ func (ArrayType) Value() DataType {
 
 func (typ ArrayType) Accept(g CodeGenerator) error {
 	return g.VisitArrayType(&typ)
+}
+
+type ByteType struct{}
+
+var _ Type = (*ByteType)(nil)
+
+func (b *ByteType) Accept(g CodeGenerator) error {
+	return g.VisitByteType(b)
+}
+
+func (b *ByteType) AcceptZero(g CodeGenerator) error {
+	return g.ZeroOfByteType(b)
+}
+
+func (b *ByteType) Equals(Type) bool {
+	panic("unimplemented")
+}
+
+func (b *ByteType) String() string {
+	return b.Value().String()
+}
+
+func (b *ByteType) Value() DataType {
+	return DataTypeByte
 }
 
 type NumberType struct{}
