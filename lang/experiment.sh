@@ -23,9 +23,9 @@ elif [ "$1" == "compile-file" ]; then
 elif [ "$1" == "compile-file-trace" ]; then
     SWA_DEBUG=yes ./tmp/swa compile -e -s "$2" && ./start.exe
 elif [ "$1" == "compile-swa" ]; then
-#    ./tmp/swa parse -s test.swa -o tree
-    ./tmp/swa compile -s test.swa -g swa && ./start.exe
-
+    ./tmp/swa compile -s test.swa -g swa
+elif [ "$1" == "compile-swa-file" ]; then
+    ./tmp/swa compile -s "$2" -g swa
 else
     echo "❓ Unknown command: $1. Use 'compile' or 'parse'."
     exit 1
