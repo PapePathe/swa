@@ -242,7 +242,25 @@ func (g *LLVMGenerator) VisitMainStatement(node *ast.MainStatement) error {
 	return nil
 }
 
-// VisitNumberExpression implements [ast.CodeGenerator].
+func (g *LLVMGenerator) VisitNumberExpression64(node *ast.NumberExpression) error {
+	var signed bool
+
+	if node.Value < 0 {
+		signed = true
+	}
+
+	res := llvm.ConstInt(
+		llvm.GlobalContext().Int64Type(),
+		uint64(node.Value),
+		signed,
+	)
+	node.SwaType = ast.Number64Type{}
+
+	g.setLastResult(&CompilerResult{Value: &res, SwaType: node.SwaType})
+
+	return nil
+}
+
 func (g *LLVMGenerator) VisitNumberExpression(node *ast.NumberExpression) error {
 	old := g.logger.Step("NumberExpr")
 
