@@ -13,4 +13,12 @@ func TestLIBCReadfile(t *testing.T) {
 			t, "./libc/read-hello-world-as-bytes.swa",
 			"Hello World\n")
 	})
+
+	t.Run("lib math", func(t *testing.T) {
+		t.Run("sqrt", func(t *testing.T) {
+			NewSuccessfulCompileRequest(
+				t, "./libc/sqrt.swa",
+				"sqrt(16.0) = 4.000000\nsqrt(2.0) = 1.414214\nsqrt(-16.0) = -nan\n")
+		})
+	})
 }
