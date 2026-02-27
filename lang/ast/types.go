@@ -35,6 +35,8 @@ func (dt DataType) String() string {
 		return "Void"
 	case DataTypeBool:
 		return "Bool"
+	case DataTypeByte:
+		return "Byte"
 	default:
 		fmt.Printf("Unmatched data type %d", dt)
 		os.Exit(1)
