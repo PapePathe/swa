@@ -15,6 +15,7 @@ func TestReservedEnglish(t *testing.T) {
 		"float":    TypeFloat,
 		"func":     Function,
 		"if":       KeywordIf,
+		"byte":     TypeByte,
 		"int":      TypeInt,
 		"int64":    TypeInt64,
 		"let":      Let,
