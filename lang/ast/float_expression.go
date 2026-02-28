@@ -30,7 +30,3 @@ func (expr FloatExpression) TokenStream() []lexer.Token {
 func (expr FloatExpression) VisitedSwaType() Type {
 	return expr.SwaType
 }
-
-func (expr FloatExpression) InstructionArg() string {
-	return expr.String()
-}
