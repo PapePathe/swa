@@ -6,63 +6,6 @@ import (
 	"swahili/lang/lexer"
 )
 
-type Label struct {
-	Name  string
-	Insts []Inst
-}
-
-var _ InstArg = (*Label)(nil)
-
-func (l *Label) InstructionArg() string {
-	return l.Name
-}
-
-type Proc struct {
-	Labels       []*Label
-	Name         string
-	Ret          ast.Type
-	Args         []ast.FuncArg
-	Table        map[string]InstID
-	currentLabel *Label
-	lmap         map[string]int
-}
-
-func (p *Proc) Append(i Inst) {
-	p.currentLabel.Insts = append(p.currentLabel.Insts, i)
-}
-
-func (p *Proc) addLabel(name string) *Label {
-	id, ok := p.lmap[name]
-	if !ok {
-		p.lmap[name] = 0
-		id = 0
-	}
-
-	p.lmap[name]++
-
-	newname := fmt.Sprintf("%s-%d", name, id)
-
-	l := &Label{Name: newname, Insts: []Inst{}}
-
-	p.Labels = append(p.Labels, l)
-
-	return l
-}
-
-func (p *Proc) setCurrentLabel(l *Label) {
-	if l == nil {
-		panic("Developer Error label is nil")
-	}
-
-	p.currentLabel = l
-}
-
-func (p Proc) LastInstID() InstID {
-	id := uint32(len(p.currentLabel.Insts) - 1)
-
-	return InstID{id: id}
-}
-
 type CustomType struct {
 	Types []ast.Type
 }
@@ -76,12 +19,84 @@ type Triple struct {
 	currproc  *Proc
 }
 
-// VisitByteType implements [ast.CodeGenerator].
+var _ AsmOp = (*Triple)(nil)
+
+func (gen *Triple) Gen(g AssemblyOpGenerator) error {
+	return g.VisitTriple(gen)
+}
+
+func (gen *Triple) Display() {
+	fmt.Println("header:")
+
+	for i, v := range gen.Insts {
+		var ArgOne string
+		if v.ArgOne != nil {
+			ArgOne = v.ArgOne.InstructionArg()
+		}
+
+		var ArgTwo string
+		if v.ArgTwo != nil {
+			ArgTwo = v.ArgTwo.InstructionArg()
+		}
+
+		fmt.Printf(" %5d %20s  %10s  %10s\n", i, v.Operation, ArgOne, ArgTwo)
+	}
+
+	fmt.Println()
+
+	for _, proc := range gen.Procs {
+		fmt.Printf("%s @%s( ", proc.Ret.String(), proc.Name)
+
+		for _, arg := range proc.Args {
+			fmt.Printf("%s:%s ", arg.Name, arg.ArgType.Value())
+		}
+
+		fmt.Println(")")
+
+		for _, label := range proc.Labels {
+			fmt.Printf("  %s:\n", label.Name)
+			for i, v := range label.Insts {
+				var ArgOne string
+				if v.ArgOne != nil {
+					ArgOne = v.ArgOne.InstructionArg()
+				}
+
+				var ArgTwo string
+				if v.ArgTwo != nil {
+					ArgTwo = v.ArgTwo.InstructionArg()
+				}
+
+				fmt.Printf(" %5d %20s  %10s  %10s\n", i, v.Operation, ArgOne, ArgTwo)
+			}
+		}
+
+		fmt.Println()
+	}
+
+	fmt.Println("main:")
+	for _, label := range gen.Main.Labels {
+		fmt.Printf("  %s:\n", label.Name)
+
+		for i, v := range label.Insts {
+			var ArgOne string
+			if v.ArgOne != nil {
+				ArgOne = v.ArgOne.InstructionArg()
+			}
+
+			var ArgTwo string
+			if v.ArgTwo != nil {
+				ArgTwo = v.ArgTwo.InstructionArg()
+			}
+
+			fmt.Printf(" %5d %20s  %10s  %10s\n", i, v.Operation, ArgOne, ArgTwo)
+		}
+	}
+}
+
 func (gen *Triple) VisitByteType(node *ast.ByteType) error {
 	panic("unimplemented")
 }
 
-// ZeroOfByteType implements [ast.CodeGenerator].
 func (gen *Triple) ZeroOfByteType(node *ast.ByteType) error {
 	panic("unimplemented")
 }
@@ -104,6 +119,10 @@ func (gen Triple) getLastValue() InstArg {
 
 func (gen *Triple) setLastValue(a InstArg) {
 	gen.lastValue = a
+}
+
+func appendOpToCurrentProc(gen *Triple, op AsmOp) {
+	gen.currproc.AppendOp(op)
 }
 
 func appendToCurrentProc(gen *Triple, i Inst) {
@@ -134,17 +153,14 @@ func (gen *Triple) VisitArrayInitializationExpression(node *ast.ArrayInitializat
 	panic("unimplemented")
 }
 
-// VisitArrayOfStructsAccessExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStructsAccessExpression) error {
 	panic("unimplemented")
 }
 
-// VisitArrayType implements [ast.CodeGenerator].
 func (gen *Triple) VisitArrayType(node *ast.ArrayType) error {
 	panic("unimplemented")
 }
 
-// VisitAssignmentExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitAssignmentExpression(node *ast.AssignmentExpression) error {
 	err := node.Value.Accept(gen)
 	if err != nil {
@@ -169,7 +185,6 @@ func (gen *Triple) VisitAssignmentExpression(node *ast.AssignmentExpression) err
 	return nil
 }
 
-// VisitBinaryExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitBinaryExpression(node *ast.BinaryExpression) error {
 	err := node.Left.Accept(gen)
 	if err != nil {
@@ -202,7 +217,6 @@ func (gen *Triple) VisitBinaryExpression(node *ast.BinaryExpression) error {
 	return nil
 }
 
-// VisitBlockStatement implements [ast.CodeGenerator].
 func (gen *Triple) VisitBlockStatement(node *ast.BlockStatement) error {
 	for _, stmt := range node.Body {
 		err := stmt.Accept(gen)
@@ -214,12 +228,10 @@ func (gen *Triple) VisitBlockStatement(node *ast.BlockStatement) error {
 	return nil
 }
 
-// VisitBoolType implements [ast.CodeGenerator].
 func (gen *Triple) VisitBoolType(node *ast.BoolType) error {
 	panic("unimplemented")
 }
 
-// VisitBooleanExpression implements [ast.CodeGenerator].
 func (gen *Triple) VisitBooleanExpression(node *ast.BooleanExpression) error {
 	if node.Value {
 		gen.setLastValue(BoolVal{value: "true"})
@@ -275,6 +287,7 @@ func (gen *Triple) VisitConditionalStatement(node *ast.ConditionalStatetement) e
 			return err
 		}
 	}
+
 	appendToCurrentProc(gen, Inst{
 		Operation: OpJump,
 		ArgOne:    mergeblock,
@@ -298,7 +311,8 @@ func (gen *Triple) VisitExpressionStatement(node *ast.ExpressionStatement) error
 }
 
 func (gen *Triple) VisitFloatExpression(node *ast.FloatExpression) error {
-	gen.setLastValue(node)
+	res := Float64Val{value: node.Value}
+	gen.setLastValue(&res)
 
 	return nil
 }
@@ -325,11 +339,10 @@ func (gen *Triple) VisitFunctionCall(node *ast.FunctionCallExpression) error {
 	}
 
 	sym, _ := node.Name.(*ast.SymbolExpression)
-	sym.Value = fmt.Sprintf("@%s", sym.Value)
 
 	appendToCurrentProc(gen, Inst{
 		Operation: OpFunCall,
-		ArgOne:    sym,
+		ArgOne:    &SymbolVal{value: sym.Value},
 	})
 
 	gen.setLastValue(getLastInstID(gen))
@@ -389,7 +402,7 @@ func (gen *Triple) VisitMemberExpression(node *ast.MemberExpression) error {
 func (gen *Triple) VisitNumber64Type(node *ast.Number64Type) error { return nil }
 
 func (gen *Triple) VisitNumberExpression(node *ast.NumberExpression) error {
-	gen.setLastValue(node)
+	gen.setLastValue(&Number32Val{value: int(node.Value)})
 
 	return nil
 }
@@ -398,15 +411,23 @@ func (gen *Triple) VisitNumberType(node *ast.NumberType) error   { return nil }
 func (gen *Triple) VisitPointerType(node *ast.PointerType) error { return nil }
 
 func (gen *Triple) VisitPrefixExpression(node *ast.PrefixExpression) error {
+	err := node.RightExpression.Accept(gen)
+	if err != nil {
+		return err
+	}
+
+	res := gen.getLastValue()
+
 	switch node.Operator.Kind {
+	case lexer.Minus:
+		appendToCurrentProc(gen, Inst{
+			Operation: OpMinus,
+			ArgOne:    res,
+		})
+
+		gen.setLastValue(getLastInstID(gen))
+
 	case lexer.Not:
-		err := node.RightExpression.Accept(gen)
-		if err != nil {
-			return err
-		}
-
-		res := gen.getLastValue()
-
 		appendToCurrentProc(gen, Inst{
 			Operation: OpNegation,
 			ArgOne:    res,
@@ -437,7 +458,7 @@ func (gen *Triple) VisitPrintStatement(node *ast.PrintStatetement) error {
 
 	appendToCurrentProc(gen, Inst{
 		Operation: OpFunCall,
-		ArgOne:    ast.SymbolExpression{Value: "@printf"},
+		ArgOne:    &SymbolVal{value: "@printf"},
 	})
 
 	return nil
@@ -451,9 +472,13 @@ func (gen *Triple) VisitReturnStatement(node *ast.ReturnStatement) error {
 
 	last := gen.getLastValue()
 
-	appendToCurrentProc(gen, Inst{
-		Operation: OpReturn,
-		ArgOne:    last,
+	//	appendToCurrentProc(gen, Inst{
+	//		Operation: OpReturn,
+	//		ArgOne:    last,
+	//	})
+
+	appendOpToCurrentProc(gen, &Ret{
+		Val: last,
 	})
 
 	return nil
@@ -492,7 +517,7 @@ func (gen *Triple) VisitSymbolAdressExpression(node *ast.SymbolAdressExpression)
 }
 
 func (gen *Triple) VisitSymbolExpression(node *ast.SymbolExpression) error {
-	gen.setLastValue(node)
+	gen.setLastValue(&SymbolVal{value: node.Value})
 
 	return nil
 }
@@ -508,7 +533,7 @@ func (gen *Triple) VisitTupleAssignmentExpression(node *ast.TupleAssignmentExpre
 }
 
 func (gen *Triple) VisitTupleExpression(node *ast.TupleExpression) error {
-	gen.setLastValue(node)
+	// gen.setLastValue(node)
 
 	return nil
 }
@@ -534,7 +559,7 @@ func (gen *Triple) VisitVarDeclaration(node *ast.VarDeclarationStatement) error 
 	appendToCurrentProc(gen, Inst{
 		Operation: OpAlloc,
 		ArgOne:    &TypeID{T: node.ExplicitType},
-		ArgTwo:    ast.SymbolExpression{Value: node.Name},
+		ArgTwo:    &SymbolVal{value: node.Name},
 	})
 
 	allocInstId := getLastInstID(gen)
@@ -563,7 +588,6 @@ func (gen *Triple) VisitZeroExpression(node *ast.ZeroExpression) error {
 	return nil
 }
 
-// ZeroOfArrayType implements [ast.CodeGenerator].
 func (gen *Triple) ZeroOfArrayType(node *ast.ArrayType) error {
 	panic("unimplemented")
 }
@@ -579,19 +603,19 @@ func (gen *Triple) ZeroOfErrorType(node *ast.ErrorType) error {
 }
 
 func (gen *Triple) ZeroOfFloatType(node *ast.FloatType) error {
-	gen.setLastValue(ast.FloatExpression{Value: 0.0})
+	gen.setLastValue(&Float64Val{value: 0.0})
 
 	return nil
 }
 
 func (gen *Triple) ZeroOfNumber64Type(node *ast.Number64Type) error {
-	gen.setLastValue(ast.NumberExpression{Value: 0.0})
+	gen.setLastValue(&Number32Val{value: 0.0})
 
 	return nil
 }
 
 func (gen *Triple) ZeroOfNumberType(node *ast.NumberType) error {
-	gen.setLastValue(ast.NumberExpression{Value: 0})
+	gen.setLastValue(&Number32Val{value: 0})
 
 	return nil
 }

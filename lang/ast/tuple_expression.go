@@ -1,8 +1,6 @@
 package ast
 
 import (
-	"fmt"
-	"strings"
 	"swahili/lang/lexer"
 )
 
@@ -28,15 +26,4 @@ func (e TupleExpression) VisitedSwaType() Type {
 	}
 
 	return &TupleType{Types: types}
-}
-
-func (expr TupleExpression) InstructionArg() string {
-	sb := strings.Builder{}
-
-	for _, e := range expr.Expressions {
-		sb.WriteString(fmt.Sprintf("%s", e))
-
-	}
-
-	return sb.String()
 }
