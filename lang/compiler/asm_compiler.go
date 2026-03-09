@@ -47,7 +47,7 @@ func (c *ASMCompiler) Run() error {
 	}
 
 	clang := findCommand("clang-19", "clang")
-	objectCmd := exec.Command(clang, "-Wall", "-c", c.asmFileName(), "-o", c.objectFileName(), "-fPIE")
+	objectCmd := exec.Command(clang, "-Wall", "-x", "assembler", "-c", c.asmFileName(), "-o", c.objectFileName(), "-fPIE")
 	objectCmd.Stdout = os.Stdout
 	objectCmd.Stderr = os.Stderr
 
@@ -70,13 +70,13 @@ func (c *ASMCompiler) Run() error {
 }
 
 func (c ASMCompiler) asmFileName() string {
-	return fmt.Sprintf("%s.swa-asm", c.req.Target.Output)
+	return fmt.Sprintf("%s.s", c.req.Target.Output)
 }
 
 func (c ASMCompiler) objectFileName() string {
-	return fmt.Sprintf("%s.swa-obj", c.req.Target.Output)
+	return fmt.Sprintf("%s.o", c.req.Target.Output)
 }
 
 func (c ASMCompiler) executableFileName() string {
-	return fmt.Sprintf("%s.swa-exe", c.req.Target.Output)
+	return c.req.Target.Output
 }
