@@ -3,7 +3,7 @@ package tac
 import "fmt"
 
 type Number64Val struct {
-	value int
+	value int64
 }
 
 func (n *Number64Val) InstructionArg() string {

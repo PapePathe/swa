@@ -10,7 +10,6 @@ type Proc struct {
 	Name         string
 	Ret          ast.Type
 	Args         []ast.FuncArg
-	Table        map[string]InstID
 	currentLabel *Label
 	lmap         map[string]int
 }
@@ -19,10 +18,6 @@ var _ AsmOp = (*Proc)(nil)
 
 func (p *Proc) Gen(g AssemblyOpGenerator) error {
 	return g.VisitProc(p)
-}
-
-func (p *Proc) Append(i Inst) {
-	p.currentLabel.Insts = append(p.currentLabel.Insts, i)
 }
 
 func (p *Proc) AppendOp(op AsmOp) {
@@ -40,7 +35,7 @@ func (p *Proc) addLabel(name string) *Label {
 
 	newname := fmt.Sprintf("%s-%d", name, id)
 
-	l := &Label{Name: newname, Insts: []Inst{}}
+	l := &Label{Name: newname, Ops: []AsmOp{}}
 
 	p.Labels = append(p.Labels, l)
 
@@ -55,8 +50,6 @@ func (p *Proc) setCurrentLabel(l *Label) {
 	p.currentLabel = l
 }
 
-func (p Proc) LastInstID() InstID {
-	id := uint32(len(p.currentLabel.Insts) - 1)
-
-	return InstID{id: id}
+func (p Proc) LastOpIndex() int {
+	return len(p.currentLabel.Ops) - 1
 }
