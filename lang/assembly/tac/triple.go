@@ -10,13 +10,17 @@ type CustomType struct {
 	Types []ast.Type
 }
 
+// Triple is the platform-neutral TAC IR.
+// GlobalOps holds read-only data (strings) emitted before any procedure.
+// Procs holds user-defined functions; Main holds the entry point.
 type Triple struct {
-	types     map[string]CustomType
-	Insts     []Inst
-	lastValue InstArg
-	Main      *Proc
-	Procs     []*Proc
-	currproc  *Proc
+	types       map[string]CustomType
+	symbolTypes map[string]ast.Type
+	GlobalOps   []AsmOp
+	lastValue   InstArg
+	Main        *Proc
+	Procs       []*Proc
+	currproc    *Proc
 }
 
 var _ AsmOp = (*Triple)(nil)
@@ -26,94 +30,51 @@ func (gen *Triple) Gen(g AssemblyOpGenerator) error {
 }
 
 func (gen *Triple) Display() {
-	fmt.Println("header:")
-
-	for i, v := range gen.Insts {
-		var ArgOne string
-		if v.ArgOne != nil {
-			ArgOne = v.ArgOne.InstructionArg()
-		}
-
-		var ArgTwo string
-		if v.ArgTwo != nil {
-			ArgTwo = v.ArgTwo.InstructionArg()
-		}
-
-		fmt.Printf(" %5d %20s  %10s  %10s\n", i, v.Operation, ArgOne, ArgTwo)
+	fmt.Println("globals:")
+	for i, op := range gen.GlobalOps {
+		fmt.Printf("  %5d %T\n", i, op)
 	}
 
 	fmt.Println()
 
 	for _, proc := range gen.Procs {
 		fmt.Printf("%s @%s( ", proc.Ret.String(), proc.Name)
-
 		for _, arg := range proc.Args {
 			fmt.Printf("%s:%s ", arg.Name, arg.ArgType.Value())
 		}
-
 		fmt.Println(")")
 
 		for _, label := range proc.Labels {
 			fmt.Printf("  %s:\n", label.Name)
-			for i, v := range label.Insts {
-				var ArgOne string
-				if v.ArgOne != nil {
-					ArgOne = v.ArgOne.InstructionArg()
-				}
-
-				var ArgTwo string
-				if v.ArgTwo != nil {
-					ArgTwo = v.ArgTwo.InstructionArg()
-				}
-
-				fmt.Printf(" %5d %20s  %10s  %10s\n", i, v.Operation, ArgOne, ArgTwo)
+			for i, op := range label.Ops {
+				fmt.Printf("    %5d %T\n", i, op)
 			}
 		}
-
 		fmt.Println()
 	}
 
 	fmt.Println("main:")
 	for _, label := range gen.Main.Labels {
 		fmt.Printf("  %s:\n", label.Name)
-
-		for i, v := range label.Insts {
-			var ArgOne string
-			if v.ArgOne != nil {
-				ArgOne = v.ArgOne.InstructionArg()
-			}
-
-			var ArgTwo string
-			if v.ArgTwo != nil {
-				ArgTwo = v.ArgTwo.InstructionArg()
-			}
-
-			fmt.Printf(" %5d %20s  %10s  %10s\n", i, v.Operation, ArgOne, ArgTwo)
+		for i, op := range label.Ops {
+			fmt.Printf("    %5d %T\n", i, op)
 		}
 	}
-}
-
-func (gen *Triple) VisitByteType(node *ast.ByteType) error {
-	panic("unimplemented")
-}
-
-func (gen *Triple) ZeroOfByteType(node *ast.ByteType) error {
-	panic("unimplemented")
 }
 
 var _ ast.CodeGenerator = (*Triple)(nil)
 
 func NewTripleGenerator() *Triple {
 	return &Triple{
-		Insts: []Inst{},
-		types: map[string]CustomType{},
+		GlobalOps:   []AsmOp{},
+		types:       map[string]CustomType{},
+		symbolTypes: make(map[string]ast.Type),
 	}
 }
 
 func (gen Triple) getLastValue() InstArg {
 	val := gen.lastValue
 	gen.lastValue = nil
-
 	return val
 }
 
@@ -125,24 +86,19 @@ func appendOpToCurrentProc(gen *Triple, op AsmOp) {
 	gen.currproc.AppendOp(op)
 }
 
-func appendToCurrentProc(gen *Triple, i Inst) {
-	gen.currproc.Append(i)
+// opIndex returns an InstArg that identifies the last op appended to the
+// current label. Used to wire the result of one op as an operand of another.
+func opIndex(gen *Triple) *OpRef {
+	idx := gen.currproc.LastOpIndex()
+	return &OpRef{idx: idx}
 }
 
-func getLastGlobalInstID(gen *Triple) GlobalId {
-	if len(gen.Insts) == 0 {
-		return GlobalId{id: uint32(0)}
-	}
-
-	return GlobalId{id: uint32(len(gen.Insts) - 1)}
+func (gen *Triple) VisitByteType(node *ast.ByteType) error {
+	panic("unimplemented")
 }
 
-func getLastInstID(gen *Triple) InstID {
-	if len(gen.currproc.currentLabel.Insts) == 0 {
-		return InstID{id: uint32(0)}
-	}
-
-	return InstID{id: uint32(len(gen.currproc.currentLabel.Insts) - 1)}
+func (gen *Triple) ZeroOfByteType(node *ast.ByteType) error {
+	panic("unimplemented")
 }
 
 func (gen *Triple) VisitArrayAccessExpression(node *ast.ArrayAccessExpression) error {
@@ -175,11 +131,15 @@ func (gen *Triple) VisitAssignmentExpression(node *ast.AssignmentExpression) err
 	}
 
 	assignee := gen.getLastValue()
+	width := 32
+	if node.Assignee.VisitedSwaType().Value() == ast.DataTypeNumber64 {
+		width = 64
+	}
 
-	appendToCurrentProc(gen, Inst{
-		Operation: OpWrite,
-		ArgOne:    incomingValue,
-		ArgTwo:    assignee,
+	appendOpToCurrentProc(gen, &InstWrite{
+		Src:   incomingValue,
+		Dst:   assignee,
+		Width: width,
 	})
 
 	return nil
@@ -200,19 +160,42 @@ func (gen *Triple) VisitBinaryExpression(node *ast.BinaryExpression) error {
 
 	right := gen.getLastValue()
 
-	op, err := opMap(node.Operator.Kind)
-	if err != nil {
-		return err
+	var op AsmOp
+	width := 32
+
+	// Try to infer width from operands if the node type is not set
+	leftType := node.Left.VisitedSwaType()
+	rightType := node.Right.VisitedSwaType()
+
+	if node.VisitedSwaType() != nil && node.VisitedSwaType().Value() == ast.DataTypeNumber64 {
+		width = 64
+	} else if (leftType != nil && leftType.Value() == ast.DataTypeNumber64) ||
+		(rightType != nil && rightType.Value() == ast.DataTypeNumber64) {
+		width = 64
 	}
 
-	appendToCurrentProc(gen, Inst{
-		Operation: op,
-		ArgOne:    left,
-		ArgTwo:    right,
-	})
+	// Update node type if we inferred it was 64-bit
+	if width == 64 && node.SwaType == nil {
+		node.SwaType = ast.Number64Type{}
+	}
 
-	lastInstID := getLastInstID(gen)
-	gen.setLastValue(lastInstID)
+	switch node.Operator.Kind {
+	case lexer.Plus:
+		op = &InstAdd{Left: left, Right: right, Width: width}
+	case lexer.Minus:
+		op = &InstSub{Left: left, Right: right, Width: width}
+	case lexer.Star:
+		op = &InstMul{Left: left, Right: right, Width: width}
+	case lexer.Divide:
+		op = &InstDiv{Left: left, Right: right, Width: width}
+	case lexer.Modulo:
+		op = &InstMod{Left: left, Right: right, Width: width}
+	default:
+		return fmt.Errorf("unsupported binary op %s", node.Operator.Kind)
+	}
+
+	appendOpToCurrentProc(gen, op)
+	gen.setLastValue(opIndex(gen))
 
 	return nil
 }
@@ -235,7 +218,6 @@ func (gen *Triple) VisitBoolType(node *ast.BoolType) error {
 func (gen *Triple) VisitBooleanExpression(node *ast.BooleanExpression) error {
 	if node.Value {
 		gen.setLastValue(BoolVal{value: "true"})
-
 		return nil
 	}
 
@@ -249,53 +231,7 @@ func (gen *Triple) VisitCallExpression(node *ast.CallExpression) error {
 }
 
 func (gen *Triple) VisitConditionalStatement(node *ast.ConditionalStatetement) error {
-	err := node.Condition.Accept(gen)
-	if err != nil {
-		return err
-	}
-
-	ifblock := gen.currproc.addLabel("if.block")
-	elseblock := gen.currproc.addLabel("else.block")
-	mergeblock := gen.currproc.addLabel("merge.block")
-
-	appendToCurrentProc(gen, Inst{
-		Operation: OpJumpCond,
-		ArgOne:    getLastInstID(gen),
-		ArgTwo: &JumpCond{
-			Success: ifblock.Name,
-			Failure: elseblock.Name,
-		},
-	})
-
-	gen.currproc.setCurrentLabel(ifblock)
-
-	err = node.Success.Accept(gen)
-	if err != nil {
-		return err
-	}
-
-	appendToCurrentProc(gen, Inst{
-		Operation: OpJump,
-		ArgOne:    mergeblock,
-	})
-
-	gen.currproc.setCurrentLabel(elseblock)
-
-	if node.Failure.Body != nil {
-		err := node.Failure.Accept(gen)
-		if err != nil {
-			return err
-		}
-	}
-
-	appendToCurrentProc(gen, Inst{
-		Operation: OpJump,
-		ArgOne:    mergeblock,
-	})
-
-	gen.currproc.setCurrentLabel(mergeblock)
-
-	return nil
+	panic("unimplemented")
 }
 
 func (gen *Triple) VisitErrorExpression(node *ast.ErrorExpression) error {
@@ -326,32 +262,11 @@ func (gen *Triple) VisitFloatingBlockExpression(node *ast.FloatingBlockExpressio
 }
 
 func (gen *Triple) VisitFunctionCall(node *ast.FunctionCallExpression) error {
-	for _, arg := range node.Args {
-		err := arg.Accept(gen)
-		if err != nil {
-			return err
-		}
-
-		appendToCurrentProc(gen, Inst{
-			Operation: OpFunCallArg,
-			ArgOne:    gen.getLastValue(),
-		})
-	}
-
-	sym, _ := node.Name.(*ast.SymbolExpression)
-
-	appendToCurrentProc(gen, Inst{
-		Operation: OpFunCall,
-		ArgOne:    &SymbolVal{value: sym.Value},
-	})
-
-	gen.setLastValue(getLastInstID(gen))
-
-	return nil
+	panic("unimplemented")
 }
 
 func (gen *Triple) VisitFunctionDefinition(node *ast.FuncDeclStatement) error {
-	lab := &Label{Name: "default", Insts: []Inst{}}
+	lab := &Label{Name: "default", Ops: []AsmOp{}}
 	proc := &Proc{
 		Name:         node.Name,
 		Ret:          node.ReturnType,
@@ -374,7 +289,7 @@ func (gen *Triple) VisitFunctionDefinition(node *ast.FuncDeclStatement) error {
 }
 
 func (gen *Triple) VisitMainStatement(node *ast.MainStatement) error {
-	lab := &Label{Name: "default", Insts: []Inst{}}
+	lab := &Label{Name: "default", Ops: []AsmOp{}}
 	proc := &Proc{
 		Name:         "main",
 		Labels:       []*Label{lab},
@@ -382,7 +297,6 @@ func (gen *Triple) VisitMainStatement(node *ast.MainStatement) error {
 		lmap:         map[string]int{"default": 0},
 	}
 	gen.Main = proc
-
 	gen.currproc = gen.Main
 
 	err := node.Body.Accept(gen)
@@ -402,7 +316,20 @@ func (gen *Triple) VisitMemberExpression(node *ast.MemberExpression) error {
 func (gen *Triple) VisitNumber64Type(node *ast.Number64Type) error { return nil }
 
 func (gen *Triple) VisitNumberExpression(node *ast.NumberExpression) error {
-	gen.setLastValue(&Number32Val{value: int(node.Value)})
+	// If it's a large number or explicitly typed 64-bit, use Number64Val
+	if (node.SwaType != nil && node.SwaType.Value() == ast.DataTypeNumber64) ||
+		node.Value > 2147483647 || node.Value < -2147483648 {
+		gen.setLastValue(&Number64Val{value: node.Value})
+		if node.SwaType == nil {
+			node.SwaType = ast.Number64Type{}
+		}
+	} else {
+		// Truncate to int for 32-bit (literals in binary ops/assignments).
+		gen.setLastValue(&Number32Val{value: int(node.Value)})
+		if node.SwaType == nil {
+			node.SwaType = ast.NumberType{}
+		}
+	}
 
 	return nil
 }
@@ -411,37 +338,11 @@ func (gen *Triple) VisitNumberType(node *ast.NumberType) error   { return nil }
 func (gen *Triple) VisitPointerType(node *ast.PointerType) error { return nil }
 
 func (gen *Triple) VisitPrefixExpression(node *ast.PrefixExpression) error {
-	err := node.RightExpression.Accept(gen)
-	if err != nil {
-		return err
-	}
-
-	res := gen.getLastValue()
-
-	switch node.Operator.Kind {
-	case lexer.Minus:
-		appendToCurrentProc(gen, Inst{
-			Operation: OpMinus,
-			ArgOne:    res,
-		})
-
-		gen.setLastValue(getLastInstID(gen))
-
-	case lexer.Not:
-		appendToCurrentProc(gen, Inst{
-			Operation: OpNegation,
-			ArgOne:    res,
-		})
-
-		gen.setLastValue(getLastInstID(gen))
-	default:
-		return fmt.Errorf("Unsupported prefix %s", node.Operator.Kind)
-	}
-
-	return nil
+	panic("unimplemented")
 }
 
 func (gen *Triple) VisitPrintStatement(node *ast.PrintStatetement) error {
+	// Each value in the print statement maps to a FunCallArg followed by printf.
 	for _, expr := range node.Values {
 		err := expr.Accept(gen)
 		if err != nil {
@@ -449,17 +350,15 @@ func (gen *Triple) VisitPrintStatement(node *ast.PrintStatetement) error {
 		}
 
 		val := gen.getLastValue()
+		width := 32
+		if expr.VisitedSwaType() != nil && expr.VisitedSwaType().Value() == ast.DataTypeNumber64 {
+			width = 64
+		}
 
-		appendToCurrentProc(gen, Inst{
-			Operation: OpFunCallArg,
-			ArgOne:    val,
-		})
+		appendOpToCurrentProc(gen, &InstFunCallArg{Val: val, Width: width})
 	}
 
-	appendToCurrentProc(gen, Inst{
-		Operation: OpFunCall,
-		ArgOne:    &SymbolVal{value: "@printf"},
-	})
+	appendOpToCurrentProc(gen, &InstFunCall{Symbol: "printf"})
 
 	return nil
 }
@@ -472,30 +371,20 @@ func (gen *Triple) VisitReturnStatement(node *ast.ReturnStatement) error {
 
 	last := gen.getLastValue()
 
-	//	appendToCurrentProc(gen, Inst{
-	//		Operation: OpReturn,
-	//		ArgOne:    last,
-	//	})
-
-	appendOpToCurrentProc(gen, &Ret{
-		Val: last,
-	})
+	appendOpToCurrentProc(gen, &Ret{Val: last})
 
 	return nil
 }
 
 func (gen *Triple) VisitStringExpression(node *ast.StringExpression) error {
-	gen.Insts = append(gen.Insts, Inst{
-		Operation: OpGlobal,
-		ArgOne: &GlobalString{
-			Value:  node.Value,
-			Length: len(node.Value),
-		},
+	id := uint32(len(gen.GlobalOps))
+
+	gen.GlobalOps = append(gen.GlobalOps, &InstGlobal{
+		ID:    id,
+		Value: node.Value,
 	})
 
-	id := getLastGlobalInstID(gen)
-
-	gen.setLastValue(id)
+	gen.setLastValue(&GlobalId{id: id})
 
 	return nil
 }
@@ -519,6 +408,10 @@ func (gen *Triple) VisitSymbolAdressExpression(node *ast.SymbolAdressExpression)
 func (gen *Triple) VisitSymbolExpression(node *ast.SymbolExpression) error {
 	gen.setLastValue(&SymbolVal{value: node.Value})
 
+	if t, ok := gen.symbolTypes[node.Value]; ok {
+		node.SwaType = t
+	}
+
 	return nil
 }
 
@@ -533,8 +426,6 @@ func (gen *Triple) VisitTupleAssignmentExpression(node *ast.TupleAssignmentExpre
 }
 
 func (gen *Triple) VisitTupleExpression(node *ast.TupleExpression) error {
-	// gen.setLastValue(node)
-
 	return nil
 }
 
@@ -555,20 +446,25 @@ func (gen *Triple) VisitVarDeclaration(node *ast.VarDeclarationStatement) error 
 	}
 
 	value := gen.getLastValue()
+	width := 32
+	if node.ExplicitType != nil && node.ExplicitType.Value() == ast.DataTypeNumber64 {
+		width = 64
+	}
 
-	appendToCurrentProc(gen, Inst{
-		Operation: OpAlloc,
-		ArgOne:    &TypeID{T: node.ExplicitType},
-		ArgTwo:    &SymbolVal{value: node.Name},
+	appendOpToCurrentProc(gen, &InstAlloc{
+		T:    node.ExplicitType,
+		Name: node.Name,
 	})
 
-	allocInstId := getLastInstID(gen)
-
-	appendToCurrentProc(gen, Inst{
-		Operation: OpWrite,
-		ArgOne:    value,
-		ArgTwo:    allocInstId,
+	appendOpToCurrentProc(gen, &InstWrite{
+		Src:   value,
+		Dst:   &SymbolVal{value: node.Name},
+		Width: width,
 	})
+
+	if node.ExplicitType != nil {
+		gen.symbolTypes[node.Name] = node.ExplicitType
+	}
 
 	return nil
 }
@@ -580,12 +476,7 @@ func (gen *Triple) VisitWhileStatement(node *ast.WhileStatement) error {
 }
 
 func (gen *Triple) VisitZeroExpression(node *ast.ZeroExpression) error {
-	err := node.T.AcceptZero(gen)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return node.T.AcceptZero(gen)
 }
 
 func (gen *Triple) ZeroOfArrayType(node *ast.ArrayType) error {
@@ -609,7 +500,7 @@ func (gen *Triple) ZeroOfFloatType(node *ast.FloatType) error {
 }
 
 func (gen *Triple) ZeroOfNumber64Type(node *ast.Number64Type) error {
-	gen.setLastValue(&Number32Val{value: 0.0})
+	gen.setLastValue(&Number32Val{value: 0})
 
 	return nil
 }
