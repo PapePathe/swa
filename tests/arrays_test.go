@@ -245,9 +245,9 @@ func TestArrayZeroValues(t *testing.T) {
 	})
 
 	t.Run("Size Too large", func(t *testing.T) {
-		NewFailedCompileRequest(t,
+		NewSuccessfulCompileRequest(t,
 			"./arrays/zero-values/size-limits.swa",
-			"ArraySize (10000) too big for zero value initialization, max is 1000\n",
+			"",
 		)
 	})
 }

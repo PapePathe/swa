@@ -1,0 +1,10 @@
+dialect:english;
+
+start() int {
+  print("sqrt(16.0) = ", sqrt(16.0), "\n");
+  print("sqrt(2.0) = ", sqrt(2.0), "\n");
+  print("sqrt(-16.0) = ", sqrt(-16.0), "\n");
+
+
+  return 0;
+}
