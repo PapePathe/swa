@@ -141,17 +141,35 @@ func (g *LLVMGenerator) declareVarWithInitializer(node *ast.VarDeclarationStatem
 			if err != nil {
 				return err
 			}
+			res := g.getLastResult()
 
-			lastres := g.getLastResult()
-			alloc := g.Ctx.Builder.CreateAlloca(lastres.Value.Type(), node.Name)
-			g.Ctx.Builder.CreateStore(*lastres.Value, alloc)
+			if !g.Ctx.InsideFunction {
+				glob := llvm.AddGlobal(*g.Ctx.Module, res.Value.Type(), node.Name)
+				glob.SetInitializer(*res.Value)
+
+				finalAddr = &glob
+
+				break
+			}
+
+			alloc := g.Ctx.Builder.CreateAlloca(res.Value.Type(), node.Name)
+			g.Ctx.Builder.CreateStore(*res.Value, alloc)
 			finalAddr = &alloc
 		case ast.DataTypeNumber:
+			if !g.Ctx.InsideFunction {
+				glob := llvm.AddGlobal(*g.Ctx.Module, res.Value.Type(), node.Name)
+				glob.SetInitializer(*res.Value)
+
+				finalAddr = &glob
+
+				break
+			}
+
 			alloc := g.Ctx.Builder.CreateAlloca(res.Value.Type(), node.Name)
 			g.Ctx.Builder.CreateStore(*res.Value, alloc)
 			finalAddr = &alloc
 		default:
-			return fmt.Errorf("Unsupported number size %v", node.ExplicitType.Value())
+			// return fmt.Errorf("Unsupported number size %v", node.ExplicitType.Value())
 		}
 	case StyleDirect:
 		if !g.Ctx.InsideFunction {
