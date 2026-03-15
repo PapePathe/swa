@@ -29,5 +29,5 @@ type Float64Val struct {
 var _ InstArg = (*Float64Val)(nil)
 
 func (f *Float64Val) InstructionArg() string {
-	return fmt.Sprintf("%v", f.value)
+	return fmt.Sprintf("$%f", f.value)
 }

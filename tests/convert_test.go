@@ -15,7 +15,7 @@ start() int {
 `
 	inputFile := "test_french_input.swa"
 	os.WriteFile(inputFile, []byte(input), 0644)
-	defer os.Remove(inputFile)
+	//	defer os.Remove(inputFile)
 
 	req := CompileRequest{
 		InputPath:               inputFile,

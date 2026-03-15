@@ -29,6 +29,7 @@ type AssemblyOpGenerator interface {
 	// Memory
 	VisitInstAlloc(node *InstAlloc) error
 	VisitInstWrite(node *InstWrite) error
+	VisitInstWriteFloat(node *InstWriteFloat) error
 
 	// Calls
 	VisitInstFunCall(node *InstFunCall) error

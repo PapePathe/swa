@@ -203,7 +203,7 @@ func regAndSuffix(size int) (string, string, string) {
 	case 64:
 		regA, regC, suffix = "%rax", "%rcx", "q"
 	default:
-		panic("unsupported register size")
+		panic(fmt.Sprintf("unsupported register size %d", size))
 	}
 
 	return regA, regC, suffix
@@ -222,6 +222,20 @@ func (l *Linux64AsmGen) VisitInstAlloc(node *tac.InstAlloc) error {
 
 func (l *Linux64AsmGen) VisitInstWrite(node *tac.InstWrite) error {
 	reg := "%eax"
+	suffix := "l"
+	if node.Width == 64 {
+		reg = "%rax"
+		suffix = "q"
+	}
+	l.loadIntoReg(node.Src, reg, node.Width)
+	off := l.alloc.SlotByName(node.Dst.InstructionArg())
+	fmt.Fprintf(&l.builder, "    mov%s %s, %d(%%rbp)\n", suffix, reg, off)
+
+	return nil
+}
+
+func (l *Linux64AsmGen) VisitInstWriteFloat(node *tac.InstWriteFloat) error {
+	reg := "%xmm0"
 	suffix := "l"
 	if node.Width == 64 {
 		reg = "%rax"

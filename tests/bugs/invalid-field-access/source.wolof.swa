@@ -1,7 +1,7 @@
 laak:wolof;
 
 tambali() lëmm {
-  dencukaay i: int = 10;
+  dencukaay i: lëmm = 10;
   wanel("%d", i.field);
   deloko 0;
 }

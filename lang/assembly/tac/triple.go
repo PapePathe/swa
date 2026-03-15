@@ -32,7 +32,7 @@ func (gen *Triple) Gen(g AssemblyOpGenerator) error {
 func (gen *Triple) Display() {
 	fmt.Println("globals:")
 	for i, op := range gen.GlobalOps {
-		fmt.Printf("  %5d %T\n", i, op)
+		fmt.Printf("  %5d %s\n", i, op)
 	}
 
 	fmt.Println()
@@ -47,7 +47,7 @@ func (gen *Triple) Display() {
 		for _, label := range proc.Labels {
 			fmt.Printf("  %s:\n", label.Name)
 			for i, op := range label.Ops {
-				fmt.Printf("    %5d %T\n", i, op)
+				fmt.Printf("    %5d %+v\n", i, op)
 			}
 		}
 		fmt.Println()
@@ -57,7 +57,7 @@ func (gen *Triple) Display() {
 	for _, label := range gen.Main.Labels {
 		fmt.Printf("  %s:\n", label.Name)
 		for i, op := range label.Ops {
-			fmt.Printf("    %5d %T\n", i, op)
+			fmt.Printf("    %5d %+v\n", i, op)
 		}
 	}
 }
@@ -94,27 +94,27 @@ func opIndex(gen *Triple) *OpRef {
 }
 
 func (gen *Triple) VisitByteType(node *ast.ByteType) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) ZeroOfByteType(node *ast.ByteType) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitArrayAccessExpression(node *ast.ArrayAccessExpression) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitArrayInitializationExpression(node *ast.ArrayInitializationExpression) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStructsAccessExpression) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitArrayType(node *ast.ArrayType) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitAssignmentExpression(node *ast.AssignmentExpression) error {
@@ -212,7 +212,7 @@ func (gen *Triple) VisitBlockStatement(node *ast.BlockStatement) error {
 }
 
 func (gen *Triple) VisitBoolType(node *ast.BoolType) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitBooleanExpression(node *ast.BooleanExpression) error {
@@ -227,19 +227,19 @@ func (gen *Triple) VisitBooleanExpression(node *ast.BooleanExpression) error {
 }
 
 func (gen *Triple) VisitCallExpression(node *ast.CallExpression) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitConditionalStatement(node *ast.ConditionalStatetement) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitErrorExpression(node *ast.ErrorExpression) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitErrorType(node *ast.ErrorType) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitExpressionStatement(node *ast.ExpressionStatement) error {
@@ -254,15 +254,15 @@ func (gen *Triple) VisitFloatExpression(node *ast.FloatExpression) error {
 }
 
 func (gen *Triple) VisitFloatType(node *ast.FloatType) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitFloatingBlockExpression(node *ast.FloatingBlockExpression) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitFunctionCall(node *ast.FunctionCallExpression) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitFunctionDefinition(node *ast.FuncDeclStatement) error {
@@ -310,7 +310,7 @@ func (gen *Triple) VisitMainStatement(node *ast.MainStatement) error {
 }
 
 func (gen *Triple) VisitMemberExpression(node *ast.MemberExpression) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitNumber64Type(node *ast.Number64Type) error { return nil }
@@ -338,7 +338,26 @@ func (gen *Triple) VisitNumberType(node *ast.NumberType) error   { return nil }
 func (gen *Triple) VisitPointerType(node *ast.PointerType) error { return nil }
 
 func (gen *Triple) VisitPrefixExpression(node *ast.PrefixExpression) error {
-	panic("unimplemented")
+	err := node.RightExpression.Accept(gen)
+	if err != nil {
+		return err
+	}
+
+	res := gen.getLastValue()
+
+	switch node.Operator.Kind {
+	case lexer.Minus:
+		appendOpToCurrentProc(gen, &InstSub{
+			Left:  &Number32Val{value: 0},
+			Right: res,
+			Width: 32,
+		})
+		gen.setLastValue(opIndex(gen))
+
+		return nil
+	default:
+		return fmt.Errorf("unsupported op (%s) in PrefixExpression", node.Operator.Kind)
+	}
 }
 
 func (gen *Triple) VisitPrintStatement(node *ast.PrintStatetement) error {
@@ -398,11 +417,11 @@ func (gen *Triple) VisitStructDeclaration(node *ast.StructDeclarationStatement) 
 }
 
 func (gen *Triple) VisitStructInitializationExpression(node *ast.StructInitializationExpression) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitSymbolAdressExpression(node *ast.SymbolAdressExpression) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitSymbolExpression(node *ast.SymbolExpression) error {
@@ -418,11 +437,11 @@ func (gen *Triple) VisitSymbolExpression(node *ast.SymbolExpression) error {
 func (gen *Triple) VisitSymbolType(node *ast.SymbolType) error { return nil }
 
 func (gen *Triple) VisitSymbolValueExpression(node *ast.SymbolValueExpression) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitTupleAssignmentExpression(node *ast.TupleAssignmentExpression) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitTupleExpression(node *ast.TupleExpression) error {
@@ -430,7 +449,7 @@ func (gen *Triple) VisitTupleExpression(node *ast.TupleExpression) error {
 }
 
 func (gen *Triple) VisitTupleType(node *ast.TupleType) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitVarDeclaration(node *ast.VarDeclarationStatement) error {
@@ -446,8 +465,11 @@ func (gen *Triple) VisitVarDeclaration(node *ast.VarDeclarationStatement) error 
 	}
 
 	value := gen.getLastValue()
+	// FIXME size should come from type
 	width := 32
-	if node.ExplicitType != nil && node.ExplicitType.Value() == ast.DataTypeNumber64 {
+
+	if node.ExplicitType != nil &&
+		node.ExplicitType.Value() == ast.DataTypeNumber64 {
 		width = 64
 	}
 
@@ -456,11 +478,22 @@ func (gen *Triple) VisitVarDeclaration(node *ast.VarDeclarationStatement) error 
 		Name: node.Name,
 	})
 
-	appendOpToCurrentProc(gen, &InstWrite{
-		Src:   value,
-		Dst:   &SymbolVal{value: node.Name},
-		Width: width,
-	})
+	switch node.ExplicitType.Value() {
+	case ast.DataTypeNumber, ast.DataTypeNumber64:
+		appendOpToCurrentProc(gen, &InstWrite{
+			Src:   value,
+			Dst:   &SymbolVal{value: node.Name},
+			Width: width,
+		})
+	case ast.DataTypeFloat:
+		appendOpToCurrentProc(gen, &InstWriteFloat{
+			Src:   value,
+			Dst:   &SymbolVal{value: node.Name},
+			Width: width,
+		})
+	default:
+		return fmt.Errorf("Datatype %T not supported", node.ExplicitType)
+	}
 
 	if node.ExplicitType != nil {
 		gen.symbolTypes[node.Name] = node.ExplicitType
@@ -472,7 +505,7 @@ func (gen *Triple) VisitVarDeclaration(node *ast.VarDeclarationStatement) error 
 func (gen *Triple) VisitVoidType(node *ast.VoidType) error { return nil }
 
 func (gen *Triple) VisitWhileStatement(node *ast.WhileStatement) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) VisitZeroExpression(node *ast.ZeroExpression) error {
@@ -480,7 +513,7 @@ func (gen *Triple) VisitZeroExpression(node *ast.ZeroExpression) error {
 }
 
 func (gen *Triple) ZeroOfArrayType(node *ast.ArrayType) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) ZeroOfBoolType(node *ast.BoolType) error {
@@ -490,7 +523,7 @@ func (gen *Triple) ZeroOfBoolType(node *ast.BoolType) error {
 }
 
 func (gen *Triple) ZeroOfErrorType(node *ast.ErrorType) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) ZeroOfFloatType(node *ast.FloatType) error {
@@ -512,21 +545,21 @@ func (gen *Triple) ZeroOfNumberType(node *ast.NumberType) error {
 }
 
 func (gen *Triple) ZeroOfPointerType(node *ast.PointerType) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) ZeroOfStringType(node *ast.StringType) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) ZeroOfSymbolType(node *ast.SymbolType) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) ZeroOfTupleType(node *ast.TupleType) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
 
 func (gen *Triple) ZeroOfVoidType(node *ast.VoidType) error {
-	panic("unimplemented")
+	return fmt.Errorf("unimplemented")
 }
