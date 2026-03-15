@@ -14,17 +14,17 @@ func NewPlatformAsmGen(os, arch string) (tac.AssemblyOpGenerator, error) {
 		if arch == "amd64" || arch == "X86-64" {
 			return NewLinux64AsmGen(), nil
 		}
-	case "darwin":
-		if arch == "amd64" {
-			return NewDarwinAmd64AsmGen(), nil
-		}
-		if arch == "arm64" {
-			return NewDarwinArm64AsmGen(), nil
-		}
-	case "windows":
-		if arch == "amd64" {
-			return NewWindowsAmd64AsmGen(), nil
-		}
+		//	case "darwin":
+		//		if arch == "amd64" {
+		//			return NewDarwinAmd64AsmGen(), nil
+		//		}
+		//		if arch == "arm64" {
+		//			return NewDarwinArm64AsmGen(), nil
+		//		}
+		//	case "windows":
+		//		if arch == "amd64" {
+		//			return NewWindowsAmd64AsmGen(), nil
+		//		}
 	}
 
 	return nil, fmt.Errorf("unsupported target: %s/%s", os, arch)
