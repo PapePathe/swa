@@ -1,6 +1,9 @@
 package tac
 
-import "swahili/lang/ast"
+import (
+	"fmt"
+	"swahili/lang/ast"
+)
 
 // InstAlloc reserves a named stack slot for a variable of type T.
 type InstAlloc struct {
@@ -12,4 +15,8 @@ var _ AsmOp = (*InstAlloc)(nil)
 
 func (i *InstAlloc) Gen(g AssemblyOpGenerator) error {
 	return g.VisitInstAlloc(i)
+}
+
+func (i *InstAlloc) String() string {
+	return fmt.Sprintf("alloc %s, %s", i.Name, i.T)
 }

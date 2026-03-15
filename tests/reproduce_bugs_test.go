@@ -88,7 +88,7 @@ func TestBugInvalidFieldAccess(t *testing.T) {
 	t.Run("Wolof", func(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./bugs/invalid-field-access/source.wolof.swa",
-			"struct named int does not exist in symbol table\n")
+			"variable i is not a struct instance\n")
 	})
 
 	t.Run("French", func(t *testing.T) {

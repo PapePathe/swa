@@ -1,10 +1,10 @@
 khuien:soussou;
 
-wali gbegbe printf2(format: sèbèli) konti;
-wali open(name: sèbèli, mode: konti) konti64;
-wali close(fd: konti64);
-wali getpid() konti;
-wali getenv(name: sèbèli) sèbèli;
+wali gbegbe printfFn(format: sèbèli) konti;
+wali openFn(name: sèbèli, mode: konti) konti64;
+wali closeFn(fd: konti64);
+wali getpidFn() konti;
+wali getenvFn(name: sèbèli) sèbèli;
 
 sodé() konti {
   gbilen 0;

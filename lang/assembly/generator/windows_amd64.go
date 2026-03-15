@@ -18,6 +18,10 @@ type WindowsAmd64AsmGen struct {
 	}
 }
 
+func (l *WindowsAmd64AsmGen) VisitInstWriteFloat(node *tac.InstWriteFloat) error {
+	panic("unimplemented")
+}
+
 var _ tac.AssemblyOpGenerator = (*WindowsAmd64AsmGen)(nil)
 
 func NewWindowsAmd64AsmGen() *WindowsAmd64AsmGen {

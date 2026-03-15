@@ -50,11 +50,30 @@ func SuccessFulMultidialectCompileRequest(t *testing.T, tests []MultiDialectTest
 	}
 }
 
-func NewSuccessfulCompileRequest(t *testing.T, input string, output string) {
+type OptName int
+
+const (
+	OptCompileNative OptName = iota
+)
+
+func NewSuccessfulCompileRequest(t *testing.T, input string, output string, opts ...OptName) {
 	t.Parallel()
 
 	req := CompileRequest{InputPath: input, ExpectedExecutionOutput: output, T: t}
 	req.AssertCompileAndExecute()
+
+	//	for _, opt := range opts {
+	//		switch opt {
+	//		case OptCompileNative:
+	//			req.T.Run("CompileX", func(t *testing.T) {
+	//				t.Parallel()
+	//
+	//				req.AssertCompileAndExecuteX()
+	//			})
+	//		default:
+	//			panic("Unknown native compile opt name")
+	//		}
+	//	}
 }
 
 func NewSuccessfulXCompileRequest(req CompileRequest) {
@@ -86,19 +105,19 @@ func (cr *CompileRequest) CompileX() error {
 
 	cr.OutputPath = uuid.New().String()
 
-	cmd := exec.Command("./swa", "compile", "-s", cr.InputPath, "-o", cr.OutputPath, "-g", "swa")
-	_, err := cmd.CombinedOutput()
+	cmd := exec.Command("./swa", "compile", "-g", "swa", "-s", cr.InputPath, "-o", cr.OutputPath, "-g", "swa")
+	output, err := cmd.CombinedOutput()
 
-	//	fmt.Println(string(output))
+	fmt.Println(string(output))
 
-	//	if cr.ExpectedOutput != string(output) {
-	//		cr.T.Fatalf(
-	//			"Compilation error want: %s, has: %s \n Source file %s",
-	//			fmt.Sprintf("%q", cr.ExpectedOutput),
-	//			fmt.Sprintf("%q", string(output)),
-	//			cr.InputPath,
-	//		)
-	//	}
+	if cr.ExpectedOutput != string(output) {
+		cr.T.Fatalf(
+			"Compilation error want: %s, has: %s \n Source file %s",
+			fmt.Sprintf("%q", cr.ExpectedOutput),
+			fmt.Sprintf("%q", string(output)),
+			cr.InputPath,
+		)
+	}
 
 	if err != nil {
 		return err
@@ -141,6 +160,26 @@ func (cr *CompileRequest) Compile() error {
 	return nil
 }
 
+func (cr *CompileRequest) RunProgramX() error {
+	cr.T.Helper()
+
+	cmd := exec.Command(fmt.Sprintf("./%s.native.exe", cr.OutputPath))
+
+	output, err := cmd.CombinedOutput()
+	if cr.ExpectedExecutionOutput != string(output) {
+		cr.T.Fatalf(
+			"Execution error want: %s, has: %s \n Source file %s",
+			fmt.Sprintf("%q", cr.ExpectedExecutionOutput),
+			fmt.Sprintf("%q", string(output)),
+			cr.InputPath,
+		)
+	}
+
+	//	defer cr.CleanupX()
+
+	return err
+}
+
 func (cr *CompileRequest) RunProgram() error {
 	cr.T.Helper()
 
@@ -156,12 +195,18 @@ func (cr *CompileRequest) RunProgram() error {
 		)
 	}
 
+	//	defer cr.Cleanup()
+
 	return err
 }
 
 func (cr *CompileRequest) AssertCompileAndExecuteX() {
 	if err := cr.CompileX(); err != nil {
 		cr.T.Fatal(err.Error())
+	}
+
+	if err := cr.RunProgramX(); err != nil {
+		cr.T.Fatalf("Runtime error (%s)", err)
 	}
 }
 
@@ -178,8 +223,6 @@ func (cr *CompileRequest) AssertCompileAndExecute() {
 
 		cr.T.Fatal(sb.String())
 	}
-
-	defer cr.Cleanup()
 
 	if err := cr.RunProgram(); err != nil {
 		cr.T.Fatalf("Runtime error (%s)", err)
@@ -214,14 +257,14 @@ func (cr *CompileRequest) AssertConvertAndCompile(targetDialect string) {
 		cr.T.Fatal(sb.String())
 	}
 
-	defer cr.Cleanup()
+	//	defer cr.Cleanup()
 
 	if err := cr.RunProgram(); err != nil {
 		cr.T.Fatalf("Runtime error (%s)", err)
 	}
 
 	// Cleanup converted file
-	os.Remove(convertedPath)
+	// os.Remove(convertedPath)
 }
 
 func (cr *CompileRequest) Cleanup() {
@@ -231,4 +274,12 @@ func (cr *CompileRequest) Cleanup() {
 	assert.NoError(cr.T, os.Remove(fmt.Sprintf("%s.s", cr.OutputPath)))
 	assert.NoError(cr.T, os.Remove(fmt.Sprintf("%s.o", cr.OutputPath)))
 	assert.NoError(cr.T, os.Remove(fmt.Sprintf("%s.exe", cr.OutputPath)))
+}
+
+func (cr *CompileRequest) CleanupX() {
+	cr.T.Helper()
+
+	assert.NoError(cr.T, os.Remove(fmt.Sprintf("%s.native.s", cr.OutputPath)))
+	assert.NoError(cr.T, os.Remove(fmt.Sprintf("%s.native.o", cr.OutputPath)))
+	assert.NoError(cr.T, os.Remove(fmt.Sprintf("%s.native.exe", cr.OutputPath)))
 }

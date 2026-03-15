@@ -18,6 +18,11 @@ type DarwinAmd64AsmGen struct {
 	}
 }
 
+// VisitInstWriteFloat implements [tac.AssemblyOpGenerator].
+func (l *DarwinAmd64AsmGen) VisitInstWriteFloat(node *tac.InstWriteFloat) error {
+	panic("unimplemented")
+}
+
 var _ tac.AssemblyOpGenerator = (*DarwinAmd64AsmGen)(nil)
 
 func NewDarwinAmd64AsmGen() *DarwinAmd64AsmGen {
