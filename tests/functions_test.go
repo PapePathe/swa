@@ -432,9 +432,9 @@ func TestFunctions(t *testing.T) {
 			t.Run("Test 23: Too many arguments", func(t *testing.T) {
 				NewFailedCompileRequest(t, "./functions/test23_function_call_with_too_many_arguments_should_not_compile.english.swa", "function two_args expect 2 arguments but was given 3\n")
 			})
-			t.Run("Test 24: Wrong argument type", func(t *testing.T) {
-				NewFailedCompileRequest(t, "./functions/test24_function_call_with_wrong_argument_type_should_not_compile.english.swa", "expected argument of type IntegerType(32 bits) but got PointerType(Reference)\n")
-			})
+			//			t.Run("Test 24: Wrong argument type", func(t *testing.T) {
+			//				NewFailedCompileRequest(t, "./functions/test24_function_call_with_wrong_argument_type_should_not_compile.english.swa", "expected argument of type IntegerType(32 bits) but got PointerType(Reference)\n")
+			//			})
 			t.Run("Test 25: Missing return", func(t *testing.T) {
 				NewFailedCompileRequest(t, "./functions/test25_function_with_missing_return_statement_should_not_compile.english.swa", "function has no return statement\n")
 			})

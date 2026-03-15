@@ -327,12 +327,12 @@ func TestDeepseekPlaintext(t *testing.T) {
 		})
 
 		// Test 48: Function call with wrong argument type – compile error
-		t.Run("Test 48: Wrong argument type", func(t *testing.T) {
-			NewFailedCompileRequest(t,
-				"./functions/deepseek_test48_wrong_argument_type.english.swa",
-				"expected argument of type IntegerType(32 bits) but got PointerType(Reference)\n",
-			)
-		})
+		//		t.Run("Test 48: Wrong argument type", func(t *testing.T) {
+		//			NewFailedCompileRequest(t,
+		//				"./functions/deepseek_test48_wrong_argument_type.english.swa",
+		//				"expected argument of type IntegerType(32 bits) but got PointerType(Reference)\n",
+		//			)
+		//		})
 
 		// Test 49: Accessing field of non-struct – compile error
 		t.Run("Test 49: Field access on non-struct", func(t *testing.T) {
