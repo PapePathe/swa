@@ -440,6 +440,10 @@ func (gen *Triple) VisitSymbolExpression(node *ast.SymbolExpression) error {
 
 func (gen *Triple) VisitSymbolType(node *ast.SymbolType) error { return nil }
 
+func (gen *Triple) VisitTypeExpression(node *ast.TypeExpression) error {
+	return node.Type.Accept(gen)
+}
+
 func (gen *Triple) VisitSymbolValueExpression(node *ast.SymbolValueExpression) error {
 	return fmt.Errorf("unimplemented")
 }

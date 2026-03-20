@@ -191,6 +191,7 @@ func (l *LLVMTypeChecker) VisitTupleType(node *ast.TupleType) error             
 func (l *LLVMTypeChecker) VisitSymbolExpression(node *ast.SymbolExpression) error   { return nil }
 func (l *LLVMTypeChecker) VisitSymbolType(node *ast.SymbolType) error               { return nil }
 func (l *LLVMTypeChecker) VisitTupleExpression(node *ast.TupleExpression) error     { return nil }
+func (l *LLVMTypeChecker) VisitTypeExpression(node *ast.TypeExpression) error       { return nil }
 func (l *LLVMTypeChecker) VisitVoidType(node *ast.VoidType) error                   { return nil }
 func (l *LLVMTypeChecker) VisitWhileStatement(node *ast.WhileStatement) error       { return nil }
 func (l *LLVMTypeChecker) ZeroOfArrayType(node *ast.ArrayType) error                { return nil }

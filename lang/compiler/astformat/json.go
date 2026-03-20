@@ -592,6 +592,16 @@ func (j *Json) VisitZeroExpression(node *ast.ZeroExpression) error {
 	return nil
 }
 
+func (j *Json) VisitTypeExpression(node *ast.TypeExpression) error {
+	res := make(map[string]any)
+	_ = node.Type.Accept(j)
+	res["TypeExpression"] = j.getLastResult()
+
+	j.setLastResult(res)
+
+	return nil
+}
+
 func (j *Json) ZeroOfArrayType(node *ast.ArrayType) error {
 	panic("unimplemented")
 }
