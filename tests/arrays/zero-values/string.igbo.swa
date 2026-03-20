@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka k : [3]ederede;
+  deputa("- [3]string with zero value\n");
+  deputa("'%s' '%s' '%s'\n\n", k[1], k[1], k[2]);
+
+  weghachi 0;
+}

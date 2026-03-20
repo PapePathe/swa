@@ -1,0 +1,96 @@
+oluasusu:igbo;
+
+// Programme 6 : Mécanique orbitale (problème à deux corps)
+// Utilisation de l'intégrateur de Verlet pour une meilleure conservation de l'énergie.
+
+nhazi CorpsOrbital {
+  masse: ofe,
+  position_x: ofe,
+  position_y: ofe,
+  vitesse_x: ofe,
+  vitesse_y: ofe,
+  accélération_x: ofe,
+  accélération_y: ofe,
+}
+
+oru accélération_gravitationnelle(m1: ofe, m2: ofe, dx: ofe, dy: ofe, G: ofe) ofe {
+  ka r2: ofe = dx * dx + dy * dy;
+  ka r: ofe = sqrt(r2);
+   weghachi 0.0 oburu (r == 0.0);
+  weghachi G * m2 / r2;
+}
+
+oru calculer_accélérations(c1: *CorpsOrbital, c2: *CorpsOrbital, G: ofe) onuogugu {
+  ka dx: ofe = c2.position_x - c1.position_x;
+  ka dy: ofe = c2.position_y - c1.position_y;
+  ka a_mag1: ofe = accélération_gravitationnelle(c1.masse, c2.masse, dx, dy, G);
+  ka a_mag2: ofe = accélération_gravitationnelle(c2.masse, c1.masse, -dx, -dy, G);
+  ka r: ofe = sqrt(dx*dx + dy*dy);
+  oburu (r > 0.0) {
+    c1.accélération_x = a_mag1 * dx / r;
+    c1.accélération_y = a_mag1 * dy / r;
+    c2.accélération_x = -a_mag2 * dx / r;
+    c2.accélération_y = -a_mag2 * dy / r;
+  }
+  weghachi 0;
+}
+
+oru verlet(c1: *CorpsOrbital, c2: *CorpsOrbital, dt: ofe, G: ofe) onuogugu {
+  ka x1: ofe = c1.position_x;
+  ka y1: ofe = c1.position_y;
+  ka x2: ofe = c2.position_x;
+  ka y2: ofe = c2.position_y;
+  calculer_accélérations(c1, c2, G);
+  c1.position_x = c1.position_x + c1.vitesse_x * dt + 0.5 * c1.accélération_x * dt * dt;
+  c1.position_y = c1.position_y + c1.vitesse_y * dt + 0.5 * c1.accélération_y * dt * dt;
+  c2.position_x = c2.position_x + c2.vitesse_x * dt + 0.5 * c2.accélération_x * dt * dt;
+  c2.position_y = c2.position_y + c2.vitesse_y * dt + 0.5 * c2.accélération_y * dt * dt;
+  ka a1x_nouv: ofe;
+  ka a1y_nouv: ofe;
+  ka a2x_nouv: ofe;
+  ka a2y_nouv: ofe;
+  ka dx: ofe = c2.position_x - c1.position_x;
+  ka dy: ofe = c2.position_y - c1.position_y;
+  ka a_mag1: ofe = accélération_gravitationnelle(c1.masse, c2.masse, dx, dy, G);
+  ka a_mag2: ofe = accélération_gravitationnelle(c2.masse, c1.masse, -dx, -dy, G);
+  ka r: ofe = sqrt(dx*dx + dy*dy);
+  oburu (r > 0.0) {
+    a1x_nouv = a_mag1 * dx / r;
+    a1y_nouv = a_mag1 * dy / r;
+    a2x_nouv = -a_mag2 * dx / r;
+    a2y_nouv = -a_mag2 * dy / r;
+  }
+  c1.vitesse_x = c1.vitesse_x + 0.5 * (c1.accélération_x + a1x_nouv) * dt;
+  c1.vitesse_y = c1.vitesse_y + 0.5 * (c1.accélération_y + a1y_nouv) * dt;
+  c2.vitesse_x = c2.vitesse_x + 0.5 * (c2.accélération_x + a2x_nouv) * dt;
+  c2.vitesse_y = c2.vitesse_y + 0.5 * (c2.accélération_y + a2y_nouv) * dt;
+  c1.accélération_x = a1x_nouv;
+  c1.accélération_y = a1y_nouv;
+  c2.accélération_x = a2x_nouv;
+  c2.accélération_y = a2y_nouv;
+  weghachi 0;
+}
+
+mbido() onuogugu {
+  ka G: ofe = 6.6743e-11;
+  ka soleil: CorpsOrbital = CorpsOrbital{masse: 1.989e30, position_x: 0.0, position_y: 0.0, vitesse_x: 0.0, vitesse_y: 0.0, accélération_x: 0.0, accélération_y: 0.0};
+  ka terre: CorpsOrbital = CorpsOrbital{
+    masse: 5.972e24,
+    position_x: 1.496e11,
+    position_y: 0.0,
+    vitesse_x: 0.0,
+    vitesse_y: 29780.0,
+    accélération_x: 0.0,
+    accélération_y: 0.0
+  };
+  ka dt: ofe = 86400.0;
+  ka nb_pas: onuogugu = 365;
+  ka i: onuogugu = 0;
+  dika (i < nb_pas) {
+    verlet(soleil, terre, dt, G);
+    i = i + 1;
+  }
+  deputa("Position de la Terre après %d jours : (%.2e, %.2e) m", nb_pas, terre.position_x, terre.position_y);
+  deputa("Distance au Soleil : %.2e m", sqrt(terre.position_x*terre.position_x + terre.position_y*terre.position_y));
+  weghachi 0;
+}

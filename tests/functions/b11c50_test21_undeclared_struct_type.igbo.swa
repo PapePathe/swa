@@ -1,0 +1,7 @@
+oluasusu:igbo;
+
+// Test 21: Using undeclared struct type (should error)
+mbido() onuogugu {
+  ka p: UnknownStruct = UnknownStruct{};
+  weghachi 0;
+}

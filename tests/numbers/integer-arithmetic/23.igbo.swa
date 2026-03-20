@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+// Test 23: Modulo with negative numbers and variable
+mbido() onuogugu {
+  ka a: onuogugu = -17;
+  ka b: onuogugu = 5;
+  ka c: onuogugu = a % b;
+  deputa("-17 %% 5 = %d", c); // Typical: -2
+  weghachi 0;
+}

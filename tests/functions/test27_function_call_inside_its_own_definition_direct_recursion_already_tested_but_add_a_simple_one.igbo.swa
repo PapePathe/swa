@@ -1,0 +1,15 @@
+oluasusu:igbo;
+
+// Test 27: Function call inside its own definition (direct recursion) – already tested, but add a simple one
+oru countdown(n: onuogugu) onuogugu {
+  oburu (n == 0) {
+    deputa("0");
+    weghachi 0;
+  }
+  deputa("%d ", n);
+  weghachi countdown(n-1);
+}
+mbido() onuogugu {
+  countdown(5); // Expected: 5 4 3 2 1 0
+  weghachi 0;
+}

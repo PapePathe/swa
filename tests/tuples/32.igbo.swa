@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+// Test 33: Tuple used in if condition directly – error
+oru cond() (bool, onuogugu) {
+  weghachi ezigbo, 5;
+}
+mbido() onuogugu {
+  oburu (cond()) { // ERROR: condition expects bool, got (bool,int)
+    deputa("true");
+  }
+  weghachi 0;
+}

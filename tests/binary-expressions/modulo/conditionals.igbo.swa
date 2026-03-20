@@ -1,0 +1,21 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka x : onuogugu = 4;
+  ka y : onuogugu = 3;
+  ka z : onuogugu = 2;
+
+  oburu(x % y == 1) {
+    deputa("(%d modulo %d is equal to %d)", x, y, 1);
+  } maobu {
+    deputa("%s", "modulo error");
+  }
+
+  oburu(x % z == 0) {
+    deputa("(%d modulo %d is equal to %d)", x, z, 0);
+  } maobu {
+    deputa("%s", "modulo error");
+  }
+
+  weghachi 0;
+}

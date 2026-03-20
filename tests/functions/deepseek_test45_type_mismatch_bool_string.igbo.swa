@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 45: Type mismatch: bool with string
+mbido() onuogugu {
+  ka b: bool = ezigbo;
+  ka s: ederede = "true";
+  oburu (b == s) {
+    deputa("equal");
+  }
+  weghachi 0;
+}

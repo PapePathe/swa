@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 39: Tuple assignment with no parentheses – should be syntax error if not allowed
+mbido() onuogugu {
+  ka a: onuogugu;
+  ka b: onuogugu;
+  a, b = two(); // syntax error 
+  weghachi 0;
+}

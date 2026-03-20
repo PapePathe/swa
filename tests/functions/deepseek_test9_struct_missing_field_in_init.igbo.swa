@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 9: Struct field missing in initialization
+// Should cause compile error
+nhazi Point { x: onuogugu, y: onuogugu, }
+mbido() onuogugu {
+  ka p: Point = Point{x: 1};
+  weghachi 0;
+}

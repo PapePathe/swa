@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka idx : ofe;
+  deputa("zero value: %f ", idx);
+
+  idx = 100.0;
+  deputa("assigned value: %f", idx);
+
+  weghachi 0;
+}

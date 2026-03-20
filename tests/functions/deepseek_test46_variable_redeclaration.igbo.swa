@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 46: Variable redeclaration in same scope
+// Should cause compile error
+mbido() onuogugu {
+  ka a: onuogugu = 5;
+  ka a: ofe = 3.14;
+  weghachi 0;
+}

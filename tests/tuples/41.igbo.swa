@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+oru two()(onuogugu, onuogugu) { weghachi 2, 3; }
+
+// Test 42: Tuple assignment with array elements
+mbido() onuogugu {
+  ka arr: [2]onuogugu;
+  (arr[0], arr[1]) = two();
+  deputa("arr[0]=%d, arr[1]=%d", arr[0], arr[1]);
+  weghachi 0;
+}

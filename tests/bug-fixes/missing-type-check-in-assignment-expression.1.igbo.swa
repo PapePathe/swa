@@ -1,0 +1,7 @@
+oluasusu:igbo;
+
+mbido () onuogugu {
+  ka res : ofe;
+  res = "this is not permitted";
+  weghachi 0; 
+}

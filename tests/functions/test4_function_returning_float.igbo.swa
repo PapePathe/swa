@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 4: Function returning float
+oru pi() ofe {
+  weghachi 3.14159;
+}
+mbido() onuogugu {
+  ka p: ofe = pi();
+  deputa("pi() = %f", p); // Expected: 3.14159
+  weghachi 0;
+}

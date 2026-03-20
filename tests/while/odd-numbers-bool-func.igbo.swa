@@ -1,0 +1,20 @@
+oluasusu:igbo;
+
+oru odd(n: onuogugu) bool {
+  weghachi n % 2 == 1;
+}
+
+mbido() onuogugu {
+  ka numbers : [10]onuogugu = [10]onuogugu{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  ka x : onuogugu = 0;
+
+  dika (x < 10) {
+    oburu (odd(numbers[x])) {
+      deputa("%d ", x);
+    }
+
+    x = x + 1;
+  }
+
+  weghachi 0;
+}

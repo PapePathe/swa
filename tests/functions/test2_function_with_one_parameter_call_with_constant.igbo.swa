@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 2: Function with one parameter, call with constant
+oru double(a: onuogugu) onuogugu {
+  weghachi a * 2;
+}
+mbido() onuogugu {
+  ka x: onuogugu = double(5);
+  deputa("double(5) = %d", x); // Expected: 10
+  weghachi 0;
+}

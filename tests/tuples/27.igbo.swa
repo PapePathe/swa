@@ -1,0 +1,16 @@
+oluasusu:igbo;
+
+// Test 28: Nested tuple expansion in function call – if allowed
+oru outer() (onuogugu, onuogugu) {
+  weghachi 10,20;
+}
+oru inner(a: onuogugu, b: onuogugu) (onuogugu, onuogugu) {
+  weghachi a+b, a-b;
+}
+mbido() onuogugu {
+  ka x: onuogugu;
+  ka y: onuogugu;
+  (x, y) = inner(outer()); // outer() expands to two arguments
+  deputa("x=%d, y=%d", x, y); // Expected: 30, -10 if allowed
+  weghachi 0;
+}

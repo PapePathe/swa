@@ -1,0 +1,18 @@
+oluasusu:igbo;
+
+oru two()(onuogugu, onuogugu) { weghachi 2, 3; }
+// Test 48: Multiple tuple assignments in one statement – error
+mbido() onuogugu {
+  ka a: onuogugu;
+  ka b: onuogugu;
+  ka c: onuogugu;
+  ka d: onuogugu;
+
+  // Should be two statements
+   (a, b) = two(); 
+   (c, d) = two();
+
+   deputa("a =", a, " b =", b);
+   deputa("c =", c, " d =", d);
+  weghachi 0;
+}

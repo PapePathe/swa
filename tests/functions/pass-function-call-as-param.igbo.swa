@@ -1,0 +1,17 @@
+oluasusu:igbo;
+
+oru add(first: ofe, last: ofe) ofe {
+  weghachi first + last;
+}
+
+
+oru makef() ofe {
+  weghachi 10.25;
+}
+
+
+mbido () onuogugu {
+  ka res : ofe = add(makef(), 4.75);
+  deputa("10.25 + 4.75 = %.2f", res);
+  weghachi 0; 
+}

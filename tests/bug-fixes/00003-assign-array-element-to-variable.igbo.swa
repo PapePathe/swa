@@ -1,0 +1,22 @@
+oluasusu:igbo;
+
+nhazi Person { 
+  Age: onuogugu, 
+}
+
+mbido() onuogugu {
+   ka persons: [2]Person = [2]Person{
+     Person{Age: 11}, 
+     Person{Age: 44}, 
+   };
+
+   ka first : onuogugu = persons[0 + 0].Age;
+   deputa("(first persons's age: %d)", first);
+
+   ka x : onuogugu = 0;
+
+   ka last: onuogugu = persons[1].Age;
+   deputa("(last persons's age: %d)", last);
+
+   weghachi 0; 
+}

@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka tableau : [1]Engineer = [1]Engineer{
+    Engineer{ Age: 40, Name: "Pathe",  TechStack: "Ruby, Rust, Go" },
+  };
+
+  weghachi 0;
+}

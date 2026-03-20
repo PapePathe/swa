@@ -1,0 +1,4 @@
+oluasusu:igbo;
+
+nhazi Point { x: onuogugu, y: onuogugu, }
+ka p : Point = Point{x:0, y:0};

@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  deputa("sqrt(16.0) = ", sqrt(16.0), "\n");
+  deputa("sqrt(2.0) = ", sqrt(2.0), "\n");
+  deputa("sqrt(-16.0) = ", sqrt(-16.0), "\n");
+
+
+  weghachi 0;
+}

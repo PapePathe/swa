@@ -1,0 +1,20 @@
+oluasusu:igbo;
+
+// Test 7: Pointer to array and pointer arithmetic (if supported)
+nhazi Buffer {
+  data: *onuogugu,
+  size: onuogugu,
+}
+
+mbido() onuogugu {
+  ka arr: [10]onuogugu = [10]onuogugu{0,1,2,3,4,5,6,7,8,9};
+  ka buf: Buffer = Buffer{data: arr, size: 10};
+  ka sum: onuogugu = 0;
+  ka i: onuogugu = 0;
+  dika (i < buf.size) {
+    sum = sum + buf.data[i];
+    i = i + 1;
+  }
+  deputa("Sum: %d", sum);
+  weghachi 0;
+}

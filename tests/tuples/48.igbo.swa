@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+// Test 49: Tuple assignment in a function call (as argument) – error
+oru takeTwo(a: onuogugu, b: onuogugu) onuogugu {
+  weghachi a + b;
+}
+mbido() onuogugu {
+  // Allowed if tuple expands? Test 8 covers this.
+  ka x: onuogugu = takeTwo(two()); 
+  weghachi 0;
+}
+
+
+

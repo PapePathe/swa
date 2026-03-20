@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka a: onuogugu = 1;
+  ka b: onuogugu = 0;
+  
+  oburu ((a == 1 && b == 0) || (a == 0 && b == 1)) {
+    deputa("(a == 1 && b == 0) || (a == 0 && b == 1) evaluates to true");
+  } maobu {
+    deputa("implementation error");
+  }
+  weghachi 0;
+}

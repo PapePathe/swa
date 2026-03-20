@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka x : onuogugu = 0;
+  ka array : [10]onuogugu = [10]onuogugu{5,15,25,35,45,55,65,75,85,95};
+
+  dika (x < 10) {
+    deputa("%d ", array[x]);
+
+    x = x + 1;
+  }
+
+  weghachi 0;
+}

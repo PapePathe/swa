@@ -1,0 +1,19 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka x : onuogugu = -2;
+  ka y : onuogugu = 2;
+  
+  ka z     : onuogugu = x + y;
+  ka zz    : onuogugu = x * y;
+  ka zzz   : onuogugu = x - y;
+  ka zzzz  : onuogugu = x / y;
+  ka zzzzz : onuogugu = x % y;
+
+  deputa(
+    "x+y: %d, x*y: %d, x-y: %d, x/y: %d, x%%y: %d", 
+    z, zz, zzz zzzz zzzzz
+  );
+  
+  weghachi 0;
+}

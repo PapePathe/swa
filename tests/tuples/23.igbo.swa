@@ -1,0 +1,18 @@
+oluasusu:igbo;
+
+ka n: onuogugu = 0;
+oru getPair() (onuogugu, bool) {
+  n = n + 1;
+  weghachi n, (n < 5);
+}
+
+mbido() onuogugu {
+  ka i: onuogugu;
+  ka cond: bool;
+  (i, cond) = getPair();
+  dika (cond) {
+    deputa("loop\n");
+    (i, cond) = getPair();
+  }
+  weghachi 0;
+}

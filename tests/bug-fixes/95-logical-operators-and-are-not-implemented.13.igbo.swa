@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka a: onuogugu = 5;
+  ka x: ofe = 2.5;
+  
+  oburu (a > 3 && x == 2.5 || 1 == 1) {
+    deputa("a > 3 && x == 2.5 || 1 == 1 evaluates to true");
+  } maobu {
+    deputa("implementation error");
+  }
+  weghachi 0;
+}

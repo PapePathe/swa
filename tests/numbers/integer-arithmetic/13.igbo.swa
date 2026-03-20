@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 14: Subtraction with negatives
+mbido() onuogugu {
+  ka a: onuogugu = 5 - (-3);
+  deputa("5 - (-3) = %d", a); // Expected: 8
+  weghachi 0;
+}

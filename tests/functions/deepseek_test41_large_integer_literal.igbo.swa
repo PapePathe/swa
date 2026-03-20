@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 41: Large integer literal (beyond 32-bit)
+// If language supports 64-bit, should work
+mbido() onuogugu {
+  ka big: onuogugu = 1234567890123456789;
+  deputa("big = %d", big);
+  weghachi 0;
+}

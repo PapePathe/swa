@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+nhazi Coordinate{ x: onuogugu, y: onuogugu, }
+nhazi Place { c: Coordinate, }
+
+mbido () onuogugu {
+  ka res : Place;
+  res.c.x = 1.0;
+  weghachi 0; 
+}

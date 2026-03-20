@@ -1,0 +1,19 @@
+oluasusu:igbo;
+
+oru two() (onuogugu, onuogugu) {
+  weghachi 1, 1;
+}
+
+oru one(a: onuogugu) onuogugu {
+  weghachi a;
+}
+
+// Test 9: Tuple as argument to function expecting one value – error
+mbido() onuogugu {
+  ka x: onuogugu;
+  // ERROR: two() returns two, one expects one
+  x = one(two());
+  weghachi 0;
+}
+
+

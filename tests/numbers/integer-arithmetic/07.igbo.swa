@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 8: Left associativity of addition/subtraction
+mbido() onuogugu {
+  ka a: onuogugu = 10 - 3 - 2;
+  deputa("10 - 3 - 2 = %d", a); // Expected: 5 ( (10-3)-2 )
+  weghachi 0;
+}

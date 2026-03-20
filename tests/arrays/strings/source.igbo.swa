@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka array : [3]ederede= [3]ederede{"abc", "efg", "ijk"};
+  deputa(
+    "values in the array: (%s),(%s),(%s)",
+    array[0], array[1], array[2]
+  );
+
+  weghachi 0;
+}

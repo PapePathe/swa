@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 25: Function with missing return statement (should not compile)
+oru no_return() onuogugu {
+  ka x: onuogugu = 5;
+  // no return
+}
+mbido() onuogugu {
+  ka y: onuogugu = no_return();
+  weghachi 0;
+}

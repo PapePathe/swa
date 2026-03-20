@@ -1,0 +1,17 @@
+oluasusu:igbo;
+
+// Test 15: Recursive function returning multiple (Fibonacci pair)
+oru fibPair(n: onuogugu) (onuogugu, onuogugu) {
+  oburu (n == 0) { weghachi 0, 1; }
+  ka a: onuogugu;
+  ka b: onuogugu;
+  (a, b) = fibPair(n -1);
+  weghachi b, a + b;
+}
+mbido() onuogugu {
+  ka prev: onuogugu;
+  ka curr: onuogugu;
+  (prev, curr) = fibPair(5);
+  deputa("fib(5)=%d, fib(6)=%d", prev, curr); // Expected: 5, 8
+  weghachi 0;
+}

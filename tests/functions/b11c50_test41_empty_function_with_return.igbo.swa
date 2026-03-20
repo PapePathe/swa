@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+// Test 41: Empty function (with explicit return)
+oru empty() onuogugu {
+  weghachi 0;
+}
+mbido() onuogugu {
+  empty();
+  weghachi 0;
+}

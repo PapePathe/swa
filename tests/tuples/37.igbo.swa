@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 38: Tuple assignment with mismatched parentheses – syntax error
+mbido() onuogugu {
+  ka a: onuogugu;
+  ka b: onuogugu;
+  (a, b = two(); // Missing closing parenthesis
+  weghachi 0;
+}

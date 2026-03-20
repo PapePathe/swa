@@ -1,0 +1,32 @@
+oluasusu:igbo;
+
+// Programme 8 : Interférence de deux ondes
+// Calcul de l'amplitude résultante en différents points.
+
+nhazi Onde {
+  amplitude: ofe,
+  longueur_d_onde: ofe,
+  phase: ofe,
+}
+
+oru intensité(a1: ofe, a2: ofe, déphasage: ofe) ofe {
+  weghachi a1*a1 + a2*a2 + 2*a1*a2*cos(déphasage);
+}
+
+mbido() onuogugu {
+  ka onde1: Onde = Onde{amplitude: 1.0, longueur_d_onde: 0.5, phase: 0.0};
+  ka onde2: Onde = Onde{amplitude: 1.0, longueur_d_onde: 0.5, phase: 0.0};
+  ka k: ofe = 2.0 * 3.14159 / onde1.longueur_d_onde;
+  ka positions: [5]ofe = [5]ofe{0.0, 0.125, 0.25, 0.375, 0.5};
+  ka i: onuogugu = 0;
+  dika (i < 5) {
+    ka x: ofe = positions[i];
+    ka phi1: ofe = onde1.phase - k * x;
+    ka phi2: ofe = onde2.phase - k * x;
+    ka dphi: ofe = phi2 - phi1;
+    ka I: ofe = intensité(onde1.amplitude, onde2.amplitude, dphi);
+    deputa("À x = %.3f m, intensité = %.2f", x, I);
+    i = i + 1;
+  }
+  weghachi 0;
+}

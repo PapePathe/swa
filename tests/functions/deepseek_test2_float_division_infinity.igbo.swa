@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 2: Float division producing infinity
+// Expected: prints "+Inf" or a large number
+mbido() onuogugu {
+  ka a: ofe = 1.0;
+  ka b: ofe = 0.0;
+  ka c: ofe = a / b;
+  deputa("1.0/0.0 = %f", c);
+  weghachi 0;
+}

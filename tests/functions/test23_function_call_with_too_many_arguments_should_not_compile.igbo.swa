@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 23: Function call with too many arguments (should not compile)
+oru two_args(a: onuogugu, b: onuogugu) onuogugu { weghachi a+b; }
+mbido() onuogugu {
+  ka x: onuogugu = two_args(1,2,3);
+  weghachi 0;
+}

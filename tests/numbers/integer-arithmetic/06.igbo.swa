@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 7: Parentheses override precedence
+mbido() onuogugu {
+  ka a: onuogugu = (2 + 3) * 4;
+  deputa("(2 + 3) * 4 = %d", a); // Expected: 20
+  weghachi 0;
+}

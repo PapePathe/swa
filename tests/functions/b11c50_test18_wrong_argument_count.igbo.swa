@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+// Test 18: Function call with wrong number of arguments (should error)
+oru foo(a: onuogugu, b: onuogugu) onuogugu {
+  weghachi a + b;
+}
+mbido() onuogugu {
+  ka x: onuogugu = foo(5);
+  weghachi 0;
+}

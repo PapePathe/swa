@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 19: Both operands negative modulo
+mbido() onuogugu {
+  ka a: onuogugu = -15 % -4;
+  deputa("-15 %% -4 = %d", a); // Typical: -3
+  weghachi 0;
+}

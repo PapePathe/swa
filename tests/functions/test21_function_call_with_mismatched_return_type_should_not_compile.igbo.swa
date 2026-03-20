@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 21: Function call with mismatched return type (should not compile)
+// Uncomment to test compiler error:
+oru returns_int() onuogugu { weghachi 42; }
+mbido() onuogugu {
+  ka s: ederede = returns_int();
+  weghachi 0;
+}

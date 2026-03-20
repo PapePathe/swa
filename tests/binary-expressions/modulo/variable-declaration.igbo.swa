@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka x : onuogugu = 4 % 3;
+  ka y : onuogugu = 4 % 2;
+
+  deputa("x: %d, y: %d", x, y);
+
+  weghachi 0;
+}

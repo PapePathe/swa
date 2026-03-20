@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 33: Operator precedence (2+3*4 should be 14)
+mbido() onuogugu {
+  ka a: onuogugu = 2 + 3 * 4;
+  deputa("2+3*4 = %d", a);
+  weghachi 0;
+}

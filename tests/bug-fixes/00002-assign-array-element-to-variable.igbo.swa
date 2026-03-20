@@ -1,0 +1,7 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+   ka nums : [3]onuogugu = [3]onuogugu{15,30, 45};
+   deputa("last elem: %d", nums[1 + 1]);
+   weghachi 0; 
+}

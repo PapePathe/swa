@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+oru get_coordinates() (onuogugu, onuogugu) {
+    weghachi 10, 20;
+}
+
+mbido() onuogugu {
+    ka x: onuogugu = 0;
+    ka y: onuogugu = 0;
+    (x, y) = get_coordinates();
+    deputa("x: %d, y: %d\n", x, y);
+    weghachi 0;
+}

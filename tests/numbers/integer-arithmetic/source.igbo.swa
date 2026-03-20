@@ -1,0 +1,45 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka a: onuogugu = 10;
+  ka b: onuogugu = 5;
+  ka sum: onuogugu = a + b;
+
+  oburu(sum == 15) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Integer addition failed");
+  }
+
+  oburu(10 + 5 == 15) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Integer literal addition failed");
+  }
+
+  oburu(a > b) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Integer greater than failed");
+  }
+
+  oburu(a >= b) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Integer greater than or equal failed");
+  }
+
+  oburu(b < a) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Integer less than failed");
+  }
+
+  oburu(b <= a) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Integer less than or equal failed");
+  }
+
+  weghachi 0;
+}

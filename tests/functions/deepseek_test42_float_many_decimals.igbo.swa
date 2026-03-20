@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 42: Float literal with many decimals
+mbido() onuogugu {
+  ka pi: ofe = 3.14159265358979323846;
+  deputa("pi = %.20f", pi);
+  weghachi 0;
+}

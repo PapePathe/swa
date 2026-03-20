@@ -1,0 +1,23 @@
+oluasusu:igbo;
+
+nhazi Data {
+  arr: [3]onuogugu,
+  value: onuogugu,
+}
+
+// TODO: struct should be passed as a value here
+// as it's not changing a value here
+oru processData(d: *Data) onuogugu {
+  weghachi d.arr[0] + d.arr[1] + d.arr[2] + d.value;
+}
+
+mbido() onuogugu {
+  ka d : Data = Data{
+    arr: [3]onuogugu{10, 20, 30},
+    value: 5,
+  };
+
+  ka result: onuogugu = processData(d);
+  deputa("Result: %d", result);
+  weghachi 0;
+}

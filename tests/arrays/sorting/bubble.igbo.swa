@@ -1,0 +1,49 @@
+oluasusu:igbo;
+
+oru swap(list: [10]onuogugu, i: onuogugu, j: onuogugu) onuogugu {
+  ka temp: onuogugu = list[i];
+  list[i] = list[j];
+  list[j] = temp;
+  weghachi 0;
+}
+
+oru bubble_sort(list: [10]onuogugu) onuogugu {
+  ka N: onuogugu = 10;
+  ka i: onuogugu = 0;
+  ka j: onuogugu = 0;
+  
+  dika (i < (N - 1)) {
+    j = 0;
+    dika (j < (N - 1 - i)) {
+      oburu (list[j] > list[j + 1]) {
+        ka temp: onuogugu = list[j];
+        list[j] = list[j + 1];
+        list[j + 1] = temp;
+      }
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  weghachi 0;
+}
+
+oru print_array(list: [10]onuogugu) onuogugu {
+  ka N: onuogugu = 10;
+  ka i: onuogugu = 0;
+  deputa("Sorted Array: ");
+  dika (i < N) {
+    deputa("%d ", list[i]);
+    i = i + 1;
+  }
+  deputa("\n");
+  weghachi 0;
+}
+
+mbido() onuogugu {
+  ka numbers: [10]onuogugu = [10]onuogugu{64, 34, 25, 12, 22, 11, 90, 8, 77, 4};
+  
+  bubble_sort(numbers);
+  print_array(numbers);
+  
+  weghachi 0;
+}

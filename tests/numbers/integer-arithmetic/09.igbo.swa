@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 10: Mix of operators with different precedence
+mbido() onuogugu {
+  ka a: onuogugu = 5 + 3 * 2 - 8 / 4;
+  // 3*2=6, 8/4=2, then 5+6=11, 11-2=9
+  deputa("5 + 3 * 2 - 8 / 4 = %d", a); // Expected: 9
+  weghachi 0;
+}

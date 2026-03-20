@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 40: Function with many parameters (stress test)
+oru many(a: onuogugu, b: onuogugu, c: onuogugu, d: onuogugu, e: onuogugu, f: onuogugu, g: onuogugu, h: onuogugu, i: onuogugu, j: onuogugu) onuogugu {
+  weghachi a+b+c+d+e+f+g+h+i+j;
+}
+mbido() onuogugu {
+  ka sum: onuogugu = many(1,2,3,4,5,6,7,8,9,10);
+  deputa("sum = %d", sum);
+  weghachi 0;
+}

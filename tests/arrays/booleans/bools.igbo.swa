@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka a : [3]bool= [3]bool{ezigbo, ụgha, efu(bool)};
+  ka i : onuogugu;
+
+  dika (i < 3) {
+    deputa( "Position : ", i, " value : ", a[i], "\n");
+
+    i = i + 1;
+  }
+
+  weghachi 0; 
+}

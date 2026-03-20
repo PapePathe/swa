@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+// Test 44: Type mismatch: int compared with float
+// Should cause compile error
+mbido() onuogugu {
+  ka i: onuogugu = 5;
+  ka f: ofe = 5.0;
+  oburu (i == f) {
+    deputa("equal");
+  }
+  weghachi 0;
+}

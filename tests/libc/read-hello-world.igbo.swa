@@ -1,0 +1,19 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka fd : onuogugu = open("./libc/hello.txt", 0);
+
+  ka buf : [1024]byte;
+  ka size : onuogugu64 = 2048;
+  ka count : onuogugu64 = read(fd, buf, size);
+
+  ka i : onuogugu;
+  dika(i < count) {
+    deputa("%c", buf[i]);
+    i = i + 1;
+  }
+
+  ka res :onuogugu =close(fd);
+
+  weghachi 0;
+}

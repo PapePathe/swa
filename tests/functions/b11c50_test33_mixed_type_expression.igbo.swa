@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 33: Complex expression with mixed types int + float (should error)
+mbido() onuogugu {
+  ka a: onuogugu = 5;
+  ka b: ofe = 3.5;
+  ka c: onuogugu = a + b;
+  weghachi 0;
+}

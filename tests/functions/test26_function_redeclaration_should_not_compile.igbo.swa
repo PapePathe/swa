@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 26: Function redeclaration (should not compile)
+oru foo() onuogugu { weghachi 1; }
+oru foo() onuogugu { weghachi 2; } // duplicate
+mbido() onuogugu {
+  weghachi foo();
+}
