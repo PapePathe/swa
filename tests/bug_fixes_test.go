@@ -27,25 +27,49 @@ func TestBugFixes(t *testing.T) {
 	})
 
 	t.Run("111-string-reassignment-produces-garbage-values", func(t *testing.T) {
-		NewSuccessfulCompileRequest(t,
-			"./bug-fixes/111-string-reassignment-produces-garbage-values.english.swa",
-			"Before: initial, After: changed",
-		)
+		t.Run("English", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t,
+				"./bug-fixes/111-string-reassignment-produces-garbage-values.english.swa",
+				"Before: initial, After: changed",
+			)
+		})
+		t.Run("Igbo", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t,
+				"./bug-fixes/111-string-reassignment-produces-garbage-values.igbo.swa",
+				"Before: initial, After: changed",
+			)
+		})
 	})
 
 	t.Run("95-logical-operators-and-are-not-implemented", func(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
-			NewSuccessfulCompileRequest(t,
-				"./bug-fixes/95-logical-operators-and-are-not-implemented.1.english.swa",
-				"1 == 1 && 0 == 0 evaluates to true",
-			)
+			t.Run("English", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./bug-fixes/95-logical-operators-and-are-not-implemented.1.english.swa",
+					"1 == 1 && 0 == 0 evaluates to true",
+				)
+			})
+			t.Run("Igbo", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./bug-fixes/95-logical-operators-and-are-not-implemented.1.igbo.swa",
+					"1 == 1 && 0 == 0 evaluates to true",
+				)
+			})
 		})
 
 		t.Run("2", func(t *testing.T) {
-			NewSuccessfulCompileRequest(t,
-				"./bug-fixes/95-logical-operators-and-are-not-implemented.2.english.swa",
-				"1 == 1 && 1 == 0 evaluates to false",
-			)
+			t.Run("English", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./bug-fixes/95-logical-operators-and-are-not-implemented.2.english.swa",
+					"1 == 1 && 1 == 0 evaluates to false",
+				)
+			})
+			t.Run("Igbo", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./bug-fixes/95-logical-operators-and-are-not-implemented.2.igbo.swa",
+					"1 == 1 && 1 == 0 evaluates to false",
+				)
+			})
 		})
 
 		t.Run("3", func(t *testing.T) {
@@ -147,57 +171,113 @@ func TestBugFixes(t *testing.T) {
 		})
 
 		t.Run("17", func(t *testing.T) {
-			NewSuccessfulCompileRequest(t,
-				"./bug-fixes/95-logical-operators-and-are-not-implemented.17.english.swa",
-				"(a == 1 && b == 0) || (a == 0 && b == 1) evaluates to true",
-			)
+			t.Run("English", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./bug-fixes/95-logical-operators-and-are-not-implemented.17.english.swa",
+					"(a == 1 && b == 0) || (a == 0 && b == 1) evaluates to true",
+				)
+			})
+			t.Run("Igbo", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./bug-fixes/95-logical-operators-and-are-not-implemented.17.igbo.swa",
+					"(a == 1 && b == 0) || (a == 0 && b == 1) evaluates to true",
+				)
+			})
 		})
 	})
 
 	t.Run("93-integer-comparison-uses-unsigned-instructions-for-signed-integers", func(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
-			NewSuccessfulCompileRequest(t,
-				"./bug-fixes/93-integer-comparison-uses-unsigned-instructions-for-signed-integers.1.french.swa",
-				"okok",
-			)
+			t.Run("French", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./bug-fixes/93-integer-comparison-uses-unsigned-instructions-for-signed-integers.1.french.swa",
+					"okok",
+				)
+			})
+			t.Run("Igbo", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./bug-fixes/93-integer-comparison-uses-unsigned-instructions-for-signed-integers.1.igbo.swa",
+					"okok",
+				)
+			})
 		})
 
 		t.Run("2", func(t *testing.T) {
-			NewSuccessfulCompileRequest(t,
-				"./bug-fixes/93-integer-comparison-uses-unsigned-instructions-for-signed-integers.2.french.swa",
-				"okok",
-			)
+			t.Run("French", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./bug-fixes/93-integer-comparison-uses-unsigned-instructions-for-signed-integers.2.french.swa",
+					"okok",
+				)
+			})
+			t.Run("Igbo", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./bug-fixes/93-integer-comparison-uses-unsigned-instructions-for-signed-integers.2.igbo.swa",
+					"okok",
+				)
+			})
 		})
 	})
 
 	t.Run("106-unhandled-64-bit-integer-overflow", func(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
-			NewFailedCompileRequest(t,
-				"./bug-fixes/106-unhandled-64-bit-integer-overflow.max.english.swa",
-				"9223372036854775808: value out of range while parsing number expression",
-			)
+			t.Run("English", func(t *testing.T) {
+				NewFailedCompileRequest(t,
+					"./bug-fixes/106-unhandled-64-bit-integer-overflow.max.english.swa",
+					"9223372036854775808: value out of range while parsing number expression",
+				)
+			})
+			t.Run("Igbo", func(t *testing.T) {
+				NewFailedCompileRequest(t,
+					"./bug-fixes/106-unhandled-64-bit-integer-overflow.max.igbo.swa",
+					"9223372036854775808: value out of range while parsing number expression",
+				)
+			})
 		})
 
 		t.Run("2", func(t *testing.T) {
-			NewFailedCompileRequest(t,
-				"./bug-fixes/106-unhandled-64-bit-integer-overflow.min.english.swa",
-				"9223372036854775809: value out of range while parsing number expression",
-			)
+			t.Run("English", func(t *testing.T) {
+				NewFailedCompileRequest(t,
+					"./bug-fixes/106-unhandled-64-bit-integer-overflow.min.english.swa",
+					"9223372036854775809: value out of range while parsing number expression",
+				)
+			})
+			t.Run("Igbo", func(t *testing.T) {
+				NewFailedCompileRequest(t,
+					"./bug-fixes/106-unhandled-64-bit-integer-overflow.min.igbo.swa",
+					"9223372036854775809: value out of range while parsing number expression",
+				)
+			})
 		})
 	})
 	t.Run("105-silent-32-bit-integer-overflow", func(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
-			NewFailedCompileRequest(t,
-				"./bug-fixes/105-silent-32-bit-integer-overflow-max.english.swa",
-				"2147483648 is greater than max value for int32\n",
-			)
+			t.Run("English", func(t *testing.T) {
+				NewFailedCompileRequest(t,
+					"./bug-fixes/105-silent-32-bit-integer-overflow-max.english.swa",
+					"2147483648 is greater than max value for int32\n",
+				)
+			})
+			t.Run("Igbo", func(t *testing.T) {
+				NewFailedCompileRequest(t,
+					"./bug-fixes/105-silent-32-bit-integer-overflow-max.igbo.swa",
+					"2147483648 is greater than max value for int32\n",
+				)
+			})
 		})
 
 		t.Run("2", func(t *testing.T) {
-			NewFailedCompileRequest(t,
-				"./bug-fixes/105-silent-32-bit-integer-overflow-min.english.swa",
-				"2147483649 is greater than max value for int32\n",
-			)
+			t.Run("English", func(t *testing.T) {
+				NewFailedCompileRequest(t,
+					"./bug-fixes/105-silent-32-bit-integer-overflow-min.english.swa",
+					"2147483649 is greater than max value for int32\n",
+				)
+			})
+			t.Run("Igbo", func(t *testing.T) {
+				NewFailedCompileRequest(t,
+					"./bug-fixes/105-silent-32-bit-integer-overflow-min.igbo.swa",
+					"2147483649 is greater than max value for int32\n",
+				)
+			})
 		})
 	})
 
@@ -270,22 +350,44 @@ func TestBugFixes(t *testing.T) {
 					"",
 				)
 			})
+			t.Run("Igbo", func(t *testing.T) {
+				NewSuccessfulCompileRequest(t,
+					"./bug-fixes/missing-type-check-in-assignment-expression.8.igbo.swa",
+					"",
+				)
+			})
 		})
 	})
 
 	t.Run("99-missing-type-check-in-variable-declaration", func(t *testing.T) {
 		t.Run("1", func(t *testing.T) {
-			NewFailedCompileRequest(t,
-				"./bug-fixes/99-missing-type-check-in-variable-declaration.english.1.swa",
-				"expected String but got Float\n",
-			)
+			t.Run("English", func(t *testing.T) {
+				NewFailedCompileRequest(t,
+					"./bug-fixes/99-missing-type-check-in-variable-declaration.english.1.swa",
+					"expected String but got Float\n",
+				)
+			})
+			t.Run("Igbo", func(t *testing.T) {
+				NewFailedCompileRequest(t,
+					"./bug-fixes/99-missing-type-check-in-variable-declaration.igbo.1.swa",
+					"expected String but got Float\n",
+				)
+			})
 		})
 
 		t.Run("2", func(t *testing.T) {
-			NewFailedCompileRequest(t,
-				"./bug-fixes/99-missing-type-check-in-variable-declaration.english.2.swa",
-				"expected String but got Number\n",
-			)
+			t.Run("English", func(t *testing.T) {
+				NewFailedCompileRequest(t,
+					"./bug-fixes/99-missing-type-check-in-variable-declaration.english.2.swa",
+					"expected String but got Number\n",
+				)
+			})
+			t.Run("Igbo", func(t *testing.T) {
+				NewFailedCompileRequest(t,
+					"./bug-fixes/99-missing-type-check-in-variable-declaration.igbo.2.swa",
+					"expected String but got Number\n",
+				)
+			})
 		})
 
 		//	TODO: implemenent typechecker for var decl with ArrayAccessExpression
@@ -344,6 +446,12 @@ func TestBugFixes(t *testing.T) {
 				"function add expect 2 arguments but was given 1\n",
 			)
 		})
+		t.Run("Igbo", func(t *testing.T) {
+			NewFailedCompileRequest(t,
+				"./bug-fixes/102-missing-arity-check-in-function-calls.igbo.swa",
+				"function add expect 2 arguments but was given 1\n",
+			)
+		})
 	})
 
 	t.Run("90-function-calls-with-variables-pass-pointers-instead-of-values", func(t *testing.T) {
@@ -364,6 +472,13 @@ func TestBugFixes(t *testing.T) {
 		t.Run("Soussou", func(t *testing.T) {
 			NewSuccessfulCompileRequest(t,
 				"./bug-fixes/90-function-calls-with-variables-pass-pointers-instead-of-values.soussou.swa",
+				"z: 30",
+			)
+		})
+
+		t.Run("Igbo", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t,
+				"./bug-fixes/90-function-calls-with-variables-pass-pointers-instead-of-values.igbo.swa",
 				"z: 30",
 			)
 		})
@@ -390,6 +505,13 @@ func TestBugFixes(t *testing.T) {
 				"Inner x: 20, Outer x: 10",
 			)
 		})
+
+		t.Run("Igbo", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t,
+				"./bug-fixes/94-block-statements-do-not-create-new-scopes-shadowing-fails.igbo.swa",
+				"Inner x: 20, Outer x: 10",
+			)
+		})
 	})
 
 	t.Run("114-variable-redeclaration-allowed-in-same-scope", func(t *testing.T) {
@@ -413,6 +535,13 @@ func TestBugFixes(t *testing.T) {
 				"variable x na na yi khorun\n",
 			)
 		})
+
+		t.Run("Igbo", func(t *testing.T) {
+			NewFailedCompileRequest(t,
+				"./bug-fixes/114-variable-redeclaration-allowed-in-same-scope.igbo.swa",
+				"variable x is already defined\n",
+			)
+		})
 	})
 
 	t.Run("91-array-of-structs-indexing-does-not-support-variables", func(t *testing.T) {
@@ -433,6 +562,13 @@ func TestBugFixes(t *testing.T) {
 		t.Run("Soussou", func(t *testing.T) {
 			NewSuccessfulCompileRequest(t,
 				"./bug-fixes/91-array-of-structs-indexing-does-not-support-variables.soussou.swa",
+				"Name: Alice",
+			)
+		})
+
+		t.Run("Igbo", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t,
+				"./bug-fixes/91-array-of-structs-indexing-does-not-support-variables.igbo.swa",
 				"Name: Alice",
 			)
 		})
@@ -459,26 +595,57 @@ func TestBugFixes(t *testing.T) {
 				"",
 			)
 		})
+
+		t.Run("Igbo", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t,
+				"./bug-fixes/116-keyword-regex-patterns-lack-word-boundaries.igbo.swa",
+				"",
+			)
+		})
 	})
 
 	t.Run("operator-precedence-unary-minus", func(t *testing.T) {
-		NewSuccessfulCompileRequest(t,
-			"./bug-fixes/precedence_bug.english.swa",
-			"-5 + 3 = -2",
-		)
+		t.Run("English", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t,
+				"./bug-fixes/precedence_bug.english.swa",
+				"-5 + 3 = -2",
+			)
+		})
+		t.Run("Igbo", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t,
+				"./bug-fixes/precedence_bug.igbo.swa",
+				"-5 + 3 = -2",
+			)
+		})
 	})
 
 	t.Run("operator-precedence-unary-extra", func(t *testing.T) {
-		NewSuccessfulCompileRequest(t,
-			"./bug-fixes/precedence_extra.english.swa",
-			"-5 + 3 = -23 + -5 = -2-5 * 3 = -153 * -5 = -15!true = 0!!true = 1-5 + 3 * 2 = 1-(5 + 3) * 2 = -16- -5 = 5!(!true) = 12 * (3 + 4 * (5 - 6)) = -2! (5 > 3) = 0- (5 + 3) + 10 = 2",
-		)
+		t.Run("English", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t,
+				"./bug-fixes/precedence_extra.english.swa",
+				"-5 + 3 = -23 + -5 = -2-5 * 3 = -153 * -5 = -15!true = 0!!true = 1-5 + 3 * 2 = 1-(5 + 3) * 2 = -16- -5 = 5!(!true) = 12 * (3 + 4 * (5 - 6)) = -2! (5 > 3) = 0- (5 + 3) + 10 = 2",
+			)
+		})
+		t.Run("Igbo", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t,
+				"./bug-fixes/precedence_extra.igbo.swa",
+				"-5 + 3 = -23 + -5 = -2-5 * 3 = -153 * -5 = -15!true = 0!!true = 1-5 + 3 * 2 = 1-(5 + 3) * 2 = -16- -5 = 5!(!true) = 12 * (3 + 4 * (5 - 6)) = -2! (5 > 3) = 0- (5 + 3) + 10 = 2",
+			)
+		})
 	})
 
 	t.Run("operator-precedence-nested-groups", func(t *testing.T) {
-		NewSuccessfulCompileRequest(t,
-			"./bug-fixes/nested_groups.english.swa",
-			"((1 + 2) * (3 + 4)) = 21(1 + (2 * (3 + (4 * 5)))) = 47-(1 + -2) = 1!(! (5 > 3)) = 110 / (2 + 3) * 4 = 810 / ((2 + 3) * 4) = 0",
-		)
+		t.Run("English", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t,
+				"./bug-fixes/nested_groups.english.swa",
+				"((1 + 2) * (3 + 4)) = 21(1 + (2 * (3 + (4 * 5)))) = 47-(1 + -2) = 1!(! (5 > 3)) = 110 / (2 + 3) * 4 = 810 / ((2 + 3) * 4) = 0",
+			)
+		})
+		t.Run("Igbo", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t,
+				"./bug-fixes/nested_groups.igbo.swa",
+				"((1 + 2) * (3 + 4)) = 21(1 + (2 * (3 + (4 * 5)))) = 47-(1 + -2) = 1!(! (5 > 3)) = 110 / (2 + 3) * 4 = 810 / ((2 + 3) * 4) = 0",
+			)
+		})
 	})
 }

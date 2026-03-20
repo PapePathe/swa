@@ -33,6 +33,12 @@ func TestGlobals(t *testing.T) {
 			expectedExecutionOutput)
 	})
 
+	t.Run("Igbo", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./globals/1.igbo.swa",
+			expectedExecutionOutput)
+	})
+
 	t.Run("Errors", func(t *testing.T) {
 		t.Run("2", func(t *testing.T) {
 			NewFailedCompileRequest(t,
@@ -40,9 +46,21 @@ func TestGlobals(t *testing.T) {
 				"struct initialization should happen inside a function\n")
 		})
 
+		t.Run("2 Igbo", func(t *testing.T) {
+			NewFailedCompileRequest(t,
+				"./globals/2.igbo.swa",
+				"struct initialization should happen inside a function\n")
+		})
+
 		t.Run("3", func(t *testing.T) {
 			NewFailedCompileRequest(t,
 				"./globals/3.english.swa",
+				"array initialization should happen inside a function\n")
+		})
+
+		t.Run("3 Igbo", func(t *testing.T) {
+			NewFailedCompileRequest(t,
+				"./globals/3.igbo.swa",
 				"array initialization should happen inside a function\n")
 		})
 	})
@@ -74,6 +92,12 @@ func TestBugInvalidArrayAccess(t *testing.T) {
 			"./bugs/invalid-array-access/source.soussou.swa",
 			"Property age mu tableau ra\n")
 	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		NewFailedCompileRequest(t,
+			"./bugs/invalid-array-access/source.igbo.swa",
+			"Property age is not an array\n")
+	})
 }
 
 func TestBugInvalidFieldAccess(t *testing.T) {
@@ -101,6 +125,12 @@ func TestBugInvalidFieldAccess(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./bugs/invalid-field-access/source.soussou.swa",
 			"variable i mu fokhi ra\n")
+	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		NewFailedCompileRequest(t,
+			"./bugs/invalid-field-access/source.igbo.swa",
+			"variable i is not a struct instance\n")
 	})
 }
 
@@ -130,6 +160,12 @@ func TestBugArrayOfStructs(t *testing.T) {
 			"./bugs/array-of-structs/source.soussou.swa",
 			"")
 	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./bugs/array-of-structs/source.igbo.swa",
+			"")
+	})
 }
 
 func TestBugStructAssignment(t *testing.T) {
@@ -156,6 +192,12 @@ func TestBugStructAssignment(t *testing.T) {
 	t.Run("Soussou", func(t *testing.T) {
 		NewSuccessfulCompileRequest(t,
 			"./bugs/struct-assignment/source.soussou.swa",
+			"999")
+	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./bugs/struct-assignment/source.igbo.swa",
 			"999")
 	})
 }

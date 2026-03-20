@@ -37,6 +37,13 @@ func TestBinaryExpressionsStrings(t *testing.T) {
 						"Passed",
 					)
 				})
+				t.Run("Igbo", func(t *testing.T) {
+					NewSuccessfulCompileRequest(
+						t,
+						"./binary-expressions/strings/"+strings.Replace(tt.filename, ".english.swa", ".igbo.swa", 1),
+						"Passed",
+					)
+				})
 			})
 		}
 	})
@@ -68,6 +75,20 @@ func TestBinaryExpressionsModulo(t *testing.T) {
 
 		t.Run("Modulo with integer expressions", func(t *testing.T) {
 			NewSuccessfulCompileRequest(t, "./binary-expressions/modulo/variable-declaration.soussou.swa", "x: 1, y: 0")
+		})
+	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		t.Run("Modulo with symbol expressions", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t, "./binary-expressions/modulo/variable-declaration-2.igbo.swa", "v1: 0, v2: 1")
+		})
+
+		t.Run("Modulo in conditionals", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t, "./binary-expressions/modulo/conditionals.igbo.swa", "(4 modulo 3 is equal to 1)(4 modulo 2 is equal to 0)")
+		})
+
+		t.Run("Modulo with integer expressions", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t, "./binary-expressions/modulo/variable-declaration.igbo.swa", "x: 1, y: 0")
 		})
 	})
 }
