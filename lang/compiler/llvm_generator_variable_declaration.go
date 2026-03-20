@@ -269,5 +269,30 @@ func (g *LLVMGenerator) finalizeSymbol(
 		return g.Ctx.AddArraySymbol(node.Name, res.ArraySymbolTableEntry)
 	}
 
+	var sliceTyp ast.SliceType
+	var isSlice bool
+	if st, ok := node.ExplicitType.(ast.SliceType); ok {
+		sliceTyp = st
+		isSlice = true
+	} else if st, ok := node.ExplicitType.(*ast.SliceType); ok {
+		sliceTyp = *st
+		isSlice = true
+	}
+
+	if isSlice {
+		err := sliceTyp.Accept(g)
+		if err != nil {
+			return err
+		}
+		typeres := g.getLastTypeVisitResult()
+
+		return g.Ctx.AddArraySymbol(node.Name, &ArraySymbolTableEntry{
+			UnderlyingType: typeres.SubType,
+			Type:           typeres.Type,
+			ElementsCount:  -1,
+			IsSlice:        true,
+		})
+	}
+
 	return nil
 }

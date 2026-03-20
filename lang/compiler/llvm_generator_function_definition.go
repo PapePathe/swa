@@ -121,6 +121,18 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 		newFunc.SetLinkage(llvm.ExternalLinkage)
 	}
 
+	// Only insert a default return if the current block has no terminator.
+	// This avoids 'Terminator found in the middle of a basic block' when the
+	// body already contains a return statement.
+	//	currentBlock := g.Ctx.Builder.GetInsertBlock()
+	//	if currentBlock.LastInstruction().IsNil() {
+	//		if node.ReturnType.Value() == ast.DataTypeVoid {
+	//			g.Ctx.Builder.CreateRetVoid()
+	//		} else if node.Name == "main" {
+	//			g.Ctx.Builder.CreateRet(llvm.ConstInt(g.Ctx.Context.Int32Type(), 0, false))
+	//		}
+	//	}
+
 	g.currentFuncReturnType = nil
 
 	return nil
