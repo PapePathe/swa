@@ -222,3 +222,18 @@ func (g *LLVMGenerator) ZeroOfBoolType(node *ast.BoolType) error {
 func (g *LLVMGenerator) ZeroOfVoidType(node *ast.VoidType) error {
 	panic("ZeroOfVoidType unimplemented")
 }
+
+func (g *LLVMGenerator) ZeroOfSliceType(node *ast.SliceType) error {
+	err := node.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	lastres := g.getLastTypeVisitResult()
+	zero := llvm.ConstNull(lastres.Type)
+	res := &CompilerResult{Value: &zero}
+
+	g.setLastResult(res)
+
+	return nil
+}

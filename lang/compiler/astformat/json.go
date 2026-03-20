@@ -109,6 +109,16 @@ func (j *Json) VisitArrayType(node *ast.ArrayType) error {
 	return nil
 }
 
+func (j *Json) VisitSliceType(node *ast.SliceType) error {
+	res := make(map[string]any)
+	_ = node.Underlying.Accept(j)
+	res["SliceType"] = j.getLastResult()
+
+	j.setLastResult(res)
+
+	return nil
+}
+
 func (j *Json) VisitAssignmentExpression(node *ast.AssignmentExpression) error {
 	m := make(map[string]any)
 	m["Operator"] = node.Operator.Value
@@ -620,6 +630,13 @@ func (j *Json) ZeroOfSymbolType(node *ast.SymbolType) error {
 
 func (j *Json) ZeroOfVoidType(node *ast.VoidType) error {
 	panic("unimplemented")
+}
+
+func (j *Json) ZeroOfSliceType(node *ast.SliceType) error {
+	res := make(map[string]any)
+	res["ZeroOfSliceType"] = nil
+	j.setLastResult(res)
+	return nil
 }
 
 func (g *Json) setLastResult(res map[string]any) {

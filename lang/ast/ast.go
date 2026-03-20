@@ -96,6 +96,7 @@ type TypeVisitor interface {
 	VisitVoidType(node *VoidType) error
 	VisitBoolType(node *BoolType) error
 	VisitByteType(node *ByteType) error
+	VisitSliceType(node *SliceType) error
 }
 
 type ZeroValueVisitor interface {
@@ -111,4 +112,5 @@ type ZeroValueVisitor interface {
 	ZeroOfVoidType(node *VoidType) error
 	ZeroOfBoolType(node *BoolType) error
 	ZeroOfByteType(node *ByteType) error
+	ZeroOfSliceType(node *SliceType) error
 }

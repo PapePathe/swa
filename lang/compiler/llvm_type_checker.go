@@ -203,6 +203,7 @@ func (l *LLVMTypeChecker) ZeroOfStringType(node *ast.StringType) error          
 func (l *LLVMTypeChecker) ZeroOfSymbolType(node *ast.SymbolType) error              { return nil }
 func (l *LLVMTypeChecker) ZeroOfVoidType(node *ast.VoidType) error                  { return nil }
 func (l *LLVMTypeChecker) ZeroOfTupleType(node *ast.TupleType) error                { return nil }
+func (l *LLVMTypeChecker) ZeroOfSliceType(node *ast.SliceType) error                { return nil }
 func (l *LLVMTypeChecker) VisitZeroExpression(node *ast.ZeroExpression) error       { return nil }
 func (l *LLVMTypeChecker) VisitBinaryExpression(node *ast.BinaryExpression) error   { return nil }
 func (l *LLVMTypeChecker) ZeroOfBoolType(node *ast.BoolType) error                  { return nil }

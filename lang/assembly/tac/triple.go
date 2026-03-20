@@ -117,6 +117,10 @@ func (gen *Triple) VisitArrayType(node *ast.ArrayType) error {
 	return fmt.Errorf("unimplemented")
 }
 
+func (gen *Triple) VisitSliceType(node *ast.SliceType) error {
+	return fmt.Errorf("unimplemented")
+}
+
 func (gen *Triple) VisitAssignmentExpression(node *ast.AssignmentExpression) error {
 	err := node.Value.Accept(gen)
 	if err != nil {
@@ -513,6 +517,10 @@ func (gen *Triple) VisitZeroExpression(node *ast.ZeroExpression) error {
 }
 
 func (gen *Triple) ZeroOfArrayType(node *ast.ArrayType) error {
+	return fmt.Errorf("unimplemented")
+}
+
+func (gen *Triple) ZeroOfSliceType(node *ast.SliceType) error {
 	return fmt.Errorf("unimplemented")
 }
 
