@@ -37,6 +37,8 @@ func (dt DataType) String() string {
 		return "Bool"
 	case DataTypeByte:
 		return "Byte"
+	case DataTypeSlice:
+		return "Slice"
 	default:
 		fmt.Printf("Unmatched data type %d", dt)
 		os.Exit(1)
@@ -60,6 +62,7 @@ const (
 	DataTypeError
 	DataTypeTuple
 	DataTypeBool
+	DataTypeSlice
 )
 
 type SymbolType struct {
@@ -137,6 +140,45 @@ func (ArrayType) Value() DataType {
 
 func (typ ArrayType) Accept(g CodeGenerator) error {
 	return g.VisitArrayType(&typ)
+}
+
+type SliceType struct {
+	Underlying Type
+}
+
+func (typ SliceType) Equals(other Type) bool {
+	if typ.Value() != other.Value() {
+		return false
+	}
+
+	oth, ok := other.(SliceType)
+	if !ok {
+		othPointer, ok := other.(*SliceType)
+		if !ok {
+			return false
+		}
+		oth = *othPointer
+	}
+
+	return typ.Underlying.Equals(oth.Underlying)
+}
+
+func (t SliceType) String() string {
+	return fmt.Sprintf("%s(%s)", t.Value(), t.Underlying.Value())
+}
+
+func (typ SliceType) AcceptZero(g CodeGenerator) error {
+	return g.ZeroOfSliceType(&typ)
+}
+
+var _ Type = (*SliceType)(nil)
+
+func (SliceType) Value() DataType {
+	return DataTypeSlice
+}
+
+func (typ SliceType) Accept(g CodeGenerator) error {
+	return g.VisitSliceType(&typ)
 }
 
 type ByteType struct{}

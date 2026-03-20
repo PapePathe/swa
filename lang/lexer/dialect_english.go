@@ -43,6 +43,10 @@ func (m English) Reserved() map[string]TokenKind {
 		"error":    TypeError,
 		"variadic": Variadic,
 		"zero":     Zero,
+		"make":     Make,
+		"len":      Len,
+		"cap":      Cap,
+		"append":   Append,
 	}
 }
 
