@@ -42,6 +42,7 @@ type ArraySymbolTableEntry struct {
 	UnderlyingTypeDef *StructSymbolTableEntry
 	Type              llvm.Type
 	ElementsCount     int
+	IsSlice           bool
 }
 
 type FuncDetails struct {
