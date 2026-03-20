@@ -31,6 +31,9 @@ func pwrite(fd: int, buf: string, count: int, offset: int64) int64;
 
 func sqrt(a: float) float;
 
+func realloc(ptr: *int, size: int64) *int;
+func free(ptr: *int);
+
 // END LIBC FUNCTIONS
 
 // func std_divide(a: int, b: int) (int, error) {
