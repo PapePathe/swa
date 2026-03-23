@@ -1,0 +1,12 @@
+dialect:english;
+
+start() int {
+    let s: []int = make([]int, 0, 4);
+    s = append(s, 10);
+    s = append(s, 20);
+    s = append(s, 30);
+
+    print("len=%d cap=%d [%d %d %d]", len(s), cap(s), s[0], s[1], s[2]);
+
+    return 0;
+}

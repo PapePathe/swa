@@ -1,0 +1,12 @@
+dialect:english;
+
+start() int {
+    let s: []bool = make([]bool, 0, 4);
+    s = append(s, true);
+    s = append(s, false);
+    s = append(s, true);
+
+    print("len=%d [%d %d %d]", len(s), s[0], s[1], s[2]);
+
+    return 0;
+}
