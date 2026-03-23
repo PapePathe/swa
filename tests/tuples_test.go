@@ -344,7 +344,7 @@ func TestTuples(t *testing.T) {
 		})
 		t.Run("Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t, "./tuples/37.igbo.swa",
-				"\x1b[33mexpected CLOSE_PAREN, but got RETURN at line 8\x1b[0m\n\n\x1b[34m0\x1b[0m \n\x1b[34m8\x1b[0m \x1b[31mreturn\x1b[0m \n")
+				"\x1b[33mexpected CLOSE_PAREN, but got RETURN at line 8\x1b[0m\n\n\x1b[34m0\x1b[0m \n\x1b[34m8\x1b[0m \x1b[31mweghachi\x1b[0m \n")
 		})
 	})
 	// FIXME the error message is not user friendly

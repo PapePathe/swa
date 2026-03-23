@@ -88,7 +88,7 @@ func TestPrint(t *testing.T) {
 			NewSuccessfulCompileRequest(
 				t,
 				"./print/variable.string.igbo.swa",
-				"contenu de la variable: french",
+				"contenu de la variable: igbo",
 			)
 		})
 

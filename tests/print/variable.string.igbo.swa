@@ -1,7 +1,7 @@
 oluasusu:igbo;
 
 mbido() onuogugu {
-  ka s : ederede = "";
+  ka s : ederede = "igbo";
   deputa("contenu de la variable: %s", s);
 
   weghachi 0; 
