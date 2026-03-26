@@ -260,7 +260,7 @@ func TestBugFixes(t *testing.T) {
 			t.Run("Igbo", func(t *testing.T) {
 				NewFailedCompileRequest(t,
 					"./bug-fixes/105-silent-32-bit-integer-overflow-max.igbo.swa",
-					"2147483648 is greater than max value for int32\n",
+					"2147483648 dị ukwuu karịa ogo kacha elu maka int32\n",
 				)
 			})
 		})
@@ -275,7 +275,7 @@ func TestBugFixes(t *testing.T) {
 			t.Run("Igbo", func(t *testing.T) {
 				NewFailedCompileRequest(t,
 					"./bug-fixes/105-silent-32-bit-integer-overflow-min.igbo.swa",
-					"2147483649 is greater than max value for int32\n",
+					"2147483649 dị ukwuu karịa ogo kacha elu maka int32\n",
 				)
 			})
 		})
@@ -451,7 +451,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t,
 				"./bug-fixes/102-missing-arity-check-in-function-calls.igbo.swa",
-				"function add expect 2 arguments but was given 1\n",
+				"Function add chọrọ argument 2 mana e nyere ya 1\n",
 			)
 		})
 	})
@@ -541,7 +541,7 @@ func TestBugFixes(t *testing.T) {
 		t.Run("Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t,
 				"./bug-fixes/114-variable-redeclaration-allowed-in-same-scope.igbo.swa",
-				"variable x is already defined\n",
+				"Variable x adịlarị\n",
 			)
 		})
 	})

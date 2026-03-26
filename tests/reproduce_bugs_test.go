@@ -49,7 +49,7 @@ func TestGlobals(t *testing.T) {
 		t.Run("2 Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t,
 				"./globals/2.igbo.swa",
-				"struct initialization should happen inside a function\n")
+				"Mmalite struct (struct initialization) kwesịrị ime n'ime function\n")
 		})
 
 		t.Run("3", func(t *testing.T) {
@@ -61,7 +61,7 @@ func TestGlobals(t *testing.T) {
 		t.Run("3 Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t,
 				"./globals/3.igbo.swa",
-				"array initialization should happen inside a function\n")
+				"Mmalite array (array initialization) kwesịrị ime n'ime function\n")
 		})
 	})
 }
@@ -96,7 +96,7 @@ func TestBugInvalidArrayAccess(t *testing.T) {
 	t.Run("Igbo", func(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./bugs/invalid-array-access/source.igbo.swa",
-			"Property age is not an array\n")
+			"Akụkụ age abụghị array\n")
 	})
 }
 
@@ -130,7 +130,7 @@ func TestBugInvalidFieldAccess(t *testing.T) {
 	t.Run("Igbo", func(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./bugs/invalid-field-access/source.igbo.swa",
-			"variable i is not a struct instance\n")
+			"Variable i abụghị struct instance\n")
 	})
 }
 

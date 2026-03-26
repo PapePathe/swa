@@ -19,7 +19,7 @@ func TestEmptyStruct(t *testing.T) {
 		{
 			name:           "Igbo",
 			inputPath:      "./structs/empty.igbo.swa",
-			expectedOutput: "Struct (Point) must have at least one field\n",
+			expectedOutput: "Struct (Point) ga-enwerịrị opekata mpe otu field\n",
 		},
 	}
 
@@ -30,7 +30,6 @@ func TestEmptyStruct(t *testing.T) {
 				test.expectedOutput)
 		})
 	}
-
 }
 
 func TestStructZeroValues(t *testing.T) {
@@ -92,7 +91,7 @@ func TestStructWithUnknownType(t *testing.T) {
 	t.Run("Igbo", func(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./structs/unknown-property-type/source.igbo.swa",
-			"struct named unknown_type does not exist in symbol table\n")
+			"Struct akpọrọ unknown_type adịghị na tebulu akara\n")
 	})
 }
 

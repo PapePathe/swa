@@ -1,6 +1,6 @@
 oluasusu:igbo;
 
-oru odd(n: onuogugu) bool {
+oru odd(n: onuogugu) ezigha {
   weghachi n % 2 == 1;
 }
 

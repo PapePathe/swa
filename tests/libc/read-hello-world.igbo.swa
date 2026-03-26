@@ -3,7 +3,7 @@ oluasusu:igbo;
 mbido() onuogugu {
   ka fd : onuogugu = open("./libc/hello.txt", 0);
 
-  ka buf : [1024]byte;
+  ka buf : [1024]mkpụrụ;
   ka size : onuogugu64 = 2048;
   ka count : onuogugu64 = read(fd, buf, size);
 

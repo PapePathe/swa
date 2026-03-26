@@ -22,7 +22,7 @@ func TestTuples(t *testing.T) {
 		})
 		t.Run("Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t, "./tuples/02.igbo.swa",
-				"Expected assignment of Number but got Tuple\n")
+				"A tụrụ anya nkenye nke Number mana a hụrụ Tuple\n")
 		})
 	})
 	t.Run("03", func(t *testing.T) {
@@ -52,7 +52,7 @@ func TestTuples(t *testing.T) {
 		})
 		t.Run("Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t, "./tuples/05.igbo.swa",
-				"cannot coerce StructTypeKind and IntegerTypeKind\n")
+				"Enweghị ike ijikọta StructTypeKind na IntegerTypeKind\n")
 		})
 	})
 	t.Run("06", func(t *testing.T) {
@@ -62,7 +62,7 @@ func TestTuples(t *testing.T) {
 		})
 		t.Run("Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t, "./tuples/06.igbo.swa",
-				"function add expect 2 arguments but was given 1\n")
+				"Function add chọrọ argument 2 mana e nyere ya 1\n")
 		})
 	})
 	t.Run("07", func(t *testing.T) {
@@ -72,7 +72,7 @@ func TestTuples(t *testing.T) {
 		})
 		t.Run("Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t, "./tuples/07.igbo.swa",
-				"expected argument of type IntegerType(32 bits) but got StructType\n")
+				"A tụrụ anya argument nke ụdị IntegerType(32 bits) mana a hụrụ StructType\n")
 		})
 	})
 	t.Run("08", func(t *testing.T) {
@@ -243,7 +243,7 @@ func TestTuples(t *testing.T) {
 		})
 		t.Run("Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t, "./tuples/27.igbo.swa",
-				"function inner expect 2 arguments but was given 1\n")
+				"Function inner chọrọ argument 2 mana e nyere ya 1\n")
 		})
 	})
 	t.Run("28", func(t *testing.T) {
@@ -334,7 +334,7 @@ func TestTuples(t *testing.T) {
 		})
 		t.Run("Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t, "./tuples/36.igbo.swa",
-				"ArrayAccessExpression not implemented for *ast.FunctionCallExpression\n")
+				"Emebebeghị ArrayAccessExpression maka *ast.FunctionCallExpression\n")
 		})
 	})
 	t.Run("37", func(t *testing.T) {
@@ -405,7 +405,7 @@ func TestTuples(t *testing.T) {
 		})
 		t.Run("Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t, "./tuples/43.igbo.swa",
-				"struct with pointer reference to self not supported, property: next\n")
+				"A naghị anabata struct nwere pointer na-atụ aka na onwe ya, akụkụ: next\n")
 		})
 	})
 	t.Run("44", func(t *testing.T) {
@@ -415,7 +415,7 @@ func TestTuples(t *testing.T) {
 		})
 		t.Run("Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t, "./tuples/44.igbo.swa",
-				"Only numbers are supported as array index, current: (&{nextIndex [] [IDENTIFIER (nextIndex) (12:8) OPEN_PAREN (12:17) CLOSE_PAREN (12:18)] <nil>})\n")
+				"Naanị nọmba ka a na-anara dịka index array, nke dị ugbua: (&{nextIndex [] [IDENTIFIER (nextIndex) (12:8) OPEN_PAREN (12:17) CLOSE_PAREN (12:18)] <nil>})\n")
 		})
 	})
 	t.Run("45", func(t *testing.T) {
@@ -455,7 +455,7 @@ func TestTuples(t *testing.T) {
 		})
 		t.Run("Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t, "./tuples/48.igbo.swa",
-				"function takeTwo expect 2 arguments but was given 1\n")
+				"Function takeTwo chọrọ argument 2 mana e nyere ya 1\n")
 		})
 	})
 }
@@ -522,7 +522,7 @@ func TestTupleReturns(t *testing.T) {
 		t.Run("Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t,
 				"./tuples/swap-typecheck.igbo.swa",
-				"Expected assignment of Number but got Tuple\n")
+				"A tụrụ anya nkenye nke Number mana a hụrụ Tuple\n")
 		})
 	})
 

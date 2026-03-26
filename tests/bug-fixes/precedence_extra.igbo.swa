@@ -10,7 +10,7 @@ mbido() onuogugu {
     deputa("3 * -5 = ", 3 * -5);
 
     // Unary Not
-    ka b: bool = !ezigbo;
+    ka b: ezigha = !ezigbo;
     deputa("!true = ", b);
     deputa("!!true = ", !b);
 

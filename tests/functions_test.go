@@ -617,7 +617,9 @@ func TestFunctions(t *testing.T) {
 					NewFailedCompileRequest(t, "./functions/test21_function_call_with_mismatched_return_type_should_not_compile.english.swa", "expected String but got Number\n")
 				})
 				t.Run("Igbo", func(t *testing.T) {
-					NewFailedCompileRequest(t, "./functions/test21_function_call_with_mismatched_return_type_should_not_compile.igbo.swa", "expected String but got Number\n")
+					NewFailedCompileRequest(t,
+						"./functions/test21_function_call_with_mismatched_return_type_should_not_compile.igbo.swa",
+						"A tụrụ anya String mana a hụrụ Number\n")
 				})
 			})
 			t.Run("Test 22: Too few arguments", func(t *testing.T) {
@@ -625,7 +627,9 @@ func TestFunctions(t *testing.T) {
 					NewFailedCompileRequest(t, "./functions/test22_function_call_with_too_few_arguments_should_not_compile.english.swa", "function two_args expect 2 arguments but was given 1\n")
 				})
 				t.Run("Igbo", func(t *testing.T) {
-					NewFailedCompileRequest(t, "./functions/test22_function_call_with_too_few_arguments_should_not_compile.igbo.swa", "function two_args expect 2 arguments but was given 1\n")
+					NewFailedCompileRequest(t,
+						"./functions/test22_function_call_with_too_few_arguments_should_not_compile.igbo.swa",
+						"Function two_args chọrọ argument 2 mana e nyere ya 1\n")
 				})
 			})
 			t.Run("Test 23: Too many arguments", func(t *testing.T) {
@@ -633,7 +637,9 @@ func TestFunctions(t *testing.T) {
 					NewFailedCompileRequest(t, "./functions/test23_function_call_with_too_many_arguments_should_not_compile.english.swa", "function two_args expect 2 arguments but was given 3\n")
 				})
 				t.Run("Igbo", func(t *testing.T) {
-					NewFailedCompileRequest(t, "./functions/test23_function_call_with_too_many_arguments_should_not_compile.igbo.swa", "function two_args expect 2 arguments but was given 3\n")
+					NewFailedCompileRequest(t,
+						"./functions/test23_function_call_with_too_many_arguments_should_not_compile.igbo.swa",
+						"Function two_args chọrọ argument 2 mana e nyere ya 3\n")
 				})
 			})
 			//			t.Run("Test 24: Wrong argument type", func(t *testing.T) {
@@ -652,7 +658,9 @@ func TestFunctions(t *testing.T) {
 					NewFailedCompileRequest(t, "./functions/test26_function_redeclaration_should_not_compile.english.swa", "function named foo already exists in symbol table\n")
 				})
 				t.Run("Igbo", func(t *testing.T) {
-					NewFailedCompileRequest(t, "./functions/test26_function_redeclaration_should_not_compile.igbo.swa", "function named foo already exists in symbol table\n")
+					NewFailedCompileRequest(t,
+						"./functions/test26_function_redeclaration_should_not_compile.igbo.swa",
+						"Function akpọrọ foo adịlarị na tebulu akara\n")
 				})
 			})
 		})

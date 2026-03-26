@@ -20,7 +20,7 @@ func TestArrayOfStructsWithUndefinedPropertyAccess(t *testing.T) {
 	t.Run("Igbo", func(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./arrays/structs/undefined-property-access.igbo.swa",
-			"property (Name) not found in struct Engineer\n")
+			"Ahụghị akụkụ (Name) n'ime struct Engineer\n")
 	})
 }
 
@@ -60,7 +60,7 @@ func TestArrayOfStructsWithUndefined(t *testing.T) {
 	t.Run("Igbo", func(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./arrays/structs/undefined-struct.igbo.swa",
-			"struct named Engineer does not exist in symbol table\n")
+			"Struct akpọrọ Engineer adịghị na tebulu akara\n")
 	})
 }
 
@@ -191,7 +191,7 @@ func TestArrayIndexOutOfBounds(t *testing.T) {
 	t.Run("Igbo", func(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./arrays/out-of-bounds/source.igbo.swa",
-			"Element at index (%!s(int=5)) does not exist in array (tableau)\n")
+			"Ihe dị na index (%!s(int=5)) adịghị n'ime array (tableau)\n")
 	})
 }
 
@@ -217,7 +217,7 @@ func TestArrayAccessWithPrefixExpression(t *testing.T) {
 	t.Run("Igbo", func(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./arrays/prefix-expression/source.igbo.swa",
-			"Only numbers are supported as array index, current: (- 4)\n")
+			"Naanị nọmba ka a na-anara dịka index array, nke dị ugbua: (- 4)\n")
 	})
 }
 
@@ -323,7 +323,7 @@ func TestArrayAccessWithSymbolExpression(t *testing.T) {
 	t.Run("Igbo", func(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./arrays/symbol-expression/source.igbo.swa",
-			"variable named x does not exist in symbol table\n")
+			"Variable akpọrọ x adịghị na tebulu akara\n")
 	})
 }
 

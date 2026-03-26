@@ -3,7 +3,7 @@ oluasusu:igbo;
 ka NAME : ederede = "Swahili";
 ka PI : ofe = 3.14;
 ka SPEED_OF_LIGHT: onuogugu = 300000;
-ka COMPILED: bool = ezigbo;
+ka COMPILED: ezigha = ezigbo;
 
 mbido() onuogugu {
   deputa(

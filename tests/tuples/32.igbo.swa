@@ -1,7 +1,7 @@
 oluasusu:igbo;
 
 // Test 33: Tuple used in if condition directly – error
-oru cond() (bool, onuogugu) {
+oru cond() (ezigha, onuogugu) {
   weghachi ezigbo, 5;
 }
 mbido() onuogugu {

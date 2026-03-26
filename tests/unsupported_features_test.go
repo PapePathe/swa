@@ -14,7 +14,7 @@ func TestUnsuppotedFeatures(t *testing.T) {
 		t.Run("Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t,
 				"./unsupported-features/self-referencing-pointer-to-struct.igbo.swa",
-				"struct with pointer reference to self not supported, property: parent\n")
+				"A naghị anabata struct nwere pointer na-atụ aka na onwe ya, akụkụ: parent\n")
 		})
 	})
 
@@ -27,7 +27,7 @@ func TestUnsuppotedFeatures(t *testing.T) {
 		t.Run("Igbo", func(t *testing.T) {
 			NewFailedCompileRequest(t,
 				"./unsupported-features/self-referencing-struct.igbo.swa",
-				"struct with reference to self not supported, property: parent\n")
+				"A naghị anabata struct na-atụ aka na onwe ya, akụkụ: parent\n")
 		})
 	})
 }
