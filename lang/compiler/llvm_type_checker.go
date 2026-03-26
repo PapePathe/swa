@@ -11,6 +11,11 @@ type LLVMTypeChecker struct {
 	returnStatementsCount int
 }
 
+// VisitListCountExpression implements [ast.CodeGenerator].
+func (l *LLVMTypeChecker) VisitListCountExpression(node *ast.ListCountExpression) error {
+	panic("unimplemented")
+}
+
 func (l *LLVMTypeChecker) VisitByteType(node *ast.ByteType) error {
 	panic("unimplemented")
 }

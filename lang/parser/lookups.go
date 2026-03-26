@@ -67,6 +67,7 @@ func createTokenLookups() {
 	led(lexer.Star, Multiplicative, ParseBinaryExpression)
 	led(lexer.Divide, Multiplicative, ParseBinaryExpression)
 	led(lexer.Modulo, Multiplicative, ParseBinaryExpression)
+	led(lexer.Append, Multiplicative, ParseBinaryExpression)
 
 	nud(lexer.True, ParsePrimaryExpression)
 	nud(lexer.False, ParsePrimaryExpression)
@@ -91,8 +92,8 @@ func createTokenLookups() {
 	nud(lexer.Zero, ParseZeroExpression)
 	nud(lexer.Make, ParseMakeIntrinsic)
 	nud(lexer.Len, ParseLenIntrinsic)
-	nud(lexer.Cap, ParseCapIntrinsic)
-	nud(lexer.Append, ParseAppendIntrinsic)
+	// nud(lexer.Cap, ParseCapIntrinsic)
+	// nud(lexer.Append, ParseAppendIntrinsic)
 
 	statement(lexer.Print, ParsePrintStatement)
 	statement(lexer.KeywordIf, ParseConditionalExpression)

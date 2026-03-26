@@ -8,6 +8,11 @@ type Json struct {
 	Element map[string]any
 }
 
+// VisitListCountExpression implements [ast.CodeGenerator].
+func (j *Json) VisitListCountExpression(node *ast.ListCountExpression) error {
+	panic("unimplemented")
+}
+
 // VisitByteType implements [ast.CodeGenerator].
 func (j *Json) VisitByteType(node *ast.ByteType) error {
 	panic("unimplemented")

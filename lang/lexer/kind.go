@@ -66,8 +66,8 @@ var tks = map[TokenKind]string{
 	Whitespace:         "WHITESPACE",
 	Comment:            "COMMENT",
 	Newline:            "NEWLINE",
-	Make:               "MAKE",
-	Len:                "LEN",
+	Make:               "Alloc",
+	Len:                "COUNT",
 	Cap:                "CAP",
 	Append:             "APPEND",
 }

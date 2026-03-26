@@ -44,7 +44,7 @@ func (m English) Reserved() map[string]TokenKind {
 		"variadic": Variadic,
 		"zero":     Zero,
 		"make":     Make,
-		"len":      Len,
+		"count":    Len,
 		"cap":      Cap,
 		"append":   Append,
 	}

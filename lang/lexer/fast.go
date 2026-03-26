@@ -325,7 +325,7 @@ func (lex *FastLexer) lexOperator() {
 
 func (lex *FastLexer) isTwoCharOperator(op string) bool {
 	switch op {
-	case "!=", "==", "<=", ">=", "+=", "||", "&&":
+	case "!=", "==", "<<", "<=", ">=", "+=", "||", "&&":
 		return true
 	default:
 		return false
@@ -360,6 +360,8 @@ func (lex *FastLexer) getOperatorKind(op string) TokenKind {
 		return LessThan
 	case ">":
 		return GreaterThan
+	case "<<":
+		return Append
 	case "<=":
 		return LessThanEquals
 	case ">=":

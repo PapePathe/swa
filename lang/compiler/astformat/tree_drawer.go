@@ -12,12 +12,16 @@ type TreeDrawer struct {
 	isLast []bool
 }
 
-// VisitByteType implements [ast.CodeGenerator].
+func (t *TreeDrawer) VisitListCountExpression(node *ast.ListCountExpression) error {
+	t.writeLine(fmt.Sprintf("ListCountExpr(%s)", node.Expr))
+
+	return nil
+}
+
 func (t *TreeDrawer) VisitByteType(node *ast.ByteType) error {
 	panic("unimplemented")
 }
 
-// ZeroOfByteType implements [ast.CodeGenerator].
 func (t *TreeDrawer) ZeroOfByteType(node *ast.ByteType) error {
 	panic("unimplemented")
 }
@@ -185,7 +189,6 @@ func (t *TreeDrawer) VisitConditionalStatement(node *ast.ConditionalStatetement)
 func (t *TreeDrawer) VisitWhileStatement(node *ast.WhileStatement) error {
 	t.writeLine("WhileStatement")
 	t.isLast = append(t.isLast, false)
-	t.isLast = t.isLast[:len(t.isLast)-1]
 	t.writeLine("Condition")
 
 	if err := t.visitChild(node.Condition, false); err != nil {
@@ -322,6 +325,7 @@ func (t *TreeDrawer) VisitFunctionCall(node *ast.FunctionCallExpression) error {
 			return err
 		}
 	}
+
 	return nil
 }
 

@@ -27,6 +27,11 @@ type LLVMGenerator struct {
 	currentFuncReturnType ast.Type
 }
 
+// VisitListCountExpression implements [ast.CodeGenerator].
+func (g *LLVMGenerator) VisitListCountExpression(node *ast.ListCountExpression) error {
+	panic("unimplemented")
+}
+
 func (g *LLVMGenerator) VisitBooleanExpression(node *ast.BooleanExpression) error {
 	value := llvm.ConstInt(llvm.GlobalContext().Int1Type(), uint64(0), false)
 
