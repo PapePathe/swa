@@ -10,7 +10,7 @@ type Yoruba struct{}
 var _ Dialect = (*Yoruba)(nil)
 
 func (m Yoruba) DetectionPattern() *regexp.Regexp {
-	return regexp.MustCompile(`yoruba:yoruba;`)
+	return regexp.MustCompile(`èdè:yoruba;`)
 }
 
 func (m Yoruba) Name() string {
@@ -19,6 +19,7 @@ func (m Yoruba) Name() string {
 
 func (m Yoruba) Reserved() map[string]TokenKind {
 	return map[string]TokenKind{
+		"èdè":      DialectDeclaration,
 		"jẹ́":      Let,
 		"dandan":   Const,
 		"bí":       KeywordIf,
