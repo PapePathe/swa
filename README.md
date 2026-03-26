@@ -4,7 +4,7 @@
 It's simpler to use the docker image if you do not want to install llvm manually.
 
 ```bash
-alias swahili='docker run -w "$(pwd)" -v "$(pwd)":"$(pwd)" ghcr.io/papepathe/swa-lang:master'
+alias swahili='docker run -w "$(pwd)" -v "$(pwd)":"$(pwd)" xaragne/swa'
 
 swahili compile -s my-code.swa
 swahili tokenize -s my-code.swa
