@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+oru get_vector() (ofe, ofe) {
+    weghachi 1.5, 2.5;
+}
+
+mbido() onuogugu {
+    ka x: ofe = 0.0;
+    ka y: ofe = 0.0;
+    (x, y) = get_vector();
+    deputa("x: %.1f, y: %.1f\n", x, y);
+    weghachi 0;
+}

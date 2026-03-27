@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 22: Unary minus applied to variable
+mbido() onuogugu {
+  ka x: onuogugu = 7;
+  ka y: onuogugu = -x;
+  deputa("-x (x=7) = %d", y); // Expected: -7
+  weghachi 0;
+}
+
+

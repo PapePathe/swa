@@ -1,0 +1,36 @@
+oluasusu:igbo;
+
+oru divmod(a: onuogugu, b: onuogugu) (onuogugu, onuogugu, njehie) {
+    oburu (b == 0) {
+        weghachi 0, 0, njehie("dividend is zero"); 
+    }
+
+    ka div : onuogugu = a / b;
+    ka mod: onuogugu = a % b;
+
+    deputa("div: %d, mod: %d\n", div, mod);
+
+    weghachi div, mod, efu(njehie); 
+}
+
+nhazi Result {
+  div: onuogugu,
+  mod: onuogugu,
+}
+
+mbido() onuogugu {
+  ka p : Result;
+  ka err: njehie;
+  ka div : onuogugu;
+  ka mod: onuogugu;
+
+  (p.div, p.mod, err, div) = divmod(100, 23);
+  oburu(err != efu(njehie)) {
+    deputa("Division by zero error (%s)", err);
+    weghachi -1;
+  }
+
+   deputa("p.div = %d, p.mod = %d", p.div, p.mod);
+
+  weghachi 0;
+}

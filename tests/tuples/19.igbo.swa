@@ -1,0 +1,22 @@
+oluasusu:igbo;
+
+// Test 20: Tuple assignment with side effects (order unspecified)
+ka counter: onuogugu = 0;
+
+oru tick(label: ederede) onuogugu {
+  counter = counter + 1;
+  deputa("%s called (%d)\n", label, counter);
+  weghachi counter;
+}
+
+oru getTwo() (onuogugu, onuogugu) {
+  weghachi tick("first"), tick("second");
+}
+
+mbido() onuogugu {
+  ka a: onuogugu;
+  ka b: onuogugu;
+  (a, b) = getTwo();
+  deputa("a=%d, b=%d\n", a, b); // Both called, order unspecified
+  weghachi 0;
+}

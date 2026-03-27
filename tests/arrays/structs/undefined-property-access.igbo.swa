@@ -1,0 +1,15 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  nhazi Engineer{
+    Age: onuogugu,
+  }
+
+  ka tableau : [1]Engineer = [1]Engineer{
+    Engineer{ Age: 40 },
+  };
+
+  deputa("%d", tableau[0].Name);
+
+  weghachi 0;
+}

@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 16: Division with negative numbers (integer division)
+mbido() onuogugu {
+  ka a: onuogugu = -15 / 4;
+  deputa("-15 / 4 = %d", a); // Expected: -3 (truncation toward zero)
+  weghachi 0;
+}

@@ -1,0 +1,44 @@
+oluasusu:igbo;
+
+nhazi Data {
+    val: onuogugu,
+}
+
+nhazi Wrapper {
+    inner: Data,
+}
+
+nhazi Collection {
+    items: [2]Data,
+}
+
+oru getConstant() onuogugu {
+    weghachi 100;
+}
+
+mbido() onuogugu {
+    ka d : Data = Data {
+        val: 50,
+    };
+    ka w : Wrapper = Wrapper {
+        inner: d,
+    };
+    ka coll : Collection = Collection {
+        items: [2]Data{Data{val: 1}, Data{val: 2}},
+    };
+    ka arr : [3]onuogugu = [3]onuogugu{10,20,30};
+    ka e : njehie = njehie("runtime error");
+    ka x : onuogugu = 10;
+
+    deputa("Struct member: ", d.val, "\n");
+    deputa("Nested member: ", w.inner.val, "\n");
+    deputa("Array of structs: ", coll.items[1].val, "\n");
+    deputa("Array access: ", arr[1], "\n");
+    deputa("Function call: ", getConstant(), "\n");
+    deputa("Binary expr: ", 10 + 20, " ", 5 > 2, "\n");
+    deputa("Error type: ", e, "\n");
+    deputa("Prefix expr: ", -x, "\n");
+    deputa("Zero value: ", efu(onuogugu), "\n");
+
+    weghachi 0;
+}

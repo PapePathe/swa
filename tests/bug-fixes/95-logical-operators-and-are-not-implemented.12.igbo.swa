@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka x: ofe = 0.5;
+  ka y: ofe = 1.5;
+  
+  oburu (x == 0.5 || y == 0.0) {
+    deputa("x == 0.5 || y == 0.0 evaluates to true");
+  } maobu {
+    deputa("implementation error");
+  }
+  weghachi 0;
+}

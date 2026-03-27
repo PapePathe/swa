@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+// Test 42: Function that takes another function as parameter? Unlikely.
+
+// Test 43: Function with unnamed parameters (if allowed)
+oru unnamed(onuogugu) onuogugu {
+  weghachi 42;
+}
+mbido() onuogugu {
+  deputa("%d", unnamed(5));
+  weghachi 0;
+}

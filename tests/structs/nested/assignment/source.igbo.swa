@@ -1,0 +1,27 @@
+oluasusu:igbo;
+
+nhazi Address {
+  City: ederede,
+  ZipCode: onuogugu,
+}
+
+nhazi Person {
+  Name: ederede,
+  Age: onuogugu,
+  HomeAddress: Address,
+}
+
+mbido() onuogugu {
+  ka addr: Address = Address{ City: "Dakar", ZipCode: 12000 };
+  ka person: Person = Person{ Name: "Pathe", Age: 30, HomeAddress: addr };
+  
+  // Test nested assignment
+  person.HomeAddress.ZipCode = 99999;
+  
+  // Test nested in expression
+  ka code: onuogugu = person.HomeAddress.ZipCode + 1;
+  
+  deputa("City: %s, ZipCode: %d, Code+1: %d", person.HomeAddress.City, person.HomeAddress.ZipCode, code);
+  
+  weghachi 0;
+}

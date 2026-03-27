@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka x: onuogugu = 42;
+  ka y: ofe = 3.14;
+  ka z: onuogugu = 10 + 5;
+  ka w: ofe = 2.5 + 1.5;
+
+  weghachi 0;
+}

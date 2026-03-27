@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+// Test 22: Function declared to return two but returns nothing – error
+oru empty() (onuogugu, onuogugu) {
+  // no return
+}
+mbido() onuogugu {
+  ka a: onuogugu;
+  ka b: onuogugu;
+  (a, b) = empty();
+  weghachi 0;
+}

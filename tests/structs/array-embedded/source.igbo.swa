@@ -1,0 +1,18 @@
+oluasusu:igbo;
+
+nhazi DynArray {
+  Size: onuogugu,
+  Capacity: onuogugu,
+  Data: [3]onuogugu,
+}
+
+mbido() onuogugu {
+  ka a : DynArray = DynArray{
+    Size: 10,
+    Capacity: 10,
+    Data: [3]onuogugu{100,200,300},
+  };
+
+  deputa("Hello: %'d %'d %'d", a.Data[0], a.Data[1], a.Data[2]);
+  weghachi 0;
+}

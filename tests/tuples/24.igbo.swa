@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+// Test 25: Binary operation with two tuples – error
+oru a() (onuogugu, onuogugu) { weghachi 1,2; }
+oru b() (onuogugu, onuogugu) { weghachi 3,4; }
+mbido() onuogugu {
+  ka x: (onuogugu,onuogugu); // No tuple type
+  x = a() + b(); // ERROR: cannot add tuples
+  weghachi 0;
+}

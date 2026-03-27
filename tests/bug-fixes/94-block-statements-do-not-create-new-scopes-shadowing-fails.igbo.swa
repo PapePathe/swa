@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka x: onuogugu = 10;
+
+  oburu (x == 10) {
+    ka x: onuogugu = 20;
+    deputa("Inner x: %d, ", x);
+  }
+
+  deputa("Outer x: %d", x);
+
+  weghachi 0;
+}

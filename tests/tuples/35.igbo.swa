@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 36: Tuple used as argument 
+// to print (if print is variadic)
+
+oru two() (onuogugu, onuogugu) { weghachi 7,8; }
+
+mbido() onuogugu {
+  deputa("%d %d", two());
+  weghachi 0;
+}

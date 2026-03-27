@@ -1,0 +1,17 @@
+oluasusu:igbo;
+
+nhazi Mixed {
+  embedded: [2]onuogugu,
+  pointer: *onuogugu,
+}
+
+mbido() onuogugu {
+  ka m : Mixed = Mixed{
+    embedded: [2]onuogugu{10, 20},
+    pointer: [3]onuogugu{100, 200, 300},
+  };
+
+  deputa("embedded[0]=%d embedded[1]=%d pointer[0]=%d pointer[2]=%d", 
+        m.embedded[0], m.embedded[1], m.pointer[0], m.pointer[2]);
+  weghachi 0;
+}

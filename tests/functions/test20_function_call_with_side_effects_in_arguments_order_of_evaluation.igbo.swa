@@ -1,0 +1,18 @@
+oluasusu:igbo;
+
+// Test 20: Function call with side effects in arguments
+// (order of evaluation)
+ka order: onuogugu = 0;
+oru side_effect(id: onuogugu) onuogugu {
+  order = order + 1;
+  deputa("side_effect %d called (order=%d)", id, order);
+  weghachi id;
+}
+oru add_side(a: onuogugu, b: onuogugu) onuogugu {
+  weghachi a + b;
+}
+mbido() onuogugu {
+  ka result: onuogugu = add_side(side_effect(1), side_effect(2));
+  deputa("result = %d", result);
+  weghachi 0;
+}

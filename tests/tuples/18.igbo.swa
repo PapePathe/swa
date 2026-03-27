@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+// Test 19: Tuple used in struct field initializer – error
+oru vals() (onuogugu, onuogugu) { weghachi 7,8; }
+nhazi Pair { a: onuogugu, b: onuogugu, }
+mbido() onuogugu {
+  // ERROR: field expects int, got (int,int)
+  ka p: Pair = Pair{a: vals()}; 
+  weghachi 0;
+}

@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 39: Empty function body
+oru empty() onuogugu {
+}
+mbido() onuogugu {
+  empty();
+  weghachi 0;
+}

@@ -1,0 +1,20 @@
+oluasusu:igbo;
+
+// Test 34: Returning tuple from another function that returns tuple (direct)
+oru inner() (onuogugu, onuogugu) {
+  weghachi 1, 2;
+}
+
+oru outer() (onuogugu, onuogugu) {
+  weghachi inner(); 
+  // This should be allowed: returning the tuple directly.
+}
+mbido() onuogugu {
+  ka a: onuogugu;
+  ka b: onuogugu;
+  (a, b) = outer();
+  deputa("%d %d", a, b);
+  weghachi 0;
+}
+
+

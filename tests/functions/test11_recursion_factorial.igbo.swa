@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+// Test 11: Recursion – factorial
+oru factorial(n: onuogugu) onuogugu {
+  oburu (n <= 1) {
+    weghachi 1;
+  }
+  weghachi n * factorial(n - 1);
+}
+mbido() onuogugu {
+  ka f: onuogugu = factorial(5);
+  deputa("5! = %d", f); // Expected: 120
+  weghachi 0;
+}

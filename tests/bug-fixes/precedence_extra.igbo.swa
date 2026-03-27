@@ -1,0 +1,29 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+    // Unary minus and additive
+    deputa("-5 + 3 = ", -5 + 3);
+    deputa("3 + -5 = ", 3 + -5);
+
+    // Unary minus and multiplicative
+    deputa("-5 * 3 = ", -5 * 3);
+    deputa("3 * -5 = ", 3 * -5);
+
+    // Unary Not
+    ka b: ezigha = !ezigbo;
+    deputa("!true = ", b);
+    deputa("!!true = ", !b);
+
+    // Complex expressions
+    deputa("-5 + 3 * 2 = ", -5 + 3 * 2);
+    deputa("-(5 + 3) * 2 = ", -(5 + 3) * 2);
+
+    // New Edge Cases
+    deputa("- -5 = ", - -5);
+    deputa("!(!true) = ", !(!ezigbo));
+    deputa("2 * (3 + 4 * (5 - 6)) = ", 2 * (3 + 4 * (5 - 6))); // 2 * (3 + 4 * -1) = 2 * (3 - 4) = 2 * -1 = -2
+    deputa("! (5 > 3) = ", ! (5 > 3)); // ! (true) = false (0)
+    deputa("- (5 + 3) + 10 = ", - (5 + 3) + 10); // -8 + 10 = 2
+
+    weghachi 0;
+}

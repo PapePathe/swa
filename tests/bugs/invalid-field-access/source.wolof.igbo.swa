@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka i: onuogugu = 10;
+  deputa("%d", i.field);
+  weghachi 0;
+}
+

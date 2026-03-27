@@ -100,6 +100,29 @@ func TestEarlyReturnStatements(t *testing.T) {
 			})
 		})
 	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		t.Run("1", func(t *testing.T) {
+			t.Run("Condition is true", func(t *testing.T) {
+				req := CompileRequest{
+					InputPath:               "./conditionals/early-return/1-condition-true.igbo.swa",
+					ExpectedExecutionOutput: "program interrupted by early return",
+					T:                       t,
+				}
+
+				req.AssertCompileAndExecute()
+			})
+			t.Run("Condition is false", func(t *testing.T) {
+				req := CompileRequest{
+					InputPath:               "./conditionals/early-return/1-condition-false.igbo.swa",
+					ExpectedExecutionOutput: "program not interrupted by early return",
+					T:                       t,
+				}
+
+				req.AssertCompileAndExecute()
+			})
+		})
+	})
 }
 
 func TestGreaterThanEquals(t *testing.T) {
@@ -118,6 +141,16 @@ func TestGreaterThanEquals(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./conditionals/greater-than-equals/source.french.swa",
+			ExpectedExecutionOutput: "okok",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./conditionals/greater-than-equals/source.igbo.swa",
 			ExpectedExecutionOutput: "okok",
 			T:                       t,
 		}
@@ -148,6 +181,16 @@ func TestGreaterThanEqualsWithPointerAndInt(t *testing.T) {
 
 		req.AssertCompileAndExecute()
 	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./conditionals/greater-than-equals-pointer-and-int/source.igbo.swa",
+			ExpectedExecutionOutput: "okok",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
 }
 
 func TestLessThanEquals(t *testing.T) {
@@ -172,6 +215,16 @@ func TestLessThanEquals(t *testing.T) {
 
 		req.AssertCompileAndExecute()
 	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./conditionals/less-than-equals/source.igbo.swa",
+			ExpectedExecutionOutput: "okokokokokokokok",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
 }
 
 func TestEquals(t *testing.T) {
@@ -190,6 +243,16 @@ func TestEquals(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		req := CompileRequest{
 			InputPath:               "./conditionals/equals/source.french.swa",
+			ExpectedExecutionOutput: "okokokokokok",
+			T:                       t,
+		}
+
+		req.AssertCompileAndExecute()
+	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		req := CompileRequest{
+			InputPath:               "./conditionals/equals/source.igbo.swa",
 			ExpectedExecutionOutput: "okokokokokok",
 			T:                       t,
 		}

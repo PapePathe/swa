@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+// Test 14: Nested function calls (composition)
+oru square(x: onuogugu) onuogugu {
+  weghachi x * x;
+}
+oru twice(x: onuogugu) onuogugu {
+  weghachi 2 * x;
+}
+mbido() onuogugu {
+  ka a: onuogugu = twice(square(3)); // 2 * 9 = 18
+  deputa("twice(square(3)) = %d", a); // Expected: 18
+  weghachi 0;
+}

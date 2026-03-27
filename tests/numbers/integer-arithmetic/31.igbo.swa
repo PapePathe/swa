@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 31: Unary minus applied to a product
+mbido() onuogugu {
+  ka a: onuogugu = -(3 * 4);
+  deputa("-(3 * 4) = %d", a); // Expected: -12
+  weghachi 0;
+}

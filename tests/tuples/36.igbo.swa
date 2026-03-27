@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 37: Indexing a tuple – error
+oru getPair() (onuogugu, onuogugu) { weghachi 10,20; }
+mbido() onuogugu {
+  ka x: onuogugu = getPair()[0]; // ERROR: cannot index a tuple
+  weghachi 0;
+}

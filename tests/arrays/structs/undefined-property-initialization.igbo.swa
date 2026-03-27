@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  nhazi Engineer{
+    Age: onuogugu,
+  }
+
+  ka tableau : [1]Engineer = [1]Engineer{
+    Engineer{ Name: "test" },
+  };
+}

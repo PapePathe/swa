@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+// Test 37: Array equality (if allowed)
+// Probably not allowed
+mbido() onuogugu {
+  ka a1: [3]onuogugu = [3]onuogugu{1,2,3};
+  ka a2: [3]onuogugu = [3]onuogugu{1,2,3};
+  oburu (a1 == a2) {
+    deputa("equal");
+  }
+  weghachi 0;
+}

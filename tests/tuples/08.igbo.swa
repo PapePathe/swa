@@ -1,0 +1,24 @@
+oluasusu:igbo;
+
+oru inner() (onuogugu, onuogugu) {
+  weghachi 1, 2;
+}
+
+oru outer() (onuogugu, onuogugu) {
+  ka a: onuogugu;
+  ka b: onuogugu;
+  (a, b) = inner();
+  weghachi a + b, a - b;
+}
+
+// Test 10: Nested tuple returns – inner call used in outer return
+mbido() onuogugu {
+  ka x: onuogugu;
+  ka y: onuogugu;
+  (x, y) = outer();
+  // Expected: 3, -1
+  deputa("x=%d, y=%d", x, y);
+  weghachi 0;
+}
+
+

@@ -1,0 +1,6 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  deputa("a: %f, b: %f", 10.005, -10.005);
+  weghachi 0; 
+}

@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+// Test 2: Simple subtraction
+mbido() onuogugu {
+  ka a: onuogugu = 10 - 4;
+  deputa("10 - 4 = %d", a); // Expected: 6
+  weghachi 0;
+}
+
+

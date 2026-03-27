@@ -1,0 +1,15 @@
+oluasusu:igbo;
+
+nhazi Point {
+    x : ofe,
+}
+
+mbido () onuogugu {
+  ka p : Point = Point{x: 10.25};
+
+  deputa("program interrupted by early return");
+  weghachi 0 oburu(p.x == 10.25);
+  deputa("program not interrupted by early return");
+
+  weghachi 0; 
+}

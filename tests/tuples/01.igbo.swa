@@ -1,0 +1,17 @@
+oluasusu:igbo;
+
+// Test 3: Tuple assignment with mixed types
+oru person() (ederede, onuogugu, ezigha) {
+  weghachi "Alice", 30, ezigbo;
+}
+mbido() onuogugu {
+  ka name: ederede;
+  ka age: onuogugu;
+  ka active: ezigha;
+
+  (name, age, active) = person();
+
+  deputa("%s is %d years old, active = %d", name, age, active);
+
+  weghachi 0;
+}

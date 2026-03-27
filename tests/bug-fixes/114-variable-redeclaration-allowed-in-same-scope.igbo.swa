@@ -1,0 +1,7 @@
+oluasusu:igbo;
+mbido() onuogugu {
+  ka x: onuogugu = 10;
+  ka x: onuogugu = 20;
+
+  weghachi 0;
+}

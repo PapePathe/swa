@@ -1,0 +1,53 @@
+oluasusu:igbo;
+
+oru selection_sort(list: [10]onuogugu) onuogugu {
+  ka N: onuogugu = 10;
+  ka i: onuogugu = 0;
+  ka j: onuogugu = 0;
+  ka min_idx: onuogugu = 0;
+  
+  // Outer loop: move the boundary of the unsorted subarray
+  dika (i < (N - 1)) {
+    min_idx = i;
+    j = i + 1;
+    
+    // Inner loop: find the minimum element in the unsorted subarray
+    dika (j < N) {
+      oburu (list[j] < list[min_idx]) {
+        min_idx = j;
+      }
+      j = j + 1;
+    }
+    
+    // Swap the found minimum element with the first element of the unsorted subarray
+    oburu (min_idx != i) {
+      ka temp: onuogugu = list[i];
+      list[i] = list[min_idx];
+      list[min_idx] = temp;
+    }
+    
+    i = i + 1;
+  }
+  weghachi 0;
+}
+
+oru print_array_4(list: [10]onuogugu) onuogugu {
+  ka N: onuogugu = 10;
+  ka i: onuogugu = 0;
+  deputa("Sorted Array: ");
+  dika (i < N) {
+    deputa("%d ", list[i]);
+    i = i + 1;
+  }
+  deputa("\n");
+  weghachi 0;
+}
+
+mbido() onuogugu {
+  ka numbers: [10]onuogugu = [10]onuogugu{77, 10, 5, 22, 11, 90, 8, 64, 34, 25};
+  
+  selection_sort(numbers);
+  print_array_4(numbers);
+  
+  weghachi 0;
+}

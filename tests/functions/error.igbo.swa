@@ -1,0 +1,23 @@
+oluasusu:igbo;
+
+oru divide(a: onuogugu, b: onuogugu) njehie {
+    oburu (b == 0) {
+        weghachi njehie("dividend is zero"); 
+    }
+    weghachi efu(njehie); 
+}
+
+mbido() onuogugu {
+    ka err: njehie = divide(100, 0);
+
+    oburu(err != efu(njehie)) {
+      deputa("Division by zero error (%s)\n", err);
+    }
+
+    err = divide(100, 10);
+    oburu(err == efu(njehie)) {
+      deputa("No division error");
+    }
+
+    weghachi 0;
+}

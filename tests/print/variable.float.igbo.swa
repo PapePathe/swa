@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka a : ofe = 10.005;
+  ka b : ofe = -10.005;
+  deputa("a: %f, b: %f", a, b);
+  weghachi 0; 
+}

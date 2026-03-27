@@ -1,0 +1,15 @@
+oluasusu:igbo;
+
+// Test 35: Returning tuple but outer expects single – error
+oru inner2() (onuogugu, onuogugu) {
+  weghachi 1, 2;
+}
+oru outer2() onuogugu {
+  weghachi inner2(); // ERROR: outer expects int, but inner returns (int,int)
+}
+mbido() onuogugu {
+  ka x: onuogugu = outer2();
+  weghachi 0;
+}
+
+

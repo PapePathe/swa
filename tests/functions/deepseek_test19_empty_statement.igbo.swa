@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+// Test 19: Empty statement (lone semicolon)
+// Should be allowed
+mbido() onuogugu {
+  ka a: onuogugu = 5;
+  ;
+  deputa("%d", a);
+  weghachi 0;
+}

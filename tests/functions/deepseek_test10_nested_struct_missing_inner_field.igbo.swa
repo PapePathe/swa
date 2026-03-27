@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 10: Nested struct missing inner field
+nhazi Inner { a: onuogugu, b: onuogugu, }
+nhazi Outer { inner: Inner, }
+mbido() onuogugu {
+  ka o: Outer = Outer{inner: Inner{a: 5}};
+  weghachi 0;
+}

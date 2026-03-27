@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+oru two()(onuogugu, onuogugu) { weghachi 2, 3; }
+// Test 46: Tuple assignment with mixed literal and function call on right – error
+mbido() onuogugu {
+  ka a: onuogugu;
+  ka b: onuogugu;
+  // ERROR: right side must be a single tuple-returning call, not mixed
+  (a, b) = 5, two(); 
+  weghachi 0;
+}

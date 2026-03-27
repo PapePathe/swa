@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+nhazi Coordinate{ x: onuogugu, y: onuogugu, }
+nhazi Place { c: Coordinate, Around: [100]Coordinate, }
+
+mbido () onuogugu {
+  ka res : Place;
+  res.Around[1].x = 1.0;
+  weghachi 0; 
+}

@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+// Test 19: Duplicate function definition (should error)
+oru foo() onuogugu {
+  weghachi 0;
+}
+oru foo() onuogugu {
+  weghachi 1;
+}
+mbido() onuogugu {
+  weghachi 0;
+}

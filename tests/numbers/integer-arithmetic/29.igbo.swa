@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 29: Associativity of multiplication and division with same precedence
+mbido() onuogugu {
+  ka a: onuogugu = 12 * 3 / 4;
+  // (12*3)/4 = 36/4 = 9
+  deputa("12 * 3 / 4 = %d", a); // Expected: 9
+  weghachi 0;
+}

@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+oru ogologo printfFn(format: ederede) onuogugu; 
+oru openFn(name: ederede, mode: onuogugu) onuogugu64; 
+oru closeFn(fd: onuogugu64); 
+oru getpidFn() onuogugu;
+oru getenvFn(name: ederede) ederede;
+
+mbido() onuogugu {
+  weghachi 0;
+}
+

@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+nhazi Point{}
+
+mbido() onuogugu {
+  ka res: Point;
+
+  weghachi 0;
+}
+

@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 9: Left associativity of multiplication/division
+mbido() onuogugu {
+  ka a: onuogugu = 16 / 4 / 2;
+  deputa("16 / 4 / 2 = %d", a); // Expected: 2 ( (16/4)/2 )
+  weghachi 0;
+}

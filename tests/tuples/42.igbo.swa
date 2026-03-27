@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+oru two()(onuogugu, onuogugu) { weghachi 2, 3; }
+// Test 43: Tuple assignment with struct fields
+nhazi Pair { x: onuogugu, y: onuogugu, }
+mbido() onuogugu {
+  ka p: Pair;
+  (p.x, p.y) = two();
+  deputa("p.x=%d, p.y=%d", p.x, p.y);
+  weghachi 0;
+}

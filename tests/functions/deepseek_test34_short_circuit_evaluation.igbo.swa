@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+// Test 34: Short-circuit evaluation (should not crash)
+mbido() onuogugu {
+  ka a: onuogugu = 0;
+  ka b: onuogugu = 5;
+  oburu (a != 0 && (b / a) > 0) {
+    deputa("never");
+  } maobu {
+    deputa("short-circuit works");
+  }
+  weghachi 0;
+}

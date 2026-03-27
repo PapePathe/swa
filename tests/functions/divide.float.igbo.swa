@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+oru divide(first : ofe, last: ofe) ofe {
+  weghachi first / last;
+}
+
+mbido() onuogugu{
+  ka m : ofe = 0.0;
+  m = divide(10.0, 5.0);
+  deputa("10.0 / 5.0 = %f", m);
+  weghachi 0; 
+}

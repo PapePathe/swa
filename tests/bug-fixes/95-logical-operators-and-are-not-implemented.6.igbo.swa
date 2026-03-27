@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  oburu (1 == 1 || 1 == 0) {
+    deputa("1 == 1 || 1 == 0 evaluates to true");
+  } maobu {
+    deputa("implementation error");
+  }
+  weghachi 0;
+}

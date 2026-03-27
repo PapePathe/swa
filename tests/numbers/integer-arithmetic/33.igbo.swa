@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+// Test 33: Parentheses with unary minus
+mbido() onuogugu {
+  ka a: onuogugu = (-3) * (-4);
+  deputa("(-3) * (-4) = %d", a); // Expected: 12
+  weghachi 0;
+}
+
+

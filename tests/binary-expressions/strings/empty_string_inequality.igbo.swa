@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+    ka s4 : ederede = "";
+    ka s1 : ederede = "hello";
+
+    oburu (s4 != s1) {
+        deputa("Passed");
+    } maobu {
+        deputa("Failed");
+    }
+    weghachi 0;
+}

@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 47: Using a variable before declaration
+// Should cause compile error
+mbido() onuogugu {
+  x = 5;
+  ka x: onuogugu;
+  weghachi 0;
+}

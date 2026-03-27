@@ -1,0 +1,11 @@
+oluasusu:igbo;
+oru mixed() (onuogugu, ofe) {
+    weghachi 1, 2.5;
+}
+mbido() onuogugu {
+    ka i: onuogugu = 0;
+    ka f: ofe = 0.0;
+    (i, f) = mixed();
+    deputa("i=%d, f=%.1f\n", i, f);
+    weghachi 0;
+}

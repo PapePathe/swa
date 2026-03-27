@@ -1,0 +1,14 @@
+oluasusu:igbo;	
+
+mbido() onuogugu {
+	nhazi Test { 
+		Message: ederede, 
+		ExitCode: onuogugu, 
+	}
+	ka ab1: Test = Test{ 
+		Message: "Done", 
+  	ExitCode: 0 
+  }; 
+
+  weghachi ab1.ExitCode;
+}

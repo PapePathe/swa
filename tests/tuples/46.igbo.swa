@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+// Test 47: Tuple assignment with literal tuple on right (if allowed) – but not a function call
+mbido() onuogugu {
+  ka a: onuogugu;
+  ka b: onuogugu;
+  // Might be allowed? But spec says callfn() only.
+  (a, b) = (1, 2); 
+  weghachi 0;
+}

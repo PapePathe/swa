@@ -1,0 +1,18 @@
+oluasusu:igbo;
+
+oru add(first: ofe, last: ofe) ofe {
+  weghachi first + last;
+}
+
+nhazi Float{
+  v: ofe,
+}
+
+mbido () onuogugu {
+  ka p : [1]Float= [1]Float{
+    Float{v: 10.25},
+  };
+  ka res : ofe = add(p[0].v, 4.75);
+  deputa("10.25 + 4.75 = %.2f", res);
+  weghachi 0; 
+}

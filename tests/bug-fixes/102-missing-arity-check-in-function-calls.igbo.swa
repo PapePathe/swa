@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+oru add(a: onuogugu, b: onuogugu) onuogugu {
+  weghachi a + b;
+}
+
+mbido() onuogugu {
+  add(10);
+  weghachi 0;
+}

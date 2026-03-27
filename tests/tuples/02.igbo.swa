@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+// Test 4: Too few variables on left – should cause compile error
+oru two() (onuogugu, onuogugu) {
+  weghachi 1, 2;
+}
+mbido() onuogugu {
+  ka a: onuogugu;
+  // ERROR: single variable cannot receive two values
+  (a) = two();
+  weghachi 0;
+}

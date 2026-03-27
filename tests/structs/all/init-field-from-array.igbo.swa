@@ -1,0 +1,23 @@
+oluasusu:igbo;
+
+nhazi Wrapper {
+  Data: *onuogugu,
+}
+
+mbido() onuogugu {
+  ka backing: [10]onuogugu = [10]onuogugu{10, 20, 30, 0, 0, 0, 0, 0, 0, 0};
+  ka w: Wrapper = Wrapper{
+    Data: backing,
+  };
+  ka i: onuogugu = 0;
+
+  dika(i < 10) {
+    deputa(
+      "Backing[%d]: %d, Wrapper.Data[%d]: %d \n", 
+      i, w.Data[i], i, backing[i]
+    );
+    i = i + 1; 
+  }
+  
+  weghachi 0;
+}

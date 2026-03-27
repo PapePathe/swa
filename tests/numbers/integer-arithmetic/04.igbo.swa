@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 4: Division (integer)
+mbido() onuogugu {
+  ka a: onuogugu = 15 / 4;
+  deputa("15 / 4 = %d", a); // Expected: 3 (integer division truncates toward zero)
+  weghachi 0;
+}

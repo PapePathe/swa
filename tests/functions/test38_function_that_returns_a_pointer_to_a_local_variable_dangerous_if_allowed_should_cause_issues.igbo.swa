@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+// Test 38: Function that returns a pointer to a local variable
+// (dangerous) – if allowed, should cause issues
+
+oru bad() *onuogugu {
+  ka x: onuogugu = 42;
+  weghachi x;
+}
+mbido() onuogugu {
+  ka p: *onuogugu = bad();
+  deputa("%d", p); // undefined behavior
+  weghachi 0;
+}

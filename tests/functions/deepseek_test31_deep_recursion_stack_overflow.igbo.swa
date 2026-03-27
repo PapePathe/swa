@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+// Test 31: Very deep recursion (stack overflow test)
+oru depth(n: onuogugu) onuogugu {
+  weghachi 0 oburu (n == 0);
+  weghachi depth(n - 1) + 1;
+}
+mbido() onuogugu {
+  ka d: onuogugu = depth(100000);
+  deputa("%d", d);
+  weghachi 0;
+}

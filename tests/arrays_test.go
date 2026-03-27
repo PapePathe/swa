@@ -16,6 +16,12 @@ func TestArrayOfStructsWithUndefinedPropertyAccess(t *testing.T) {
 			"./arrays/structs/undefined-property-access.soussou.swa",
 			"se (Name) mu na fokhi Engineer kui\n")
 	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		NewFailedCompileRequest(t,
+			"./arrays/structs/undefined-property-access.igbo.swa",
+			"Ahụghị akụkụ (Name) n'ime struct Engineer\n")
+	})
 }
 
 func TestArrayOfStructsWithUndefinedPropertyInitialization(t *testing.T) {
@@ -28,6 +34,12 @@ func TestArrayOfStructsWithUndefinedPropertyInitialization(t *testing.T) {
 	t.Run("Soussou", func(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./arrays/structs/undefined-property-initialization.soussou.swa",
+			"Property with name (Name) does not exist on struct Engineer\n")
+	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		NewFailedCompileRequest(t,
+			"./arrays/structs/undefined-property-initialization.igbo.swa",
 			"Property with name (Name) does not exist on struct Engineer\n")
 	})
 }
@@ -43,6 +55,12 @@ func TestArrayOfStructsWithUndefined(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./arrays/structs/undefined-struct.soussou.swa",
 			"fokhi Engineer maboroma\n")
+	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		NewFailedCompileRequest(t,
+			"./arrays/structs/undefined-struct.igbo.swa",
+			"Struct akpọrọ Engineer adịghị na tebulu akara\n")
 	})
 }
 
@@ -64,6 +82,12 @@ func TestArrayOfStructs(t *testing.T) {
 			"./arrays/structs/source.soussou.swa",
 			"(nom: Pathe, age: 40, taille: 1.80, technos: Ruby, Rust, Go) (nom: Lucien, age: 24, taille: 1.81, technos: Typescript, HTML, Css) (nom: Manel, age: 25, taille: 1.82, technos: Typescript, Ruby) (nom: Bintou, age: 28, technos: Javascript, Css, HTML)")
 	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./arrays/structs/source.igbo.swa",
+			"(nom: Pathe, age: 40, taille: 1.80, stack: Ruby, Rust, Go) (nom: Lucien, age: 24, taille: 1.81, stack: Typescript, HTML, Css) (nom: Manel, age: 25, taille: 1.82, stack: Typescript, Ruby) (nom: Bintou, age: 28, taille: 1.83, stack: Javascript, Css, HTML) ")
+	})
 }
 
 func TestArrayOfStrings(t *testing.T) {
@@ -83,6 +107,12 @@ func TestArrayOfStrings(t *testing.T) {
 		NewSuccessfulCompileRequest(t,
 			"./arrays/strings/source.soussou.swa",
 			"valeurs dans le tableau: (abc),(efg),(ijk)")
+	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./arrays/strings/source.igbo.swa",
+			"values in the array: (abc),(efg),(ijk)")
 	})
 }
 
@@ -104,6 +134,13 @@ func TestArraysInPrintStatement(t *testing.T) {
 			"./arrays/print/source.soussou.swa",
 			"Les valeurs dans le tableau sont: 1 2 3 4 5")
 	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		t.Skip("file does not exist")
+		NewSuccessfulCompileRequest(t,
+			"./arrays/print/source.igbo.swa",
+			"Array values are: 1 2 3 4 5")
+	})
 }
 
 func TestArrays(t *testing.T) {
@@ -122,6 +159,12 @@ func TestArrays(t *testing.T) {
 	t.Run("Soussou", func(t *testing.T) {
 		NewSuccessfulCompileRequest(t,
 			"./arrays/ok/source.soussou.swa",
+			"")
+	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./arrays/ok/source.igbo.swa",
 			"")
 	})
 }
@@ -144,6 +187,12 @@ func TestArrayIndexOutOfBounds(t *testing.T) {
 			"./arrays/out-of-bounds/source.soussou.swa",
 			"Se kui (%!s(int=5)) mu na tableau (tableau) kui\n")
 	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		NewFailedCompileRequest(t,
+			"./arrays/out-of-bounds/source.igbo.swa",
+			"Ihe dị na index (%!s(int=5)) adịghị n'ime array (tableau)\n")
+	})
 }
 
 func TestArrayAccessWithPrefixExpression(t *testing.T) {
@@ -163,6 +212,12 @@ func TestArrayAccessWithPrefixExpression(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./arrays/prefix-expression/source.soussou.swa",
 			"Konti nan lanné tableau kui, yakosi: (- 4)\n")
+	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		NewFailedCompileRequest(t,
+			"./arrays/prefix-expression/source.igbo.swa",
+			"Naanị nọmba ka a na-anara dịka index array, nke dị ugbua: (- 4)\n")
 	})
 }
 
@@ -263,6 +318,12 @@ func TestArrayAccessWithSymbolExpression(t *testing.T) {
 		NewFailedCompileRequest(t,
 			"./arrays/symbol-expression/source.english.swa",
 			"variable named x does not exist in symbol table\n")
+	})
+
+	t.Run("Igbo", func(t *testing.T) {
+		NewFailedCompileRequest(t,
+			"./arrays/symbol-expression/source.igbo.swa",
+			"Variable akpọrọ x adịghị na tebulu akara\n")
 	})
 }
 
