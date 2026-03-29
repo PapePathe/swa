@@ -1,0 +1,12 @@
+dialect:english;
+
+start() int {
+    let s: []string = make([]string, 0, 4);
+    s = append(s, "hello");
+    s = append(s, "world");
+    s = append(s, "swa");
+
+    print("len=%d [%s %s %s]", len(s), s[0], s[1], s[2]);
+
+    return 0;
+}

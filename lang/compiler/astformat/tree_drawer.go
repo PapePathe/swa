@@ -495,6 +495,11 @@ func (t *TreeDrawer) VisitArrayType(node *ast.ArrayType) error {
 	return t.visitType(node.Underlying, true)
 }
 
+func (t *TreeDrawer) VisitSliceType(node *ast.SliceType) error {
+	t.writeLine("Type: Slice")
+	return t.visitType(node.Underlying, true)
+}
+
 func (t *TreeDrawer) VisitVoidType(node *ast.VoidType) error {
 	t.writeLine("Type: Void")
 
@@ -520,6 +525,11 @@ func (t *TreeDrawer) VisitZeroExpression(node *ast.ZeroExpression) error {
 	return t.visitType(node.T, true)
 }
 
+func (t *TreeDrawer) VisitTypeExpression(node *ast.TypeExpression) error {
+	t.writeLine("TypeExpression")
+	return t.visitType(node.Type, true)
+}
+
 func (t *TreeDrawer) ZeroOfSymbolType(node *ast.SymbolType) error     { return nil }
 func (t *TreeDrawer) ZeroOfTupleType(node *ast.TupleType) error       { return nil }
 func (t *TreeDrawer) ZeroOfNumberType(node *ast.NumberType) error     { return nil }
@@ -529,4 +539,5 @@ func (t *TreeDrawer) ZeroOfPointerType(node *ast.PointerType) error   { return n
 func (t *TreeDrawer) ZeroOfStringType(node *ast.StringType) error     { return nil }
 func (t *TreeDrawer) ZeroOfErrorType(node *ast.ErrorType) error       { return nil }
 func (t *TreeDrawer) ZeroOfArrayType(node *ast.ArrayType) error       { return nil }
+func (t *TreeDrawer) ZeroOfSliceType(node *ast.SliceType) error       { return nil }
 func (t *TreeDrawer) ZeroOfVoidType(node *ast.VoidType) error         { return nil }

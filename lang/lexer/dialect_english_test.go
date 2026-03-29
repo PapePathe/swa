@@ -30,6 +30,10 @@ func TestReservedEnglish(t *testing.T) {
 		"true":     True,
 		"false":    False,
 		"bool":     TypeBool,
+		"make":     Make,
+		"len":      Len,
+		"cap":      Cap,
+		"append":   Append,
 	}
 	english := English{}
 

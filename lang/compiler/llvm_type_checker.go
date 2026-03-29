@@ -3,6 +3,7 @@ package compiler
 import (
 	"fmt"
 	"swahili/lang/ast"
+	"swahili/lang/lexer"
 )
 
 type LLVMTypeChecker struct {
@@ -25,6 +26,16 @@ func NewLLVMTypeChecker(ctx *CompilerCtx) *LLVMTypeChecker {
 }
 
 func (l *LLVMTypeChecker) VisitAssignmentExpression(node *ast.AssignmentExpression) error {
+	err := node.Assignee.Accept(l)
+	if err != nil {
+		return err
+	}
+
+	err = node.Value.Accept(l)
+	if err != nil {
+		return err
+	}
+
 	asstype := node.Assignee.VisitedSwaType()
 	valType := node.Value.VisitedSwaType()
 
@@ -49,6 +60,18 @@ func (l *LLVMTypeChecker) VisitAssignmentExpression(node *ast.AssignmentExpressi
 }
 
 func (l *LLVMTypeChecker) VisitBlockStatement(node *ast.BlockStatement) error {
+	oldCtx := l.ctx
+	l.ctx = NewCompilerContext(
+		l.ctx.Context,
+		l.ctx.Builder,
+		l.ctx.Module,
+		l.ctx.Dialect,
+		l.ctx,
+	)
+	defer func() {
+		l.ctx = oldCtx
+	}()
+
 	for _, v := range node.Body {
 		err := v.Accept(l)
 		if err != nil {
@@ -72,17 +95,27 @@ func (l *LLVMTypeChecker) VisitExpressionStatement(node *ast.ExpressionStatement
 }
 
 func (l *LLVMTypeChecker) VisitVarDeclaration(node *ast.VarDeclarationStatement) error {
-	if node.Value == nil {
-		return nil
-	}
-
-	err := node.Value.Accept(l)
+	// Register symbol for subsequent expressions (always do this for declarations)
+	err := l.ctx.AddSymbol(node.Name, &SymbolTableEntry{
+		DeclaredType: node.ExplicitType,
+	})
 	if err != nil {
 		return err
 	}
 
-	// TODO visited swa type should not be nil
-	// All visited expressions should have the field set
+	if node.Value == nil {
+		return nil
+	}
+
+	// Make sure the value is visited to populate its type
+	if node.Value.VisitedSwaType() == nil {
+		err := node.Value.Accept(l)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Safety check again - if still nil after visiting, we can't check types
 	if node.Value.VisitedSwaType() == nil {
 		return nil
 	}
@@ -146,15 +179,82 @@ func (l *LLVMTypeChecker) VisitArrayInitializationExpression(node *ast.ArrayInit
 func (l *LLVMTypeChecker) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStructsAccessExpression) error {
 	return nil
 }
-func (l *LLVMTypeChecker) VisitArrayType(node *ast.ArrayType) error                 { return nil }
-func (l *LLVMTypeChecker) VisitCallExpression(node *ast.CallExpression) error       { return nil }
-func (l *LLVMTypeChecker) VisitErrorExpression(node *ast.ErrorExpression) error     { return nil }
-func (l *LLVMTypeChecker) VisitFloatExpression(node *ast.FloatExpression) error     { return nil }
-func (l *LLVMTypeChecker) VisitFloatType(node *ast.FloatType) error                 { return nil }
-func (l *LLVMTypeChecker) VisitFunctionCall(node *ast.FunctionCallExpression) error { return nil }
+func (l *LLVMTypeChecker) VisitArrayType(node *ast.ArrayType) error             { return nil }
+func (l *LLVMTypeChecker) VisitSliceType(node *ast.SliceType) error             { return nil }
+func (l *LLVMTypeChecker) VisitCallExpression(node *ast.CallExpression) error   { return nil }
+func (l *LLVMTypeChecker) VisitErrorExpression(node *ast.ErrorExpression) error { return nil }
+func (l *LLVMTypeChecker) VisitFloatExpression(node *ast.FloatExpression) error { return nil }
+func (l *LLVMTypeChecker) VisitFloatType(node *ast.FloatType) error             { return nil }
+func (l *LLVMTypeChecker) VisitFunctionCall(node *ast.FunctionCallExpression) error {
+	symbol, ok := node.Name.(*ast.SymbolExpression)
+	if !ok {
+		return nil
+	}
+
+	if len(symbol.Tokens) > 0 {
+		switch symbol.Tokens[0].Kind {
+		case lexer.Make:
+			typeExpr, ok := node.Args[0].(*ast.TypeExpression)
+			if ok {
+				node.SwaType = typeExpr.Type
+			}
+			return nil
+		case lexer.Append:
+			// append(slice, item) -> returns slice type
+			err := node.Args[0].Accept(l)
+			if err != nil {
+				return err
+			}
+			node.SwaType = node.Args[0].VisitedSwaType()
+			return nil
+		case lexer.Len, lexer.Cap:
+			node.SwaType = &ast.NumberType{}
+			return nil
+		}
+	}
+
+	name := symbol.Value
+	err, funcType := l.ctx.FindFuncSymbol(name)
+	if err != nil {
+		return err
+	}
+
+	node.SwaType = funcType.meta.ReturnType
+
+	for _, arg := range node.Args {
+		err := arg.Accept(l)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
 func (l *LLVMTypeChecker) VisitFunctionDefinition(node *ast.FuncDeclStatement) error {
 	if node.Declaration {
 		return nil
+	}
+
+	oldCtx := l.ctx
+	l.ctx = NewCompilerContext(
+		l.ctx.Context,
+		l.ctx.Builder,
+		l.ctx.Module,
+		l.ctx.Dialect,
+		l.ctx,
+	)
+	defer func() {
+		l.ctx = oldCtx
+	}()
+
+	// Register parameters
+	for _, p := range node.Args {
+		err := l.ctx.AddSymbol(p.Name, &SymbolTableEntry{
+			DeclaredType: p.ArgType,
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	l.returnStatementsCount = 0
@@ -164,8 +264,8 @@ func (l *LLVMTypeChecker) VisitFunctionDefinition(node *ast.FuncDeclStatement) e
 		return err
 	}
 
-	if l.returnStatementsCount == 0 {
-		return fmt.Errorf("function has no return statement")
+	if l.returnStatementsCount == 0 && node.ReturnType.Value() != ast.DataTypeVoid {
+		return fmt.Errorf("function %s has no return statement and expected %s", node.Name, node.ReturnType.Value().String())
 	}
 
 	l.returnStatementsCount = 0
@@ -184,13 +284,22 @@ func (l *LLVMTypeChecker) VisitReturnStatement(node *ast.ReturnStatement) error 
 
 	return nil
 }
-func (l *LLVMTypeChecker) VisitStringExpression(node *ast.StringExpression) error   { return nil }
-func (l *LLVMTypeChecker) VisitStringType(node *ast.StringType) error               { return nil }
-func (l *LLVMTypeChecker) VisitErrorType(node *ast.ErrorType) error                 { return nil }
-func (l *LLVMTypeChecker) VisitTupleType(node *ast.TupleType) error                 { return nil }
-func (l *LLVMTypeChecker) VisitSymbolExpression(node *ast.SymbolExpression) error   { return nil }
+func (l *LLVMTypeChecker) VisitStringExpression(node *ast.StringExpression) error { return nil }
+func (l *LLVMTypeChecker) VisitStringType(node *ast.StringType) error             { return nil }
+func (l *LLVMTypeChecker) VisitErrorType(node *ast.ErrorType) error               { return nil }
+func (l *LLVMTypeChecker) VisitTupleType(node *ast.TupleType) error               { return nil }
+func (l *LLVMTypeChecker) VisitSymbolExpression(node *ast.SymbolExpression) error {
+	err, entry := l.ctx.FindSymbol(node.Value)
+	if err != nil {
+		return err
+	}
+
+	node.SwaType = entry.DeclaredType
+	return nil
+}
 func (l *LLVMTypeChecker) VisitSymbolType(node *ast.SymbolType) error               { return nil }
 func (l *LLVMTypeChecker) VisitTupleExpression(node *ast.TupleExpression) error     { return nil }
+func (l *LLVMTypeChecker) VisitTypeExpression(node *ast.TypeExpression) error       { return nil }
 func (l *LLVMTypeChecker) VisitVoidType(node *ast.VoidType) error                   { return nil }
 func (l *LLVMTypeChecker) VisitWhileStatement(node *ast.WhileStatement) error       { return nil }
 func (l *LLVMTypeChecker) ZeroOfArrayType(node *ast.ArrayType) error                { return nil }
@@ -203,6 +312,7 @@ func (l *LLVMTypeChecker) ZeroOfStringType(node *ast.StringType) error          
 func (l *LLVMTypeChecker) ZeroOfSymbolType(node *ast.SymbolType) error              { return nil }
 func (l *LLVMTypeChecker) ZeroOfVoidType(node *ast.VoidType) error                  { return nil }
 func (l *LLVMTypeChecker) ZeroOfTupleType(node *ast.TupleType) error                { return nil }
+func (l *LLVMTypeChecker) ZeroOfSliceType(node *ast.SliceType) error                { return nil }
 func (l *LLVMTypeChecker) VisitZeroExpression(node *ast.ZeroExpression) error       { return nil }
 func (l *LLVMTypeChecker) VisitBinaryExpression(node *ast.BinaryExpression) error   { return nil }
 func (l *LLVMTypeChecker) ZeroOfBoolType(node *ast.BoolType) error                  { return nil }
@@ -244,6 +354,22 @@ func (l *LLVMTypeChecker) areTypesEquivalent(a, b ast.Type) bool {
 			nameB = bsym.Name
 		}
 		return nameA == nameB
+	}
+
+	if a.Value() == ast.DataTypeSlice {
+		var aslice, bslice ast.SliceType
+		if st, ok := a.(ast.SliceType); ok {
+			aslice = st
+		} else if st, ok := a.(*ast.SliceType); ok {
+			aslice = *st
+		}
+
+		if st, ok := b.(ast.SliceType); ok {
+			bslice = st
+		} else if st, ok := b.(*ast.SliceType); ok {
+			bslice = *st
+		}
+		return l.areTypesEquivalent(aslice.Underlying, bslice.Underlying)
 	}
 
 	// For other types like ErrorType, NumberType etc, Value() equality is enough

@@ -1,0 +1,10 @@
+dialect:english;
+
+start() int {
+    let s: []int;
+    print("len=%d", len(s));
+    s = append(s, 42);
+    print("len=%d val=%d", len(s), s[0]);
+
+    return 0;
+}

@@ -1,0 +1,14 @@
+dialect:english;
+
+start() int {
+    let s: []int = make([]int, 0, 2);
+    s = append(s, 1);
+    s = append(s, 2);
+    print("full: len=%d cap=%d", len(s), cap(s));
+
+    s = append(s, 3);
+    print("grown: len=%d cap=%d", len(s), cap(s));
+    print("values: %d %d %d", s[0], s[1], s[2]);
+
+    return 0;
+}

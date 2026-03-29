@@ -81,6 +81,7 @@ type ExpressionsCodeGenerator interface {
 	VisitSymbolValueExpression(node *SymbolValueExpression) error
 	VisitSymbolAdressExpression(node *SymbolAdressExpression) error
 	VisitBooleanExpression(node *BooleanExpression) error
+	VisitTypeExpression(node *TypeExpression) error
 }
 
 type TypeVisitor interface {
@@ -96,6 +97,7 @@ type TypeVisitor interface {
 	VisitVoidType(node *VoidType) error
 	VisitBoolType(node *BoolType) error
 	VisitByteType(node *ByteType) error
+	VisitSliceType(node *SliceType) error
 }
 
 type ZeroValueVisitor interface {
@@ -111,4 +113,5 @@ type ZeroValueVisitor interface {
 	ZeroOfVoidType(node *VoidType) error
 	ZeroOfBoolType(node *BoolType) error
 	ZeroOfByteType(node *ByteType) error
+	ZeroOfSliceType(node *SliceType) error
 }

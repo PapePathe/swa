@@ -1,0 +1,12 @@
+dialect:english;
+
+start() int {
+    let s: []float = make([]float, 0, 4);
+    s = append(s, 1.5);
+    s = append(s, 2.5);
+    s = append(s, 3.5);
+
+    print("len=%d [%.1f %.1f %.1f]", len(s), s[0], s[1], s[2]);
+
+    return 0;
+}
