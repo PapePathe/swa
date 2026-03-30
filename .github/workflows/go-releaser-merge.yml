@@ -116,7 +116,7 @@ jobs:
             export CGO_CXXFLAGS="-I$INCDIR $(llvm-config --cxxflags | sed 's/\\/\//g')"
             export CGO_LDFLAGS="-L$LIBDIR $(llvm-config --ldflags --libs all --system-libs | sed 's/\\/\//g')"
           fi
-          goreleaser release --clean
+          goreleaser build --clean --single-target
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CGO_ENABLED: 1
