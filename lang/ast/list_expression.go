@@ -12,15 +12,15 @@ type ListExpression struct {
 var _ Expression = (*ListExpression)(nil)
 
 func (m *ListExpression) Accept(g CodeGenerator) error {
-	panic("unimplemented")
+	return g.VisitListExpression(m)
 }
 
 func (m *ListExpression) TokenStream() []lexer.Token {
-	panic("unimplemented")
+	return m.Tokens
 }
 
 func (m *ListExpression) VisitedSwaType() Type {
-	panic("unimplemented")
+	return m.DataType
 }
 
 type ListCountExpression struct {

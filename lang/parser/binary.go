@@ -54,7 +54,19 @@ func ParseBinaryExpression(p *Parser, left ast.Expression, bp BindingPower) (ast
 	expr.Right = right
 	expr.Tokens = append(expr.Tokens, right.TokenStream()...)
 
-	return &expr, nil
+	switch operatorToken.Kind {
+	case lexer.Append:
+		e := ast.AppendExpression{
+			Tokens:     expr.TokenStream(),
+			Appendable: expr.Left,
+			Value:      expr.Right,
+		}
+
+		return &e, nil
+	default:
+		return &expr, nil
+	}
+
 }
 
 func ParseZeroExpression(p *Parser) (ast.Expression, error) {

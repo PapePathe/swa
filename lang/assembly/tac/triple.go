@@ -23,7 +23,16 @@ type Triple struct {
 	currproc    *Proc
 }
 
-// VisitListCountExpression implements [ast.CodeGenerator].
+var _ ast.CodeGenerator = (*Triple)(nil)
+
+func (gen *Triple) VisitAppendExpression(node *ast.AppendExpression) error {
+	panic("unimplemented")
+}
+
+func (gen *Triple) VisitListExpression(node *ast.ListExpression) error {
+	panic("unimplemented")
+}
+
 func (gen *Triple) VisitListCountExpression(node *ast.ListCountExpression) error {
 	panic("unimplemented")
 }
@@ -66,8 +75,6 @@ func (gen *Triple) Display() {
 		}
 	}
 }
-
-var _ ast.CodeGenerator = (*Triple)(nil)
 
 func NewTripleGenerator() *Triple {
 	return &Triple{

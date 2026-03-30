@@ -8,17 +8,12 @@ type Json struct {
 	Element map[string]any
 }
 
-// VisitListCountExpression implements [ast.CodeGenerator].
-func (j *Json) VisitListCountExpression(node *ast.ListCountExpression) error {
-	panic("unimplemented")
-}
+var _ ast.CodeGenerator = (*Json)(nil)
 
-// VisitByteType implements [ast.CodeGenerator].
 func (j *Json) VisitByteType(node *ast.ByteType) error {
 	panic("unimplemented")
 }
 
-// ZeroOfByteType implements [ast.CodeGenerator].
 func (j *Json) ZeroOfByteType(node *ast.ByteType) error {
 	panic("unimplemented")
 }
@@ -36,7 +31,6 @@ func (j *Json) VisitBoolType(node *ast.BoolType) error {
 	return nil
 }
 
-// VisitBooleanExpression implements [ast.CodeGenerator].
 func (j *Json) VisitBooleanExpression(node *ast.BooleanExpression) error {
 	res := make(map[string]any)
 	res["BooleanExpression"] = node.Value
@@ -46,11 +40,23 @@ func (j *Json) VisitBooleanExpression(node *ast.BooleanExpression) error {
 	return nil
 }
 
+func (j *Json) VisitListExpression(node *ast.ListExpression) error {
+	m := make(map[string]any)
+
+	_ = node.DataType.Accept(j)
+	m["Type"] = j.getLastResult()
+
+	res := make(map[string]any)
+	res["ListExpression"] = m
+
+	j.setLastResult(res)
+
+	return nil
+}
+
 func NewJsonFormatter() *Json {
 	return &Json{Element: map[string]any{}}
 }
-
-var _ ast.CodeGenerator = (*Json)(nil)
 
 func (j *Json) VisitArrayAccessExpression(node *ast.ArrayAccessExpression) error {
 	m := make(map[string]any)
@@ -124,6 +130,17 @@ func (j *Json) VisitSliceType(node *ast.SliceType) error {
 	return nil
 }
 
+func (j *Json) VisitListCountExpression(node *ast.ListCountExpression) error {
+	_ = node.Expr.Accept(j)
+
+	m := make(map[string]any)
+	m["ListCountExpression"] = j.getLastResult()
+
+	j.setLastResult(m)
+
+	return nil
+}
+
 func (j *Json) VisitAssignmentExpression(node *ast.AssignmentExpression) error {
 	m := make(map[string]any)
 	m["Operator"] = node.Operator.Value
@@ -172,6 +189,22 @@ func (j *Json) VisitTupleAssignmentExpression(node *ast.TupleAssignmentExpressio
 
 	res := make(map[string]any)
 	res["TupleAssignmentExpression"] = m
+
+	j.setLastResult(res)
+
+	return nil
+}
+
+func (j *Json) VisitAppendExpression(node *ast.AppendExpression) error {
+	m := make(map[string]any)
+	_ = node.Appendable.Accept(j)
+	m["Appendable"] = j.getLastResult()
+
+	_ = node.Value.Accept(j)
+	m["Right"] = j.getLastResult()
+
+	res := make(map[string]any)
+	res["AppendExpression"] = m
 
 	j.setLastResult(res)
 

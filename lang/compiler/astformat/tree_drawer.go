@@ -12,6 +12,8 @@ type TreeDrawer struct {
 	isLast []bool
 }
 
+var _ ast.CodeGenerator = (*TreeDrawer)(nil)
+
 func (t *TreeDrawer) VisitListCountExpression(node *ast.ListCountExpression) error {
 	t.writeLine(fmt.Sprintf("ListCountExpr(%s)", node.Expr))
 
@@ -25,8 +27,6 @@ func (t *TreeDrawer) VisitByteType(node *ast.ByteType) error {
 func (t *TreeDrawer) ZeroOfByteType(node *ast.ByteType) error {
 	panic("unimplemented")
 }
-
-var _ ast.CodeGenerator = (*TreeDrawer)(nil)
 
 func NewTreeDrawer(w io.Writer) *TreeDrawer {
 	return &TreeDrawer{
@@ -96,6 +96,17 @@ func (t *TreeDrawer) VisitSymbolAdressExpression(node *ast.SymbolAdressExpressio
 	t.writeLine("SymbolAdressExpression")
 
 	err := t.visitChild(node.Exp, true)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *TreeDrawer) VisitListExpression(node *ast.ListExpression) error {
+	t.writeLine("ListExpression")
+
+	err := t.visitType(node.DataType, true)
 	if err != nil {
 		return err
 	}
@@ -293,6 +304,27 @@ func (t *TreeDrawer) VisitErrorExpression(node *ast.ErrorExpression) error {
 	if err := t.visitChild(node.Exp, false); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (t *TreeDrawer) VisitAppendExpression(node *ast.AppendExpression) error {
+	t.writeLine("AppendExpression")
+	t.isLast = append(t.isLast, false)
+	t.writeLine("Left")
+
+	if err := t.visitChild(node.Appendable, false); err != nil {
+		return err
+	}
+
+	t.isLast[len(t.isLast)-1] = true
+
+	t.writeLine("Right")
+	if err := t.visitChild(node.Value, true); err != nil {
+		return err
+	}
+
+	t.isLast = t.isLast[:len(t.isLast)-1]
+
 	return nil
 }
 
