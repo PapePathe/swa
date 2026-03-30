@@ -1,0 +1,18 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka chaine_de_television : ederede = "";
+  ka entier44: onuogugu = 0;
+  ka sismologie: onuogugu = 0;
+  ka sinone: onuogugu = 0;
+  ka affichera  : onuogugu = 0;
+  ka structureId: onuogugu = 0;
+  ka demarrerProgramme: onuogugu = 0;
+  ka retournerUneValeur: onuogugu = 0;
+  ka fonctionMetier: onuogugu = 0;
+  ka dialecteNatif: onuogugu = 0;
+  
+  weghachi 0;
+}
+
+

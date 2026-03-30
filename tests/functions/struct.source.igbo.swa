@@ -1,0 +1,38 @@
+oluasusu:igbo;
+
+nhazi Person {
+  Age:     onuogugu,
+  Height:  ofe,
+  Name:    ederede,
+}
+
+oru changeAge(person: *Person) onuogugu {
+  person.Age = person.Age + 20;
+  person.Age = 20 + person.Age;
+ 
+
+  weghachi person.Age;
+}
+
+oru changeName(person: *Person) ederede {
+  person.Name = "Pathe SENE";
+
+  weghachi person.Name;
+}
+
+oru changHeight(person: *Person) ofe {
+  person.Height= 1.80;
+
+  weghachi person.Height;
+}
+
+mbido() onuogugu {
+  ka p : Person = Person{ Age: 0, Height: 0.0, Name: "Pathe", };
+  ka myAge : onuogugu = changeAge(p);
+  ka myHeight : ofe = changHeight(p);
+  ka myName: ederede = changeName(p);
+ 
+  deputa("age: %d, height: %.2f, name: %s", myAge, myHeight, myName);
+
+  weghachi 0; 
+}

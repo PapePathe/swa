@@ -1,0 +1,32 @@
+oluasusu:igbo;
+
+nhazi Address {
+  City: ederede,
+  ZipCode: onuogugu,
+}
+
+nhazi Person {
+  Name: ederede,
+  Age: onuogugu,
+  HomeAddress: Address,
+}
+
+mbido() onuogugu {
+  ka addr: Address = Address{
+    City: "Dakar",
+    ZipCode: 12000,
+  };
+
+  ka person: Person = Person{
+    Name: "Pathe",
+    Age: 30,
+    HomeAddress: addr,
+  };
+  
+  deputa(
+    "Name: %s, City: %s, ZipCode: %d", 
+    person.Name, person.HomeAddress.City, person.HomeAddress.ZipCode
+  );
+  
+  weghachi 0;
+}

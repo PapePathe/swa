@@ -1,0 +1,17 @@
+oluasusu:igbo;
+oru split(n: onuogugu) (onuogugu, onuogugu) {
+    oburu (n == 0) {
+        weghachi 0, 0;
+    }
+    ka a: onuogugu = 0;
+    ka b: onuogugu = 0;
+    (a, b) = split(n - 1);
+    weghachi a + 1, b + 2;
+}
+mbido() onuogugu {
+    ka x: onuogugu = 0;
+    ka y: onuogugu = 0;
+    (x, y) = split(5);
+    deputa("x=%d, y=%d\n", x, y);
+    weghachi 0;
+}

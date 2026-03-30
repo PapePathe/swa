@@ -61,6 +61,11 @@ func TestWhileStatement(t *testing.T) {
 					inputPath:               "./while/odd-numbers.soussou.swa",
 					expectedExecutionOutput: "1 3 5 7 9 ",
 				},
+				{
+					name:                    "igbo",
+					inputPath:               "./while/odd-numbers.igbo.swa",
+					expectedExecutionOutput: "1 3 5 7 9 ",
+				},
 			}
 
 			for _, test := range tests {
@@ -99,6 +104,11 @@ func TestWhileStatement(t *testing.T) {
 			{
 				name:                    "french",
 				inputPath:               "./while/odd-numbers-bool-func.french.swa",
+				expectedExecutionOutput: "1 3 5 7 9 ",
+			},
+			{
+				name:                    "igbo",
+				inputPath:               "./while/odd-numbers-bool-func.igbo.swa",
 				expectedExecutionOutput: "1 3 5 7 9 ",
 			},
 		}

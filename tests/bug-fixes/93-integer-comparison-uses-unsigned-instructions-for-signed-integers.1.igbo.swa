@@ -1,0 +1,20 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka a: onuogugu = -1;
+  ka b: onuogugu = 10;
+
+  oburu (a > b) {
+    deputa("ERROR");
+  } maobu {
+    deputa("ok");
+  }
+
+  oburu (a >= b) {
+    deputa("ERROR");
+  } maobu {
+    deputa("ok");
+  }
+
+  weghachi 0;
+}

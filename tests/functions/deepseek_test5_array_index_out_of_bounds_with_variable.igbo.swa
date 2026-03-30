@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+// Test 5: Array index with variable out of bounds
+// Expected: runtime error (index 5 in array of size 5)
+mbido() onuogugu {
+  ka arr: [5]onuogugu = [5]onuogugu{1,2,3,4,5};
+  ka i: onuogugu = 5;
+  arr[i] = 0;
+  weghachi 0;
+}

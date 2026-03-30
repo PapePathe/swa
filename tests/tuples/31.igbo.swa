@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+// Test 32: Function returning single but used in tuple assignment – error
+oru retOne() onuogugu {
+  weghachi 1;
+}
+mbido() onuogugu {
+  ka x: onuogugu;
+  ka y: onuogugu;
+  (x, y) = retOne(); // ERROR: function returns one, expecting two
+  weghachi 0;
+}

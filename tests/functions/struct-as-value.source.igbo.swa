@@ -1,0 +1,40 @@
+oluasusu:igbo;
+
+nhazi Person {
+  Age:     onuogugu,
+  Height:  ofe,
+  Name:    ederede,
+}
+
+oru changeAgeOfCopy(person: Person) onuogugu {
+  person.Age = person.Age + 20;
+  person.Age = 20 + person.Age;
+ 
+
+  weghachi person.Age;
+}
+
+oru changeNameOfCopy(person: Person) ederede {
+  person.Name = "Pathe SENE";
+
+  weghachi person.Name;
+}
+
+oru changHeightOfCopy(person: Person) ofe {
+  person.Height= 1.80;
+
+  weghachi person.Height;
+}
+
+mbido() onuogugu {
+  ka p : Person = Person{ Age: 0, Height: 0.0, Name: "Pathe", };
+  ka myAge : onuogugu = changeAgeOfCopy(p);
+  ka myHeight : ofe = changHeightOfCopy(p);
+  ka myName: ederede = changeNameOfCopy(p);
+ 
+  deputa("age: %d, age of copy: %d\n", p.Age, myAge);
+  deputa("height: %.2f, height of copy: %.2f\n", p.Height, myHeight);
+  deputa("name: %s, name of copy: %s\n", p.Name, myName);
+
+  weghachi 0; 
+}

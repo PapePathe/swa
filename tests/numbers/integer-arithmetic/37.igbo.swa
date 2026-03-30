@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 39: Unary minus on a large expression
+mbido() onuogugu {
+  ka a: onuogugu = -(2 + 3 * 4 - 5);
+  // 2+12-5=9, -9
+  deputa("-(2 + 3 * 4 - 5) = %d", a); // Expected: -9
+  weghachi 0;
+}

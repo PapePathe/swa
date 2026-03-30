@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+// Test 30: Function that modifies its parameter (call by value, no effect)
+oru modify(x: onuogugu) onuogugu {
+  x = 100;
+  weghachi 0;
+}
+mbido() onuogugu {
+  ka a: onuogugu = 5;
+  modify(a);
+  deputa("a = %d", a);
+  weghachi 0;
+}

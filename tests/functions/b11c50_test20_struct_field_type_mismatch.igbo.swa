@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 20: Struct field type mismatch in initialization (should error)
+nhazi Point {
+  x: onuogugu,
+  y: onuogugu,
+}
+mbido() onuogugu {
+  ka p: Point = Point{x: 1.0, y: 2};
+  weghachi 0;
+}

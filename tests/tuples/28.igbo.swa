@@ -1,0 +1,23 @@
+oluasusu:igbo;
+
+// Test 29: Tuple with a large number of values (stress)
+oru many() (onuogugu, onuogugu, onuogugu, onuogugu, onuogugu, onuogugu, onuogugu, onuogugu, onuogugu, onuogugu) {
+  weghachi 1,2,3,4,5,6,7,8,9,10;
+}
+mbido() onuogugu {
+  ka a1: onuogugu; 
+  ka a2: onuogugu;
+  ka a3: onuogugu;
+  ka a4: onuogugu;
+  ka a5: onuogugu;
+  ka a6: onuogugu;
+  ka a7: onuogugu;
+  ka a8: onuogugu;
+  ka a9: onuogugu;
+  ka a10: onuogugu;
+  (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) = many();
+  deputa("%d %d %d %d %d %d %d %d %d %d", a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+  weghachi 0;
+}
+
+

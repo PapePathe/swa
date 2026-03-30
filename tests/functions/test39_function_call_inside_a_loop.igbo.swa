@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+// Test 39: Function call inside a loop
+oru inc(x: onuogugu) onuogugu {
+  weghachi x + 1;
+}
+mbido() onuogugu {
+  ka i: onuogugu = 0;
+  dika (i < 5) {
+    deputa("i=%d\n", i);
+    i = inc(i);
+  }
+  weghachi 0;
+}

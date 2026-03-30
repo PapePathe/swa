@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+nhazi Person {
+  age: onuogugu,
+}
+
+mbido() onuogugu {
+  ka p: Person = Person{age: 25};
+  deputa("%d", p.age[0]);
+  weghachi 0;
+}
+

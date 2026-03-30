@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+// Test 3: Function with two parameters, call with variables
+oru add(a: onuogugu, b: onuogugu) onuogugu {
+  weghachi a + b;
+}
+mbido() onuogugu {
+  ka x: onuogugu = 3;
+  ka y: onuogugu = 4;
+  ka z: onuogugu = add(x, y);
+  deputa("add(3,4) = %d", z); // Expected: 7
+  weghachi 0;
+}

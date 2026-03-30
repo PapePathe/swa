@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+oru add(first: ofe, last: ofe) ofe {
+  weghachi first + last;
+}
+
+mbido () onuogugu {
+  ka p : [1]ofe= [1]ofe{10.25};
+  ka res : ofe = add(p[0], 4.75);
+  deputa("10.25 + 4.75 = %.2f", res);
+  weghachi 0; 
+}

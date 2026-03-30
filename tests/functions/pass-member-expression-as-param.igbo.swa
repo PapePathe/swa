@@ -1,0 +1,16 @@
+oluasusu:igbo;
+
+nhazi Point {
+  x : ofe,
+}
+
+oru add(first: ofe, last: ofe) ofe {
+  weghachi first + last;
+}
+
+mbido () onuogugu {
+  ka p : Point = Point{x: 10.25};
+  ka res : ofe = add(p.x, 4.75);
+  deputa("10.25 + 4.75 = %.2f", res);
+  weghachi 0; 
+}

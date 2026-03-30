@@ -1,0 +1,43 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka salaire_de_lucien: onuogugu = 50000;
+  ka salaire_de_pathe : onuogugu = 50000;
+
+  oburu(50000 == salaire_de_pathe) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Equals ImplementationError (50000 == salaire_de_pathe)");
+  }
+
+  oburu(salaire_de_pathe == 50000) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Equals ImplementationError (salaire_de_pathe == 50000)");
+  }
+
+  oburu(50000 == salaire_de_lucien) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Equals ImplementationError (50000 == salaire_de_lucien)");
+  }
+  oburu(salaire_de_lucien == 50000) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Equals ImplementationError (salaire_de_lucien == 50000)");
+  }
+
+  oburu(salaire_de_lucien == salaire_de_pathe) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Equals ImplementationError (salaire_de_lucien == salaire_de_pathe)");
+  }
+
+  oburu(salaire_de_pathe == salaire_de_lucien) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Equals ImplementationError (salaire_de_pathe == salaire_de_lucien)");
+  }
+
+  weghachi 0;
+}

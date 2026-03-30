@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka m : onuogugu = 10;
+  deputa("contenu de la variable: %d", m);
+
+  weghachi 0; 
+}

@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+// Test 36: Struct equality (if allowed)
+// Probably not allowed; should cause compile error
+nhazi Point { x: onuogugu, y: onuogugu, }
+mbido() onuogugu {
+  ka p1: Point = Point{x:1, y:2};
+  ka p2: Point = Point{x:1, y:2};
+  oburu (p1 == p2) {
+    deputa("equal");
+  }
+  weghachi 0;
+}

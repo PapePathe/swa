@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 6: Operator precedence: multiplication before addition
+mbido() onuogugu {
+  ka a: onuogugu = 2 + 3 * 4;
+  deputa("2 + 3 * 4 = %d", a); // Expected: 14 (not 20)
+  weghachi 0;
+}

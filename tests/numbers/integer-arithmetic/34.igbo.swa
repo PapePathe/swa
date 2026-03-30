@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 34: Modulo with dividend less than divisor (positive)
+mbido() onuogugu {
+  ka a: onuogugu = 3 % 7;
+  deputa("3 %% 7 = %d", a); // Expected: 3
+  weghachi 0;
+}

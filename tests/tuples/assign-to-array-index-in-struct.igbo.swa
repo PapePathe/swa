@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+nhazi Grid {
+  p: [2]onuogugu,
+}
+
+mbido() onuogugu {
+  ka g: Grid;
+  (g.p[0], g.p[1]) = (15, 150);
+
+  deputa("tab[0]=%d, tab[1]=%d\n", g.p[0], g.p[1]);
+
+  weghachi 0;
+}

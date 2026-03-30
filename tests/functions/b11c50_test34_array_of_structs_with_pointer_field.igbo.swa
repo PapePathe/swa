@@ -1,0 +1,15 @@
+oluasusu:igbo;
+
+// Test 34: Array of structs with pointer field, init with inline array
+nhazi Data {
+  id: onuogugu,
+  values: *onuogugu,
+}
+mbido() onuogugu {
+  ka arr: [2]Data = [2]Data{
+    Data{id: 1, values: [3]onuogugu{10,20,30}},
+    Data{id: 2, values: [3]onuogugu{40,50,60}},
+  };
+  deputa("Data[0].values[1] = %d", arr[0].values[1]);
+  weghachi 0;
+}

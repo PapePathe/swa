@@ -1,0 +1,19 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka salaire_de_lucien: onuogugu = 500000;
+
+  oburu(salaire_de_lucien >= 500000) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Ast BinaryExpression GreaterThanEqualsImplementationError cond: (salaire_de_lucien >= 500000)");
+  }
+
+  oburu(500000 >= salaire_de_lucien ) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Ast BinaryExpression GreaterThanEqualsImplementationError cond: (500000 >= salaire_de_lucien) ");
+  }
+
+  weghachi 0;
+}

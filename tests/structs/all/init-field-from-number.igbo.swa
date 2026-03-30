@@ -1,0 +1,16 @@
+oluasusu:igbo;
+
+nhazi Wrapper {
+  index: onuogugu,
+}
+
+mbido() onuogugu {
+  ka idx : onuogugu = 1000;
+  ka w: Wrapper = Wrapper{
+    index: idx,
+  };
+
+  deputa("%d", w.index);
+  
+  weghachi 0;
+}

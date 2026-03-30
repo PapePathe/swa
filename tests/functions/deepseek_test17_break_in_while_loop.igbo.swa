@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+// Test 17: Break statement inside while loop (if supported)
+// If not supported, should cause compile error
+mbido() onuogugu {
+  ka i: onuogugu = 0;
+  dika (i < 10) {
+    oburu (i == 5) { break; }
+    i = i + 1;
+  }
+  deputa("i = %d", i);
+  weghachi 0;
+}

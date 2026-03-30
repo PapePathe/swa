@@ -1,0 +1,6 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka y: onuogugu64 = -9223372036854775809;
+  weghachi 0;
+}

@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+   ka nums : [2]onuogugu = [2]onuogugu{15,30};
+   ka first : onuogugu = nums[0];
+   deputa(
+      "first elem: %d, assigned value: %d", 
+      nums[0], first
+   );
+   weghachi 0; 
+}

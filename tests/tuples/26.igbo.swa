@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 27: Tuple as expression statement (values discarded) – allowed?
+oru get() (onuogugu, onuogugu) { weghachi 7,8; }
+mbido() onuogugu {
+  get(); // Allowed? The values are discarded.
+  deputa("done");
+  weghachi 0;
+}
+
+

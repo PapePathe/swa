@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+	nhazi Vec {
+		x: onuogugu,
+		y: ofe,
+	}
+	ka v:Vec = Vec{x: 0, y: 0.0};
+	v.x = 100;
+	v.y = 100.025;
+
+  weghachi 0;
+}
+

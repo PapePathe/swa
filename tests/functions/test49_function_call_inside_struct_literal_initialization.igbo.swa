@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+// Test 49: Function call inside struct literal initialization
+nhazi Wrapper { val: onuogugu, }
+oru get_val() onuogugu {
+  weghachi 42;
+}
+mbido() onuogugu {
+  ka w: Wrapper = Wrapper{val: get_val()};
+  deputa("w.val = %d", w.val);
+  weghachi 0;
+}

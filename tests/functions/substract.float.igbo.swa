@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+oru substract(first : ofe, last: ofe) ofe {
+  weghachi first - last;
+}
+
+mbido() onuogugu {
+  ka m : ofe = 0.0;
+  m = substract(10.5, 5.25);
+  deputa("10.5 - 5.25 = %.2f", m);
+  weghachi 0; 
+}

@@ -1,0 +1,20 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka salaire_de_lucien: onuogugu = 500000;
+  ka salaire_de_pathe : onuogugu = 50000;
+
+  oburu(salaire_de_lucien >= salaire_de_pathe) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Ast BinaryExpression GreaterThanEqualsImplementationError");
+  }
+
+  oburu(salaire_de_pathe >= salaire_de_lucien) {
+    deputa("%s", "Ast BinaryExpression GreaterThanEqualsImplementationError cond: (salaire_de_pathe >= salaire_de_lucien)");
+  } maobu {
+    deputa("%s", "ok");
+  }
+
+  weghachi 0;
+}

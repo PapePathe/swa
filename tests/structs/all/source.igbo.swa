@@ -1,0 +1,24 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  nhazi Engineer{
+    Age: onuogugu,
+    Height: ofe,
+    Name: ederede,
+    TechStack: ederede,
+  }
+
+  ka r1:Engineer = Engineer{
+   Age: 40,
+   Height: 1.80,
+   Name: "Pathe",
+   TechStack: "Ruby, Rust, Go"
+  };
+
+  deputa(
+    "Name: (%s), TechStack: (%s), Age: (%d), Height: (%.2f)", 
+    r1.Name, r1.TechStack, r1.Age, r1.Height
+  );
+
+  weghachi 0;
+}

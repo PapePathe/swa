@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 20: Escape sequences in strings
+// Should print newline, tab, etc.
+mbido() onuogugu {
+  ka s: ederede = "Hello\nWorld\tTab\\Backslash\"Quote";
+  deputa("%s", s);
+  weghachi 0;
+}

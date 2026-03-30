@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka x : onuogugu = 4;
+  ka y : onuogugu = 2;
+  ka z : onuogugu = 3;
+
+  ka v1 : onuogugu = x % y;
+  ka v2 : onuogugu = x % z;
+
+  deputa("v1: %d, v2: %d", v1, v2);
+
+  weghachi 0;
+}

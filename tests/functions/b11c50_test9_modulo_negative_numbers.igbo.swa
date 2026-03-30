@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+// Test 9: Modulo with negative numbers (all combinations)
+mbido() onuogugu {
+  ka a: onuogugu = -7;
+  ka b: onuogugu = 3;
+  ka c: onuogugu = 7;
+  ka d: onuogugu = -3;
+  deputa("-7 %% 3 = %d", a % b);
+  deputa("7 %% -3 = %d", c % d);
+  deputa("-7 %% -3 = %d", a % d);
+  weghachi 0;
+}

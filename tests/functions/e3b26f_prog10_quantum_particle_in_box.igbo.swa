@@ -1,0 +1,43 @@
+oluasusu:igbo;
+
+// Programme 10 : Particule dans une boîte quantique (puits infini)
+// Calcul des niveaux d'énergie et de la fonction d'onde.
+
+nhazi PuitsQuantique {
+  largeur: ofe,
+  masse_particule: ofe,
+  constante_planck: ofe,
+  n_max: onuogugu,
+}
+
+oru énergie(p: *PuitsQuantique, n: onuogugu) ofe {
+  ka h_barre: ofe = p.constante_planck / (2.0 * 3.14159);
+  weghachi (n * n * 3.14159 * 3.14159 * h_barre * h_barre) / (2.0 * p.masse_particule * p.largeur * p.largeur);
+}
+
+oru fonction_onde(p: *PuitsQuantique, n: onuogugu, x: ofe) ofe {
+  weghachi sqrt(2.0 / p.largeur) * sin(n * 3.14159 * x / p.largeur);
+}
+
+mbido() onuogugu {
+  ka puits: PuitsQuantique = PuitsQuantique{
+    largeur: 1e-9,
+    masse_particule: 9.109e-31,
+    constante_planck: 6.626e-34,
+    n_max: 3
+  };
+  ka n: onuogugu = 1;
+  dika (n <= puits.n_max) {
+    ka E: ofe = énergie(puits, n);
+    deputa("Niveau n=%d : énergie = %.4e J", n, E);
+    ka x: ofe = 0.0;
+    ka pas: ofe = puits.largeur / 5.0;
+    dika (x <= puits.largeur) {
+      ka psi: ofe = fonction_onde(puits, n, x);
+      deputa("  x=%.2e m, psi=%.4f", x, psi);
+      x = x + pas;
+    }
+    n = n + 1;
+  }
+  weghachi 0;
+}

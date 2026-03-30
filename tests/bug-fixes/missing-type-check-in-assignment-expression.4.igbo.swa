@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+nhazi Float {
+    x: ofe,
+}
+
+mbido () onuogugu {
+  ka res : ofe;
+  res = Float{x:1.0};
+  weghachi 0; 
+}

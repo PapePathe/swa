@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+// Test 31: Tuple assignment after variable declaration (no initializer)
+mbido() onuogugu {
+  ka a: onuogugu;
+  ka b: onuogugu;
+  (a, b) = (5, 6); // This should be allowed (simple assignment)
+  deputa("a=%d, b=%d", a, b);
+  weghachi 0;
+}

@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 3: Multiplication
+mbido() onuogugu {
+  ka a: onuogugu = 7 * 6;
+  deputa("7 * 6 = %d", a); // Expected: 42
+  weghachi 0;
+}

@@ -1,0 +1,17 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  nhazi Person {
+    Name: ederede,
+    Age: onuogugu,
+  }
+
+  ka people: [1]Person = [1]Person{
+    Person{Name: "Alice", Age: 30},
+  };
+
+  ka i: onuogugu = 0;
+  deputa("Name: %s", people[i].Name);
+
+  weghachi 0;
+}

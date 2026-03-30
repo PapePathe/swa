@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 12: Print two strings together (no concatenation operator)
+mbido() onuogugu {
+  ka s1: ederede = "Hello";
+  ka s2: ederede = "World";
+  deputa("%s %s", s1, s2);
+  weghachi 0;
+}

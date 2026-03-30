@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+oru zero_first(arr: [5]onuogugu) onuogugu {
+  arr[0] = 0;
+  weghachi 0;
+}
+
+mbido() onuogugu {
+  ka a: [5]onuogugu = [5]onuogugu{1,2,3,4,5};
+  zero_first(a);
+  deputa("a[0] = %d", a[0]);
+  weghachi 0;
+}

@@ -1,0 +1,37 @@
+oluasusu:igbo;
+
+nhazi Location {
+  X: onuogugu,
+  Y: onuogugu,
+}
+
+nhazi Address {
+  City: ederede,
+  ZipCode: onuogugu,
+  Coords: Location,
+}
+
+nhazi Person {
+  Name: ederede,
+  Age: onuogugu,
+  HomeAddress: Address,
+}
+
+oru getX(p: *Person) onuogugu {
+  weghachi p.HomeAddress.Coords.X;
+}
+
+oru setX(p: *Person, val: onuogugu) onuogugu {
+  p.HomeAddress.Coords.X = val;
+  weghachi p.HomeAddress.Coords.X;
+}
+
+mbido() onuogugu {
+  ka loc: Location = Location{ X: 10, Y: 20 };
+  ka addr: Address = Address{ City: "Dakar", ZipCode: 12000, Coords: loc };
+  ka person: Person = Person{ Name: "Pathe", Age: 30, HomeAddress: addr };
+  
+  deputa("X: %d, Y: %d, getX: %d, setX: %d", person.HomeAddress.Coords.X, person.HomeAddress.Coords.Y, getX(person), setX(person, 999));
+  
+  weghachi 0;
+}

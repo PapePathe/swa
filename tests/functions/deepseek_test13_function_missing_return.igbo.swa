@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+// Test 13: Function with missing return statement
+// Should cause compile error or undefined behavior
+oru foo() onuogugu {
+  ka x: onuogugu = 5;
+  // no return
+}
+mbido() onuogugu {
+  ka y: onuogugu = foo();
+  deputa("%d", y);
+  weghachi 0;
+}

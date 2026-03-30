@@ -1,0 +1,25 @@
+oluasusu:igbo;
+
+// Test 23: Early returns in a multiple-return function
+oru early(x: onuogugu) (onuogugu, onuogugu) {
+  oburu (x < 0) {
+    weghachi 0, 0;
+  }
+  oburu (x == 0) {
+    weghachi 1, 1;
+  }
+  weghachi x, x*2;
+}
+mbido() onuogugu {
+  ka a: onuogugu;
+  ka b: onuogugu;
+  (a, b) = early(-1);
+  deputa("(-1): %d,%d\n", a, b); // Expected: 0,0 
+  (a, b) = early(0);
+  deputa("(0): %d,%d\n", a, b); // Expected: 1,1 
+  (a, b) = early(5);
+  deputa("(5): %d,%d\n", a, b); // Expected: 5,10
+  (a, b) = early(-3);
+  deputa("(-3): %d,%d\n", a, b); // Expected: 0,0
+  weghachi 0;
+}

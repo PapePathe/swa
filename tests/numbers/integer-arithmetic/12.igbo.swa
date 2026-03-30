@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 12: Unary minus on expression
+mbido() onuogugu {
+  ka a: onuogugu = -(3 + 4);
+  deputa("-(3 + 4) = %d", a); // Expected: -7
+  weghachi 0;
+}

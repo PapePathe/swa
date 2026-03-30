@@ -1,0 +1,17 @@
+oluasusu:igbo;
+
+// Test 26: Boolean operations on bool variables
+mbido() onuogugu {
+  ka b1: bool = ezigbo;
+  ka b2: bool = ụgha;
+  oburu (b1 || b2) {
+    deputa("true");
+  }
+  oburu (b1 && b2) {
+    deputa("false");
+  }
+  oburu (!b1) {
+    deputa("false");
+  }
+  weghachi 0;
+}

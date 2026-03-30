@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 5: Function returning string
+oru greet() ederede {
+  weghachi "hello";
+}
+mbido() onuogugu {
+  ka s: ederede = greet();
+  deputa("greet() = %s", s); // Expected: hello
+  weghachi 0;
+}

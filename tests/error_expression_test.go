@@ -10,5 +10,11 @@ func TestErrorExpression(t *testing.T) {
 				"Division by zero error dividend is zero",
 			)
 		})
+		t.Run("igbo", func(t *testing.T) {
+			NewSuccessfulCompileRequest(t,
+				"./error-expression/with-error.igbo.swa",
+				"Division by zero error dividend is zero",
+			)
+		})
 	})
 }

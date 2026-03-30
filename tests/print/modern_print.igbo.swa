@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka a: onuogugu = 42;
+  ka b: ofe = 3.14;
+  ka c: ederede = "hello";
+
+  deputa("Modern print: ", a, " ", b, " ", c, "\n");
+  deputa(a, b, c);
+  deputa("\n");
+
+  weghachi 0;
+}

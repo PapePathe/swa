@@ -1,0 +1,17 @@
+oluasusu:igbo;
+
+// Test 14: Tuple assignment in a loop – each iteration
+oru nextPair(n: onuogugu) (onuogugu, onuogugu) {
+  weghachi n, n*2;
+}
+mbido() onuogugu {
+  ka i: onuogugu = 0;
+  dika (i < 3) {
+    ka a: onuogugu;
+    ka b: onuogugu;
+    (a, b) = nextPair(i);
+    deputa("i=%d: (%d,%d)", i, a, b);
+    i = i + 1;
+  }
+  weghachi 0;
+}

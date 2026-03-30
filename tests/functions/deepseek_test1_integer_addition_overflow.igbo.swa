@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+// Test 1: Integer addition overflow (if 32-bit, 2^31-1 + 1)
+// Expected: wraparound or error, depending on implementation
+mbido() onuogugu {
+  ka max: onuogugu = 2147483647;
+  ka result: onuogugu = max + 1;
+  deputa("max+1 = %d", result);
+  weghachi 0;
+}

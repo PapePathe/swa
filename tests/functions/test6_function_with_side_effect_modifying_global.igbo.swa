@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+// Test 6: Function with side effect (modifying global)
+ka global: onuogugu = 0;
+oru set_global(val: onuogugu) onuogugu {
+  global = val;
+  weghachi 0;
+}
+mbido() onuogugu {
+  set_global(42);
+  deputa("global = %d", global); // Expected: 42
+  weghachi 0;
+}

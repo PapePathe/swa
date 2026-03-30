@@ -1,0 +1,20 @@
+oluasusu:igbo;
+
+// Test 8: Function returning struct (multiple return values via struct)
+nhazi Pair {
+  first: onuogugu,
+  second: onuogugu,
+}
+
+oru swapAndSum(a: onuogugu, b: onuogugu) Pair {
+  ka p: Pair = Pair{first: b, second: a};
+  weghachi p;
+}
+
+mbido() onuogugu {
+  ka x: onuogugu = 5;
+  ka y: onuogugu = 10;
+  ka res: Pair = swapAndSum(x, y);
+  deputa("Swapped: first=%d, second=%d", res.first, res.second);
+  weghachi 0;
+}

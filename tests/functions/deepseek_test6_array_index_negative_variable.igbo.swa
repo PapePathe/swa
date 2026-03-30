@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+// Test 6: Array index with negative variable
+// Expected: runtime error
+mbido() onuogugu {
+  ka arr: [5]onuogugu = [5]onuogugu{1,2,3,4,5};
+  ka i: onuogugu = -1;
+  arr[i] = 0;
+  weghachi 0;
+}

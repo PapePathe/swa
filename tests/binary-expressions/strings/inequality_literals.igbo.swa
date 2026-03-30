@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+    oburu ("a" != "b") {
+        deputa("Passed");
+    } maobu {
+        deputa("Failed");
+    }
+    weghachi 0;
+}

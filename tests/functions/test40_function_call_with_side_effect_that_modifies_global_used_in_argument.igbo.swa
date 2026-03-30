@@ -1,0 +1,17 @@
+oluasusu:igbo;
+
+// Test 40: Function call with side effect that modifies global used in argument
+ka my_global: onuogugu = 0;
+oru get_inc() onuogugu {
+  my_global = my_global + 1;
+  weghachi my_global;
+}
+oru add(a: onuogugu, b: onuogugu) onuogugu {
+  weghachi a + b;
+}
+mbido() onuogugu {
+  ka r: onuogugu = add(get_inc(), get_inc()); 
+  deputa("r = %d, g = %d", r, my_global);
+ // g should be 2, r depends on order: if first returns 1, second 2 => sum 3; if first 2, second 1 => sum 3 as well? Actually if order left-to-right, get_inc() returns 1, then get_inc() returns 2, sum=3. If right-to-left, first returns 2, second returns 1, sum=3. So always 3.
+  weghachi 0;
+}

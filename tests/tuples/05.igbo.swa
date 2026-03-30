@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+// Test 7: Using tuple in arithmetic – error
+oru twoInts() (onuogugu, onuogugu) {
+  weghachi 3, 4;
+}
+mbido() onuogugu {
+  ka sum: onuogugu;
+  // ERROR: cannot add (int,int) to int
+  sum = twoInts() + 5; 
+  weghachi 0;
+}

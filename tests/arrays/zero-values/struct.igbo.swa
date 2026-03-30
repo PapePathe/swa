@@ -1,0 +1,25 @@
+oluasusu:igbo;
+
+nhazi Dimension {
+  Length: ofe,
+  Height: onuogugu,
+}
+
+mbido() onuogugu {
+
+  ka l : [3]Dimension;
+  deputa("- [3]Dimension with zero value\n");
+  deputa(
+    "(Index: 0) Length: %.2f Height: %d\n", 
+    l[0].Length,  l[0].Height
+  );
+  deputa(
+    "(Index: 1) Length: %.2f Height: %d\n", 
+    l[1].Length,  l[1].Height
+  );
+  deputa(
+    "(Index: 2) Length: %.2f Height: %d\n", 
+    l[2].Length,  l[2].Height
+  );
+  weghachi 0;
+}

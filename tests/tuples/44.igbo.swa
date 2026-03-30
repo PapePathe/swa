@@ -1,0 +1,15 @@
+oluasusu:igbo;
+
+oru two()(onuogugu, onuogugu) { weghachi 2, 3; }
+// Test 45: Tuple assignment where left side expressions have side effects (order)
+ka idx: onuogugu = 0;
+oru nextIndex() onuogugu {
+  idx = idx + 1;
+  weghachi idx;
+}
+mbido() onuogugu {
+  ka arr: [3]onuogugu;
+  (arr[nextIndex()], arr[nextIndex()]) = two(); // Which index gets first? Unspecified.
+  deputa("arr[1]=%d, arr[2]=%d", arr[1], arr[2]);
+  weghachi 0;
+}

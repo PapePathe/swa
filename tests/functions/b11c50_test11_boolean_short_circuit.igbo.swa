@@ -1,0 +1,16 @@
+oluasusu:igbo;
+
+// Test 11: Boolean logic and short-circuit evaluation
+mbido() onuogugu {
+  ka flag: bool = ezigbo;
+  ka x: onuogugu = 0;
+  oburu (flag || (10 / x == 0)) {
+    deputa("Short-circuit works");
+  } maobu {
+    deputa("Short-circuit failed");
+  }
+  oburu (!flag && (x == 0)) {
+    deputa("Should not print");
+  }
+  weghachi 0;
+}

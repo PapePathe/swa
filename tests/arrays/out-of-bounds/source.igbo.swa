@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+mbido() onuogugu{
+  ka tableau : [5]onuogugu = [5]onuogugu{1,2,3,4,5};
+  tableau[5] = 0;
+
+  weghachi 0;
+}

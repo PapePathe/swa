@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka x : onuogugu = 10;
+  dika (x > 0) {
+    deputa("%d ", x);
+
+    x = x - 1;
+  }
+
+  weghachi 0;
+}

@@ -1,0 +1,7 @@
+oluasusu:igbo;
+
+// Test 15: Type mismatch in assignment (should error)
+mbido() onuogugu {
+  ka a: onuogugu = "hello";
+  weghachi 0;
+}

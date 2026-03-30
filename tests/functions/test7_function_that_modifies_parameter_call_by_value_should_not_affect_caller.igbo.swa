@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+// Test 7: Function that modifies parameter 
+// (call by value, should not affect caller)
+oru modify_param(x: onuogugu) onuogugu {
+  x = 100;
+  weghachi 0;
+}
+mbido() onuogugu {
+  ka a: onuogugu = 5;
+  modify_param(a);
+  deputa("a = %d", a); // Expected: 5
+  weghachi 0;
+}

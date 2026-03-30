@@ -1,0 +1,45 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka a: ofe = 10.5;
+  ka b: ofe = 5.5;
+  ka sum: ofe = a + b;
+
+  oburu(sum == 16.0) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Float addition failed");
+  }
+
+  oburu(10.5 + 5.5 == 16.0) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Float literal addition failed");
+  }
+
+  oburu(a > b) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Float greater than failed");
+  }
+
+  oburu(a >= b) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Float greater than or equal failed");
+  }
+
+  oburu(b < a) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Float less than failed");
+  }
+
+  oburu(b <= a) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Float less than or equal failed");
+  }
+
+  weghachi 0;
+}

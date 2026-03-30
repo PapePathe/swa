@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka x: ederede = "initial";
+
+  deputa("Before: %s, ", x);
+
+  x = "changed";
+
+  deputa("After: %s", x);
+
+  weghachi 0;
+}

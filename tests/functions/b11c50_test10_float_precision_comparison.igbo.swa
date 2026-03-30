@@ -1,0 +1,19 @@
+oluasusu:igbo;
+
+// Test 10: Floating point precision and comparisons
+mbido() onuogugu {
+  ka a: ofe = 1.0 / 3.0;
+  ka b: ofe = 0.3333333333;
+  oburu (a == b) {
+    deputa("Equal");
+  } maobu {
+    deputa("Not equal (difference: %f)", a - b);
+  }
+  ka sum: ofe = 0.1 + 0.2;
+  oburu (sum == 0.3) {
+    deputa("0.1+0.2 == 0.3");
+  } maobu {
+    deputa("0.1+0.2 = %f", sum);
+  }
+  weghachi 0;
+}

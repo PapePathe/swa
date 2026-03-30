@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  // TODO find keyword for TypeFloat
+  ka idx : ofe;
+  deputa("zero value: %f ", idx);
+
+  idx = 100.0;
+  deputa("assigned value: %f", idx);
+
+  weghachi 0;
+}

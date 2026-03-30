@@ -1,0 +1,24 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka x: onuogugu = 5;
+  ka y: ofe = 2.5;
+
+  ka r00: ofe = x + y;
+  ka r01: ofe = y + x;
+  deputa("(x + y = %.2f, y + x = %.2f)", r00, r01);
+
+  ka r10: ofe = x * y;
+  ka r11: ofe = y * x;
+  deputa("(x * y = %.2f, y * x = %.2f)", r10, r11);
+
+  ka r20: ofe = x / y;
+  ka r21: ofe = y / x;
+  deputa("(x / y = %.2f, y / x = %.2f)", r20, r21);
+
+  ka r30: ofe = x - y;
+  ka r31: ofe = y - x;
+  deputa("(x - y = %.2f, y - x = %.2f)", r30, r31);
+
+  weghachi 0;
+}

@@ -28,6 +28,11 @@ func TestProgramEntryPoint(t *testing.T) {
 				inputPath:      "./program_entrypoint/no-main.soussou.swa",
 				expectedOutput: "Your program is missing a main function\n",
 			},
+			{
+				name:           "Igbo",
+				inputPath:      "./program_entrypoint/no-main.igbo.swa",
+				expectedOutput: "Ihe omume gị (program) enweghị main function\n",
+			},
 		}
 
 		for _, test := range tests {
@@ -59,6 +64,11 @@ func TestProgramEntryPoint(t *testing.T) {
 				name:           "Soussou",
 				inputPath:      "./program_entrypoint/many-main.soussou.swa",
 				expectedOutput: "Your program must have exactly one main function, count (2)\n",
+			},
+			{
+				name:           "Igbo",
+				inputPath:      "./program_entrypoint/many-main.igbo.swa",
+				expectedOutput: "Ihe omume gị ga-enwerịrị naanị otu main function, ọnụọgụ ahụrụ (2)\n",
 			},
 		}
 

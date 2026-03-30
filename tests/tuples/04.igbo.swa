@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+// Test 6: Type mismatch in one variable – error
+oru mix() (onuogugu, ederede) {
+  weghachi 42, "hello";
+}
+mbido() onuogugu {
+  ka i: onuogugu;
+  ka s: onuogugu;
+  // ERROR: second value is string, but variable is int
+  (i, s) = mix();
+  weghachi 0;
+}

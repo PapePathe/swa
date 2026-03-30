@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+// Test 31: String comparison with different lengths
+mbido() onuogugu {
+  ka s1: ederede = "abc";
+  ka s2: ederede = "abcd";
+  oburu (s1 == s2) {
+    deputa("Equal");
+  } maobu {
+    deputa("Not equal");
+  }
+  weghachi 0;
+}

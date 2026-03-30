@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 41: Tuple assignment with global variables
+ka g1: onuogugu;
+ka g2: onuogugu;
+oru set() (onuogugu, onuogugu) { weghachi 100,200; }
+mbido() onuogugu {
+  (g1, g2) = set();
+  deputa("g1=%d, g2=%d", g1, g2);
+  weghachi 0;
+}

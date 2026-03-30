@@ -1,0 +1,21 @@
+oluasusu:igbo;
+
+oru check_value(v: onuogugu) (onuogugu, njehie) {
+    oburu (v < 0) {
+        weghachi 0, njehie("value is negative");
+    }
+    weghachi v, efu(njehie);
+}
+
+mbido() onuogugu {
+    ka val: onuogugu = 0;
+    ka err: njehie;
+    
+    (val, err) = check_value(10);
+    deputa("val: %d, err: %s\n", val, err);
+    
+    (val, err) = check_value(-1);
+    deputa("val: %d, err: %s\n", val, err);
+    
+    weghachi 0;
+}

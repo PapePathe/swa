@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+// Test 43: Modulo with negative divisor
+mbido() onuogugu {
+  ka a: onuogugu = 7;
+  ka b: onuogugu = -3;
+  ka c: onuogugu = a % b;
+  deputa("7 %% -3 = %d", c);
+  weghachi 0;
+}

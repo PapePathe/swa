@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka i : [3]onuogugu;
+  deputa("- [3]int with zero value\n");
+  deputa("%d %d %d\n\n", i[0], i[1], i[2]);
+
+  weghachi 0;
+}

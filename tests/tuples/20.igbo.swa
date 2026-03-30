@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+// Test 21: Function declared to return two but actually returns one – error
+oru bad() (onuogugu, onuogugu) {
+  weghachi 42; // ERROR: missing one value
+}
+mbido() onuogugu {
+  ka x: onuogugu;
+  ka y: onuogugu;
+  (x, y) = bad();
+  weghachi 0;
+}

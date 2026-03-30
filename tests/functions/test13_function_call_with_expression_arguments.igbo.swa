@@ -1,0 +1,13 @@
+oluasusu:igbo;
+
+// Test 13: Function call with expression arguments
+oru add(a: onuogugu, b: onuogugu) onuogugu {
+  weghachi a + b;
+}
+mbido() onuogugu {
+  ka x: onuogugu = 2;
+  ka y: onuogugu = 3;
+  ka z: onuogugu = add(x * 2, y + 1); // (4,4) -> 8
+  deputa("add(2*2, 3+1) = %d", z); // Expected: 8
+  weghachi 0;
+}

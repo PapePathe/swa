@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+nhazi Point { x: onuogugu, y: onuogugu, }
+nhazi Polygon { points: [3]Point, }
+
+mbido() onuogugu {
+  weghachi 0;
+}

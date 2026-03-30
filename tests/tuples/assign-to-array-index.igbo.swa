@@ -1,0 +1,10 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka tab : [2]onuogugu;
+  (tab[0], tab[1]) = (15, 150);
+
+  deputa("tab[0]=%d, tab[1]=%d\n", tab[0], tab[1]);
+
+  weghachi 0;
+}

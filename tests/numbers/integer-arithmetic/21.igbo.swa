@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 21: Nested unary minus
+mbido() onuogugu {
+  ka a: onuogugu = -(-5);
+  deputa("-(-5) = %d", a); // Expected: 5
+  weghachi 0;
+}

@@ -1,0 +1,6 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+    deputa("-5 + 3 = ", -5 + 3);
+    weghachi 0;
+}

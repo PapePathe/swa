@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 18: Tuple used in array initializer – error
+oru pair(n: onuogugu) (onuogugu, onuogugu) {
+  weghachi n, n+1;
+}
+mbido() onuogugu {
+  // ERROR: cannot put (int,int) into array element
+  ka arr: [2]onuogugu = [2]onuogugu{ pair(5) }; 
+  weghachi 0;
+}

@@ -1,0 +1,17 @@
+oluasusu:igbo;
+
+oru two()(onuogugu, onuogugu){
+  weghachi 1, 1;
+}
+
+// Test 5: Too many variables on left – error
+mbido() onuogugu {
+  ka a: onuogugu;
+  ka b: onuogugu;
+  ka c: onuogugu;
+  // ERROR: three variables for two values
+  (a, b, c) = two(); 
+  weghachi 0;
+}
+
+

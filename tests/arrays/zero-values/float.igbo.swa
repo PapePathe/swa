@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka j : [3]ofe;
+  deputa("- [3]float with zero value\n");
+  deputa("%.2f %.2f %.2f\n\n", j[1], j[1], j[2]);
+
+  weghachi 0;
+}

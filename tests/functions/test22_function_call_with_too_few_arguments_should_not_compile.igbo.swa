@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 22: Function call with too few arguments (should not compile)
+oru two_args(a: onuogugu, b: onuogugu) onuogugu { weghachi a+b; }
+mbido() onuogugu {
+  ka x: onuogugu = two_args(5); // missing second
+  weghachi 0;
+}

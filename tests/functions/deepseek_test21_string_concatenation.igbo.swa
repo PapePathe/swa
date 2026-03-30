@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 21: String concatenation using + (if supported)
+// If not, should cause compile error
+mbido() onuogugu {
+  ka s1: ederede = "Hello";
+  ka s2: ederede = "World";
+  ka s3: ederede = s1 + " " + s2;
+  deputa("%s", s3);
+  weghachi 0;
+}

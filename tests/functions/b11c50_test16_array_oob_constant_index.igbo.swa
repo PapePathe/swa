@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 16: Array index out of bounds (constant index, runtime error)
+mbido() onuogugu {
+  ka arr: [5]onuogugu = [5]onuogugu{1,2,3,4,5};
+  arr[5] = 10;
+  weghachi 0;
+}

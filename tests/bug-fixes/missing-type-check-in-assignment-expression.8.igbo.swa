@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+oru multiply(first : ofe, last: ofe) ofe {
+  weghachi first * last;
+}
+
+mbido() onuogugu {
+  ka m : ofe = 0.0;
+  m = multiply(10.02, 5.05);
+  weghachi 0; 
+}

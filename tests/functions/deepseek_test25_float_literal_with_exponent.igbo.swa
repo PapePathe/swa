@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 25: Float literal with exponent
+// Should print 12300.0
+mbido() onuogugu {
+  ka f: ofe = 1.23e4;
+  deputa("%f", f);
+  weghachi 0;
+}

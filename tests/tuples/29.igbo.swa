@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+// Test 30: Function returning too many values in return statement
+oru badCount() (onuogugu, onuogugu) {
+  // ERROR: too many values in return
+  weghachi 1,2,3;
+}
+
+mbido() onuogugu {
+  ka x: onuogugu;
+  ka y: onuogugu;
+  (x, y) = badCount();
+  weghachi 0;
+}

@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+// Test 36: Function that returns a struct containing an array
+nhazi Data { arr: [3]onuogugu, id: onuogugu, }
+oru make_data(id: onuogugu) Data {
+  ka d: Data = Data{arr: [3]onuogugu{id, id+1, id+2}, id: id};
+  weghachi d;
+}
+mbido() onuogugu {
+  ka d: Data = make_data(10);
+  deputa("id=%d, arr[0]=%d, arr[1]=%d, arr[2]=%d", d.id, d.arr[0], d.arr[1], d.arr[2]);
+  // Expected: id=10, arr[0]=10, arr[1]=11, arr[2]=12
+  weghachi 0;
+}

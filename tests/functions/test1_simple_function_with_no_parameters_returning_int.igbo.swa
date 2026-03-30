@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 1: Simple function with no parameters, returning int
+oru one() onuogugu {
+  weghachi 1;
+}
+mbido() onuogugu {
+  ka x: onuogugu = one();
+  deputa("one() = %d", x); // Expected: 1
+  weghachi 0;
+}

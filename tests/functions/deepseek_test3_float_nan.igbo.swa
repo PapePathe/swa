@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 3: Float NaN (e.g., 0.0/0.0)
+// Expected: prints "nan" or "-nan"
+mbido() onuogugu {
+  ka a: ofe = 0.0;
+  ka b: ofe = 0.0;
+  ka c: ofe = a / b;
+  deputa("0.0/0.0 = %f", c);
+  weghachi 0;
+}

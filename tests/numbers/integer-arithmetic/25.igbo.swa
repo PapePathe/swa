@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 25: Division of negative by positive
+mbido() onuogugu {
+  ka a: onuogugu = -7 / 2;
+  deputa("-7 / 2 = %d", a); // Expected: -3 (toward zero)
+  weghachi 0;
+}

@@ -1,0 +1,25 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka numbers: [5]onuogugu = [5]onuogugu{1, 2, 3, 4, 5};
+
+  oburu(numbers[0] == 1) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Integer array access [0] failed");
+  }
+
+  oburu(numbers[2] == 3) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Integer array access [2] failed");
+  }
+
+  oburu(numbers[4] == 5) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Integer array access [4] failed");
+  }
+
+  weghachi 0;
+}

@@ -1,0 +1,19 @@
+oluasusu:igbo;
+
+nhazi MultiArray {
+  arr1: [2]onuogugu,
+  arr2: [3]onuogugu,
+  value: onuogugu,
+}
+
+mbido() onuogugu {
+  ka m : MultiArray = MultiArray{
+    arr1: [2]onuogugu{10, 20},
+    arr2: [3]onuogugu{100, 200, 300},
+    value: 42,
+  };
+
+  deputa("arr1[0]=%d arr1[1]=%d arr2[0]=%d arr2[2]=%d value=%d", 
+        m.arr1[0], m.arr1[1], m.arr2[0], m.arr2[2], m.value);
+  weghachi 0;
+}

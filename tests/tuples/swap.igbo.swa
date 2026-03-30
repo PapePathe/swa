@@ -1,0 +1,9 @@
+oluasusu:igbo;
+mbido() onuogugu {
+    ka a: onuogugu = 10;
+    ka b: onuogugu = 20;
+    deputa("Before: a=%d, b=%d\n", a, b);
+    (a, b) = (b, a);
+    deputa("After: a=%d, b=%d\n", a, b);
+    weghachi 0;
+}

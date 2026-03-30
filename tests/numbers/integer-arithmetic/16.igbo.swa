@@ -1,0 +1,11 @@
+oluasusu:igbo;
+
+// Test 17: Modulo with negative numbers
+// (implementation defined, but test)
+mbido() onuogugu {
+  ka a: onuogugu = -15 % 4;
+  deputa("-15 %% 4 = %d", a); // Result depends on language; typical: -3
+  weghachi 0;
+}
+
+

@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+// Test 23: Large number of nested function calls (stack depth)
+oru depth(n: onuogugu) onuogugu {
+  oburu (n == 0) {
+    weghachi 0;
+  }
+  weghachi depth(n - 1) + 1;
+}
+mbido() onuogugu {
+  ka d: onuogugu = depth(10000);
+  deputa("Depth: %d", d);
+  weghachi 0;
+}

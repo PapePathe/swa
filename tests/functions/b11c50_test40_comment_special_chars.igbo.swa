@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 40: Comment with special characters
+mbido() onuogugu {
+  // This comment includes: !@#$%^&*()_+{}|:"<>?~`
+  deputa("Comment test");
+  weghachi 0;
+}

@@ -1,0 +1,18 @@
+oluasusu:igbo;
+
+// Test 25: Linked list traversal via pointer chain
+nhazi Node {
+  value: onuogugu,
+  next: *Node,
+}
+mbido() onuogugu {
+  ka n1: Node = Node{value: 1, next: 0};
+  ka n2: Node = Node{value: 2, next: n1};
+  ka n3: Node = Node{value: 3, next: n2};
+  ka current: *Node = n3;
+  dika (current != 0) {
+    deputa("%d ", current.value);
+    current = current.next;
+  }
+  weghachi 0;
+}

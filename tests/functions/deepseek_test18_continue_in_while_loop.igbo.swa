@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+// Test 18: Continue statement inside while loop (if supported)
+mbido() onuogugu {
+  ka i: onuogugu = 0;
+  dika (i < 10) {
+    i = i + 1;
+    oburu (i == 5) { continue; }
+    deputa("i = %d", i);
+  }
+  weghachi 0;
+}

@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 49: Accessing field of non-struct
+mbido() onuogugu {
+  ka a: onuogugu = 5;
+  deputa("%d", a.field);
+  weghachi 0;
+}

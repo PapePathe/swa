@@ -1,0 +1,57 @@
+oluasusu:igbo;
+
+mbido() onuogugu {
+  ka salaire_de_lucien: onuogugu = 50000;
+  ka salaire_de_pathe : onuogugu = 500000;
+
+  oburu(50000 <= salaire_de_pathe) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "Ast BinaryExpresifon GreaterThanEqualifmplementationError");
+  }
+
+  oburu(salaire_de_pathe <= 50000) {
+    deputa("%s", "ImplementationError (salaire_de_pathe <= 50000)");
+  } maobu {
+    deputa("%s", "ok");
+  }
+
+  oburu(500000 <= salaire_de_pathe) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "ImplementationError (500000 <= salaire_de_pathe)");
+  }
+
+  oburu(salaire_de_pathe <= 500000) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "ImplementationError (salaire_de_pathe <= 500000)");
+  }
+
+  oburu(salaire_de_pathe <= 500001) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "ImplementationError (salaire_de_pathe <= 500001)");
+  }
+
+
+  oburu(500001 <= salaire_de_pathe) {
+    deputa("%s", "ImplementationError (500001 <= salaire_de_pathe)");
+  } maobu {
+    deputa("%s", "ok");
+  }
+
+  oburu(salaire_de_lucien <= salaire_de_pathe) {
+    deputa("%s", "ok");
+  } maobu {
+    deputa("%s", "ImplementationError (salaire_de_lucien <= salaire_de_pathe)");
+  }
+
+  oburu(salaire_de_pathe <= salaire_de_lucien) {
+    deputa("%s", "ImplementationError (salaire_de_pathe >= salaire_de_lucien)");
+  } maobu {
+    deputa("%s", "ok");
+  }
+
+  weghachi 0;
+}

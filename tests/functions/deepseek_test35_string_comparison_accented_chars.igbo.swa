@@ -1,0 +1,14 @@
+oluasusu:igbo;
+
+// Test 35: String comparison with accented characters
+// Should print "Not equal"
+mbido() onuogugu {
+  ka s1: ederede = "élève";
+  ka s2: ederede = "eleve";
+  oburu (s1 == s2) {
+    deputa("Equal");
+  } maobu {
+    deputa("Not equal");
+  }
+  weghachi 0;
+}

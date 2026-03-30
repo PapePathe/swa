@@ -1,0 +1,25 @@
+oluasusu:igbo;
+
+nhazi Point {
+  x: onuogugu,
+  y: onuogugu,
+}
+
+nhazi Polygon {
+  points: [3]Point,
+}
+
+mbido() onuogugu {
+  ka p: Polygon = Polygon{
+    points: [3]Point{
+      Point{x: 1, y: 1},
+      Point{x: 2, y: 2},
+      Point{x: 3, y: 3},
+    },
+  };
+
+  deputa("p[0].x=%d p[0].y=%d\n", p.points[0].x, p.points[0].y);
+  deputa("p[1].x=%d p[1].y=%d\n", p.points[1].x, p.points[1].y);
+  deputa("p[2].x=%d p[2].y=%d\n", p.points[2].x, p.points[2].y);
+  weghachi 0;
+}

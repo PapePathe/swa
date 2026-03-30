@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 13: Addition with negative numbers
+mbido() onuogugu {
+  ka a: onuogugu = - 5 + 3;
+  deputa("- 5 + 3 = %d", a); // Expected: -2
+  weghachi 0;
+}

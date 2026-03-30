@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+// Test 15: Function returning a struct
+nhazi Pair { first: onuogugu, second: onuogugu, }
+oru make_pair(a: onuogugu, b: onuogugu) Pair {
+  weghachi Pair{first: a, second: b};
+}
+mbido() onuogugu {
+  ka p: Pair = make_pair(10, 20);
+  deputa("(%d,%d)", p.first, p.second); // Expected: (10,20)
+  weghachi 0;
+}

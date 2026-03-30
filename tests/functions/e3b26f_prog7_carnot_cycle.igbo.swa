@@ -1,0 +1,40 @@
+oluasusu:igbo;
+
+// Programme 7 : Cycle de Carnot (moteur thermique)
+// Calcul du travail, de la chaleur échangée et du rendement.
+
+nhazi MachineCarnot {
+  T_chaude: ofe,
+  T_froide: ofe,
+  Q_chaud: ofe,
+  Q_froid: ofe,
+  W: ofe,
+}
+
+oru cycle_carnot(m: *MachineCarnot, Q_entrée: ofe) onuogugu {
+  m.Q_chaud = Q_entrée;
+  m.Q_froid = m.Q_chaud * m.T_froide / m.T_chaude;
+  m.W = m.Q_chaud - m.Q_froid;
+  weghachi 0;
+}
+
+oru rendement(m: *MachineCarnot) ofe {
+  weghachi 1.0 - m.T_froide / m.T_chaude;
+}
+
+mbido() onuogugu {
+  ka moteur: MachineCarnot = MachineCarnot{
+    T_chaude: 500.0,
+    T_froide: 300.0,
+    Q_chaud: 0.0,
+    Q_froid: 0.0,
+    W: 0.0
+  };
+  ka chaleur_entrée: ofe = 1000.0;
+  cycle_carnot(moteur, chaleur_entrée);
+  deputa("Chaleur reçue : %.2f J", moteur.Q_chaud);
+  deputa("Chaleur rejetée : %.2f J", moteur.Q_froid);
+  deputa("Travail produit : %.2f J", moteur.W);
+  deputa("Rendement théorique : %.2f", rendement(moteur));
+  weghachi 0;
+}

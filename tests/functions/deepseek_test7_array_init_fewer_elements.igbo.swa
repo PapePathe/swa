@@ -1,0 +1,9 @@
+oluasusu:igbo;
+
+// Test 7: Array initialization with fewer elements
+// Expected: remaining elements zero-initialized
+mbido() onuogugu {
+  ka arr: [5]onuogugu = [5]onuogugu{1,2,3};
+  deputa("arr[3] = %d, arr[4] = %d", arr[3], arr[4]);
+  weghachi 0;
+}

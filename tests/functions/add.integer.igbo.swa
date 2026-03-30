@@ -1,0 +1,12 @@
+oluasusu:igbo;
+
+oru add(first : onuogugu, last: onuogugu) onuogugu {
+  weghachi first + last;
+}
+
+mbido () onuogugu {
+  ka m : onuogugu = 10;
+  m = add(10, 5);
+  deputa("10 + 5 = %d", m);
+  weghachi 0; 
+}

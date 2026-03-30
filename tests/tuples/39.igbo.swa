@@ -1,0 +1,15 @@
+oluasusu:igbo;
+
+// Test 40: Tuple assignment inside a block with variable shadowing
+oru get() (onuogugu, onuogugu) { weghachi 1,2; }
+mbido() onuogugu {
+  ka a: onuogugu = 0;
+  {
+    ka b: onuogugu;
+    ka c: onuogugu;
+    (b, c) = get();
+    deputa("b=%d, c=%d", b, c);
+  }
+  deputa("a=%d", a);
+  weghachi 0;
+}

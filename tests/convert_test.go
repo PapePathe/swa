@@ -33,6 +33,7 @@ func TestComprehensiveDialectConversion(t *testing.T) {
 		"wolof",
 		"malinke",
 		"soussou",
+		"igbo",
 	}
 
 	expectedOutput := "Flag is true\nSum is greater than 25\n012"

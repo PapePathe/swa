@@ -1,0 +1,8 @@
+oluasusu:igbo;
+
+// Test 15: Multiplication with negatives
+mbido() onuogugu {
+  ka a: onuogugu = -4 * 6;
+  deputa("-4 * 6 = %d", a); // Expected: -24
+  weghachi 0;
+}
