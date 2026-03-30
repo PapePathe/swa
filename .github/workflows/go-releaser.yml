@@ -135,6 +135,7 @@ jobs:
         uses: gavv/pull-request-artifacts@v1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+          commit: ${{ github.event.pull_request.head.sha }}
           artifacts: |
             lang/dist/swa_linux_amd64_v1/swa
             lang/dist/swa_darwin_arm64_v8.0/swa
