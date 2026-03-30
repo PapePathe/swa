@@ -124,3 +124,19 @@ jobs:
         with:
           name: swa-artifacts-${{ matrix.name }}
           path: lang/dist/*
+  post-to-pr:
+    needs: goreleaser
+    runs-on: ubuntu-latest
+    # This job only runs if it's a PR and the build succeeded
+    if: success() && github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write # Required to post comments
+    steps:
+      - name: Post PR comment with artifact link
+        uses: gavv/pull-request-artifacts@v1
+        with:
+          # This action will handle generating the comment with a downloadable link
+          # You will need to configure the required inputs for this specific action
+          # as per its documentation on the GitHub Marketplace
+          artifact-name: build-output
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
