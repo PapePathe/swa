@@ -8,6 +8,7 @@ var dialects = map[string]Dialect{
 	"english": English{},
 	"french":  French{},
 	"soussou": Soussou{},
+	"yoruba":  Yoruba{},
 }
 
 type Dialect interface {
