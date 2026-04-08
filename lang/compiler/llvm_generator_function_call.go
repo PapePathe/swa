@@ -3,6 +3,7 @@ package compiler
 import (
 	"fmt"
 	"swahili/lang/ast"
+	"swahili/lang/lexer"
 
 	"tinygo.org/x/go-llvm"
 )
@@ -14,29 +15,43 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 
 	g.Debugf("%s", node.Name)
 
-	name, ok := node.Name.(*ast.SymbolExpression)
+	symbol, ok := node.Name.(*ast.SymbolExpression)
 	if !ok {
 		key := "LLVMGenerator.VisitFunctionCall.NameIsNotASymbol"
 
 		return g.Ctx.Dialect.Error(key)
 	}
 
-	err, funcType := g.Ctx.FindFuncSymbol(name.Value)
+	if len(symbol.Tokens) > 0 {
+		switch symbol.Tokens[0].Kind {
+		case lexer.Make:
+			return g.handleMakeIntrinsic(node)
+		case lexer.Append:
+			return g.handleAppendIntrinsic(node)
+		case lexer.Len:
+			return g.handleLenIntrinsic(node)
+		case lexer.Cap:
+			return g.handleCapIntrinsic(node)
+		}
+	}
+
+	name := symbol.Value
+	err, funcType := g.Ctx.FindFuncSymbol(name)
 	if err != nil {
 		return err
 	}
 
-	funcVal := g.Ctx.Module.NamedFunction(name.Value)
+	funcVal := g.Ctx.Module.NamedFunction(name)
 	if funcVal.IsNil() {
 		key := "LLVMGenerator.VisitFunctionCall.DoesNotExist"
 
-		return g.Ctx.Dialect.Error(key, name.Value)
+		return g.Ctx.Dialect.Error(key, name)
 	}
 
 	if funcVal.ParamsCount() != len(node.Args) {
 		key := "LLVMGenerator.VisitFunctionCall.ArgsAndParamsCountAreDifferent"
 
-		return g.Ctx.Dialect.Error(key, name.Value, funcVal.ParamsCount(), len(node.Args))
+		return g.Ctx.Dialect.Error(key, name, funcVal.ParamsCount(), len(node.Args))
 	}
 
 	node.SwaType = funcType.meta.ReturnType

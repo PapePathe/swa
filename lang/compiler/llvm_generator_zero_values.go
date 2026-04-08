@@ -1,6 +1,7 @@
 package compiler
 
 import (
+	"fmt"
 	"reflect"
 	"swahili/lang/ast"
 
@@ -11,17 +12,10 @@ func (g *LLVMGenerator) ZeroOfArrayType(node *ast.ArrayType) error {
 	g.Debugf("ZeroOfArrayType")
 	defer g.Debugf("Finished ZeroOfArrayType")
 
-	//	if node.Size > 1000 {
-	//		key := "LLVMGenerator.ZeroOfArrayType.TooBigForZeroInitializer"
-	//		return g.Ctx.Dialect.Error(key, node.Size, 1000)
-	//	}
-
 	err := node.Underlying.AcceptZero(g)
 	if err != nil {
 		return err
 	}
-
-	lastres := g.getLastResult()
 
 	err = g.VisitArrayType(node)
 	if err != nil {
@@ -30,15 +24,6 @@ func (g *LLVMGenerator) ZeroOfArrayType(node *ast.ArrayType) error {
 
 	llvmtyp := g.getLastTypeVisitResult()
 	arrayPointer := g.Ctx.Builder.CreateAlloca(llvmtyp.Type, "array_alloc")
-
-	for i := range node.Size {
-		itemGep := g.Ctx.Builder.CreateGEP(llvmtyp.Type, arrayPointer, []llvm.Value{
-			llvm.ConstInt(llvm.GlobalContext().Int32Type(), 0, false),
-			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(i), false),
-		}, "")
-
-		g.Ctx.Builder.CreateStore(*lastres.Value, itemGep)
-	}
 
 	load := g.Ctx.Builder.CreateLoad(llvmtyp.Type, arrayPointer, "")
 
@@ -220,5 +205,10 @@ func (g *LLVMGenerator) ZeroOfBoolType(node *ast.BoolType) error {
 }
 
 func (g *LLVMGenerator) ZeroOfVoidType(node *ast.VoidType) error {
-	panic("ZeroOfVoidType unimplemented")
+	return fmt.Errorf("ZeroOfVoidType unimplemented")
+}
+
+func (g *LLVMGenerator) ZeroOfSliceType(node *ast.SliceType) error {
+	// FIXME error message should be translated
+	return fmt.Errorf("List should be initialized. Use make([]datatype)")
 }

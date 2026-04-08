@@ -106,9 +106,19 @@ func parseSymbolType(p *Parser) (ast.Type, []lexer.Token) {
 }
 
 func parseArrayType(p *Parser) (ast.Type, []lexer.Token) {
+	tokens := []lexer.Token{p.advance()}
+
+	if p.currentToken().Kind == lexer.CloseBracket {
+		tokens = append(tokens, p.advance())
+		underlying, toks := parseType(p, DefaultBindingPower)
+		tokens = append(tokens, toks...)
+
+		return ast.SliceType{
+			Underlying: underlying,
+		}, tokens
+	}
+
 	typ := ast.ArrayType{}
-	tokens := []lexer.Token{}
-	tokens = append(tokens, p.advance())
 
 	if p.currentToken().Kind == lexer.Number {
 		tok := p.expect(lexer.Number)
@@ -133,7 +143,8 @@ func parseArrayType(p *Parser) (ast.Type, []lexer.Token) {
 
 	tokens = append(tokens, p.expect(lexer.CloseBracket))
 
-	underlying, tokens := parseType(p, DefaultBindingPower)
+	underlying, toks := parseType(p, DefaultBindingPower)
+	tokens = append(tokens, toks...)
 	typ.Underlying = underlying
 
 	return typ, tokens

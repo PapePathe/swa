@@ -232,7 +232,7 @@ func TestArrayZeroValues(t *testing.T) {
 		NewSuccessfulCompileRequest(
 			t,
 			"./arrays/zero-values/string.swa",
-			"- [3]string with zero value\n'' '' ''\n\n",
+			"[3]string with zero value\n'(null)' '(null)' '(null)'\n\n",
 		)
 	})
 

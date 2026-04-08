@@ -108,6 +108,7 @@ var nodeVariableDeclarationStyles = map[reflect.Type]InitializationStyle{
 	reflect.TypeFor[*ast.BinaryExpression]():               StyleDefault,
 	reflect.TypeFor[*ast.StructInitializationExpression](): StyleDirect,
 	reflect.TypeFor[*ast.ArrayInitializationExpression]():  StyleDirect,
+	reflect.TypeFor[*ast.ListExpression]():                 StyleDirect,
 	reflect.TypeFor[*ast.PrefixExpression]():               StyleDefault,
 	reflect.TypeFor[*ast.ZeroExpression]():                 StyleDefault,
 	reflect.TypeFor[*ast.ErrorExpression]():                StyleDefault,
@@ -267,6 +268,33 @@ func (g *LLVMGenerator) finalizeSymbol(
 
 	if _, ok := node.Value.(*ast.ArrayInitializationExpression); ok {
 		return g.Ctx.AddArraySymbol(node.Name, res.ArraySymbolTableEntry)
+	}
+
+	var sliceTyp ast.SliceType
+	var isSlice bool
+
+	if st, ok := node.ExplicitType.(ast.SliceType); ok {
+		sliceTyp = st
+		isSlice = true
+	} else if st, ok := node.ExplicitType.(*ast.SliceType); ok {
+		sliceTyp = *st
+		isSlice = true
+	}
+
+	if isSlice {
+		g.Debugf("Is slice")
+		err := sliceTyp.Accept(g)
+		if err != nil {
+			return err
+		}
+		typeres := g.getLastTypeVisitResult()
+
+		return g.Ctx.AddArraySymbol(node.Name, &ArraySymbolTableEntry{
+			UnderlyingType: typeres.SubType,
+			Type:           typeres.Type,
+			ElementsCount:  -1,
+			IsSlice:        true,
+		})
 	}
 
 	return nil

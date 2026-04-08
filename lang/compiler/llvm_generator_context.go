@@ -42,6 +42,7 @@ type ArraySymbolTableEntry struct {
 	UnderlyingTypeDef *StructSymbolTableEntry
 	Type              llvm.Type
 	ElementsCount     int
+	IsSlice           bool
 }
 
 type FuncDetails struct {
@@ -250,7 +251,7 @@ func (ctx CompilerCtx) FindSymbol(name string) (error, *SymbolTableEntry) {
 }
 
 func (ctx CompilerCtx) PrintVarNames() {
-	for k := range ctx.symbolTable {
-		fmt.Println("Variable name: ", k)
+	for k, v := range ctx.symbolTable {
+		fmt.Printf("%10s %10s \n", k, v.DeclaredType.Value().String())
 	}
 }

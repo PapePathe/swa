@@ -1,0 +1,10 @@
+dialect:english;
+
+start() int {
+    let s: []int;
+    print("count=%d", count(s));
+    s << 42;
+    print("count=%d val=%d", count(s), s[0]);
+
+    return 0;
+}

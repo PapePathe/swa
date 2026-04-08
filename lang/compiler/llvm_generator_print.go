@@ -157,6 +157,7 @@ var printableValueExtractors = map[reflect.Type]PrintableValueExtractor{
 	reflect.TypeFor[*ast.ZeroExpression]():         extractDirect,
 	reflect.TypeFor[*ast.ErrorExpression]():        extractDirect,
 	reflect.TypeFor[*ast.BooleanExpression]():      extractDirect,
+	reflect.TypeFor[*ast.ListCountExpression]():    extractDirect,
 }
 
 func extractSymbol(g *LLVMGenerator, res *CompilerResult) llvm.Value {

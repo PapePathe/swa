@@ -66,6 +66,10 @@ var tks = map[TokenKind]string{
 	Whitespace:         "WHITESPACE",
 	Comment:            "COMMENT",
 	Newline:            "NEWLINE",
+	Make:               "Alloc",
+	Len:                "COUNT",
+	Cap:                "CAP",
+	Append:             "APPEND",
 }
 
 // String s a string representation of the TokenKind.
@@ -192,4 +196,8 @@ const (
 	Whitespace
 	Comment
 	Newline
+	Make
+	Len
+	Cap
+	Append
 )
