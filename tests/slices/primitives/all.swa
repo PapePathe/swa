@@ -1,0 +1,37 @@
+dialect:english;
+
+start() int {
+  let ints: []int = make([]int);
+  ints << 10;
+  ints << 20;
+  ints << 30;
+
+  print("count=%d  [%d %d %d]\n", 
+    count(ints), ints[0], ints[1], ints[2]);
+
+  let bools: []bool = make([]bool);
+  bools << true;
+  bools << false;
+  bools << true;
+
+  print("count=%d [%d %d %d]\n", count(bools), 
+    bools[0], bools[1], bools[2]);
+
+  let floats: []float = make([]float);
+  floats << 1.5;
+  floats << 2.5;
+  floats << 3.5;
+
+  print("count=%d [%.1f %.1f %.1f]\n", 
+    count(floats), floats[0], floats[1], floats[2]);
+
+    let strings: []string = make([]string);
+    strings << "hello";
+    strings << "world";
+    strings << "swa";
+
+    print("count=%d [%s %s %s]\n", 
+      count(strings), strings[0], strings[1], strings[2]);
+
+  return 0;
+}
