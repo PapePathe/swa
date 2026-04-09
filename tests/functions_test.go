@@ -436,7 +436,9 @@ func TestFunctions(t *testing.T) {
 			//				NewFailedCompileRequest(t, "./functions/test24_function_call_with_wrong_argument_type_should_not_compile.english.swa", "expected argument of type IntegerType(32 bits) but got PointerType(Reference)\n")
 			//			})
 			t.Run("Test 25: Missing return", func(t *testing.T) {
-				NewFailedCompileRequest(t, "./functions/test25_function_with_missing_return_statement_should_not_compile.english.swa", "function has no return statement\n")
+				NewFailedCompileRequest(t,
+					"./functions/test25_function_with_missing_return_statement_should_not_compile.english.swa",
+					"function no_return has no return statement\n")
 			})
 			t.Run("Test 26: Duplicate function", func(t *testing.T) {
 				NewFailedCompileRequest(t, "./functions/test26_function_redeclaration_should_not_compile.english.swa", "function named foo already exists in symbol table\n")

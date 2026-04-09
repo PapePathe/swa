@@ -176,7 +176,11 @@ func (l *LLVMTypeChecker) VisitArrayAccessExpression(node *ast.ArrayAccessExpres
 	return nil
 }
 func (l *LLVMTypeChecker) VisitArrayInitializationExpression(node *ast.ArrayInitializationExpression) error {
-	typ, _ := node.Underlying.(ast.ArrayType)
+	typ, ok := node.Underlying.(ast.ArrayType)
+
+	if !ok {
+		return nil
+	}
 
 	for _, v := range node.Contents {
 		if v.VisitedSwaType() != typ.Underlying {
@@ -277,7 +281,7 @@ func (l *LLVMTypeChecker) VisitFunctionDefinition(node *ast.FuncDeclStatement) e
 	}
 
 	if l.returnStatementsCount == 0 && node.ReturnType.Value() != ast.DataTypeVoid {
-		return fmt.Errorf("function %s has no return statement and expected %s", node.Name, node.ReturnType.Value().String())
+		return fmt.Errorf("function %s has no return statement", node.Name)
 	}
 
 	l.returnStatementsCount = 0

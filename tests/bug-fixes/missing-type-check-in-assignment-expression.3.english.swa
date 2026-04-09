@@ -2,6 +2,6 @@ dialect:english;
 
 start () int {
   let res : float;
-  res = []float{1.0};
+  res = [1]float{1.0};
   return 0; 
 }

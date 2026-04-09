@@ -77,8 +77,8 @@ func TestTuples(t *testing.T) {
 	//	})
 
 	t.Run("17", func(t *testing.T) {
-		NewFailedCompileRequest(t, "./tuples/17.swa",
-			"cannot insert Tuple in array of Number\n")
+		NewSuccessfulCompileRequest(t, "./tuples/17.swa",
+			"arr[0] =5 arr[1] = 6")
 	})
 
 	t.Run("18", func(t *testing.T) {
@@ -96,7 +96,7 @@ func TestTuples(t *testing.T) {
 	})
 	t.Run("21", func(t *testing.T) {
 		NewFailedCompileRequest(t, "./tuples/21.swa",
-			"function has no return statement\n")
+			"function empty has no return statement\n")
 	})
 	t.Run("22", func(t *testing.T) {
 		NewSuccessfulCompileRequest(t, "./tuples/22.swa",

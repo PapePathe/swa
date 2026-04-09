@@ -256,7 +256,7 @@ func TestDeepseekPlaintext(t *testing.T) {
 		t.Run("Test 13: Function missing return", func(t *testing.T) {
 			NewFailedCompileRequest(t,
 				"./functions/deepseek_test13_function_missing_return.english.swa",
-				"function has no return statement\n",
+				"function foo has no return statement\n",
 			)
 		})
 
@@ -280,7 +280,7 @@ func TestDeepseekPlaintext(t *testing.T) {
 		t.Run("Test 39: Empty function body", func(t *testing.T) {
 			NewFailedCompileRequest(t,
 				"./functions/deepseek_test39_empty_function_body.english.swa",
-				"function has no return statement\n",
+				"function empty has no return statement\n",
 			)
 		})
 
