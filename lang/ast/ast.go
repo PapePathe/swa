@@ -81,7 +81,6 @@ type ExpressionsCodeGenerator interface {
 	VisitSymbolValueExpression(node *SymbolValueExpression) error
 	VisitSymbolAdressExpression(node *SymbolAdressExpression) error
 	VisitBooleanExpression(node *BooleanExpression) error
-	//	VisitTypeExpression(node *TypeExpression) error
 	VisitListExpression(node *ListExpression) error
 	VisitListCountExpression(node *ListCountExpression) error
 	VisitAppendExpression(node *AppendExpression) error
