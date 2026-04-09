@@ -561,11 +561,6 @@ func (t *TreeDrawer) VisitZeroExpression(node *ast.ZeroExpression) error {
 	return t.visitType(node.T, true)
 }
 
-func (t *TreeDrawer) VisitTypeExpression(node *ast.TypeExpression) error {
-	t.writeLine("TypeExpression")
-	return t.visitType(node.Type, true)
-}
-
 func (t *TreeDrawer) ZeroOfSymbolType(node *ast.SymbolType) error     { return nil }
 func (t *TreeDrawer) ZeroOfTupleType(node *ast.TupleType) error       { return nil }
 func (t *TreeDrawer) ZeroOfNumberType(node *ast.NumberType) error     { return nil }

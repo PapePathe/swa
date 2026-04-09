@@ -209,12 +209,6 @@ func (l *LLVMTypeChecker) VisitFunctionCall(node *ast.FunctionCallExpression) er
 
 	if len(symbol.Tokens) > 0 {
 		switch symbol.Tokens[0].Kind {
-		case lexer.Make:
-			typeExpr, ok := node.Args[0].(*ast.TypeExpression)
-			if ok {
-				node.SwaType = typeExpr.Type
-			}
-			return nil
 		case lexer.Append:
 			// append(slice, item) -> returns slice type
 			err := node.Args[0].Accept(l)
@@ -315,7 +309,6 @@ func (l *LLVMTypeChecker) VisitSymbolExpression(node *ast.SymbolExpression) erro
 }
 func (l *LLVMTypeChecker) VisitSymbolType(node *ast.SymbolType) error               { return nil }
 func (l *LLVMTypeChecker) VisitTupleExpression(node *ast.TupleExpression) error     { return nil }
-func (l *LLVMTypeChecker) VisitTypeExpression(node *ast.TypeExpression) error       { return nil }
 func (l *LLVMTypeChecker) VisitVoidType(node *ast.VoidType) error                   { return nil }
 func (l *LLVMTypeChecker) VisitWhileStatement(node *ast.WhileStatement) error       { return nil }
 func (l *LLVMTypeChecker) ZeroOfArrayType(node *ast.ArrayType) error                { return nil }
