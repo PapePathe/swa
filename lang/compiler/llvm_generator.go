@@ -218,7 +218,6 @@ func (g *LLVMGenerator) VisitMainStatement(node *ast.MainStatement) error {
 	old := g.logger.Step("MainStmt")
 
 	defer g.logger.Restore(old)
-
 	defer func() { g.Ctx.InsideFunction = false }()
 
 	funcDef := ast.FuncDeclStatement{
