@@ -210,7 +210,6 @@ func (g *LLVMGenerator) VisitFloatExpression(node *ast.FloatExpression) error {
 	return nil
 }
 
-// VisitMainStatement implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitMainStatement(node *ast.MainStatement) error {
 	g.Ctx.InsideFunction = true
 	g.Ctx.IncrementMainOccurrences()
