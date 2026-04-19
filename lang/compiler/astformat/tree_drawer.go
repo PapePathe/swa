@@ -235,6 +235,15 @@ func (t *TreeDrawer) VisitStructDeclaration(node *ast.StructDeclarationStatement
 		}
 		t.isLast = t.isLast[:len(t.isLast)-1]
 	}
+
+	for i, funcDef := range node.Implementations {
+		last := i == len(node.Implementations)-1
+		t.isLast = append(t.isLast, last)
+
+		t.VisitFunctionDefinition(funcDef)
+
+		t.isLast = t.isLast[:len(t.isLast)-1]
+	}
 	return nil
 }
 
