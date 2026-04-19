@@ -440,6 +440,14 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 		return err
 	}
 
+	for _, funcDef := range node.Implementations {
+		err := funcDef.Accept(g)
+		if err != nil {
+			return err
+		}
+
+	}
+
 	node.SwaType = ast.SymbolType{Name: node.Name}
 
 	return nil
