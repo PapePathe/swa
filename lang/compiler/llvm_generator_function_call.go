@@ -8,11 +8,11 @@ import (
 )
 
 func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) error {
-	old := g.logger.Step("FunCallExpr")
+	old := g.logger.Step(fmt.Sprintf("FunCallExpr %s", node.Name))
 
 	defer g.logger.Restore(old)
 
-	g.Debugf("%s", node.Name)
+	var name string
 
 	name, ok := node.Name.(*ast.SymbolExpression)
 	if !ok {
