@@ -36,6 +36,8 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		}
 		node.Args = append(node.Args, oldArgs...)
 
+		g.Debugf("Args %+v", node.Args)
+
 		prop, _ := typednode.Property.(*ast.SymbolExpression)
 		name = fmt.Sprintf("Impl.%s.%s", sym.Ref.Metadata.Name, prop.Value)
 	default:
