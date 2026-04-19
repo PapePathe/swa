@@ -85,7 +85,12 @@ func ParseStructDeclarationStatement(p *Parser) (ast.Statement, error) {
 			oldp := funcDef.Args
 
 			funcDef.Args = []ast.FuncArg{
-				{Name: "self", ArgType: ast.PointerType{Underlying: ast.SymbolType{Name: stmt.Name}}},
+				{
+					Name: "self",
+					ArgType: ast.PointerType{
+						Underlying: ast.SymbolType{Name: stmt.Name},
+					},
+				},
 			}
 			funcDef.Args = append(funcDef.Args, oldp...)
 
