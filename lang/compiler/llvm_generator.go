@@ -211,6 +211,7 @@ func (g *LLVMGenerator) VisitFloatExpression(node *ast.FloatExpression) error {
 }
 
 const MAX_PARAMS_SIZE = 1000
+
 func (g *LLVMGenerator) VisitMainStatement(node *ast.MainStatement) error {
 	// FIXME we may not need this function anymore
 	g.Ctx.IncrementMainOccurrences()
