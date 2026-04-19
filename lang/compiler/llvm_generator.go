@@ -210,6 +210,7 @@ func (g *LLVMGenerator) VisitFloatExpression(node *ast.FloatExpression) error {
 	return nil
 }
 
+const MAX_PARAMS_SIZE = 1000
 func (g *LLVMGenerator) VisitMainStatement(node *ast.MainStatement) error {
 	g.Ctx.InsideFunction = true
 	g.Ctx.IncrementMainOccurrences()
@@ -220,23 +221,29 @@ func (g *LLVMGenerator) VisitMainStatement(node *ast.MainStatement) error {
 
 	defer func() { g.Ctx.InsideFunction = false }()
 
-	fnType := llvm.FunctionType(
-		g.Ctx.Context.Int32Type(),
-		[]llvm.Type{},
-		false,
-	)
-	fn := llvm.AddFunction(*g.Ctx.Module, "main", fnType)
-	block := g.Ctx.Context.AddBasicBlock(fn, "entry")
-	g.Ctx.Builder.SetInsertPointAtEnd(block)
+	funcDef := ast.FuncDeclStatement{
+		Args: []ast.FuncArg{
+			{
+				Name:    "params_count",
+				ArgType: ast.NumberType{},
+			},
+			{
+				Name: "params",
+				ArgType: ast.ArrayType{
+					Underlying: ast.StringType{},
+					Size:       MAX_PARAMS_SIZE,
+				},
+			},
+		},
+		Name:       "main",
+		Body:       node.Body,
+		ReturnType: ast.NumberType{},
+	}
 
-	g.currentFuncReturnType = &ast.NumberType{}
-
-	err := node.Body.Accept(g)
+	err := funcDef.Accept(g)
 	if err != nil {
 		return err
 	}
-
-	g.currentFuncReturnType = nil
 
 	return nil
 }
