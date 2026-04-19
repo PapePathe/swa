@@ -61,6 +61,7 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 		g.Ctx.Builder.SetInsertPointAtEnd(entryBlock)
 
 		for i, p := range newFunc.Params() {
+			g.Debugf("Processing param %+v", p)
 			argType := node.Args[i].ArgType
 			name := node.Args[i].Name
 			p.SetName(name)
@@ -69,12 +70,15 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 
 			switch argType.(type) {
 			case ast.SymbolType, ast.PointerType, ast.ArrayType:
+				g.Debugf("Passing parameter as reference %s", p)
+
 				entry = SymbolTableEntry{
 					Value:        p,
 					DeclaredType: argType,
 					Address:      &p,
 				}
 			default:
+				g.Debugf("Passing parameter as value %s", p)
 				// ast.FloatType, ast.NumberType, ast.Number64Type
 				// Need to alloc and store the passed value so
 				// that assignmnt to it will work.
