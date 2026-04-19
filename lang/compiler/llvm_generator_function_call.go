@@ -14,29 +14,50 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 
 	var name string
 
-	name, ok := node.Name.(*ast.SymbolExpression)
-	if !ok {
-		key := "LLVMGenerator.VisitFunctionCall.NameIsNotASymbol"
+	switch typednode := node.Name.(type) {
+	case *ast.SymbolExpression:
+		name = typednode.Value
+	case *ast.MemberExpression:
+		obj, _ := typednode.Object.(*ast.SymbolExpression)
 
-		return g.Ctx.Dialect.Error(key)
+		err, sym := g.Ctx.FindSymbol(obj.Value)
+		if err != nil {
+			return err
+		}
+
+		if sym.Ref == nil {
+			return fmt.Errorf("Variable %s is not a struct", sym.Value)
+		}
+
+		oldArgs := node.Args
+
+		node.Args = []ast.Expression{
+			&ast.SymbolExpression{Value: obj.Value},
+		}
+		node.Args = append(node.Args, oldArgs...)
+
+		prop, _ := typednode.Property.(*ast.SymbolExpression)
+		name = fmt.Sprintf("Impl.%s.%s", sym.Ref.Metadata.Name, prop.Value)
+	default:
+		return fmt.Errorf("DEVELOPER ERROR node %T not supported in function call", node.Name)
 	}
 
-	err, funcType := g.Ctx.FindFuncSymbol(name.Value)
+	err, funcType := g.Ctx.FindFuncSymbol(name)
 	if err != nil {
 		return err
 	}
 
-	funcVal := g.Ctx.Module.NamedFunction(name.Value)
+	funcVal := g.Ctx.Module.NamedFunction(name)
 	if funcVal.IsNil() {
 		key := "LLVMGenerator.VisitFunctionCall.DoesNotExist"
 
-		return g.Ctx.Dialect.Error(key, name.Value)
+		return g.Ctx.Dialect.Error(key, name)
 	}
 
 	if funcVal.ParamsCount() != len(node.Args) {
 		key := "LLVMGenerator.VisitFunctionCall.ArgsAndParamsCountAreDifferent"
 
-		return g.Ctx.Dialect.Error(key, name.Value, funcVal.ParamsCount(), len(node.Args))
+		return g.Ctx.Dialect.Error(key, name, funcVal.ParamsCount(), len(node.Args))
 	}
 
 	node.SwaType = funcType.meta.ReturnType
