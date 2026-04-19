@@ -445,7 +445,6 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 		if err != nil {
 			return err
 		}
-
 	}
 
 	node.SwaType = ast.SymbolType{Name: node.Name}
@@ -499,6 +498,7 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 	}
 
 	if entry.Address == nil {
+		g.Debugf("Entry address is nil")
 		g.setLastResult(
 			&CompilerResult{
 				Value:            &entry.Value,
