@@ -133,6 +133,12 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 			args = append(args, load)
 
 		case *ast.SymbolExpression:
+			if funcType.meta.Args[i].ArgType.Value() == ast.DataTypePointer {
+				args = append(args, *val.SymbolTableEntry.Address)
+
+				break
+			}
+
 			if val.SymbolTableEntry.Ref != nil {
 				alloca := g.Ctx.Builder.CreateAlloca(val.SymbolTableEntry.Ref.LLVMType, "")
 				g.Ctx.Builder.CreateStore(*val.Value, alloca)
