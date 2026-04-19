@@ -6,11 +6,12 @@ import (
 )
 
 type StructDeclarationStatement struct {
-	Name       string
-	Properties []string
-	Types      []Type
-	Tokens     []lexer.Token
-	SwaType    Type
+	Name            string
+	Properties      []string
+	Types           []Type
+	Tokens          []lexer.Token
+	Implementations []*FuncDeclStatement
+	SwaType         Type
 }
 
 var _ Statement = (*StructDeclarationStatement)(nil)
