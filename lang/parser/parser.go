@@ -28,9 +28,8 @@ func Parse(tokens []lexer.Token) (ast.BlockStatement, error) {
 	createTokenTypeLookups()
 
 	psr := &Parser{
-		tokens: tokens,
-		logger: *trc.NewLogger("PARSER"),
-		//	tracing: true,
+		tokens:  tokens,
+		logger:  *trc.NewLogger("PARSER"),
 		tracing: false,
 		errors:  []error{},
 	}
