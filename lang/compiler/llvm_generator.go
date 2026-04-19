@@ -454,11 +454,9 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 }
 
 func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error {
-	old := g.logger.Step("SymbolExpr")
+	old := g.logger.Step(fmt.Sprintf("SymbolExpr %s", node.Value))
 
 	defer g.logger.Restore(old)
-
-	g.Debugf(node.Value)
 
 	err, entry := g.Ctx.FindSymbol(node.Value)
 	if err != nil {
