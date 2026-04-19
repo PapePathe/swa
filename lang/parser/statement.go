@@ -72,6 +72,25 @@ func ParseStructDeclarationStatement(p *Parser) (ast.Statement, error) {
 
 			continue
 		}
+
+		if p.currentToken().Kind == lexer.Function {
+			funcDefStmt, err := ParseFunctionDeclaration(p)
+			if err != nil {
+				return nil, err
+			}
+
+			funcDef, _ := funcDefStmt.(*ast.FuncDeclStatement)
+
+			funcDef.Name = fmt.Sprintf("Impl.%s.%s", stmt.Name, funcDef.Name)
+			oldp := funcDef.Args
+
+			funcDef.Args = []ast.FuncArg{
+				{Name: "self", ArgType: ast.PointerType{Underlying: ast.SymbolType{Name: stmt.Name}}},
+			}
+			funcDef.Args = append(funcDef.Args, oldp...)
+
+			stmt.Implementations = append(stmt.Implementations, funcDef)
+		}
 	}
 
 	stmt.Tokens = append(stmt.Tokens, p.expect(lexer.CloseCurly))
