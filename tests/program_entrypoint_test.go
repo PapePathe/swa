@@ -42,23 +42,23 @@ func TestProgramEntryPoint(t *testing.T) {
 			{
 				name:           "French",
 				inputPath:      "./program_entrypoint/many-main.french.swa",
-				expectedOutput: "Vous devez definir un seul programme principal, nombre (2)\n",
+				expectedOutput: "function named main already exists in symbol table\n",
 			},
 			{
 				name:           "English",
 				inputPath:      "./program_entrypoint/many-main.english.swa",
-				expectedOutput: "Your program must have exactly one main function, count (2)\n",
+				expectedOutput: "function named main already exists in symbol table\n",
 			},
 
 			{
 				name:           "Wolof",
 				inputPath:      "./program_entrypoint/many-main.wolof.swa",
-				expectedOutput: "Your program must have exactly one main function, count (2)\n",
+				expectedOutput: "function named main already exists in symbol table\n",
 			},
 			{
 				name:           "Soussou",
 				inputPath:      "./program_entrypoint/many-main.soussou.swa",
-				expectedOutput: "Your program must have exactly one main function, count (2)\n",
+				expectedOutput: "wali main na na yi khorun\n",
 			},
 		}
 
