@@ -1,0 +1,50 @@
+dialect:english;
+
+struct Rectangle {
+  Largeur: int,
+  Longueur: int,
+
+  func Perimetre() int {
+    return 2 * (self.Largeur + self.Longueur);
+  }
+
+  func Surface() int {
+    return self.Largeur * self.Longueur;
+  }
+
+  func Equals(other: Rectangle) bool {
+    return false if (self.Largeur != other.Largeur); 
+    return false if (self.Longueur != other.Longueur); 
+ 
+    return true;
+  }
+ 
+  func Scale(scale: int) bool {
+    return false if (scale <= 0);
+ 
+    self.Longueur = self.Longueur * scale;
+    self.Largeur = self.Largeur * scale;
+ 
+    return true;
+  }
+}
+
+start() int {
+  let r0 : Rectangle = Rectangle{ Largeur: 10, Longueur: 15 };
+  let r1 : Rectangle = Rectangle{ Largeur: 10, Longueur: 15 };
+  let r2 : Rectangle = Rectangle{ Largeur: 10, Longueur: 10 };
+
+  print("Longueur: ", r0.Longueur, "\nLargeur: ", r0.Largeur, "\n");
+  print("perimetre: ", r0.Perimetre(), "\n");
+  print("surface: ", r0.Surface(), "\n");
+  print("Comparison -------------------------------", "\n");
+  print("Equality of (r0,r1): ", r0.Equals(r1), "\n");
+  print("Equality of (r0,r2): ", r0.Equals(r2), "\n");
+  print("Scaling -------------------------------", "\n");
+  r0.Scale(10);
+  print("Longueur: ", r0.Longueur, "\nLargeur: ", r0.Largeur, "\n");
+  print("perimetre: ", r0.Perimetre(), "\n");
+  print("surface: ", r0.Surface(), "\n");
+
+  return 0;
+}

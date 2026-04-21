@@ -59,6 +59,16 @@ func TestStructFunctions(t *testing.T) {
 			"./structs/functions/1.swa",
 			"Longueur: 15\nLargeur: 10\nperimetre: 50\nsurface: 150\nComparison -------------------------------\nEquality of (r0,r1): 1\nEquality of (r0,r2): 0\nScaling -------------------------------\nLongueur: 150\nLargeur: 100\nperimetre: 500\nsurface: 15000\n")
 	})
+	t.Run("2", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./structs/functions/2.swa",
+			"2\\3\n3\\4\nReduction au meme denominateur \n8\\12\n9\\12\nAddition \n17\\12\n")
+	})
+	t.Run("3", func(t *testing.T) {
+		NewFailedCompileRequest(t,
+			"./structs/functions/3.swa",
+			"struct doest not provide an implementation of method `NotFound`\n")
+	})
 }
 
 func TestStructWithUnknownType(t *testing.T) {

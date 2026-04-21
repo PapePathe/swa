@@ -1,0 +1,14 @@
+dialect:english;
+
+struct Fraction {
+   Numerateur: int,
+   Denominateur: int,
+}
+
+start() int{
+  let f1 : Fraction = Fraction{Numerateur: 2, Denominateur: 3};
+
+  f1.NotFound();
+
+  return 0;
+}
