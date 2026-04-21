@@ -1,0 +1,56 @@
+#include <unordered_map>
+#include "tokentype.hpp"
+
+const std::unordered_map<std::string, TokenType> KEYWORDS_ENGLISH = {
+    {"const",    TokenType::CONST},
+    {"dialect",  TokenType::DIALECT},
+    {"func",     TokenType::FUNCTION},
+    {"else",     TokenType::ELSE},
+    {"if",       TokenType::IF},
+    {"while",    TokenType::WHILE},
+    {"start",    TokenType::MAIN},
+    {"print",    TokenType::PRINT},
+    {"return",   TokenType::RETURN},
+    {"struct",   TokenType::STRUCT},
+    {"let",      TokenType::LET},
+    {"int",      TokenType::INT},
+    {"int64",    TokenType::INT},
+    {"byte",     TokenType::BYTE},
+    {"error",    TokenType::ERROR},
+    {"float",    TokenType::FLOAT},
+    {"string",   TokenType::STRING},
+    {"bool",     TokenType::BOOL},
+    {"and",      TokenType::AND},
+    {"or",       TokenType::OR},
+    {"true",     TokenType::TRUE},
+    {"false",    TokenType::FALSE},
+    {"variadic", TokenType::VARIADIC},
+    {"zero",     TokenType::ZERO}
+};
+
+const std::unordered_map<std::string, TokenType> KEYWORDS_FRENCH = {
+    {"constante",   TokenType::CONST},
+    {"dialecte",    TokenType::DIALECT},
+    {"fonction",    TokenType::FUNCTION},
+    {"sinon",       TokenType::ELSE},
+    {"si",          TokenType::IF},
+    {"tantque",     TokenType::WHILE},
+    {"demarrer",    TokenType::MAIN},
+    {"afficher",    TokenType::PRINT},
+    {"retourner",   TokenType::RETURN},
+    {"structure",   TokenType::STRUCT},
+    {"variable",    TokenType::LET},
+    {"entier",      TokenType::INT},
+    {"entier64",    TokenType::INT},
+    {"octet",       TokenType::BYTE},
+    {"erreur",      TokenType::ERROR},
+    {"decimal",     TokenType::FLOAT},
+    {"chaine",      TokenType::STRING},
+    {"booleen",     TokenType::BOOL},
+    {"et",          TokenType::AND},
+    {"ou",          TokenType::OR},
+    {"vrai",        TokenType::TRUE},
+    {"faux",        TokenType::FALSE},
+    {"variadique",  TokenType::VARIADIC},
+    {"zero",        TokenType::ZERO}
+};

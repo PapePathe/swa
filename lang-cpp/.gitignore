@@ -1,0 +1,42 @@
+# --- Build Artifacts ---
+build/
+bin/
+lib/
+out/
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+*.ll
+*.bc
+*.s
+
+# --- CMake Generated Files ---
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# --- IDEs and Editors ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# --- Test Artifacts ---
+tests/build/
+googletest-src/
+googletest-build/
+
+# --- LLVM Specific ---
+llvm-install/
+*.profraw
+*.profdata
