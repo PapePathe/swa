@@ -2,25 +2,7 @@
 #include <string>
 #include <vector>
 #include "lexer/lexer.hpp"
-
-const std::unordered_map<std::string, TokenType> KEYWORDS_ENGLISH = {
-    {"dialect", TokenType::DIALECT_DECLARATION}, 
-    {"let", TokenType::LET}, 
-    {"const", TokenType::CONST},
-    {"if", TokenType::KEYWORD_IF}, 
-    {"else", TokenType::KEYWORD_ELSE},
-    {"while", TokenType::KEYWORD_WHILE}, 
-    {"int", TokenType::TYPE_INT},
-    {"float", TokenType::TYPE_FLOAT}, 
-    {"string", TokenType::TYPE_STRING},
-    {"bool", TokenType::TYPE_BOOL}, 
-    {"func", TokenType::FUNCTION},
-    {"return", TokenType::RETURN}, 
-    {"and", TokenType::AND},
-    {"or", TokenType::OR}, 
-    {"true", TokenType::TRUE},
-    {"false", TokenType::FALSE}
-};
+#include "lexer/keywords.hpp"
 
 class LexerTest : public ::testing::Test {
 protected:
