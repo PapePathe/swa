@@ -1,0 +1,6 @@
+dialect:english;
+start() int {
+  let s: int = 1;
+  s << 2;
+  return 0;
+}

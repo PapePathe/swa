@@ -1,0 +1,5 @@
+dialect:english;
+start() int {
+  let s: int = count("hello");
+  return 0;
+}

@@ -42,6 +42,8 @@ func (m Soussou) Reserved() map[string]TokenKind {
 		"true":     True,
 		"false":    False,
 		"bool":     TypeBool,
+		"make":     Make,
+		"count":    Len,
 	}
 }
 
@@ -131,5 +133,9 @@ func (m Soussou) translations() map[string]string {
 
 		"LLVMCompiler.MissingProgramEntrypoint":  "Your program is missing a main function",
 		"LLVMCompiler.TooManyProgramEntrypoints": "Your program must have exactly one main function, count (%d)",
+
+		"AppendExpression.AppendableIsNotASlice": "append mu lanné slice ra, %T nan masen",
+		"ListExpression.MakeRequiresSliceType":   "make() mu lanné slice ra, %v nan masen",
+		"ListCountExpression.RequiresSliceType":  "count() mu lanné slice ra, %v nan masen",
 	}
 }

@@ -1,0 +1,6 @@
+dialect:english;
+start() int {
+  let arr: [3]int = [3]int{1, 2, 3};
+  arr << 4;
+  return 0;
+}

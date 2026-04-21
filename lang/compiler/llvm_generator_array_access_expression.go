@@ -26,14 +26,22 @@ func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpressi
 		arrayAddr = *array.Address
 	}
 
-	if entry.UnderlyingType.IsNil() {
-		key := "LLVMGenerator.VisitArrayAccessExpression.UnderlyingTypeNotSet"
+	var length llvm.Value
+	var dataPtr llvm.Value
 
-		return g.Ctx.Dialect.Error(key)
+	if entry.IsSlice {
+		// Load slice struct if it's an address
+		sliceVal := arrayAddr
+		if arrayAddr.Type().TypeKind() == llvm.PointerTypeKind {
+			sliceVal = g.Ctx.Builder.CreateLoad(entry.Type, arrayAddr, "slice")
+		}
+		dataPtr = g.Ctx.Builder.CreateExtractValue(sliceVal, 0, "ptr")
+		length = g.Ctx.Builder.CreateExtractValue(sliceVal, 1, "len")
+	} else {
+		dataPtr = arrayAddr
+		length = llvm.ConstInt(llvm.GlobalContext().Int32Type(),
+			uint64(entry.ElementsCount), false)
 	}
-
-	length := llvm.ConstInt(llvm.GlobalContext().Int32Type(),
-		uint64(entry.ElementsCount), false)
 
 	icmp := g.Ctx.Builder.CreateICmp(llvm.IntULT, indices[0], length, "array-bounds-cmp")
 
@@ -43,12 +51,19 @@ func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpressi
 	mergeBlock := g.Ctx.Context.AddBasicBlock(parentFunc, "array-bounds-cmp-mergeBlock")
 	thenBlock := g.Ctx.Context.AddBasicBlock(parentFunc, "array-bounds-cmp-thenBlock")
 	g.Ctx.Builder.SetInsertPointAtEnd(thenBlock)
-	itemPtr := g.Ctx.Builder.CreateInBoundsGEP(
-		entry.UnderlyingType,
-		arrayAddr,
-		indices,
-		"",
-	)
+
+	var itemPtr llvm.Value
+	if entry.IsSlice {
+		itemPtr = g.Ctx.Builder.CreateGEP(entry.UnderlyingType, dataPtr, indices, "")
+	} else {
+		itemPtr = g.Ctx.Builder.CreateInBoundsGEP(
+			entry.UnderlyingType,
+			dataPtr,
+			indices,
+			"",
+		)
+	}
+
 	g.Ctx.Builder.CreateBr(mergeBlock)
 
 	elseblock := g.Ctx.Context.AddBasicBlock(parentFunc, "array-bounds-cmp-elseblock")
@@ -68,7 +83,7 @@ func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpressi
 			llvm.ConstInt(llvm.GlobalContext().Int64Type(), uint64(0), true),
 		}, "")
 
-	if g.currentFuncReturnType != nil {
+	if g.currentFuncReturnType != nil && g.currentFuncReturnType.Value() != ast.DataTypeVoid {
 		err := g.currentFuncReturnType.Accept(g)
 		if err != nil {
 			return err
@@ -77,8 +92,12 @@ func (g *LLVMGenerator) VisitArrayAccessExpression(node *ast.ArrayAccessExpressi
 		typ := g.getLastTypeVisitResult()
 		g.Ctx.Builder.CreateRet(llvm.ConstNull(typ.Type))
 	} else {
-		g.Ctx.Builder.CreateRet(
-			llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false))
+		if g.currentFuncReturnType != nil && g.currentFuncReturnType.Value() == ast.DataTypeVoid {
+			g.Ctx.Builder.CreateRetVoid()
+		} else {
+			g.Ctx.Builder.CreateRet(
+				llvm.ConstInt(llvm.GlobalContext().Int32Type(), uint64(0), false))
+		}
 	}
 
 	array.Address = &itemPtr
@@ -174,11 +193,16 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 
 		arrtyp, ok := arrayEntry.DeclaredType.(ast.ArrayType)
 		if !ok {
-			key := "ArrayAccessExpression.DeclaredTypeIsNotArray"
+			slicetyp, ok := arrayEntry.DeclaredType.(ast.SliceType)
+			if !ok {
+				key := "ArrayAccessExpression.DeclaredTypeIsNotArray"
 
-			return g.Ctx.Dialect.Error(key), nil, nil, nil
+				return g.Ctx.Dialect.Error(key), nil, nil, nil
+			}
+			expr.SwaType = slicetyp.Underlying
+		} else {
+			expr.SwaType = arrtyp.Underlying
 		}
-		expr.SwaType = arrtyp.Underlying
 
 	case *ast.MemberExpression:
 		err := expr.Name.Accept(g)
@@ -228,6 +252,9 @@ func (g *LLVMGenerator) findArraySymbolTableEntry(
 			isPointerType = true
 		case ast.ArrayType:
 			elementsCount = coltype.Size
+			expr.SwaType = coltype.Underlying
+		case ast.SliceType:
+			elementsCount = -1
 			expr.SwaType = coltype.Underlying
 		default:
 			key := "LLVMGenerator.VisitArrayAccessExpression.PropertyIsnotAnArray"

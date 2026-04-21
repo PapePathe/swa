@@ -8,41 +8,42 @@ import (
 )
 
 func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) error {
-	old := g.logger.Step("FunCallExpr")
+	old := g.logger.Step(fmt.Sprintf("FunCallExpr %s", node.Name))
 
 	defer g.logger.Restore(old)
 
-	g.Debugf("%s", node.Name)
-
-	name, ok := node.Name.(*ast.SymbolExpression)
+	symbol, ok := node.Name.(*ast.SymbolExpression)
 	if !ok {
 		key := "LLVMGenerator.VisitFunctionCall.NameIsNotASymbol"
 
 		return g.Ctx.Dialect.Error(key)
 	}
 
-	err, funcType := g.Ctx.FindFuncSymbol(name.Value)
+	name := symbol.Value
+
+	err, funcType := g.Ctx.FindFuncSymbol(name)
 	if err != nil {
 		return err
 	}
 
-	funcVal := g.Ctx.Module.NamedFunction(name.Value)
+	funcVal := g.Ctx.Module.NamedFunction(name)
 	if funcVal.IsNil() {
 		key := "LLVMGenerator.VisitFunctionCall.DoesNotExist"
 
-		return g.Ctx.Dialect.Error(key, name.Value)
+		return g.Ctx.Dialect.Error(key, name)
 	}
 
 	if funcVal.ParamsCount() != len(node.Args) {
 		key := "LLVMGenerator.VisitFunctionCall.ArgsAndParamsCountAreDifferent"
 
-		return g.Ctx.Dialect.Error(key, name.Value, funcVal.ParamsCount(), len(node.Args))
+		return g.Ctx.Dialect.Error(key, name, funcVal.ParamsCount(), len(node.Args))
 	}
 
 	node.SwaType = funcType.meta.ReturnType
 	args := []llvm.Value{}
 
 	for i, arg := range node.Args {
+		g.Debugf("Processing arg %d", i)
 		err := arg.Accept(g)
 		if err != nil {
 			return err
@@ -64,7 +65,7 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		g.Debugf("Symbol Table entry: %+v", val.SymbolTableEntry)
 		g.Debugf("array symbol Table entry: %+v", val.ArraySymbolTableEntry)
 
-		// TODO this should be moved to the type checking pass
+		// FIXME this should be moved to the type checking pass
 		argType := val.Value.Type()
 		if val.SymbolTableEntry != nil && val.SymbolTableEntry.Ref != nil {
 			if val.StuctPropertyValueType != nil {

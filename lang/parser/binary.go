@@ -39,6 +39,7 @@ func ParseSymbolAddressExpression(p *Parser) (ast.Expression, error) {
 func ParseBinaryExpression(p *Parser, left ast.Expression, bp BindingPower) (ast.Expression, error) {
 	expr := ast.BinaryExpression{}
 	p.currentExpression = &expr
+
 	expr.Left = left
 	expr.Tokens = append(expr.Tokens, left.TokenStream()...)
 	operatorToken := p.advance()
@@ -53,10 +54,23 @@ func ParseBinaryExpression(p *Parser, left ast.Expression, bp BindingPower) (ast
 	expr.Right = right
 	expr.Tokens = append(expr.Tokens, right.TokenStream()...)
 
-	return &expr, nil
+	switch operatorToken.Kind {
+	case lexer.Append:
+		e := ast.AppendExpression{
+			Tokens:     expr.TokenStream(),
+			Appendable: expr.Left,
+			Value:      expr.Right,
+		}
+
+		return &e, nil
+	default:
+		return &expr, nil
+	}
+
 }
 
 func ParseZeroExpression(p *Parser) (ast.Expression, error) {
+
 	expr := ast.ZeroExpression{}
 	p.currentExpression = &expr
 

@@ -1,12 +1,12 @@
 dialect:english;
 
-// LIBC FUNCTIONS
+// LIBC FUNCdatatypeIONS
 
 // ############################
 // file functions
 // ############################
 //
-// let SEEK_SET :int =	0;	
+// let SEEK_SEdatatype :int =	0;	
 // let SEEK_CUR :int =	1;	
 // let SEEK_END :int =	2;	
 //
@@ -18,11 +18,12 @@ func read(fd: int, buf: string, buf_size: int64) int64;
 
 func close(fd: int) int;
 
-func write(fd: int, buffer: string, count: int64) int64;
+func write(fd: int, buffer: string, size: int64) int64;
 
-func pread(fd: int, buf: string, count: int, offset: int64) int64;
+func pread(fd: int, buf: string, size: int, offset: int64) int64;
 
-func pwrite(fd: int, buf: string, count: int, offset: int64) int64;
+func pwrite(fd: int, buf: string, size: int, offset: int64) int64;
+
 
 // ############################
 // end file functions
@@ -31,7 +32,10 @@ func pwrite(fd: int, buf: string, count: int, offset: int64) int64;
 
 func sqrt(a: float) float;
 
-// END LIBC FUNCTIONS
+func realloc(ptr: *int, size: int64) *int;
+func free(ptr: *int);
+
+// END LIBC FUNCdatatypeIONS
 
 // func std_divide(a: int, b: int) (int, error) {
 //   return 0, error("division by zero was prevented") if(b == 0);
@@ -54,4 +58,21 @@ func sqrt(a: float) float;
 // 
 // func exp(a: int, b: int) (int, error) {
 //   return 0, zero(error);
+// }
+
+// func list_init<datatype>() []datatype {
+// }
+// 
+// func list_append<datatype>(slice: []datatype, value: datatype) error {
+//   if(slice.len == slice.cap) {
+//     // realloc
+//   }
+// 
+//   slice.data[slice.len] = value
+// 
+//   return zero(error);
+// }
+// 
+// func list_count<datatype>(a: []datatype) int {
+//   return 0;
 // }

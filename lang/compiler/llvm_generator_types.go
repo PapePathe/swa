@@ -160,3 +160,36 @@ func (g *LLVMGenerator) VisitBoolType(node *ast.BoolType) error {
 
 	return nil
 }
+
+func (g *LLVMGenerator) VisitSliceType(node *ast.SliceType) error {
+	old := g.logger.Step("SliceType")
+
+	defer g.logger.Restore(old)
+
+	err := node.Underlying.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	under := g.getLastTypeVisitResult()
+	sliceType := g.Ctx.Context.StructType([]llvm.Type{
+		llvm.PointerType(under.Type, 0),
+		g.Ctx.Context.Int32Type(),
+		g.Ctx.Context.Int32Type(),
+	}, false)
+
+	g.setLastTypeVisitResult(&CompilerResultType{
+		Type:    sliceType,
+		SubType: under.Type,
+		Sentry:  under.Sentry,
+		Aentry: &ArraySymbolTableEntry{
+			UnderlyingType:    under.Type,
+			Type:              sliceType,
+			UnderlyingTypeDef: under.Sentry,
+			ElementsCount:     -1,
+			IsSlice:           true,
+		},
+	})
+
+	return nil
+}

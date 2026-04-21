@@ -29,6 +29,10 @@ func TestReservedMalinke(t *testing.T) {
 		"tinye":     True,
 		"wouya":     False,
 		"tinyejate": TypeBool,
+		"make":      Make,
+		"count":     Len,
+		"cap":       Cap,
+		"append":    Append,
 	}
 
 	malinke := Malinke{}

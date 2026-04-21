@@ -29,6 +29,8 @@ func TestReservedFrench(t *testing.T) {
 		"vrai":       True,
 		"faux":       False,
 		"booleen":    TypeBool,
+		"creer":      Make,
+		"taille":     Len,
 	}
 
 	French := French{}

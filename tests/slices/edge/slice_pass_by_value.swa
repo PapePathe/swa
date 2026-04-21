@@ -1,0 +1,17 @@
+dialect:english;
+
+func modify(s: []int) int {
+  s << 99; // modifies local s argument, but string pointer might update!
+  return 0;
+}
+
+start() int {
+  let s: []int = make([]int);
+  s << 10;
+  modify(s);
+  
+  // count should still be 1, because `s` was passed by value.
+  print(count(s));
+  print(s[0]);
+  return 0;
+}

@@ -23,6 +23,20 @@ type Triple struct {
 	currproc    *Proc
 }
 
+var _ ast.CodeGenerator = (*Triple)(nil)
+
+func (gen *Triple) VisitAppendExpression(node *ast.AppendExpression) error {
+	panic("unimplemented")
+}
+
+func (gen *Triple) VisitListExpression(node *ast.ListExpression) error {
+	panic("unimplemented")
+}
+
+func (gen *Triple) VisitListCountExpression(node *ast.ListCountExpression) error {
+	panic("unimplemented")
+}
+
 var _ AsmOp = (*Triple)(nil)
 
 func (gen *Triple) Gen(g AssemblyOpGenerator) error {
@@ -61,8 +75,6 @@ func (gen *Triple) Display() {
 		}
 	}
 }
-
-var _ ast.CodeGenerator = (*Triple)(nil)
 
 func NewTripleGenerator() *Triple {
 	return &Triple{
@@ -114,6 +126,10 @@ func (gen *Triple) VisitArrayOfStructsAccessExpression(node *ast.ArrayOfStructsA
 }
 
 func (gen *Triple) VisitArrayType(node *ast.ArrayType) error {
+	return fmt.Errorf("unimplemented")
+}
+
+func (gen *Triple) VisitSliceType(node *ast.SliceType) error {
 	return fmt.Errorf("unimplemented")
 }
 
@@ -513,6 +529,10 @@ func (gen *Triple) VisitZeroExpression(node *ast.ZeroExpression) error {
 }
 
 func (gen *Triple) ZeroOfArrayType(node *ast.ArrayType) error {
+	return fmt.Errorf("unimplemented")
+}
+
+func (gen *Triple) ZeroOfSliceType(node *ast.SliceType) error {
 	return fmt.Errorf("unimplemented")
 }
 

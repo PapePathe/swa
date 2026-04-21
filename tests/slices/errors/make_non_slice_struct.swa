@@ -1,0 +1,6 @@
+dialect:english;
+struct Point { x: int, }
+start() int {
+  let s: []Point = make(Point);
+  return 0;
+}

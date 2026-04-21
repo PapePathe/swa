@@ -1,0 +1,14 @@
+dialect:english;
+
+start() int {
+    let s: []int = make([]int);
+    s << 1;
+    s << 2;
+    print("full: count=%d", count(s));
+
+    s << 3;
+    print("full: count=%d", count(s));
+    print("values: %d %d %d", s[0], s[1], s[2]);
+
+    return 0;
+}

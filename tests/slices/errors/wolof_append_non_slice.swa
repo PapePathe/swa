@@ -1,0 +1,6 @@
+laak:wolof;
+tambali() lëmm {
+  dencukaay s: lëmm = 1;
+  s << 2;
+  deloko 0;
+}

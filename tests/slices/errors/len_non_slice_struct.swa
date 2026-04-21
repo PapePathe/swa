@@ -1,0 +1,7 @@
+dialect:english;
+struct Point { x: int, }
+start() int {
+  let p: Point = Point{x: 1};
+  let s: int = count(p);
+  return 0;
+}

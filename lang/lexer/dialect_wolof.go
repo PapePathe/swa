@@ -30,35 +30,33 @@ func (m Wolof) Error(key string, args ...any) error {
 }
 
 func (m Wolof) Reserved() map[string]TokenKind {
+	// TODO: find  translations
 	return map[string]TokenKind{
-		"constante": Const,
-		"laak":      DialectDeclaration,
-		// TODO: find  translation for function
-		"fonction": Function,
-		"sude":     KeywordIf,
-		"wala":     KeywordElse,
-		// TODO: find  translation for while
-		"while":     KeywordWhile,
-		"dencukaay": Let,
-		"tambali":   Main,
-		"wanel":     Print,
-		"deloko":    Return,
-		// TODO: find  translation for struct
-		"structure": Struct,
-		// TODO: find  translation for float
-		"decimal": TypeFloat,
-		"lëmm":    TypeInt,
-		"lëmm64":  TypeInt64,
-		// TODO: find better translation for string
-		"ay_araf": TypeString,
-		"njumte":  TypeError,
-		// TODO: find  translation for variadic
+		"constante":  Const,
+		"laak":       DialectDeclaration,
+		"fonction":   Function,
+		"sude":       KeywordIf,
+		"wala":       KeywordElse,
+		"while":      KeywordWhile,
+		"dencukaay":  Let,
+		"tambali":    Main,
+		"wanel":      Print,
+		"deloko":     Return,
+		"structure":  Struct,
+		"decimal":    TypeFloat,
+		"lëmm":       TypeInt,
+		"lëmm64":     TypeInt64,
+		"ay_araf":    TypeString,
+		"njumte":     TypeError,
 		"variadique": Variadic,
-		// TODO: find  translation for zero
-		"zero":  Zero,
-		"true":  True,
-		"false": False,
-		"bool":  TypeBool,
+		"zero":       Zero,
+		"false":      False,
+		"true":       True,
+		"bool":       TypeBool,
+		"make":       Make,
+		"count":      Len,
+		"cap":        Cap,
+		"append":     Append,
 	}
 }
 
@@ -139,5 +137,9 @@ func (m Wolof) translations() map[string]string {
 
 		"LLVMCompiler.MissingProgramEntrypoint":  "Your program is missing a main function",
 		"LLVMCompiler.TooManyProgramEntrypoints": "Your program must have exactly one main function, count (%d)",
+
+		"AppendExpression.AppendableIsNotASlice": "append expects a slice, got %T",
+		"ListExpression.MakeRequiresSliceType":   "make() function requires a slice allocation map, got %v",
+		"ListCountExpression.RequiresSliceType":  "count() function requires a slice, got %v",
 	}
 }

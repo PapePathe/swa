@@ -1,0 +1,22 @@
+dialect:english;
+
+start() int {
+  let s: []int = make([]int);
+  let i: int = 0;
+  while (i < 2) {
+    let j: int = 0;
+    while (j < 3) {
+      let val: int = i * 10;
+      val = val + j;
+      s << val;
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  let c: int = 0;
+  while (c < count(s)) {
+    print(s[c]);
+    c = c + 1;
+  }
+  return 0;
+}

@@ -1,0 +1,6 @@
+dialect:english;
+start() int {
+  let s: string = "hello";
+  s << "world";
+  return 0;
+}

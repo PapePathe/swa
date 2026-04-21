@@ -7,7 +7,6 @@ import (
 	"tinygo.org/x/go-llvm"
 )
 
-// VisitMemberExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error {
 	old := g.logger.Step("MemberExpr")
 
@@ -45,9 +44,12 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 			baseValue = *varDef.Address
 		}
 
+		g.Debugf("Var def %+v", varDef.Ref.Metadata.Types)
+
 		addr := g.Ctx.Builder.CreateStructGEP(varDef.Ref.LLVMType, baseValue, propIndex, "")
 		propType := varDef.Ref.PropertyTypes[propIndex]
 		swatype := varDef.Ref.Metadata.Types[propIndex]
+
 		result := &CompilerResult{
 			Value:                  &addr,
 			SymbolTableEntry:       varDef,
@@ -55,7 +57,10 @@ func (g *LLVMGenerator) VisitMemberExpression(node *ast.MemberExpression) error 
 			SwaType:                swatype,
 		}
 
+		g.Debugf("result %+v", result)
+
 		if propType.TypeKind() == llvm.StructTypeKind {
+			g.Debugf("Property is of StructTypeKind")
 			prop, _ := varDef.Ref.Embeds[propName]
 			result.SymbolTableEntry.Ref = &prop
 		}

@@ -110,6 +110,7 @@ type StructInitializationExpressionPropertyInjector func(
 
 var structInjectors = map[reflect.Type]StructInitializationExpressionPropertyInjector{
 	reflect.TypeFor[*ast.ZeroExpression]():                 injectDirectly,
+	reflect.TypeFor[*ast.ListExpression]():                 injectDirectly,
 	reflect.TypeFor[*ast.BooleanExpression]():              injectDirectly,
 	reflect.TypeFor[*ast.NumberExpression]():               injectDirectly,
 	reflect.TypeFor[*ast.FloatExpression]():                injectDirectly,
@@ -123,6 +124,11 @@ var structInjectors = map[reflect.Type]StructInitializationExpressionPropertyInj
 	reflect.TypeFor[*ast.StructInitializationExpression](): injectNestedStruct,
 }
 
+func injectSlice(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) error {
+	// FIXME
+	return nil
+}
+
 func injectNestedStruct(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Value, targetType llvm.Type) error {
 	load := g.Ctx.Builder.CreateLoad(res.Value.AllocatedType(), *res.Value, "nested-struct.load")
 	g.Ctx.Builder.CreateStore(load, fieldAddr)
@@ -134,6 +140,7 @@ func injectFunctionCall(g *LLVMGenerator, res *CompilerResult, fieldAddr llvm.Va
 	g.Debugf("Injecting function call %+v ", res)
 
 	if res.SwaType.Value() == ast.DataTypeTuple {
+		// FIXME Translate error message
 		return fmt.Errorf("Cannot assign tuple to struct property")
 	}
 

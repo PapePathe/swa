@@ -43,6 +43,10 @@ func (m English) Reserved() map[string]TokenKind {
 		"error":    TypeError,
 		"variadic": Variadic,
 		"zero":     Zero,
+		"make":     Make,
+		"count":    Len,
+		"cap":      Cap,
+		"append":   Append,
 	}
 }
 
@@ -134,5 +138,9 @@ func (m English) translations() map[string]string {
 
 		"LLVMCompiler.MissingProgramEntrypoint":  "Your program is missing a main function",
 		"LLVMCompiler.TooManyProgramEntrypoints": "Your program must have exactly one main function, count (%d)",
+
+		"AppendExpression.AppendableIsNotASlice": "append expects a slice, got %v",
+		"ListExpression.MakeRequiresSliceType":   "make() function requires a slice allocation map, got %v",
+		"ListCountExpression.RequiresSliceType":  "count() function requires a slice, got %v",
 	}
 }

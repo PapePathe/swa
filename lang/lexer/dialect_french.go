@@ -42,6 +42,8 @@ func (m French) Reserved() map[string]TokenKind {
 		"erreur":     TypeError,
 		"variadique": Variadic,
 		"zero":       Zero,
+		"creer":      Make,
+		"taille":     Len,
 	}
 }
 
@@ -132,5 +134,9 @@ func (m French) translations() map[string]string {
 		"LLVMCompiler.TooManyProgramEntrypoints": "Vous devez definir un seul programme principal, nombre (%d)",
 
 		"VisitReturnStatement.UnsupportedExpression": "VisitReturnStatement: Unsupported expression type %T",
+
+		"AppendExpression.AppendableIsNotASlice": "ajouter s'attend a tableau dynamique, recu %T",
+		"ListExpression.MakeRequiresSliceType":   "fonction creer() necessite un tableau dynamique, recu %v",
+		"ListCountExpression.RequiresSliceType":  "fonction taille() necessite un tableau dynamique, recu %v",
 	}
 }

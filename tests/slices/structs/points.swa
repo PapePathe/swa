@@ -1,0 +1,22 @@
+dialect:english;
+
+struct Point {
+    X: int,
+    Y: int,
+}
+
+start() int {
+    let points: []Point = make([]Point);
+
+    let p1: Point = Point{ X: 1, Y: 2 };
+    let p2: Point = Point{ X: 3, Y: 4 };
+    let p3: Point = Point{ X: 5, Y: 6 };
+
+    points << p1;
+    points << p2;
+    points << p3;
+
+    print("len=%d", count(points));
+
+    return 0;
+}

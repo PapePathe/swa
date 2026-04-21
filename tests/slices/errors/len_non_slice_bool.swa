@@ -1,0 +1,6 @@
+dialect:english;
+start() int {
+  let b: bool = true;
+  let s: int = count(b);
+  return 0;
+}

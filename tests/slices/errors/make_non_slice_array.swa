@@ -1,0 +1,6 @@
+dialect:english;
+start() int {
+  // Try mapping a fixed array size inside make allocator directly natively
+  let arr: [][3]int = make([3]int);
+  return 0;
+}

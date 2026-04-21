@@ -1,0 +1,5 @@
+khuien:soussou;
+sodé() konti {
+  kouicé s: []konti = make(konti);
+  gbilen 0;
+}

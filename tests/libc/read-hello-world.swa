@@ -5,10 +5,10 @@ start() int {
 
   let buf : [1024]byte;
   let size : int64 = 2048;
-  let count : int64 = read(fd, buf, size);
+  let counter : int64 = read(fd, buf, size);
 
   let i : int;
-  while(i < count) {
+  while(i < counter) {
     print("%c", buf[i]);
     i = i + 1;
   }

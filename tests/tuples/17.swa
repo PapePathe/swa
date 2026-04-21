@@ -5,7 +5,7 @@ func pair(n: int) (int, int) {
   return n, n+1;
 }
 start() int {
-  // ERROR: cannot put (int,int) into array element
   let arr: [2]int = [2]int{ pair(5) }; 
+  print("arr[0] =", arr[0], " arr[1] = ", arr[1]);
   return 0;
 }
