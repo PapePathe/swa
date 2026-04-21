@@ -26,6 +26,16 @@ func (stmt StructDeclarationStatement) PropertyIndex(name string) (error, int) {
 	return fmt.Errorf("Property with name (%s) does not exist on struct %s", name, stmt.Name), 0
 }
 
+func (stmt *StructDeclarationStatement) Impl(name string) bool {
+	for _, v := range stmt.Implementations {
+		if v.Name == name {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (stmt *StructDeclarationStatement) Accept(g CodeGenerator) error {
 	return g.VisitStructDeclaration(stmt)
 }
