@@ -40,6 +40,11 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 
 		prop, _ := typednode.Property.(*ast.SymbolExpression)
 		name = fmt.Sprintf("Impl.%s.%s", sym.Ref.Metadata.Name, prop.Value)
+
+		if !sym.Ref.Metadata.Impl(name) {
+			return fmt.Errorf("struct doest not provide an implementation of method `%s`", prop.Value)
+		}
+
 	default:
 		return fmt.Errorf("DEVELOPER ERROR node %T not supported in function call", node.Name)
 	}

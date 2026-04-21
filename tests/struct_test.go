@@ -53,6 +53,14 @@ func TestStructZeroValues(t *testing.T) {
 	})
 }
 
+func TestStructFunctions(t *testing.T) {
+	t.Run("1", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./structs/functions/1.swa",
+			"Longueur: 15\nLargeur: 10\nperimetre: 50\nsurface: 150\nComparison -------------------------------\nEquality of (r0,r1): 1\nEquality of (r0,r2): 0\nScaling -------------------------------\nLongueur: 150\nLargeur: 100\nperimetre: 500\nsurface: 15000\n")
+	})
+}
+
 func TestStructWithUnknownType(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		NewFailedCompileRequest(t,
