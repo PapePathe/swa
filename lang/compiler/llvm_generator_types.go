@@ -172,13 +172,10 @@ func (g *LLVMGenerator) VisitSliceType(node *ast.SliceType) error {
 	}
 
 	under := g.getLastTypeVisitResult()
-
-	i32 := g.Ctx.Context.Int32Type()
-	// { T*, i32, i32 }
 	sliceType := g.Ctx.Context.StructType([]llvm.Type{
 		llvm.PointerType(under.Type, 0),
-		i32,
-		i32,
+		g.Ctx.Context.Int32Type(),
+		g.Ctx.Context.Int32Type(),
 	}, false)
 
 	g.setLastTypeVisitResult(&CompilerResultType{

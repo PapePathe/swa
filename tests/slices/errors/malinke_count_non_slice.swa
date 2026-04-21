@@ -1,0 +1,5 @@
+kan:malinke;
+daminen() jate {
+  atö s: jate = count(1);
+  segin 0;
+}

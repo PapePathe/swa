@@ -3,6 +3,8 @@ package lexer
 import (
 	"fmt"
 	"regexp"
+
+	"swahili/lang/errmsg"
 )
 
 type Malinke struct{}
@@ -18,7 +20,13 @@ func (Malinke) Name() string {
 }
 
 func (m Malinke) Error(key string, args ...any) error {
-	return fmt.Errorf("Not implemented")
+	formatted, ok := m.translations()[key]
+
+	if !ok {
+		return fmt.Errorf("key %s does not exist in malinke dialect translations", key)
+	}
+
+	return errmsg.NewAstError(formatted, args...)
 }
 
 func (m Malinke) Reserved() map[string]TokenKind {
@@ -44,5 +52,20 @@ func (m Malinke) Reserved() map[string]TokenKind {
 		"tinye":     True,
 		"wouya":     False,
 		"tinyejate": TypeBool,
+		"make":      Make,
+		"count":     Len,
+		"cap":       Cap,
+		"append":    Append,
+	}
+}
+
+func (m Malinke) translations() map[string]string {
+	return map[string]string{
+		"AppendExpression.AppendableIsNotASlice": "append expects a slice, got %T",
+		"ListExpression.MakeRequiresSliceType":   "make() function requires a slice allocation map, got %v",
+		"ListCountExpression.RequiresSliceType":  "count() function requires a slice, got %v",
+
+		"LLVMCompiler.MissingProgramEntrypoint":  "Your program is missing a main function",
+		"LLVMCompiler.TooManyProgramEntrypoints": "Your program must have exactly one main function, count (%d)",
 	}
 }

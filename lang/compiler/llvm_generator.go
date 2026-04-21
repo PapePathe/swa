@@ -30,17 +30,21 @@ type LLVMGenerator struct {
 var _ ast.CodeGenerator = (*LLVMGenerator)(nil)
 
 func (g *LLVMGenerator) VisitAppendExpression(node *ast.AppendExpression) error {
-	// 1. Evaluate Slice
+	old := g.logger.Step("AppendExpression")
+
+	defer g.logger.Restore(old)
+
 	err := node.Appendable.Accept(g)
 	if err != nil {
 		return err
 	}
 
 	sliceRes := g.getLastResult()
-	slice := *sliceRes.Value
+	slice := sliceRes.Value
 
-	g.Debugf("AppendExpression slice res %v", slice)
-	g.Debugf("AppendExpression array entry %v", sliceRes.SymbolTableEntry.Address)
+	g.Debugf("slice res %v", slice)
+	g.Debugf("array entry %v", sliceRes.SymbolTableEntry)
+	g.Debugf("swa type  %v", sliceRes.SwaType)
 
 	var sliceSwaType ast.SliceType
 
@@ -49,12 +53,17 @@ func (g *LLVMGenerator) VisitAppendExpression(node *ast.AppendExpression) error 
 	} else if st, ok := sliceRes.SwaType.(*ast.SliceType); ok {
 		sliceSwaType = *st
 	} else {
-		return fmt.Errorf("append expects a slice, got %T", sliceRes.SwaType)
+		return g.Ctx.Dialect.Error("AppendExpression.AppendableIsNotASlice", sliceRes.SwaType)
 	}
 
 	sliceLLVMType := slice.Type()
+	g.Debugf(g.formatLLVMType(sliceLLVMType))
+
 	if sliceLLVMType.TypeKind() != llvm.StructTypeKind {
-		return fmt.Errorf("append: slice must be a struct, got %s", sliceLLVMType.String())
+		err := g.Ctx.Dialect.Error("AppendExpression.AppendableIsNotASlice", sliceLLVMType.TypeKind())
+		g.Debugf(err.Error())
+
+		return err
 	}
 
 	g.Debugf("Slice type %s", g.formatLLVMType(sliceLLVMType))
@@ -65,31 +74,26 @@ func (g *LLVMGenerator) VisitAppendExpression(node *ast.AppendExpression) error 
 	}
 
 	elemLLVMType := g.getLastTypeVisitResult().Type
-
 	structFields := sliceLLVMType.StructElementTypes()
 	ptrType := structFields[0]
 	lenType := structFields[1]
 	capType := structFields[2]
 
-	// 2. Evaluate Item
 	err = node.Value.Accept(g)
 	if err != nil {
 		return err
 	}
 
-	item := *g.getLastResult().Value
+	item := g.getLastResult()
 
-	g.Debugf("item %+v", item)
+	g.Debugf("item %+v", item.Value)
 
-	// 3. Logic: if len == cap { grow }
-	// Extract fields early to avoid issues with blocks and segfaults
-	ptrOld := g.Ctx.Builder.CreateExtractValue(slice, 0, "ptr.old")
-	lenOld := g.Ctx.Builder.CreateExtractValue(slice, 1, "len.old")
-	capOld := g.Ctx.Builder.CreateExtractValue(slice, 2, "cap.old")
+	ptrOld := g.Ctx.Builder.CreateExtractValue(*slice, 0, "ptr.old")
+	lenOld := g.Ctx.Builder.CreateExtractValue(*slice, 1, "len.old")
+	capOld := g.Ctx.Builder.CreateExtractValue(*slice, 2, "cap.old")
 
 	full := g.Ctx.Builder.CreateICmp(llvm.IntEQ, lenOld, capOld, "is_full")
 
-	// We'll use a branch to handle growing if full
 	currentBlock := g.Ctx.Builder.GetInsertBlock()
 	function := currentBlock.Parent()
 	growBlock := g.Ctx.Context.AddBasicBlock(function, "slice.grow")
@@ -97,10 +101,8 @@ func (g *LLVMGenerator) VisitAppendExpression(node *ast.AppendExpression) error 
 
 	g.Ctx.Builder.CreateCondBr(full, growBlock, mergeBlock)
 
-	// --- Grow Block ---
 	g.Ctx.Builder.SetInsertPointAtEnd(growBlock)
 
-	// new_cap = cap == 0 ? 1 : cap * 2
 	isZero := g.Ctx.Builder.CreateICmp(llvm.IntEQ, capOld, llvm.ConstInt(capOld.Type(), 0, false), "cap_is_zero")
 	newCap := g.Ctx.Builder.CreateSelect(isZero,
 		llvm.ConstInt(capOld.Type(), 1, false),
@@ -111,19 +113,20 @@ func (g *LLVMGenerator) VisitAppendExpression(node *ast.AppendExpression) error 
 	targetData := llvm.NewTargetData(g.Ctx.Module.DataLayout())
 	sizeOfElem := targetData.TypeAllocSize(elemLLVMType)
 	targetData.Dispose()
+
 	sizeOfElemVal := llvm.ConstInt(g.Ctx.Context.Int64Type(), sizeOfElem, false)
 
 	newCap64 := g.Ctx.Builder.CreateZExt(newCap, g.Ctx.Context.Int64Type(), "new_cap64")
 	newSize := g.Ctx.Builder.CreateMul(newCap64, sizeOfElemVal, "realloc_size")
 
-	oldPtr := g.Ctx.Builder.CreateExtractValue(slice, 0, "old_ptr")
+	oldPtr := g.Ctx.Builder.CreateExtractValue(*slice, 0, "old_ptr")
 	oldPtrI8 := g.Ctx.Builder.CreateBitCast(oldPtr, llvm.PointerType(g.Ctx.Context.Int8Type(), 0), "old_ptr_i8")
 
 	reallocFunc := g.getReallocFunc()
 	newPtrI8 := g.Ctx.Builder.CreateCall(reallocFunc.lltype, reallocFunc.llval, []llvm.Value{oldPtrI8, newSize}, "new_ptr_i8")
 	newPtr := g.Ctx.Builder.CreateBitCast(newPtrI8, llvm.PointerType(elemLLVMType, 0), "new_ptr")
 
-	sliceGrown := g.Ctx.Builder.CreateInsertValue(slice, newPtr, 0, "slice.new_ptr")
+	sliceGrown := g.Ctx.Builder.CreateInsertValue(*slice, newPtr, 0, "slice.new_ptr")
 	sliceGrown = g.Ctx.Builder.CreateInsertValue(sliceGrown, newCap, 2, "slice.new_cap")
 
 	// Values from grown slice
@@ -133,7 +136,6 @@ func (g *LLVMGenerator) VisitAppendExpression(node *ast.AppendExpression) error 
 
 	g.Ctx.Builder.CreateBr(mergeBlock)
 
-	// --- Merge Block ---
 	g.Ctx.Builder.SetInsertPointAtEnd(mergeBlock)
 
 	ptrPhi := g.Ctx.Builder.CreatePHI(ptrType, "slice.ptr.phi")
@@ -144,17 +146,26 @@ func (g *LLVMGenerator) VisitAppendExpression(node *ast.AppendExpression) error 
 	lenPhi.AddIncoming([]llvm.Value{lenOld, lenGrown}, []llvm.BasicBlock{currentBlock, growBlock})
 	capPhi.AddIncoming([]llvm.Value{capOld, capGrown}, []llvm.BasicBlock{currentBlock, growBlock})
 
-	// Store item
 	itemPtr := g.Ctx.Builder.CreateGEP(elemLLVMType, ptrPhi, []llvm.Value{lenPhi}, "item_ptr")
-	g.Ctx.Builder.CreateStore(item, itemPtr)
+	value := item.Value
 
-	// Increment len
+	if item.Value.Type().TypeKind() == llvm.PointerTypeKind {
+		g.Debugf("Is pointer type")
+	}
+
+	g.Ctx.Builder.CreateStore(*value, itemPtr)
+
 	newLen := g.Ctx.Builder.CreateAdd(lenPhi, llvm.ConstInt(lenType, 1, false), "new_len")
 
-	// Build final slice
-	*sliceRes.Value = g.Ctx.Builder.CreateInsertValue(*sliceRes.Value, ptrPhi, 0, "slice.final.ptr")
-	*sliceRes.Value = g.Ctx.Builder.CreateInsertValue(*sliceRes.Value, newLen, 1, "slice.final.len")
-	*sliceRes.Value = g.Ctx.Builder.CreateInsertValue(*sliceRes.Value, capPhi, 2, "slice.final.cap")
+	finalSlice := g.Ctx.Builder.CreateInsertValue(*slice, ptrPhi, 0, "slice.final.ptr")
+	finalSlice = g.Ctx.Builder.CreateInsertValue(finalSlice, newLen, 1, "slice.final.len")
+	finalSlice = g.Ctx.Builder.CreateInsertValue(finalSlice, capPhi, 2, "slice.final.cap")
+
+	if sliceRes.SymbolTableEntry != nil && sliceRes.SymbolTableEntry.Address != nil {
+		g.Ctx.Builder.CreateStore(finalSlice, *sliceRes.SymbolTableEntry.Address)
+	}
+
+	*slice = finalSlice
 
 	return nil
 }
@@ -162,6 +173,13 @@ func (g *LLVMGenerator) VisitAppendExpression(node *ast.AppendExpression) error 
 func (g *LLVMGenerator) VisitListExpression(node *ast.ListExpression) error {
 	if node.DataType == nil {
 		return fmt.Errorf("Datatype is mandatory for list expression")
+	}
+
+	_, isSliceObj := node.DataType.(*ast.SliceType)
+	_, isSliceVal := node.DataType.(ast.SliceType)
+
+	if !isSliceObj && !isSliceVal {
+		return g.Ctx.Dialect.Error("ListExpression.MakeRequiresSliceType", node.DataType.Value())
 	}
 
 	err := node.DataType.Accept(g)
@@ -192,7 +210,10 @@ func (g *LLVMGenerator) VisitListExpression(node *ast.ListExpression) error {
 	slice = g.Ctx.Builder.CreateInsertValue(slice, *capacity.Value, 2, "slice.cap")
 
 	g.setLastResult(&CompilerResult{
-		Value:   &slice,
+		Value: &slice,
+		SymbolTableEntry: &SymbolTableEntry{
+			Address: &slice,
+		},
 		SwaType: node.DataType,
 	})
 
@@ -208,7 +229,7 @@ func (g *LLVMGenerator) VisitListCountExpression(node *ast.ListCountExpression) 
 	res := g.getLastResult()
 
 	if res.SwaType.Value() != ast.DataTypeSlice {
-		return fmt.Errorf("len only supported for slices")
+		return g.Ctx.Dialect.Error("ListCountExpression.RequiresSliceType", res.SwaType.Value())
 	}
 
 	lenVal := g.Ctx.Builder.CreateExtractValue(*res.Value, 1, "len")
@@ -277,7 +298,6 @@ func (g *LLVMGenerator) VisitZeroExpression(node *ast.ZeroExpression) error {
 	return nil
 }
 
-// VisitAssignmentExpression implements [ast.CodeGenerator].
 func (g *LLVMGenerator) VisitAssignmentExpression(node *ast.AssignmentExpression) error {
 	old := g.logger.Step("AssignmentExpr")
 
@@ -562,11 +582,9 @@ func (g *LLVMGenerator) VisitStringExpression(node *ast.StringExpression) error 
 }
 
 func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatement) error {
-	old := g.logger.Step("StructDeclExpr")
+	old := g.logger.Step(fmt.Sprintf("StructDeclExpr %s", node.Name))
 
 	defer g.logger.Restore(old)
-
-	g.Debugf(node.Name)
 
 	if len(node.Properties) == 0 {
 		key := "LLVMGenerator.VisitStructDeclaration.EmptyStruct"
@@ -588,6 +606,8 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 	}
 
 	for i, propertyName := range node.Properties {
+		g.Debugf("Initialising property %s at index %d", propertyName, i)
+
 		propertyType := node.Types[i]
 
 		err := propertyType.Accept(g)
@@ -596,6 +616,9 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 		}
 
 		datatype := g.getLastTypeVisitResult()
+
+		g.Debugf("datatype of property %s %s ", datatype.Type.TypeKind(), datatype.SubType.TypeKind())
+
 		entry.PropertyTypes = append(entry.PropertyTypes, datatype.Type)
 
 		if datatype.Type.TypeKind() == llvm.ArrayTypeKind &&
@@ -625,9 +648,16 @@ func (g *LLVMGenerator) VisitStructDeclaration(node *ast.StructDeclarationStatem
 				return g.Ctx.Dialect.Error(key, propertyName)
 			}
 
-			g.Debugf("processing property %s as nested struct", propertyName)
+			if datatype.Sentry != nil {
+				g.Debugf("processing property %s as nested struct", propertyName)
+				entry.Embeds[propertyName] = *datatype.Sentry
+			}
 
-			entry.Embeds[propertyName] = *datatype.Sentry
+			if datatype.Aentry != nil {
+				g.Debugf("processing property %s as slice", propertyName)
+				g.Debugf("slice %v", datatype.Aentry)
+				entry.ArrayEmbeds[propertyName] = *datatype.Aentry
+			}
 		}
 	}
 
@@ -691,6 +721,7 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 	}
 
 	if entry.Address == nil {
+		g.Debugf("Entry address is nil")
 		g.setLastResult(
 			&CompilerResult{
 				Value:            &entry.Value,
@@ -704,6 +735,7 @@ func (g *LLVMGenerator) VisitSymbolExpression(node *ast.SymbolExpression) error 
 
 	if entry.Address.IsAInstruction().IsNil() ||
 		entry.Address.InstructionOpcode() != llvm.Alloca {
+		g.Debugf("Entry is an alloca")
 		g.setLastResult(
 			&CompilerResult{
 				Value:            entry.Address,

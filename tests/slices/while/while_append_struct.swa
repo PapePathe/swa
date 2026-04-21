@@ -1,0 +1,23 @@
+dialect:english;
+
+struct Point {
+  x: int,
+  y: int,
+}
+
+start() int {
+  let s: []Point = make([]Point);
+  let i: int = 0;
+  while (i < 3) {
+    let p: Point = Point{x: i, y: i * 2};
+    s << p;
+    i = i + 1;
+  }
+  let c: int = 0;
+  while (c < count(s)) {
+    let p2: Point = s[c];
+    print(p2.x, p2.y);
+    c = c + 1;
+  }
+  return 0;
+}

@@ -158,6 +158,15 @@ func (g *LLVMGenerator) extractType(ctx *CompilerCtx, t ast.Type) (error, extrac
 		}
 
 		return nil, etyp
+	case ast.SliceType:
+		etype := extractedType{
+			typ:    compiledType.Type,
+			aEntry: compiledType.Aentry,
+			sEntry: compiledType.Sentry,
+		}
+
+		return nil, etype
+
 	case ast.PointerType:
 		var sEntry *StructSymbolTableEntry
 
@@ -203,7 +212,7 @@ func (g *LLVMGenerator) extractType(ctx *CompilerCtx, t ast.Type) (error, extrac
 	default:
 		key := "LLVMGenerator.VisitFunctionDefinition.UnsupportedArgumentType"
 
-		return g.Ctx.Dialect.Error(key, t.Value().String()), extractedType{}
+		return g.Ctx.Dialect.Error(key, t), extractedType{}
 	}
 }
 

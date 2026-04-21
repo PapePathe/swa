@@ -1,0 +1,12 @@
+dialect:english;
+
+start() int {
+  let s: []int = make([]int);
+
+  s << 42;
+  print(count(s), "\n");
+  s << 43;
+  print(count(s), "\n");
+
+  return 0;
+}

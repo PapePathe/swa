@@ -1,0 +1,6 @@
+dialecte:français;
+demarrer() entier {
+  variable s: entier = 1;
+  s << 2;
+  retourner 0;
+}

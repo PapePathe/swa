@@ -1,0 +1,15 @@
+dialect:english;
+
+func get_slice() []int {
+  let s: []int = make([]int);
+  s << 1;
+  return s;
+}
+
+start() int {
+  let x: []int = get_slice();
+  x << 2;
+  print(x[0], " ", x[1]);
+
+  return 0;
+}

@@ -108,7 +108,7 @@ var nodeVariableDeclarationStyles = map[reflect.Type]InitializationStyle{
 	reflect.TypeFor[*ast.BinaryExpression]():               StyleDefault,
 	reflect.TypeFor[*ast.StructInitializationExpression](): StyleDirect,
 	reflect.TypeFor[*ast.ArrayInitializationExpression]():  StyleDirect,
-	reflect.TypeFor[*ast.ListExpression]():                 StyleDirect,
+	reflect.TypeFor[*ast.ListExpression]():                 StyleDefault,
 	reflect.TypeFor[*ast.PrefixExpression]():               StyleDefault,
 	reflect.TypeFor[*ast.ZeroExpression]():                 StyleDefault,
 	reflect.TypeFor[*ast.ErrorExpression]():                StyleDefault,

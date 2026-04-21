@@ -164,7 +164,7 @@ func (typ SliceType) Equals(other Type) bool {
 }
 
 func (t SliceType) String() string {
-	return fmt.Sprintf("%s(%s)", t.Value(), t.Underlying.Value())
+	return fmt.Sprintf("%s(%s)", t.Value(), t.Underlying.Value().String())
 }
 
 func (typ SliceType) AcceptZero(g CodeGenerator) error {

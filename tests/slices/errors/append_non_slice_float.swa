@@ -1,0 +1,6 @@
+dialect:english;
+start() int {
+  let f: float = 3.14;
+  f << 1.0;
+  return 0;
+}

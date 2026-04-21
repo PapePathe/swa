@@ -1,0 +1,6 @@
+dialect:english;
+start() int {
+  // make() should only be compatible with slice allocation mappings
+  let s: []int = make(int);
+  return 0;
+}

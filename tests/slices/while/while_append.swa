@@ -1,0 +1,19 @@
+dialect:english;
+
+start() int {
+  let s: []int = make([]int);
+
+  let counter : int = 0;
+  while(counter < 5) {
+    s << counter;
+    counter = counter + 1;
+  }
+
+  let counter_print : int = 0;
+  while(counter_print < count(s)) {
+    print(s[counter_print]);
+    counter_print = counter_print + 1;
+  }
+
+  return 0;
+}

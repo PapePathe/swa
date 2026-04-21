@@ -1,0 +1,21 @@
+dialect:english;
+start() int {
+  let s: []bool = make([]bool);
+  let b: bool = true;
+  let i: int = 0;
+  while (i < 3) {
+    s << b;
+    b = false;
+    i = i + 1;
+  }
+  let c: int = 0;
+  while (c < count(s)) {
+    if (s[c] == true) {
+      print("1");
+    } else {
+      print("0");
+    }
+    c = c + 1;
+  }
+  return 0;
+}

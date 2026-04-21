@@ -1,0 +1,16 @@
+dialect:english;
+start() int {
+  let a: []int = make([]int);
+  a << 10;
+  
+  // aliassing
+  let b: []int = a;
+  b << 20; // Does not affect `a`'s reported length because it was passed by value (len/cap are copied)
+
+  print(count(a));
+  print(count(b));
+  print(a[0]);
+  print(b[1]);
+
+  return 0;
+}

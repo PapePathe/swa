@@ -1,0 +1,6 @@
+dialect:english;
+start() int {
+  let b: bool = true;
+  b << false;
+  return 0;
+}

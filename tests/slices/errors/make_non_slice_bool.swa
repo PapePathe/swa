@@ -1,0 +1,5 @@
+dialect:english;
+start() int {
+  let s: []bool = make(bool);
+  return 0;
+}

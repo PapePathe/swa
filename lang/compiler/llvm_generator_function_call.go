@@ -8,11 +8,9 @@ import (
 )
 
 func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) error {
-	old := g.logger.Step("FunCallExpr")
+	old := g.logger.Step(fmt.Sprintf("FunCallExpr %s", node.Name))
 
 	defer g.logger.Restore(old)
-
-	g.Debugf("%s", node.Name)
 
 	symbol, ok := node.Name.(*ast.SymbolExpression)
 	if !ok {
@@ -21,20 +19,8 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		return g.Ctx.Dialect.Error(key)
 	}
 
-	//	if len(symbol.Tokens) > 0 {
-	//		switch symbol.Tokens[0].Kind {
-	//		case lexer.Make:
-	//			return g.handleMakeIntrinsic(node)
-	//		case lexer.Append:
-	//			return g.handleAppendIntrinsic(node)
-	//		case lexer.Len:
-	//			return g.handleLenIntrinsic(node)
-	//		case lexer.Cap:
-	//			return g.handleCapIntrinsic(node)
-	//		}
-	//	}
-
 	name := symbol.Value
+
 	err, funcType := g.Ctx.FindFuncSymbol(name)
 	if err != nil {
 		return err
@@ -57,6 +43,7 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 	args := []llvm.Value{}
 
 	for i, arg := range node.Args {
+		g.Debugf("Processing arg %d", i)
 		err := arg.Accept(g)
 		if err != nil {
 			return err
@@ -78,7 +65,7 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		g.Debugf("Symbol Table entry: %+v", val.SymbolTableEntry)
 		g.Debugf("array symbol Table entry: %+v", val.ArraySymbolTableEntry)
 
-		// TODO this should be moved to the type checking pass
+		// FIXME this should be moved to the type checking pass
 		argType := val.Value.Type()
 		if val.SymbolTableEntry != nil && val.SymbolTableEntry.Ref != nil {
 			if val.StuctPropertyValueType != nil {

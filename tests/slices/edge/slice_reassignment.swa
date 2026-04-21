@@ -1,0 +1,13 @@
+dialect:english;
+start() int {
+  let s: []int = make([]int);
+  let i: int = 0;
+  while (i < 3) {
+    s = make([]int); // Resets memory footprint logically by abandoning the old pointer
+    s << i; // 0, then reset and 1, then reset and 2.
+    i = i + 1;
+  }
+  print(count(s));
+  print(s[0]);
+  return 0;
+}

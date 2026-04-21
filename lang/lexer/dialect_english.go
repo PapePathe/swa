@@ -138,5 +138,9 @@ func (m English) translations() map[string]string {
 
 		"LLVMCompiler.MissingProgramEntrypoint":  "Your program is missing a main function",
 		"LLVMCompiler.TooManyProgramEntrypoints": "Your program must have exactly one main function, count (%d)",
+
+		"AppendExpression.AppendableIsNotASlice": "append expects a slice, got %v",
+		"ListExpression.MakeRequiresSliceType":   "make() function requires a slice allocation map, got %v",
+		"ListCountExpression.RequiresSliceType":  "count() function requires a slice, got %v",
 	}
 }
