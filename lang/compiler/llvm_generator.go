@@ -302,6 +302,12 @@ func (g *LLVMGenerator) VisitReturnStatement(node *ast.ReturnStatement) error {
 
 	defer g.logger.Restore(old)
 
+	if node.Value == nil {
+		g.Ctx.Builder.CreateRetVoid()
+
+		return nil
+	}
+
 	err := node.Value.Accept(g)
 	if err != nil {
 		return err
