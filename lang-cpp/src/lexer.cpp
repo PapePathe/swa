@@ -3,17 +3,7 @@
 #include <cctype>
 #include <unordered_map>
 
-// Mapping our Go-style keyword list to TokenTypes
-const std::unordered_map<std::string, TokenType> KEYWORDS = {
-    {"let", TokenType::LET}, {"const", TokenType::CONST},
-    {"if", TokenType::KEYWORD_IF}, {"else", TokenType::KEYWORD_ELSE},
-    {"while", TokenType::KEYWORD_WHILE}, {"int", TokenType::TYPE_INT},
-    {"float", TokenType::TYPE_FLOAT}, {"string", TokenType::TYPE_STRING},
-    {"bool", TokenType::TYPE_BOOL}, {"func", TokenType::FUNCTION},
-    {"return", TokenType::RETURN}, {"and", TokenType::AND},
-    {"or", TokenType::OR}, {"true", TokenType::TRUE},
-    {"false", TokenType::FALSE}
-};
+
 
 char Lexer::peek() {
     return pos < src.length() ? src[pos] : '\0';
@@ -53,8 +43,8 @@ std::vector<Token> Lexer::tokenize() {
                 ident += get();
             }
             
-            if (KEYWORDS.count(ident)) {
-                tokens.push_back({KEYWORDS.at(ident), ident});
+            if (keywords.count(ident)) {
+                tokens.push_back({keywords.at(ident), ident});
             } else {
                 tokens.push_back({TokenType::IDENTIFIER, ident});
             }

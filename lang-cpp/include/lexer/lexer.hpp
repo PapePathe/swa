@@ -27,12 +27,16 @@ struct Token {
 
 class Lexer {
     std::string src;
+    std::unordered_map<std::string, TokenType> keywords; 
     size_t pos = 0;
 
     char peek();
     char get();
 
   public:
-    Lexer(std::string s) : src(s), pos(0) {}
+    Lexer(
+        std::string s, 
+        std::unordered_map<std::string, TokenType> k
+    ) : src(s), pos(0), keywords(k)  {}
     std::vector<Token> tokenize();
 };

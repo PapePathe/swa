@@ -10,5 +10,4 @@ cmake -DLLVM_INSTALL_DIR=$LLVM_INSTALL_DIR \
 cd build
 cmake --build .
 
-./swa
-
+./lexer_tests
