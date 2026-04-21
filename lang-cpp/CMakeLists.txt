@@ -24,3 +24,11 @@ add_executable(swa
 # 4. Link LLVM Libraries
 llvm_map_components_to_libnames(llvm_libs support )
 target_link_libraries(swa ${llvm_libs})
+
+find_package(GTest REQUIRED)
+include_directories(${GTEST_INCLUDE_DIRS})
+
+add_executable(lexer_tests
+  src/lexer.cpp
+  tests/lexer_tests.cpp)
+target_link_libraries(lexer_tests ${GTEST_LIBRARIES} pthread)
