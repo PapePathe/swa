@@ -18,31 +18,48 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 	case *ast.SymbolExpression:
 		name = typednode.Value
 	case *ast.MemberExpression:
-		obj, _ := typednode.Object.(*ast.SymbolExpression)
+		switch expr := typednode.Object.(type) {
+		case *ast.MemberExpression:
+			err := expr.Accept(g)
+			if err != nil {
+				return err
+			}
 
-		err, sym := g.Ctx.FindSymbol(obj.Value)
-		if err != nil {
-			return err
-		}
+			res := g.getLastResult()
+			prop, _ := typednode.Property.(*ast.SymbolExpression)
+			name = fmt.Sprintf("Impl.%s.%s", res.SymbolTableEntry.Ref.Metadata.Name, prop.Value)
 
-		if sym.Ref == nil {
-			return fmt.Errorf("Variable %s is not a struct", sym.Value)
-		}
+			oldArgs := node.Args
+			node.Args = []ast.Expression{expr}
+			node.Args = append(node.Args, oldArgs...)
 
-		oldArgs := node.Args
+			//			return fmt.Errorf("Function call not supported in nested member expressions")
+		case *ast.SymbolExpression:
+			err, sym := g.Ctx.FindSymbol(expr.Value)
+			if err != nil {
+				return err
+			}
 
-		node.Args = []ast.Expression{
-			&ast.SymbolExpression{Value: obj.Value},
-		}
-		node.Args = append(node.Args, oldArgs...)
+			if sym.Ref == nil {
+				return fmt.Errorf("Variable %s is not a struct", sym.Value)
+			}
 
-		g.Debugf("Args %+v", node.Args)
+			oldArgs := node.Args
+			node.Args = []ast.Expression{
+				&ast.SymbolExpression{Value: expr.Value},
+			}
+			node.Args = append(node.Args, oldArgs...)
 
-		prop, _ := typednode.Property.(*ast.SymbolExpression)
-		name = fmt.Sprintf("Impl.%s.%s", sym.Ref.Metadata.Name, prop.Value)
+			g.Debugf("Args %+v", node.Args)
 
-		if !sym.Ref.Metadata.Impl(name) {
-			return fmt.Errorf("struct doest not provide an implementation of method `%s`", prop.Value)
+			prop, _ := typednode.Property.(*ast.SymbolExpression)
+			name = fmt.Sprintf("Impl.%s.%s", sym.Ref.Metadata.Name, prop.Value)
+
+			if !sym.Ref.Metadata.Impl(name) {
+				return fmt.Errorf("struct doest not provide an implementation of method `%s`", prop.Value)
+			}
+		default:
+			return fmt.Errorf("UnsupportedType %T", typednode.Object)
 		}
 
 	default:
@@ -134,6 +151,12 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		switch arg.(type) {
 		case *ast.MemberExpression, *ast.ArrayAccessExpression,
 			*ast.ArrayOfStructsAccessExpression:
+			if funcType.meta.Args[i].ArgType.Value() == ast.DataTypePointer {
+				args = append(args, *val.Value)
+
+				break
+			}
+
 			load := g.Ctx.Builder.CreateLoad(argType, *val.Value, "")
 			args = append(args, load)
 

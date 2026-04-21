@@ -69,6 +69,12 @@ func TestStructFunctions(t *testing.T) {
 			"./structs/functions/3.swa",
 			"struct doest not provide an implementation of method `NotFound`\n")
 	})
+	t.Run("4", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./structs/functions/4.swa",
+			"Bills\nMontant = 100000\n\nFood\nMontant = 100000\n\nHousing\nMontant = 200000\n\nSavings\nMontant = 300000\n")
+	})
+
 }
 
 func TestStructWithUnknownType(t *testing.T) {
