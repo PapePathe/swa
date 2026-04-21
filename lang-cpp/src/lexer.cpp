@@ -90,10 +90,11 @@ std::vector<Token> Lexer::tokenize() {
                 case ')': tokens.push_back({TokenType::CLOSE_PAREN, ")"}); break;
                 case '{': tokens.push_back({TokenType::OPEN_CURLY, "{"}); break;
                 case '}': tokens.push_back({TokenType::CLOSE_CURLY, "}"}); break;
+                case ':': tokens.push_back({TokenType::COLON, ":"}); break;
                 case ';': tokens.push_back({TokenType::SEMICOLON, ";"}); break;
                 case ',': tokens.push_back({TokenType::COMMA, ","}); break;
                 default:
-                    tokens.push_back({TokenType::TYPE_ERROR, std::string(1, current)});
+                    tokens.push_back({TokenType::UNKNOWN, std::string(1, current)});
                     break;
             }
         }

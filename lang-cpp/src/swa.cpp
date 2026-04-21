@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <unordered_map>
 #include "lexer/lexer.hpp"
+#include "lexer/keywords.hpp"
 
 std::string tokenTypeToString(TokenType type) {
     switch (type) {
@@ -23,25 +24,6 @@ std::string tokenTypeToString(TokenType type) {
     }
 }
 
-const std::unordered_map<std::string, TokenType> KEYWORDS = {
-    {"dialect", TokenType::DIALECT_DECLARATION}, 
-    {"let", TokenType::LET}, 
-    {"const", TokenType::CONST},
-    {"if", TokenType::KEYWORD_IF}, 
-    {"else", TokenType::KEYWORD_ELSE},
-    {"while", TokenType::KEYWORD_WHILE}, 
-    {"int", TokenType::TYPE_INT},
-    {"float", TokenType::TYPE_FLOAT}, 
-    {"string", TokenType::TYPE_STRING},
-    {"bool", TokenType::TYPE_BOOL}, 
-    {"func", TokenType::FUNCTION},
-    {"return", TokenType::RETURN}, 
-    {"and", TokenType::AND},
-    {"or", TokenType::OR}, 
-    {"true", TokenType::TRUE},
-    {"false", TokenType::FALSE}
-};
-
 int main() {
   while(true) {
         // 1. Get input from the user
@@ -50,7 +32,7 @@ int main() {
     std::getline(std::cin, input);
 
     // 2. Initialize the Lexer
-    Lexer lexer(input, KEYWORDS);
+    Lexer lexer(input, KEYWORDS_ENGLISH);
 
     // 3. Generate the tokens
     std::vector<Token> tokens = lexer.tokenize();
