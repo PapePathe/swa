@@ -26,28 +26,22 @@ std::string tokenTypeToString(TokenType type) {
 
 int main() {
   while(true) {
-        // 1. Get input from the user
     std::string input;
     std::cout << "Enter expression (e.g., total_é + 5 * x): ";
     std::getline(std::cin, input);
 
-    // 2. Initialize the Lexer
     Lexer lexer(input, KEYWORDS_ENGLISH);
 
-    // 3. Generate the tokens
     std::vector<Token> tokens = lexer.tokenize();
 
-    // 4. Process/Display the results
     std::cout << "\n--- Token Stream ---\n";
     std::cout << std::left << std::setw(15) << "TYPE" << "VALUE" << "\n";
     std::cout << std::string(25, '-') << "\n";
 
     for (const auto& token : tokens) {
-        std::cout << std::left << std::setw(15) << tokenTypeToString(token.type) 
-                  << "[" << token.value << "]" << "\n";
+      std::cout << std::left << std::setw(15) << tokenTypeToString(token.type)
+        << "[" << token.value << "]" << "\n";
     }
   }
-
-
     return 0;
 }
