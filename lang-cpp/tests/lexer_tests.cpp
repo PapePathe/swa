@@ -3,7 +3,7 @@
 #include <vector>
 #include "lexer/lexer.hpp"
 
-const std::unordered_map<std::string, TokenType> KEYWORDS = {
+const std::unordered_map<std::string, TokenType> KEYWORDS_ENGLISH = {
     {"dialect", TokenType::DIALECT_DECLARATION}, 
     {"let", TokenType::LET}, 
     {"const", TokenType::CONST},
@@ -24,8 +24,10 @@ const std::unordered_map<std::string, TokenType> KEYWORDS = {
 
 class LexerTest : public ::testing::Test {
 protected:
-    std::vector<Token> getTokens(const std::string& input) {
-        Lexer lexer(input, KEYWORDS);
+    std::vector<Token> getTokens(
+        const std::string& input, 
+        const std::unordered_map<std::string, TokenType> keywords) {
+        Lexer lexer(input, keywords);
         return lexer.tokenize();
     }
 };
@@ -36,7 +38,7 @@ void AssertToken(const Token& t, TokenType expectedType, const std::string& expe
 }
 
 TEST_F(LexerTest, HandlesBasicArithmetic) {
-  auto tokens = getTokens("123 + 456");
+  auto tokens = getTokens("123 + 456", KEYWORDS_ENGLISH);
 
   ASSERT_EQ(tokens.size(), 4); 
   AssertToken(tokens[0], TokenType::NUMBER, "123");
@@ -46,7 +48,7 @@ TEST_F(LexerTest, HandlesBasicArithmetic) {
 } 
 
 TEST_F(LexerTest, HandlesAccentedIdentifiers) {
-    auto tokens = getTokens("piñata + caffè * élite");
+    auto tokens = getTokens("piñata + caffè * élite", KEYWORDS_ENGLISH);
 
     ASSERT_EQ(tokens.size(), 6); 
     AssertToken(tokens[0], TokenType::IDENTIFIER, "piñata");
@@ -58,7 +60,7 @@ TEST_F(LexerTest, HandlesAccentedIdentifiers) {
 }
 
 TEST_F(LexerTest, HandlesComplexIdentifiers) {
-    auto tokens = getTokens("_var123_tempé");
+    auto tokens = getTokens("_var123_tempé", KEYWORDS_ENGLISH);
     
     ASSERT_EQ(tokens.size(), 2);
     AssertToken(tokens[0], TokenType::IDENTIFIER, "_var123_tempé");
@@ -66,7 +68,7 @@ TEST_F(LexerTest, HandlesComplexIdentifiers) {
 }
 
 TEST_F(LexerTest, IgnoresExtraneousWhitespace) {
-    auto tokens = getTokens("  89   \n \t  +  \r  variable  ");
+    auto tokens = getTokens("  89   \n \t  +  \r  variable  ", KEYWORDS_ENGLISH);
     
     ASSERT_EQ(tokens.size(), 4);
     AssertToken(tokens[0], TokenType::NUMBER, "89");
@@ -76,7 +78,7 @@ TEST_F(LexerTest, IgnoresExtraneousWhitespace) {
 }
 
 TEST_F(LexerTest, HandlesCompoundOperators) {
-    auto tokens = getTokens("x += 5 == y && z || a *= 2");
+    auto tokens = getTokens("x += 5 == y && z || a *= 2", KEYWORDS_ENGLISH);
 
     ASSERT_EQ(tokens.size(), 12);
     AssertToken(tokens[0], TokenType::IDENTIFIER, "x");
@@ -94,7 +96,7 @@ TEST_F(LexerTest, HandlesCompoundOperators) {
 }
 
 TEST_F(LexerTest, DistinguishesSingleFromDouble) {
-    auto tokens = getTokens("+ += = ==");
+    auto tokens = getTokens("+ += = ==", KEYWORDS_ENGLISH);
     
     ASSERT_EQ(tokens.size(), 5);
     AssertToken(tokens[0], TokenType::PLUS, "+");
@@ -105,14 +107,14 @@ TEST_F(LexerTest, DistinguishesSingleFromDouble) {
 }
 
 TEST_F(LexerTest, EmptyString) {
-    auto tokens = getTokens("");
+    auto tokens = getTokens("", KEYWORDS_ENGLISH);
     
     ASSERT_EQ(tokens.size(), 1);
     AssertToken(tokens[0], TokenType::END_OF_FILE, "");
 }
 
 TEST_F(LexerTest, BlankString) {
-    auto tokens = getTokens(" ");
+    auto tokens = getTokens(" ", KEYWORDS_ENGLISH);
     
     ASSERT_EQ(tokens.size(), 1);
     AssertToken(tokens[0], TokenType::END_OF_FILE, "");
