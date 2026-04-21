@@ -34,6 +34,10 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 		return err
 	}
 
+	if node.ReturnType == nil {
+		return fmt.Errorf("DEVELOPER ERROR \\ Function return type must be set")
+	}
+
 	if node.ReturnType.Value() == ast.DataTypeSymbol {
 		msg := "returning complex types (structs and arrays) from functions is currently not supported"
 
