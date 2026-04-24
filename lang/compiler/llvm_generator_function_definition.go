@@ -57,11 +57,11 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 	g.currentFuncReturnType = node.ReturnType
 
 	if len(node.Body.Body) > 0 {
-		// Create entry block
 		entryBlock := g.Ctx.Context.AddBasicBlock(newFunc, "entry")
 		g.Ctx.Builder.SetInsertPointAtEnd(entryBlock)
 
 		for i, p := range newFunc.Params() {
+			g.Debugf("Processing param %+v", p)
 			argType := node.Args[i].ArgType
 			name := node.Args[i].Name
 			p.SetName(name)
@@ -70,12 +70,15 @@ func (g *LLVMGenerator) VisitFunctionDefinition(node *ast.FuncDeclStatement) err
 
 			switch argType.(type) {
 			case ast.SymbolType, ast.PointerType, ast.ArrayType:
+				g.Debugf("Passing parameter as reference %s", p)
+
 				entry = SymbolTableEntry{
 					Value:        p,
 					DeclaredType: argType,
 					Address:      &p,
 				}
 			default:
+				g.Debugf("Passing parameter as value %s", p)
 				// ast.FloatType, ast.NumberType, ast.Number64Type
 				// Need to alloc and store the passed value so
 				// that assignmnt to it will work.
@@ -152,7 +155,7 @@ func (g *LLVMGenerator) extractType(ctx *CompilerCtx, t ast.Type) (error, extrac
 		}
 
 		etyp := extractedType{
-			// TODO: need to dinstinguish between passing a struct as value and as a pointer
+			// FIXME : need to dinstinguish between passing a struct as value and as a pointer
 			typ:    llvm.PointerType(compiledType.Type, 0),
 			sEntry: entry,
 		}

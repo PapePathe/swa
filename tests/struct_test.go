@@ -53,6 +53,45 @@ func TestStructZeroValues(t *testing.T) {
 	})
 }
 
+func TestStructFunctions(t *testing.T) {
+	t.Run("1", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./structs/functions/1.swa",
+			"Longueur: 15\nLargeur: 10\nperimetre: 50\nsurface: 150\nComparison -------------------------------\nEquality of (r0,r1): 1\nEquality of (r0,r2): 0\nScaling -------------------------------\nLongueur: 150\nLargeur: 100\nperimetre: 500\nsurface: 15000\n")
+	})
+	t.Run("2", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./structs/functions/2.swa",
+			"2\\3\n3\\4\nReduction au meme denominateur \n8\\12\n9\\12\nAddition \n17\\12\n")
+	})
+	t.Run("3", func(t *testing.T) {
+		NewFailedCompileRequest(t,
+			"./structs/functions/3.swa",
+			"struct doest not provide an implementation of method `NotFound`\n")
+	})
+	t.Run("4", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./structs/functions/4.swa",
+			"Bills\nMontant = 100000\n\nFood\nMontant = 100000\n\nHousing\nMontant = 200000\n\nSavings\nMontant = 300000\n")
+	})
+	t.Run("4", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./structs/functions/5.swa",
+			"")
+	})
+	t.Run("5", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./structs/functions/5.swa",
+			"")
+	})
+	// FIXME finish this
+	t.Run("sqlite", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./structs/functions/sqlite.swa",
+			"")
+	})
+}
+
 func TestStructWithUnknownType(t *testing.T) {
 	t.Run("French", func(t *testing.T) {
 		NewFailedCompileRequest(t,

@@ -210,7 +210,7 @@ func TestDeepseekE3b26f(t *testing.T) {
 	t.Run("Prog 6: Orbital mechanics (single-line if not supported)", func(t *testing.T) {
 		NewSuccessfulCompileRequest(t,
 			"./functions/e3b26f_prog6_orbital_mechanics_verlet.french.swa",
-			"Position de la Terre après 365 jours : (1.50e+11, 0.00e+00) mDistance au Soleil : 1.50e+11 m",
+			"Position de la Terre après 365 jours : (1.50e+11, 2.16e+08) mDistance au Soleil : 1.50e+11 m",
 		)
 	})
 
@@ -218,7 +218,7 @@ func TestDeepseekE3b26f(t *testing.T) {
 	t.Run("Prog 7: Carnot cycle", func(t *testing.T) {
 		NewSuccessfulCompileRequest(t,
 			"./functions/e3b26f_prog7_carnot_cycle.french.swa",
-			"Chaleur reçue : 0.00 JChaleur rejetée : 0.00 JTravail produit : 0.00 JRendement théorique : 0.40",
+			"Chaleur reçue : 1000.00 JChaleur rejetée : 600.00 JTravail produit : 400.00 JRendement théorique : 0.40",
 		)
 	})
 

@@ -1,0 +1,81 @@
+dialect:english;
+
+struct Fraction {
+   Numerateur: int,
+   Denominateur: int,
+
+  func Montant(m: int) { 
+    let amount: int = (m * self.Numerateur) / self.Denominateur;
+
+    print("Montant = ", amount, "\n");
+
+    return;
+  }
+}
+
+struct Expense {
+ Bills:   Fraction,
+ Food:    Fraction,
+ Housing: Fraction,
+ Savings: Fraction,
+}
+
+struct Person {
+  Salary: int,
+  Expenses: Expense,
+
+  func Bills() {
+    self.Expenses.Bills.Montant(self.Salary);
+
+    return;
+  }
+
+  func Food() {
+    self.Expenses.Food.Montant(self.Salary);
+
+    return;
+  }
+
+  func Savings() {
+    self.Expenses.Savings.Montant(self.Salary);
+
+    return;
+  }
+
+  func Housing() {
+    self.Expenses.Housing.Montant(self.Salary);
+
+    return;
+  }
+}
+
+start() int{
+  let e1 : Expense = Expense{
+    Bills:   Fraction{Numerateur: 1, Denominateur: 7},
+    Food:    Fraction{Numerateur: 1, Denominateur: 7},
+    Housing: Fraction{Numerateur: 2, Denominateur: 7},
+    Savings: Fraction{Numerateur: 3, Denominateur: 7},
+  };
+
+  let p : Person = Person{ 
+    Salary: 700000, 
+    Expenses: e1,
+  };
+
+  print("Bills\n");
+  p.Bills();
+  print("\n");
+
+  print("Food\n");
+  p.Food();
+  print("\n");
+
+  print("Housing\n");
+  p.Housing();
+  print("\n");
+
+  print("Savings\n");
+  p.Savings();
+
+  return 0;
+}

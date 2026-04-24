@@ -8,35 +8,80 @@ import (
 )
 
 func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) error {
-	old := g.logger.Step("FunCallExpr")
+	old := g.logger.Step(fmt.Sprintf("FunCallExpr %s", node.Name))
 
 	defer g.logger.Restore(old)
 
-	g.Debugf("%s", node.Name)
+	var name string
 
-	name, ok := node.Name.(*ast.SymbolExpression)
-	if !ok {
-		key := "LLVMGenerator.VisitFunctionCall.NameIsNotASymbol"
+	switch typednode := node.Name.(type) {
+	case *ast.SymbolExpression:
+		name = typednode.Value
+	case *ast.MemberExpression:
+		switch expr := typednode.Object.(type) {
+		case *ast.MemberExpression:
+			err := expr.Accept(g)
+			if err != nil {
+				return err
+			}
 
-		return g.Ctx.Dialect.Error(key)
+			res := g.getLastResult()
+			prop, _ := typednode.Property.(*ast.SymbolExpression)
+			name = fmt.Sprintf("Impl.%s.%s", res.SymbolTableEntry.Ref.Metadata.Name, prop.Value)
+
+			oldArgs := node.Args
+			node.Args = []ast.Expression{expr}
+			node.Args = append(node.Args, oldArgs...)
+
+			//			return fmt.Errorf("Function call not supported in nested member expressions")
+		case *ast.SymbolExpression:
+			err, sym := g.Ctx.FindSymbol(expr.Value)
+			if err != nil {
+				return err
+			}
+
+			if sym.Ref == nil {
+				return fmt.Errorf("Variable %s is not a struct", sym.Value)
+			}
+
+			oldArgs := node.Args
+			node.Args = []ast.Expression{
+				&ast.SymbolExpression{Value: expr.Value},
+			}
+			node.Args = append(node.Args, oldArgs...)
+
+			g.Debugf("Args %+v", node.Args)
+
+			prop, _ := typednode.Property.(*ast.SymbolExpression)
+			name = fmt.Sprintf("Impl.%s.%s", sym.Ref.Metadata.Name, prop.Value)
+
+			if !sym.Ref.Metadata.Impl(name) {
+				return fmt.Errorf("struct doest not provide an implementation of method `%s`", prop.Value)
+			}
+		default:
+			return fmt.Errorf("UnsupportedType %T", typednode.Object)
+		}
+
+	default:
+		return fmt.Errorf("DEVELOPER ERROR node %T not supported in function call", node.Name)
 	}
 
-	err, funcType := g.Ctx.FindFuncSymbol(name.Value)
+	err, funcType := g.Ctx.FindFuncSymbol(name)
 	if err != nil {
 		return err
 	}
 
-	funcVal := g.Ctx.Module.NamedFunction(name.Value)
+	funcVal := g.Ctx.Module.NamedFunction(name)
 	if funcVal.IsNil() {
 		key := "LLVMGenerator.VisitFunctionCall.DoesNotExist"
 
-		return g.Ctx.Dialect.Error(key, name.Value)
+		return g.Ctx.Dialect.Error(key, name)
 	}
 
 	if funcVal.ParamsCount() != len(node.Args) {
 		key := "LLVMGenerator.VisitFunctionCall.ArgsAndParamsCountAreDifferent"
 
-		return g.Ctx.Dialect.Error(key, name.Value, funcVal.ParamsCount(), len(node.Args))
+		return g.Ctx.Dialect.Error(key, name, funcVal.ParamsCount(), len(node.Args))
 	}
 
 	node.SwaType = funcType.meta.ReturnType
@@ -106,10 +151,31 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 		switch arg.(type) {
 		case *ast.MemberExpression, *ast.ArrayAccessExpression,
 			*ast.ArrayOfStructsAccessExpression:
+			if funcType.meta.Args[i].ArgType.Value() == ast.DataTypePointer {
+				args = append(args, *val.Value)
+
+				break
+			}
+
 			load := g.Ctx.Builder.CreateLoad(argType, *val.Value, "")
 			args = append(args, load)
 
 		case *ast.SymbolExpression:
+			if funcType.meta.Args[i].ArgType.Value() == ast.DataTypePointer {
+				// If the variable's own declared type is already a pointer,
+				// pass its loaded value (the pointer it holds).
+				// If the variable is a non-pointer being passed as a pointer param,
+				// pass the alloca address (takes the address of the variable).
+				if val.SymbolTableEntry.DeclaredType != nil &&
+					val.SymbolTableEntry.DeclaredType.Value() == ast.DataTypePointer {
+					args = append(args, *val.Value)
+				} else {
+					args = append(args, *val.SymbolTableEntry.Address)
+				}
+
+				break
+			}
+
 			if val.SymbolTableEntry.Ref != nil {
 				alloca := g.Ctx.Builder.CreateAlloca(val.SymbolTableEntry.Ref.LLVMType, "")
 				g.Ctx.Builder.CreateStore(*val.Value, alloca)
@@ -124,6 +190,11 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 				break
 			}
 
+			args = append(args, *val.Value)
+
+		case *ast.SymbolValueExpression, *ast.SymbolAdressExpression:
+			// Dereferenced (*ptr) or address-of (&var) — the value has already
+			// been fully resolved by VisitSymbolValueExpression / VisitSymbolAdressExpression.
 			args = append(args, *val.Value)
 
 		case *ast.FloatExpression, *ast.NumberExpression,

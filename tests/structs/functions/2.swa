@@ -1,0 +1,59 @@
+dialect:english;
+
+struct Fraction {
+   Numerateur: int,
+   Denominateur: int,
+
+  func Reduire(other: *Fraction) { 
+    if(self.Denominateur == other.Denominateur) {
+      return;
+    } 
+
+    self.Numerateur = self.Numerateur * other.Denominateur;
+    other.Numerateur = other.Numerateur * self.Denominateur;
+
+    let den : int = self.Denominateur * other.Denominateur;
+    self.Denominateur = den;
+    other.Denominateur = den;
+
+    return;
+  }
+
+  func Ajouter(other: *Fraction) { 
+    self.Reduire(other);
+
+    self.Numerateur = self.Numerateur + other.Numerateur;
+
+    return;
+  }
+
+  func NotFound()bool { return false; }
+
+  func afficher(){ 
+    print("%d\\%d\n", self.Numerateur, self.Denominateur); 
+
+    return;
+  }
+}
+
+start() int{
+  let f1 : Fraction = Fraction{Numerateur: 2, Denominateur: 3};
+  let f2 : Fraction = Fraction{Numerateur: 3, Denominateur: 4};
+
+  f1.afficher();
+  f2.afficher();
+
+  print("Reduction au meme denominateur \n");
+
+  f1.Reduire(f2);
+
+  f1.afficher();
+  f2.afficher();
+
+  print("Addition \n");
+
+  f1.Ajouter(f2);
+  f1.afficher();
+
+  return 0;
+}

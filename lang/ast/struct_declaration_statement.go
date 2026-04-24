@@ -6,11 +6,12 @@ import (
 )
 
 type StructDeclarationStatement struct {
-	Name       string
-	Properties []string
-	Types      []Type
-	Tokens     []lexer.Token
-	SwaType    Type
+	Name            string
+	Properties      []string
+	Types           []Type
+	Tokens          []lexer.Token
+	Implementations []*FuncDeclStatement
+	SwaType         Type
 }
 
 var _ Statement = (*StructDeclarationStatement)(nil)
@@ -23,6 +24,16 @@ func (stmt StructDeclarationStatement) PropertyIndex(name string) (error, int) {
 	}
 
 	return fmt.Errorf("Property with name (%s) does not exist on struct %s", name, stmt.Name), 0
+}
+
+func (stmt *StructDeclarationStatement) Impl(name string) bool {
+	for _, v := range stmt.Implementations {
+		if v.Name == name {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (stmt *StructDeclarationStatement) Accept(g CodeGenerator) error {
