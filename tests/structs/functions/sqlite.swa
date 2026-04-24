@@ -1,0 +1,218 @@
+dialect:english;
+
+// TODO 
+//
+// add a directive to 
+// include linux header files
+// that are needed at linker stage.
+//
+// header sqlite;
+//
+
+func sqlite3_prepare_v2         (db: *byte, sql: string, n: int, stmt: *byte, tail: *byte)   int;
+func sqlite3_bind_text          (stmt: *byte, idx: int, value: string, n: int, destr: *byte) int;
+func sqlite3_bind_blob          (stmt: *byte, idx: int, value: *byte, n: int, destr: *byte)  int;
+func sqlite3_bind_int64         (stmt: *byte, idx: int, value: int64) int;
+func sqlite3_bind_double        (stmt: *byte, idx: int, value: float) int;
+func sqlite3_bind_int           (stmt: *byte, idx: int, value: int)   int;
+func sqlite3_open               (filename: string, ppDb: *byte)       int;
+func sqlite3_column_int64       (stmt: *byte, col: int) int64;
+func sqlite3_column_text        (stmt: *byte, col: int) string;
+func sqlite3_column_name        (stmt: *byte, col: int) string;
+func sqlite3_column_double      (stmt: *byte, col: int) float;
+func sqlite3_column_blob        (stmt: *byte, col: int) *byte;
+func sqlite3_bind_null          (stmt: *byte, idx: int) int;
+func sqlite3_column_int         (stmt: *byte, col: int) int;
+func sqlite3_column_bytes       (stmt: *byte, col: int) int;
+func sqlite3_column_type        (stmt: *byte, col: int) int;
+func sqlite3_errmsg             (db: *byte)   string;
+func sqlite3_last_insert_rowid  (db: *byte)   int64;
+func sqlite3_reset              (stmt: *byte) int;
+func sqlite3_step               (stmt: *byte) int;
+func sqlite3_column_count       (stmt: *byte) int;
+func sqlite3_clear_bindings     (stmt: *byte) int;
+func sqlite3_finalize           (stmt: *byte) int;
+func sqlite3_changes            (db: *byte)   int;
+func sqlite3_close              (db: *byte)   int;
+func sqlite3_close_v2           (db: *byte)   int;
+func sqlite3_errcode            (db: *byte)   int;
+func sqlite3_total_changes      (db: *byte)   int;
+
+
+struct SqliteResult{
+  stmt: *byte,
+
+  func get_int(position: int) int {
+    let stmt: *byte = self.stmt;
+    return sqlite3_column_int(stmt, position);
+  }
+
+  func get_text(position: int) string {
+    let stmt: *byte = self.stmt;
+    return sqlite3_column_text(stmt, position);
+  }
+
+ // func get_int64(position: int) int64 {
+ //   let stmt: *byte = self.stmt;
+ //   return sqlite3_column_int64(stmt, position);
+ // }
+
+  func get_double(position: int) float {
+    let stmt: *byte = self.stmt;
+    return sqlite3_column_double(stmt, position);
+  }
+
+ // func get_blob_pointer(position: int) int {
+ //   let stmt: *byte = self.stmt;
+ //   let blobPtr  : *byte = sqlite3_column_blob(stmt, 4);
+ // }
+
+  func get_blob_size_bytes(position: int) int {
+    let stmt: *byte = self.stmt;
+    return sqlite3_column_bytes(stmt, position);
+  }
+}
+
+struct Sqlite {
+  db: *byte,
+
+  func Open(name: string) error { 
+    let db: *byte;
+    let status :int = sqlite3_open(name, &db);
+
+    return error("cannot open database\n") if (status != 0);
+
+    self.db = db;
+
+    return zero(error);
+  }
+
+  func Close() error { 
+    return zero(error);
+  }
+
+//SQLITE_API int sqlite3_exec(
+//  sqlite3*,                                  /* An open database */
+//  const char *sql,                           /* SQL to be evaluated */
+//  int (*callback)(void*,int,char**,char**),  /* Callback function */
+//  void *,                                    /* 1st argument to callback */
+//  char **errmsg                              /* Error msg written here */
+//);
+//  #define SQLITE_ROW         100  /* sqlite3_step() has another row ready */
+//  #define SQLITE_DONE        101  /* sqlite3_step() has finished executing */
+
+  func Exec(sql: string) (*SqliteResult, error) { 
+    let stmt: *byte;
+    let tail: *byte;
+    let db : *byte = self.db;
+    let rc : int = sqlite3_prepare_v2(db, sql, -1, &stmt, &tail);
+
+    if (rc != 0) { 
+      print("SQLITE ERROR : ", sqlite3_errmsg(db), "\n");
+
+      return zero(SqliteResult), error("SQLITE ERROR (): ");
+    } 
+
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+
+    return SqliteResult{stmt: stmt},error("SQLITE ERROR (): ");
+  }
+
+  func Query(sql: string) error { 
+    let stmt: *byte;
+    let tail: *byte;
+    let db : *byte = self.db;
+    let rc : int = sqlite3_prepare_v2(db, sql, -1, &stmt, &tail);
+
+    if (rc != 0) { 
+      print("SQLITE ERROR : ", sqlite3_errmsg(db), "\n");
+
+      return error("SQLITE ERROR (): ");
+    } 
+
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+
+    return zero(error);
+  }
+}
+
+
+start() int{
+  let sqldb : Sqlite;
+  let db : *byte;
+  let stmt: *byte;
+  let tail: *byte;
+  let sql : string = "CREATE TABLE IF NOT EXISTS all_types (id INTEGER PRIMARY KEY, name TEXT, age INTEGER, weight REAL, data BLOB);";
+
+  let err : error = sqldb.Open("swa.sqlite");
+  if (err != zero(error)) {
+    print(err);
+    return 1;
+  }
+
+  err = sqldb.Query("CREATE TABLE IF NOT EXISTS all_types (id INTEGER PRIMARY KEY, name TEXT, age INTEGER, weight REAL, data BLOB);");
+  if (err != zero(error)) {
+    print(err);
+    return 1;
+  }
+
+
+  err = sqldb.Query("INSERT INTO all_types (name, age, weight, data) VALUES(\"BlobObject\", 123, 1.23, X'48454c4c4f');");
+  if (err != zero(error)) {
+    print(err);
+    return 1;
+  }
+
+  err = sqldb.Query("SELECT id, name, age, weight, data FROM all_types ORDER BY id DESC LIMIT 1;");
+  if (err != zero(error)) {
+    print(err);
+    return 1;
+  }
+
+  let status :int = sqlite3_open("swa.sqlite", &db);
+  if (status != 0) {
+    print("cannot open database\n");
+    return 1;
+  } 
+
+  // --- SELECT and read all types ---
+  let sql3 : string = "SELECT id, name, age, weight, data FROM all_types ORDER BY id DESC LIMIT 1;";
+  let rc3 : int = sqlite3_prepare_v2(db, sql3, -1, &stmt, &tail);
+  if (rc3 != 0) {
+    print("SQLITE ERROR (SELECT): ", sqlite3_errmsg(db), "\n");
+    return 1;
+  }
+
+  // SQLITE_ROW == 100
+  let row : int = sqlite3_step(stmt);
+  if (row == 100) {
+    let id     : int    = sqlite3_column_int(stmt, 0);
+    let name   : string = sqlite3_column_text(stmt, 1);
+    let age    : int64  = sqlite3_column_int64(stmt, 2);
+    let weight : float  = sqlite3_column_double(stmt, 3);
+    
+    // Read BLOB
+    let blobPtr  : *byte = sqlite3_column_blob(stmt, 4);
+    let blobSize : int   = sqlite3_column_bytes(stmt, 4);
+
+    print("ID: ", id, "\n");
+    print("Name: ", name, "\n");
+    print("Age: ", age, "\n");
+    print("Weight: ", weight, "\n");
+    print("Blob Size: ", blobSize, "\n");
+    print("Blob Address: ", blobPtr, "\n");
+
+    // Printing blob content as characters if possible
+    if (blobSize > 0) {
+        print("Blob content: ", blobPtr, "\n"); // %p will print address, but if I want text I might need a hack
+    }
+  }
+  sqlite3_finalize(stmt);
+
+
+  sqlite3_close(db);
+
+  return 0;
+}
