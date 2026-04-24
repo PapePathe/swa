@@ -162,7 +162,16 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 
 		case *ast.SymbolExpression:
 			if funcType.meta.Args[i].ArgType.Value() == ast.DataTypePointer {
-				args = append(args, *val.SymbolTableEntry.Address)
+				// If the variable's own declared type is already a pointer,
+				// pass its loaded value (the pointer it holds).
+				// If the variable is a non-pointer being passed as a pointer param,
+				// pass the alloca address (takes the address of the variable).
+				if val.SymbolTableEntry.DeclaredType != nil &&
+					val.SymbolTableEntry.DeclaredType.Value() == ast.DataTypePointer {
+					args = append(args, *val.Value)
+				} else {
+					args = append(args, *val.SymbolTableEntry.Address)
+				}
 
 				break
 			}
@@ -181,6 +190,11 @@ func (g *LLVMGenerator) VisitFunctionCall(node *ast.FunctionCallExpression) erro
 				break
 			}
 
+			args = append(args, *val.Value)
+
+		case *ast.SymbolValueExpression, *ast.SymbolAdressExpression:
+			// Dereferenced (*ptr) or address-of (&var) — the value has already
+			// been fully resolved by VisitSymbolValueExpression / VisitSymbolAdressExpression.
 			args = append(args, *val.Value)
 
 		case *ast.FloatExpression, *ast.NumberExpression,

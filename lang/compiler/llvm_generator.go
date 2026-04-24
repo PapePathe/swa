@@ -61,11 +61,79 @@ func (g *LLVMGenerator) Debugf(format string, args ...any) {
 }
 
 func (g *LLVMGenerator) VisitSymbolAdressExpression(node *ast.SymbolAdressExpression) error {
-	return fmt.Errorf("TODO implement VisitSymbolAdressExpression")
+	old := g.logger.Step("SymbolAddrExpr")
+	defer g.logger.Restore(old)
+
+	// Visit the inner expression to get its symbol table entry.
+	err := node.Exp.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	res := g.getLastResult()
+
+	// The address of a variable is the alloca pointer itself.
+	var addr *llvm.Value
+	if res.SymbolTableEntry != nil && res.SymbolTableEntry.Address != nil {
+		addr = res.SymbolTableEntry.Address
+	} else {
+		addr = res.Value
+	}
+
+	node.SwaType = ast.PointerType{Underlying: res.SwaType}
+
+	g.setLastResult(&CompilerResult{
+		Value:            addr,
+		SymbolTableEntry: res.SymbolTableEntry,
+		SwaType:          node.SwaType,
+	})
+
+	return nil
 }
 
 func (g *LLVMGenerator) VisitSymbolValueExpression(node *ast.SymbolValueExpression) error {
-	return fmt.Errorf("TODO implement VisitSymbolValueExpression")
+	old := g.logger.Step("SymbolValExpr")
+	defer g.logger.Restore(old)
+
+	// Visit the inner expression; this should yield a pointer value.
+	err := node.Exp.Accept(g)
+	if err != nil {
+		return err
+	}
+
+	res := g.getLastResult()
+
+	// The loaded value from VisitSymbolExpression for a *T variable is
+	// already the pointer value (the loaded alloca). Use it as ptrVal.
+	ptrVal := *res.Value
+
+	// Resolve the pointee LLVM type and SwaType from the AST PointerType.
+	// We must NOT call ptrVal.Type().ElementType() because LLVM uses opaque
+	// pointers, which have no element type at the IR level.
+	var innerSwaType ast.Type
+	var pointedType llvm.Type
+
+	if pt, ok := res.SwaType.(ast.PointerType); ok {
+		innerSwaType = pt.Underlying
+		if err := pt.Underlying.Accept(g); err != nil {
+			return err
+		}
+		pointedType = g.getLastTypeVisitResult().Type
+	} else {
+		// Inner expr didn't expose a pointer SwaType; best-effort.
+		innerSwaType = res.SwaType
+		pointedType = ptrVal.Type()
+	}
+
+	loaded := g.Ctx.Builder.CreateLoad(pointedType, ptrVal, "deref.val")
+	node.SwaType = innerSwaType
+
+	g.setLastResult(&CompilerResult{
+		Value:   &loaded,
+		SwaType: innerSwaType,
+	})
+
+	return nil
 }
 
 func (g *LLVMGenerator) VisitFloatingBlockExpression(node *ast.FloatingBlockExpression) error {

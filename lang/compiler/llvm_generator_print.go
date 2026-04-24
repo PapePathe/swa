@@ -96,15 +96,18 @@ func (g *LLVMGenerator) getFormatSpecifier(res *CompilerResult) string {
 
 	if swaType != nil {
 		switch swaType.(type) {
-		case ast.NumberType, *ast.NumberType,
-			ast.Number64Type, *ast.Number64Type, *ast.BoolType:
+		case ast.NumberType, *ast.NumberType, *ast.BoolType:
 			return "%d"
+		case ast.Number64Type, *ast.Number64Type:
+			return "%lld"
 		case ast.FloatType, *ast.FloatType:
 			return "%f"
 		case ast.StringType, *ast.StringType:
 			return "%s"
 		case ast.ErrorType, *ast.ErrorType:
 			return "%s"
+		case ast.PointerType, *ast.PointerType:
+			return "%p"
 		}
 	}
 
@@ -117,7 +120,7 @@ func (g *LLVMGenerator) getFormatSpecifier(res *CompilerResult) string {
 		case llvm.DoubleTypeKind, llvm.FloatTypeKind:
 			return "%f"
 		case llvm.PointerTypeKind:
-			return "%s" // Best guess for pointers in print is string
+			return "%p" // Changed to %p for pointers
 		}
 	}
 
@@ -157,6 +160,8 @@ var printableValueExtractors = map[reflect.Type]PrintableValueExtractor{
 	reflect.TypeFor[*ast.ZeroExpression]():         extractDirect,
 	reflect.TypeFor[*ast.ErrorExpression]():        extractDirect,
 	reflect.TypeFor[*ast.BooleanExpression]():      extractDirect,
+	reflect.TypeFor[*ast.SymbolAdressExpression](): extractDirect,
+	reflect.TypeFor[*ast.SymbolValueExpression]():  extractDirect,
 }
 
 func extractSymbol(g *LLVMGenerator, res *CompilerResult) llvm.Value {
