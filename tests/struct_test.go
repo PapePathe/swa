@@ -74,7 +74,22 @@ func TestStructFunctions(t *testing.T) {
 			"./structs/functions/4.swa",
 			"Bills\nMontant = 100000\n\nFood\nMontant = 100000\n\nHousing\nMontant = 200000\n\nSavings\nMontant = 300000\n")
 	})
-
+	t.Run("4", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./structs/functions/5.swa",
+			"")
+	})
+	t.Run("5", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./structs/functions/5.swa",
+			"")
+	})
+	// FIXME finish this
+	t.Run("sqlite", func(t *testing.T) {
+		NewSuccessfulCompileRequest(t,
+			"./structs/functions/sqlite.swa",
+			"")
+	})
 }
 
 func TestStructWithUnknownType(t *testing.T) {
